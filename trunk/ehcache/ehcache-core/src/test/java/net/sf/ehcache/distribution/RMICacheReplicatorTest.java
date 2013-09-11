@@ -19,33 +19,24 @@ package net.sf.ehcache.distribution;
 import static net.sf.ehcache.util.RetryAssert.assertBy;
 import static net.sf.ehcache.util.RetryAssert.elementAt;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -53,7 +44,9 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.ThreadKiller;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CacheConfiguration.CacheEventListenerFactoryConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.FactoryConfiguration;
 import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListener.CacheEvent;
 import net.sf.ehcache.util.RetryAssert;
@@ -109,8 +102,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
 
     private static final Logger LOG = LoggerFactory.getLogger(RMICacheReplicatorTest.class.getName());
 
-    private static final String DEFAULT_TEST_CACHE = "sampleCache1";
-
     /**
      * {@inheritDoc}
      * Sets up two caches: cache1 is local. cache2 is to be receive updates
@@ -137,18 +128,84 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         }, IsEmptyCollection.<Thread>empty());
     }
 
-    private static List<CacheManager> createCluster(int size, String ... caches){
+    private static Configuration createRMICacheManagerConfiguration() {
+      Configuration config = new Configuration();
+      config.addCacheManagerPeerProviderFactory(new FactoryConfiguration()
+              .className("net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory")
+              .properties("peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, timeToLive=0"));
+      config.addCacheManagerPeerListenerFactory(new FactoryConfiguration()
+              .className("net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory")
+              .properties("hostName=localhost"));
+      return config;
+    }
+    
+    private static CacheConfiguration createAsynchronousCache() {
+      CacheConfiguration cacheConfig = new CacheConfiguration();
+      cacheConfig.maxEntriesLocalHeap(0).eternal(true);
+      cacheConfig.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration()
+              .className("net.sf.ehcache.distribution.RMICacheReplicatorFactory")
+              .properties("replicateAsynchronously=true,"
+              + "replicatePuts=true,"
+              + "replicateUpdates=true,"
+              + "replicateUpdatesViaCopy=true,"
+              + "replicateRemovals=true"));
+      return cacheConfig;
+    }
+    
+    private static CacheConfiguration createAsynchronousCacheViaInvalidate() {
+      CacheConfiguration cacheConfig = new CacheConfiguration();
+      cacheConfig.maxEntriesLocalHeap(0).eternal(true);
+      cacheConfig.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration()
+              .className("net.sf.ehcache.distribution.RMICacheReplicatorFactory")
+              .properties("replicateAsynchronously=true,"
+              + "replicatePuts=true,"
+              + "replicatePutsViaCopy=false,"
+              + "replicateUpdates=true,"
+              + "replicateUpdatesViaCopy=false,"
+              + "replicateRemovals=true"));
+      return cacheConfig;
+    }
+    
+    private static CacheConfiguration createSynchronousCache() {
+      CacheConfiguration cacheConfig = new CacheConfiguration();
+      cacheConfig.maxEntriesLocalHeap(0).eternal(true);
+      cacheConfig.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration()
+              .className("net.sf.ehcache.distribution.RMICacheReplicatorFactory")
+              .properties("replicateAsynchronously=false,"
+              + "replicatePuts=true,"
+              + "replicateUpdates=true,"
+              + "replicateUpdatesViaCopy=true,"
+              + "replicateRemovals=true"));
+      return cacheConfig;
+    }
+    
+    private static CacheConfiguration createDefaultRMICache() {
+      CacheConfiguration cacheConfig = new CacheConfiguration();
+      cacheConfig.maxEntriesLocalHeap(0).eternal(true);
+      cacheConfig.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration()
+              .className("net.sf.ehcache.distribution.RMICacheReplicatorFactory"));
+      return cacheConfig;
+    }
+
+    private static CacheConfiguration createNoPutSettingRMICache() {
+      CacheConfiguration cacheConfig = new CacheConfiguration();
+      cacheConfig.maxEntriesLocalHeap(0).eternal(true);
+      cacheConfig.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration()
+              .className("net.sf.ehcache.distribution.RMICacheReplicatorFactory")
+              .properties("replicateAsynchronously=true,"
+              + "replicateUpdates=true,"
+              + "replicateUpdatesViaCopy=true,"
+              + "replicateRemovals=true"));
+      return cacheConfig;
+    }
+
+    private static List<CacheManager> createCluster(int size, CacheConfiguration ... caches){
         LOG.info("Creating Cluster");
-        Collection<String> required = Arrays.asList(caches);
         List<Configuration> configurations = new ArrayList<Configuration>(size);
-        for (int i = 1; i <= size; i++) {
-            Configuration config = getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed" + i + ".xml").name("cm" + i);
-            if (!required.isEmpty()) {
-                for (Iterator<Entry<String, CacheConfiguration>> it = config.getCacheConfigurations().entrySet().iterator(); it.hasNext(); ) {
-                    if (!required.contains(it.next().getKey())) {
-                        it.remove();
-                    }
-                }
+        for (int i = 0; i < size; i++) {
+            Configuration config = createRMICacheManagerConfiguration().name("RMI-Cache-Manager-" + i);
+            for (CacheConfiguration cache : caches) {
+              config.addCache(cache);
             }
             configurations.add(config);
         }
@@ -157,17 +214,10 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         List<CacheManager> members = startupManagers(configurations);
         try {
           LOG.info("Created Managers");
-          if (required.isEmpty()) {
-              waitForClusterMembership(120, TimeUnit.SECONDS, members);
-              LOG.info("Cluster Membership Complete");
-              emptyCaches(120, TimeUnit.SECONDS, members);
-              LOG.info("Caches Emptied");
-          } else {
-              waitForClusterMembership(120, TimeUnit.SECONDS, required, members);
-              LOG.info("Cluster Membership Complete");
-              emptyCaches(120, TimeUnit.SECONDS, required, members);
-              LOG.info("Caches Emptied");
-          }
+          waitForClusterMembership(120, TimeUnit.SECONDS, members);
+          LOG.info("Cluster Membership Complete");
+          emptyCaches(120, TimeUnit.SECONDS, members);
+          LOG.info("Caches Emptied");
           return members;
         } catch (RuntimeException e) {
           destroyCluster(members);
@@ -188,12 +238,12 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
 
     @Test
     public void testCASOperationsNotSupported() throws Exception {
-        List<CacheManager> cluster = createCluster(4, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(4, createAsynchronousCache().name("testCASOperationsNotSupported"));
         try {
-            final Ehcache cache1 = cluster.get(0).getEhcache(DEFAULT_TEST_CACHE);
-            final Ehcache cache2 = cluster.get(1).getEhcache(DEFAULT_TEST_CACHE);
-            final Ehcache cache3 = cluster.get(2).getEhcache(DEFAULT_TEST_CACHE);
-            final Ehcache cache4 = cluster.get(3).getEhcache(DEFAULT_TEST_CACHE);
+            final Ehcache cache1 = cluster.get(0).getEhcache("testCASOperationsNotSupported");
+            final Ehcache cache2 = cluster.get(1).getEhcache("testCASOperationsNotSupported");
+            final Ehcache cache3 = cluster.get(2).getEhcache("testCASOperationsNotSupported");
+            final Ehcache cache4 = cluster.get(3).getEhcache("testCASOperationsNotSupported");
 
             try {
                 cache1.putIfAbsent(new Element("foo", "poo"));
@@ -239,13 +289,13 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsNewCacheManager() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(5, createAsynchronousCache().name("testRemoteCachePeersDetectsNewCacheManager"));
         try {
             //Add new CacheManager to cluster
-            cluster.add(new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml"));
+            cluster.add(new CacheManager(createRMICacheManagerConfiguration().name("cm-6").cache(createAsynchronousCache().name("testRemoteCachePeersDetectsNewCacheManager"))));
 
             //Allow detection to occur
-            waitForClusterMembership(10020, TimeUnit.MILLISECONDS, Collections.singleton(DEFAULT_TEST_CACHE), cluster);
+            waitForClusterMembership(10020, TimeUnit.MILLISECONDS, Collections.singleton("testRemoteCachePeersDetectsNewCacheManager"), cluster);
         } finally {
             destroyCluster(cluster);
         }
@@ -256,7 +306,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManager() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(5, createAsynchronousCache().name("testRemoteCachePeersDetectsDownCacheManager"));
         try {
             MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
             //Drop a CacheManager from the cluster
@@ -264,7 +314,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
             assertThat(cluster, hasSize(4));
 
             //Allow change detection to occur. Heartbeat 1 second and is not stale until 5000
-            waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton(DEFAULT_TEST_CACHE), cluster);
+            waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("testRemoteCachePeersDetectsDownCacheManager"), cluster);
         } finally {
             destroyCluster(cluster);
         }
@@ -275,14 +325,11 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoteCachePeersDetectsDownCacheManagerSlow() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(5, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(5, createAsynchronousCache().name("testRemoteCachePeersDetectsDownCacheManagerSlow"));
         try {
             CacheManager manager = cluster.get(0);
-            Cache cache = manager.getCache(DEFAULT_TEST_CACHE);
             CacheManagerPeerProvider provider = manager.getCacheManagerPeerProvider("RMI");
-            assertThat((List<?>) provider.listRemoteCachePeers(cache), hasSize(4));
-
-            Thread.sleep(2000);
+            Cache cache = manager.getCache("testRemoteCachePeersDetectsDownCacheManagerSlow");
 
             //Drop a CacheManager from the cluster
             cluster.remove(4).shutdown();
@@ -295,118 +342,14 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     }
 
     /**
-     * Tests put and remove initiated from cache1 in a cluster
-     * <p/>
-     * This test goes into an infinite loop if the chain of notifications is not somehow broken.
-     */
-    @Test
-    public void testPutPropagatesFromAndToEveryCacheManagerAndCache() throws CacheException, InterruptedException {
-        final List<CacheManager> cluster = createCluster(5);
-        try {
-            final CacheManager manager0 = cluster.get(0);
-            //Put
-            final String[] cacheNames = manager0.getCacheNames();
-            Arrays.sort(cacheNames);
-            for (int i = 0; i < cacheNames.length; i++) {
-                String name = cacheNames[i];
-                manager0.getCache(name).put(new Element(Integer.toString(i), Integer.valueOf(i)));
-                //Add some non serializable elements that should not get propagated
-                manager0.getCache(name).put(new Element("nonSerializable" + i, new Object()));
-            }
-
-            assertBy(10, TimeUnit.SECONDS, new Callable<Boolean>() {
-
-                public Boolean call() throws Exception {
-                    for (int i = 0; i < cacheNames.length; i++) {
-                        String name = cacheNames[i];
-                        if (manager0.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(manager0.getCache(name)).isEmpty()) {
-                            continue;
-                        }
-                        if ("sampleCache2".equals(name)) {
-                            //sampleCache2 in manager0 replicates puts via invalidate, so the count will be 1 less
-                            for (CacheManager manager : cluster.subList(1, cluster.size())) {
-                                assertThat(manager.getCache(name).get(Integer.toString(i)), nullValue());
-                                assertThat(manager.getCache(name).get("nonSerializable" + i), nullValue());
-                            }
-                        } else {
-                            for (CacheManager manager : cluster.subList(1, cluster.size())) {
-                                assertThat("Cache : " + name, manager.getCache(name).get(Integer.toString(i)), notNullValue());
-                                assertThat(manager.getCache(name).get("nonSerializable" + i), nullValue());
-                            }
-                        }
-                    }
-                    return Boolean.TRUE;
-                }
-            }, is(Boolean.TRUE));
-        } finally {
-            destroyCluster(cluster);
-        }
-    }
-
-    /**
-     * Tests what happens when a CacheManager in the cluster comes and goes. In ehcache-1.2.4 this would cause the new RMI CachePeers in the CacheManager to
-     * be permanently corrupt.
-     */
-    @Test
-    public void testPutPropagatesFromAndToEveryCacheManagerAndCacheDirty() throws CacheException, InterruptedException {
-        final List<CacheManager> cluster = createCluster(5);
-        try {
-            MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
-            cluster.remove(2).shutdown();
-            waitForClusterMembership(10, TimeUnit.SECONDS, cluster);
-
-            cluster.add(2, new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml"));
-            waitForClusterMembership(10, TimeUnit.SECONDS, cluster);
-
-            //Put
-            final CacheManager manager = cluster.get(0);
-            final String[] cacheNames = manager.getCacheNames();
-            Arrays.sort(cacheNames);
-            for (int i = 0; i < cacheNames.length; i++) {
-                String name = cacheNames[i];
-                manager.getCache(name).put(new Element(Integer.toString(i), Integer.valueOf(i)));
-                //Add some non serializable elements that should not get propagated
-                manager.getCache(name).put(new Element("nonSerializable" + i, new Object()));
-            }
-
-            assertBy(10, TimeUnit.SECONDS, new Callable<Boolean>() {
-
-                public Boolean call() throws Exception {
-                    for (int i = 0; i < cacheNames.length; i++) {
-                        String name = cacheNames[i];
-                        if (manager.getCacheManagerPeerProvider("RMI").listRemoteCachePeers(manager.getCache(name)).isEmpty()) {
-                            continue;
-                        }
-                        if ("sampleCache2".equals(name)) {
-                            //sampleCache2 in manager1 replicates puts via invalidate, so the count will be 1 less
-                            for (CacheManager manager : cluster.subList(1, cluster.size())) {
-                                assertThat(manager.getCache(name).get(Integer.toString(i)), nullValue());
-                                assertThat(manager.getCache(name).get("nonSerializable" + i), nullValue());
-                            }
-                        } else {
-                            for (CacheManager manager : cluster.subList(1, cluster.size())) {
-                                assertThat("Cache : " + name, manager.getCache(name).get(Integer.toString(i)), notNullValue());
-                                assertThat(manager.getCache(name).get("nonSerializable" + i), nullValue());
-                            }
-                        }
-                    }
-                    return Boolean.TRUE;
-                }
-            }, is(Boolean.TRUE));
-        } finally {
-            destroyCluster(cluster);
-        }
-    }
-
-    /**
      * manager1 adds a replicating cache, then manager2 and so on. Then we remove one. Does everything work as expected?
      */
     @Test
     public void testPutWithNewCacheAddedProgressively() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2);
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCache().name("dummy"));
         try {
-            cluster.get(0).addCache("progressiveAddCache");
-            cluster.get(1).addCache("progressiveAddCache");
+            cluster.get(0).addCache(new Cache(createAsynchronousCache().name("progressiveAddCache")));
+            cluster.get(1).addCache(new Cache(createAsynchronousCache().name("progressiveAddCache")));
 
             //The cluster will not have formed yet, so it will fail
             try {
@@ -442,9 +385,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutWithExplicitReplicationConfig() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache1");
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCache().name("testPutWithExplicitReplicationConfig"));
         try {
-            putTest(cluster.get(0).getCache("sampleCache1"), cluster.get(1).getCache("sampleCache1"), ASYNCHRONOUS);
+            putTest(cluster.get(0).getCache("testPutWithExplicitReplicationConfig"), cluster.get(1).getCache("testPutWithExplicitReplicationConfig"), ASYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -457,9 +400,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutWithThreadKiller() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache1");
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCache().name("testPutWithThreadKiller"));
         try {
-            putTestWithThreadKiller(cluster.get(0).getCache("sampleCache1"), cluster.get(1).getCache("sampleCache1"), ASYNCHRONOUS);
+            putTestWithThreadKiller(cluster.get(0).getCache("testPutWithThreadKiller"), cluster.get(1).getCache("testPutWithThreadKiller"), ASYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -472,10 +415,11 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
 
     @Test
     public void testRemotelyReceivedPutNotifiesCountingListener() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache1");
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCache().name("testRemotelyReceivedPutNotifiesCountingListener")
+                .cacheEventListenerFactory(new CacheEventListenerFactoryConfiguration().className("net.sf.ehcache.event.CountingCacheEventListenerFactory")));
         try {
-            Cache cache0 = cluster.get(0).getCache("sampleCache1");
-            Cache cache1 = cluster.get(1).getCache("sampleCache1");
+            Cache cache0 = cluster.get(0).getCache("testRemotelyReceivedPutNotifiesCountingListener");
+            Cache cache1 = cluster.get(1).getCache("testRemotelyReceivedPutNotifiesCountingListener");
             CountingCacheEventListener.getCountingCacheEventListener(cache0).resetCounters();
             CountingCacheEventListener.getCountingCacheEventListener(cache1).resetCounters();
             putTest(cache0, cache1, ASYNCHRONOUS);
@@ -492,9 +436,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutWithExplicitReplicationSynchronousConfig() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache3");
+        List<CacheManager> cluster = createCluster(2, createSynchronousCache().name("testPutWithExplicitReplicationSynchronousConfig"));
         try {
-            putTest(cluster.get(0).getCache("sampleCache3"), cluster.get(1).getCache("sampleCache3"), SYNCHRONOUS);
+            putTest(cluster.get(0).getCache("testPutWithExplicitReplicationSynchronousConfig"), cluster.get(1).getCache("testPutWithExplicitReplicationSynchronousConfig"), SYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -507,9 +451,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutWithEmptyReplicationPropertiesConfig() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache4");
+        List<CacheManager> cluster = createCluster(2, createDefaultRMICache().name("testPutWithEmptyReplicationPropertiesConfig"));
         try {
-            putTest(cluster.get(0).getCache("sampleCache4"), cluster.get(1).getCache("sampleCache4"), ASYNCHRONOUS);
+            putTest(cluster.get(0).getCache("testPutWithEmptyReplicationPropertiesConfig"), cluster.get(1).getCache("testPutWithEmptyReplicationPropertiesConfig"), ASYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -522,9 +466,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutWithOneMissingReplicationPropertyConfig() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache5");
+        List<CacheManager> cluster = createCluster(2, createNoPutSettingRMICache().name("testPutWithOneMissingReplicationPropertyConfig"));
         try {
-            putTest(cluster.get(0).getCache("sampleCache5"), cluster.get(1).getCache("sampleCache5"), ASYNCHRONOUS);
+            putTest(cluster.get(0).getCache("testPutWithOneMissingReplicationPropertyConfig"), cluster.get(1).getCache("testPutWithOneMissingReplicationPropertyConfig"), ASYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -564,7 +508,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
 
         fromCache.put(new Element("thread killer", new ThreadKiller()));
         if (asynchronous) {
-            waitForPropagate();
+            Thread.sleep(1500);
         }
 
         Serializable key = new Date();
@@ -589,10 +533,11 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemotePutNotificationGetsToOtherListeners() throws CacheException, InterruptedException {
-        List<CacheManager> cluster = createCluster(2, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCache().name("testRemotePutNotificationGetsToOtherListeners")
+                .cacheEventListenerFactory(new CacheEventListenerFactoryConfiguration().className("net.sf.ehcache.event.CountingCacheEventListenerFactory")));
         try {
-            Cache cache0 = cluster.get(0).getCache(DEFAULT_TEST_CACHE);
-            Cache cache1 = cluster.get(1).getCache(DEFAULT_TEST_CACHE);
+            Cache cache0 = cluster.get(0).getCache("testRemotePutNotificationGetsToOtherListeners");
+            Cache cache1 = cluster.get(1).getCache("testRemotePutNotificationGetsToOtherListeners");
 
             final CountingCacheEventListener listener0 = CountingCacheEventListener.getCountingCacheEventListener(cache0);
             final CountingCacheEventListener listener1 = CountingCacheEventListener.getCountingCacheEventListener(cache1);
@@ -669,9 +614,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoveWithExplicitReplicationConfig() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache1");
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCache().name("testRemoveWithExplicitReplicationConfig"));
         try {
-            removeTest(cluster.get(0).getCache("sampleCache1"), cluster.get(1).getCache("sampleCache1"), ASYNCHRONOUS);
+            removeTest(cluster.get(0).getCache("testRemoveWithExplicitReplicationConfig"), cluster.get(1).getCache("testRemoveWithExplicitReplicationConfig"), ASYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -683,9 +628,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoveWithExplicitReplicationSynchronousConfig() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache3");
+        List<CacheManager> cluster = createCluster(2, createSynchronousCache().name("testRemoveWithExplicitReplicationSynchronousConfig"));
         try {
-            removeTest(cluster.get(0).getCache("sampleCache3"), cluster.get(1).getCache("sampleCache3"), SYNCHRONOUS);
+            removeTest(cluster.get(0).getCache("testRemoveWithExplicitReplicationSynchronousConfig"), cluster.get(1).getCache("testRemoveWithExplicitReplicationSynchronousConfig"), SYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -698,9 +643,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoveWithEmptyReplicationPropertiesConfig() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache4");
+        List<CacheManager> cluster = createCluster(2, createDefaultRMICache().name("testRemoveWithEmptyReplicationPropertiesConfig"));
         try {
-            removeTest(cluster.get(0).getCache("sampleCache4"), cluster.get(1).getCache("sampleCache4"), ASYNCHRONOUS);
+            removeTest(cluster.get(0).getCache("testRemoveWithEmptyReplicationPropertiesConfig"), cluster.get(1).getCache("testRemoveWithEmptyReplicationPropertiesConfig"), ASYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -741,9 +686,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoveAllAsynchronous() throws Exception {
-        List<CacheManager> cluster = createCluster(2, "sampleCache1");
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCache().name("testRemoveAllAsynchronous"));
         try {
-            removeAllTest(cluster.get(0).getCache("sampleCache1"), cluster.get(1).getCache("sampleCache1"), ASYNCHRONOUS);
+            removeAllTest(cluster.get(0).getCache("testRemoveAllAsynchronous"), cluster.get(1).getCache("testRemoveAllAsynchronous"), ASYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -754,9 +699,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testRemoveAllSynchronous() throws Exception {
-        List<CacheManager> cluster = createCluster(2, "sampleCache3");
+        List<CacheManager> cluster = createCluster(2, createSynchronousCache().name("testRemoveAllSynchronous"));
         try {
-            removeAllTest(cluster.get(0).getCache("sampleCache3"), cluster.get(1).getCache("sampleCache3"), SYNCHRONOUS);
+            removeAllTest(cluster.get(0).getCache("testRemoveAllSynchronous"), cluster.get(1).getCache("testRemoveAllSynchronous"), SYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -799,9 +744,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testUpdateWithExplicitReplicationConfig() throws Exception {
-        List<CacheManager> cluster = createCluster(2, "sampleCache1");
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCache().name("testUpdateWithExplicitReplicationConfig"));
         try {
-            updateViaCopyTest(cluster.get(0).getCache("sampleCache1"), cluster.get(1).getCache("sampleCache1"), ASYNCHRONOUS);
+            updateViaCopyTest(cluster.get(0).getCache("testUpdateWithExplicitReplicationConfig"), cluster.get(1).getCache("testUpdateWithExplicitReplicationConfig"), ASYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -813,9 +758,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testUpdateWithExplicitReplicationSynchronousConfig() throws Exception {
-        List<CacheManager> cluster = createCluster(2, "sampleCache3");
+        List<CacheManager> cluster = createCluster(2, createSynchronousCache().name("testUpdateWithExplicitReplicationSynchronousConfig"));
         try {
-            updateViaCopyTest(cluster.get(0).getCache("sampleCache3"), cluster.get(1).getCache("sampleCache3"), SYNCHRONOUS);
+            updateViaCopyTest(cluster.get(0).getCache("testUpdateWithExplicitReplicationSynchronousConfig"), cluster.get(1).getCache("testUpdateWithExplicitReplicationSynchronousConfig"), SYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -828,9 +773,9 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testUpdateWithEmptyReplicationPropertiesConfig() throws Exception {
-        List<CacheManager> cluster = createCluster(2, "sampleCache4");
+        List<CacheManager> cluster = createCluster(2, createDefaultRMICache().name("testUpdateWithEmptyReplicationPropertiesConfig"));
         try {
-            updateViaCopyTest(cluster.get(0).getCache("sampleCache4"), cluster.get(1).getCache("sampleCache4"), ASYNCHRONOUS);
+            updateViaCopyTest(cluster.get(0).getCache("testUpdateWithEmptyReplicationPropertiesConfig"), cluster.get(1).getCache("testUpdateWithEmptyReplicationPropertiesConfig"), ASYNCHRONOUS);
         } finally {
             destroyCluster(cluster);
         }
@@ -873,40 +818,17 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testPutViaInvalidate() throws CacheException, InterruptedException, IOException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache2");
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCacheViaInvalidate().name("testPutViaInvalidate"));
         try {
-            Cache cache1 = cluster.get(0).getCache("sampleCache2");
-            Cache cache2 = cluster.get(1).getCache("sampleCache2");
+            Cache cache1 = cluster.get(0).getCache("testPutViaInvalidate");
+            Cache cache2 = cluster.get(1).getCache("testPutViaInvalidate");
 
-            String key = "1";
-            Serializable value = new Date();
-            Element element1 = new Element(key, value);
+            Element initial = new Element("1", "1");
 
-            Element element3 = new Element("key2", "two");
+            cache2.put(initial, true);
 
-            //Put into 2. 2 is configured to replicate puts via copy
-            cache2.put(element1);
-            assertNotNull(cache2.get(key));
-            waitForPropagate();
-
-            //Should have been replicated to cache1.
-            Element element2 = cache1.get(key);
-            assertEquals(element1, element2);
-
-            //Put
-            cache1.put(element3);
-            waitForPropagate();
-
-            //Invalidate should have been replicated to cache2.
-            assertNull(cache2.get("key2"));
-
-            //Update
-            cache1.put(element3);
-            waitForPropagate();
-
-            //Should have been removed in cache2.
-            element2 = cache2.get("key2");
-            assertNull(element2);
+            cache1.put(new Element("1", "2"));
+            assertAfterPropagation(elementAt(cache2, "1"), nullValue());
         } finally {
             destroyCluster(cluster);
         }
@@ -920,27 +842,18 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testUpdateViaInvalidate() throws CacheException, InterruptedException, IOException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache2");
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCacheViaInvalidate().name("testUpdateViaInvalidate"));
         try {
-            Cache cache1 = cluster.get(0).getCache("sampleCache2");
-            Cache cache2 = cluster.get(1).getCache("sampleCache2");
+            Cache cache1 = cluster.get(0).getCache("testUpdateViaInvalidate");
+            Cache cache2 = cluster.get(1).getCache("testUpdateViaInvalidate");
 
-            String key = "1";
-            Serializable value = new Date();
-            Element element1 = new Element(key, value);
+            Element initial = new Element("1", "1");
 
-            //Put
-            cache2.put(element1);
-            Element element2 = cache2.get(key);
-            assertEquals(element1, element2);
+            cache1.put(initial, true);
+            cache2.put(initial, true);
 
-            //Update
-            cache1.put(element1);
-            waitForPropagate();
-
-            //Should have been removed in cache2.
-            element2 = cache2.get(key);
-            assertNull(element2);
+            cache1.put(new Element("1", "2"));
+            assertAfterPropagation(elementAt(cache2, "1"), nullValue());
         } finally {
             destroyCluster(cluster);
         }
@@ -954,14 +867,8 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testUpdateViaInvalidateNonSerializableValue() throws CacheException, InterruptedException, IOException {
-        List<CacheManager> cluster = createCluster(2, "sampleCache2");
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCacheViaInvalidate().name("testUpdateViaInvalidateNonSerializableValue"));
         try {
-            Cache cache1 = cluster.get(0).getCache("sampleCache2");
-            Cache cache2 = cluster.get(1).getCache("sampleCache2");
-
-            String key = "1";
-            Serializable value = new Date();
-
             /**
             * Non-serializable test class
             */
@@ -969,21 +876,16 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
                 //
             }
 
-            NonSerializable value1 = new NonSerializable();
-            Element element1 = new Element(key, value1);
+            Cache cache1 = cluster.get(0).getCache("testUpdateViaInvalidateNonSerializableValue");
+            Cache cache2 = cluster.get(1).getCache("testUpdateViaInvalidateNonSerializableValue");
 
-            //Put
-            cache2.put(element1);
-            Element element2 = cache2.get(key);
-            assertEquals(element1, element2);
+            Element initial = new Element("1", "1");
 
-            //Update
-            cache1.put(element1);
-            waitForPropagate();
+            cache1.put(initial, true);
+            cache2.put(initial, true);
 
-            //Should have been removed in cache2.
-            element2 = cache2.get(key);
-            assertNull(element2);
+            cache1.put(new Element("1", new NonSerializable()));
+            assertAfterPropagation(elementAt(cache2, "1"), nullValue());
         } finally {
             destroyCluster(cluster);
         }
@@ -995,10 +897,10 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testInfiniteNotificationsLoop() throws InterruptedException {
-        List<CacheManager> cluster = createCluster(2, DEFAULT_TEST_CACHE);
+        List<CacheManager> cluster = createCluster(2, createAsynchronousCache().name("testInfiniteNotificationsLoop"));
         try {
-            Cache cache0 = cluster.get(0).getCache(DEFAULT_TEST_CACHE);
-            Cache cache1 = cluster.get(1).getCache(DEFAULT_TEST_CACHE);
+            Cache cache0 = cluster.get(0).getCache("testInfiniteNotificationsLoop");
+            Cache cache1 = cluster.get(1).getCache("testInfiniteNotificationsLoop");
 
             Serializable key = "1";
             Serializable value = new Date();
@@ -1022,15 +924,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         }
     }
 
-    /**
-     * Need to wait for async
-     *
-     * @throws InterruptedException
-     */
-    private static void waitForPropagate() throws InterruptedException {
-        Thread.sleep(1500);
-    }
-
     protected static <T> void assertAfterPropagation(Callable<T> callable, Matcher<? super T> matcher) {
         assertBy(1500, TimeUnit.MILLISECONDS, callable, matcher);
     }
@@ -1038,7 +931,6 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
     protected static <T> void assertAfterSlowPropagation(Callable<T> callable, Matcher<? super T> matcher) {
         assertBy(6000, TimeUnit.MILLISECONDS, callable, matcher);
     }
-
 
     /**
      * Distributed operations create extra scope for deadlock.
@@ -1058,14 +950,14 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testCacheOperationsSynchronousMultiThreaded() throws Exception, InterruptedException {
-        List<CacheManager> cluster = createCluster(3, "sampleCache3");
+        List<CacheManager> cluster = createCluster(3, createSynchronousCache().name("testCacheOperationsSynchronousMultiThreaded"));
         try {
             // Run a set of threads, that attempt to fetch the elements
             final List executables = new ArrayList();
 
-            executables.add(new ClusterExecutable(cluster.get(0), "sampleCache3"));
-            executables.add(new ClusterExecutable(cluster.get(1), "sampleCache3"));
-            executables.add(new ClusterExecutable(cluster.get(2), "sampleCache3"));
+            executables.add(new ClusterExecutable(cluster.get(0), "testCacheOperationsSynchronousMultiThreaded"));
+            executables.add(new ClusterExecutable(cluster.get(1), "testCacheOperationsSynchronousMultiThreaded"));
+            executables.add(new ClusterExecutable(cluster.get(2), "testCacheOperationsSynchronousMultiThreaded"));
 
             assertThat(runTasks(executables), IsEmptyCollection.<Throwable>empty());
         } finally {
@@ -1091,14 +983,14 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     @Test
     public void testCacheOperationsAsynchronousMultiThreaded() throws Exception, InterruptedException {
-        List<CacheManager> cluster = createCluster(3, "sampleCache2");
+        List<CacheManager> cluster = createCluster(3, createAsynchronousCacheViaInvalidate().name("testCacheOperationsAsynchronousMultiThreaded"));
         try {
             // Run a set of threads, that attempt to fetch the elements
             final List executables = new ArrayList();
 
-            executables.add(new ClusterExecutable(cluster.get(0), "sampleCache2"));
-            executables.add(new ClusterExecutable(cluster.get(1), "sampleCache2"));
-            executables.add(new ClusterExecutable(cluster.get(2), "sampleCache2"));
+            executables.add(new ClusterExecutable(cluster.get(0), "testCacheOperationsAsynchronousMultiThreaded"));
+            executables.add(new ClusterExecutable(cluster.get(1), "testCacheOperationsAsynchronousMultiThreaded"));
+            executables.add(new ClusterExecutable(cluster.get(2), "testCacheOperationsAsynchronousMultiThreaded"));
 
             assertThat(runTasks(executables), IsEmptyCollection.<Throwable>empty());
         } finally {
