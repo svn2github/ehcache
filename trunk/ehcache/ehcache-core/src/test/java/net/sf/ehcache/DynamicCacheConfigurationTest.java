@@ -4,18 +4,19 @@
  */
 package net.sf.ehcache;
 
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
+
+import org.hamcrest.core.CombinableMatcher;
+import org.junit.Assert;
+import org.junit.Test;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
-
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.store.disk.DiskStoreHelper;
-import org.hamcrest.core.CombinableMatcher;
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * @author cdennis
@@ -33,11 +34,13 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTest {
 
         assertThat(cache.get("key1").getTimeToIdle(), is(10));
         assertThat(cache.get("key2").getTimeToIdle(), is(10));
-        assertThat(cache.get("key2").getExpirationTime(), is(System.currentTimeMillis() + SECONDS.toMillis(10)));
+        Element element2 = cache.get("key2");
+        assertThat(element2.getExpirationTime(), is(element2.getLastAccessTime() + SECONDS.toMillis(10)));
         SECONDS.sleep(1);
 
         assertThat(cache.get("key2").getTimeToIdle(), is(10));
-        assertThat(cache.get("key2").getExpirationTime(), is(System.currentTimeMillis() + SECONDS.toMillis(10)));
+        element2 = cache.get("key2");
+        assertThat(element2.getExpirationTime(), is(element2.getLastAccessTime() + SECONDS.toMillis(10)));
 
         cache.getCacheConfiguration().setTimeToIdleSeconds(20);
 
