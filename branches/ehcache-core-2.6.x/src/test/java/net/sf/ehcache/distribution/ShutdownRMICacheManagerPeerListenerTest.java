@@ -1,6 +1,5 @@
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
 import org.junit.Test;
@@ -23,11 +22,13 @@ public class ShutdownRMICacheManagerPeerListenerTest {
      */
     @Test
     public void testListenerShutsdownFromShutdownHook() {
-        CacheManager manager = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed6.xml");
+        CacheManager manager = new CacheManager(AbstractRMITest.createRMICacheManagerConfiguration()
+                .cache(AbstractRMITest.createAsynchronousCache().name("asynchronousCache"))
+                .name("ShutdownRMICacheManagerPeerListenerTest"));
         try {
             CacheManagerPeerListener cachePeerListener = manager.getCachePeerListener("RMI");
             List cachePeers1 = cachePeerListener.getBoundCachePeers();
-            assertEquals(55, cachePeers1.size());
+            assertEquals(1, cachePeers1.size());
             assertEquals(Status.STATUS_ALIVE, cachePeerListener.getStatus());
         } finally {
             /*

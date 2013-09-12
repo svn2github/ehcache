@@ -17,7 +17,6 @@
 package net.sf.ehcache.distribution;
 
 
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -43,7 +42,6 @@ import org.junit.Test;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.ConsoleHandler;
@@ -52,6 +50,9 @@ import java.util.logging.Logger;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+
+import net.sf.ehcache.config.CacheConfiguration;
+import static net.sf.ehcache.distribution.AbstractRMITest.createRMICacheManagerConfiguration;
 
 /**
  * Unit tests for the RMICacheManagerPeerListener
@@ -113,10 +114,6 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     protected CacheManager manager6;
 
     /**
-     * The name of the cache under test
-     */
-    protected String cacheName = "sampleCache1";
-    /**
      * CacheManager 1 of 2s cache being replicated
      */
     protected Ehcache cache1;
@@ -135,11 +132,22 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     @Before
     public void setUp() throws Exception {
         List<Configuration> configurations = new ArrayList<Configuration>();
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml").name("cm3"));
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed4.xml").name("cm4"));
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed5.xml").name("cm5"));
+        configurations.add(createRMICacheManagerConfiguration()
+                .defaultCache(createAsynchronousCache())
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("RMICacheManagerPeerListenerTest-1"));
+        configurations.add(createRMICacheManagerConfiguration()
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("RMICacheManagerPeerListenerTest-2"));
+        configurations.add(createRMICacheManagerConfiguration()
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("RMICacheManagerPeerListenerTest-3"));
+        configurations.add(createRMICacheManagerConfiguration()
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("RMICacheManagerPeerListenerTest-4"));
+        configurations.add(createRMICacheManagerConfiguration()
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("RMICacheManagerPeerListenerTest-5"));
 
         List<CacheManager> managers = startupManagers(configurations);
         manager1 = managers.get(0);
@@ -150,29 +158,29 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
 
         //allow cluster to be established
         LOGGER.info("Validating Cluster Membership");
-        waitForClusterMembership(120, TimeUnit.SECONDS, Collections.singleton(cacheName), manager1, manager2, manager3, manager4, manager5);
+        waitForClusterMembership(120, TimeUnit.SECONDS, manager1, manager2, manager3, manager4, manager5);
         LOGGER.info("Validated Cluster Membership");
 
         LOGGER.info("Putting Setup Value");
-        manager1.getCache(cacheName).put(new Element("setup", "setup"));
+        manager1.getCache("asynchronousCache").put(new Element("setup", "setup"));
         LOGGER.info("Put Setup Value");
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
             LOGGER.info("Validating Setup Value Propagation To " + manager);
-            assertBy(20, TimeUnit.SECONDS, elementAt(manager.getCache(cacheName), "setup"), DescribedAs.describedAs("Failed to propagate setup value to {}", notNullValue(), manager));
+            assertBy(20, TimeUnit.SECONDS, elementAt(manager.getCache("asynchronousCache"), "setup"), DescribedAs.describedAs("Failed to propagate setup value to {}", notNullValue(), manager));
             LOGGER.info("Validated Setup Value Propagation To " + manager);
         }
 
         LOGGER.info("Performing RemoveAll");
-        manager1.getCache(cacheName).removeAll();
+        manager1.getCache("asynchronousCache").removeAll();
         LOGGER.info("Performed RemoveAll");
         for (CacheManager manager : new CacheManager[] {manager1, manager2, manager3, manager4, manager5}) {
             LOGGER.info("Validating RemoveAll Propagation To " + manager);
-            assertBy(20, TimeUnit.SECONDS, sizeOf(manager.getCache(cacheName)), DescribedAs.describedAs("Failed to propagate removeAll to {}" , is(0), manager));
+            assertBy(20, TimeUnit.SECONDS, sizeOf(manager.getCache("asynchronousCache")), DescribedAs.describedAs("Failed to propagate removeAll to {}" , is(0), manager));
             LOGGER.info("Validated RemoveAll Propagation To " + manager);
         }
 
-        cache1 = manager1.getCache(cacheName);
-        cache2 = manager2.getCache(cacheName);
+        cache1 = manager1.getCache("asynchronousCache");
+        cache2 = manager2.getCache("asynchronousCache");
     }
 
 
@@ -222,35 +230,35 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     public void testPeersBound() {
 
         List cachePeers1 = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).getBoundCachePeers();
-        assertEquals(55, cachePeers1.size());
+        assertEquals(1, cachePeers1.size());
         String[] boundCachePeers1 = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers1.length);
+        assertEquals(1, boundCachePeers1.length);
         assertEquals(cachePeers1.size(), boundCachePeers1.length);
 
         List cachePeers2 = ((RMICacheManagerPeerListener) manager2.getCachePeerListener("RMI")).getBoundCachePeers();
-        assertEquals(55, cachePeers2.size());
+        assertEquals(1, cachePeers2.size());
         String[] boundCachePeers2 = ((RMICacheManagerPeerListener) manager2.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers2.length);
+        assertEquals(1, boundCachePeers2.length);
         assertEquals(cachePeers2.size(), boundCachePeers2.length);
 
 
         List cachePeers3 = ((RMICacheManagerPeerListener) manager3.getCachePeerListener("RMI")).getBoundCachePeers();
-        assertEquals(55, cachePeers3.size());
+        assertEquals(1, cachePeers3.size());
         String[] boundCachePeers3 = ((RMICacheManagerPeerListener) manager3.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers3.length);
+        assertEquals(1, boundCachePeers3.length);
         assertEquals(cachePeers3.size(), boundCachePeers3.length);
 
 
         List cachePeers4 = ((RMICacheManagerPeerListener) manager4.getCachePeerListener("RMI")).getBoundCachePeers();
-        assertEquals(55, cachePeers4.size());
+        assertEquals(1, cachePeers4.size());
         String[] boundCachePeers4 = ((RMICacheManagerPeerListener) manager4.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers4.length);
+        assertEquals(1, boundCachePeers4.length);
         assertEquals(cachePeers4.size(), boundCachePeers4.length);
 
         List cachePeers5 = ((RMICacheManagerPeerListener) manager5.getCachePeerListener("RMI")).getBoundCachePeers();
-        assertEquals(55, cachePeers5.size());
+        assertEquals(1, cachePeers5.size());
         String[] boundCachePeers5 = ((RMICacheManagerPeerListener) manager5.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers5.length);
+        assertEquals(1, boundCachePeers5.length);
         assertEquals(cachePeers5.size(), boundCachePeers5.length);
     }
 
@@ -272,13 +280,13 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     public void testBoundListenerPeersAfterDefaultCacheAdd() throws RemoteException {
 
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers.length);
+        assertEquals(1, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
 
         //Add from default which is has a CacheReplicator configured.
         manager1.addCache("fromDefaultCache");
         boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(56, boundCachePeers.length);
+        assertEquals(2, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
     }
 
@@ -289,7 +297,7 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     public void testBoundListenerPeersAfterProgrammaticCacheAdd() throws RemoteException {
 
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers.length);
+        assertEquals(1, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
 
         //Add from default which is has a CacheReplicator configured.
@@ -297,13 +305,12 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
 
         RMICacheReplicatorFactory factory = new RMICacheReplicatorFactory();
         CacheEventListener replicatingListener = factory.createCacheEventListener(null);
-        Cache cache = new Cache("programmaticallyAdded",
-                10, null, true, System.getProperty("java.io.tmpdir"), false, 10, 10, false, 60, null);
+        Cache cache = new Cache(new CacheConfiguration().name("programmaticallyAdded").maxEntriesLocalHeap(0));
         cache.getCacheEventNotificationService().registerListener(replicatingListener);
 
         manager1.addCache(cache);
         boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(56, boundCachePeers.length);
+        assertEquals(2, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
     }
 
@@ -313,13 +320,13 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     @Test
     public void testBoundListenerPeersAfterCacheRemove() throws RemoteException {
         String[] boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(55, boundCachePeers.length);
+        assertEquals(1, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
 
         //Remove a replicated cache
-        manager1.removeCache("sampleCache1");
+        manager1.removeCache("asynchronousCache");
         boundCachePeers = ((RMICacheManagerPeerListener) manager1.getCachePeerListener("RMI")).listBoundRMICachePeers();
-        assertEquals(54, boundCachePeers.length);
+        assertEquals(0, boundCachePeers.length);
         validateBoundCachePeer(boundCachePeers);
     }
 
@@ -339,7 +346,7 @@ public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
     public void testListenerShutsdown() {
         CacheManagerPeerListener cachePeerListener = manager1.getCachePeerListener("RMI");
         List cachePeers1 = cachePeerListener.getBoundCachePeers();
-        assertEquals(55, cachePeers1.size());
+        assertEquals(1, cachePeers1.size());
         assertEquals(Status.STATUS_ALIVE, cachePeerListener.getStatus());
 
         manager1.shutdown();

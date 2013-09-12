@@ -51,8 +51,10 @@ import net.sf.ehcache.Cache;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.config.FactoryConfiguration;
 
 import org.hamcrest.collection.IsEmptyCollection;
 import org.junit.AfterClass;
@@ -220,6 +222,15 @@ public abstract class AbstractRMITest {
     }
 
     /**
+     * Wait for all caches to have a full set of peers in each manager.
+     * <p>
+     * This method will hang if all managers don't share a common set of replicated caches.
+     */
+    protected static void waitForClusterMembership(int time, TimeUnit unit, CacheManager ... managers) {
+        waitForClusterMembership(time, unit, getAllReplicatedCacheNames(managers[0]), managers);
+    }
+    
+    /**
      * Wait for the given caches to have a full set of peers in each manager.
      * <p>
      * Any other caches in these managers may or may not be fully announced throughout the cluster.
@@ -335,4 +346,43 @@ public abstract class AbstractRMITest {
             clusterStarter.shutdown();
         }
     }
+
+    protected static Configuration createRMICacheManagerConfiguration() {
+        Configuration config = new Configuration();
+        config.addCacheManagerPeerProviderFactory(new FactoryConfiguration()
+                .className("net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory")
+                .properties("peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, timeToLive=0"));
+        config.addCacheManagerPeerListenerFactory(new FactoryConfiguration()
+                .className("net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory")
+                .properties("hostName=localhost"));
+        return config;
+    }
+
+    protected static CacheConfiguration createAsynchronousCache() {
+        CacheConfiguration cacheConfig = new CacheConfiguration();
+        cacheConfig.maxEntriesLocalHeap(0).eternal(true);
+        cacheConfig.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration()
+                .className("net.sf.ehcache.distribution.RMICacheReplicatorFactory")
+                .properties("replicateAsynchronously=true,"
+                + "replicatePuts=true,"
+                + "replicateUpdates=true,"
+                + "replicateUpdatesViaCopy=true,"
+                + "replicateRemovals=true"));
+        return cacheConfig;
+    }
+
+    protected static CacheConfiguration createAsynchronousCacheViaInvalidate() {
+        CacheConfiguration cacheConfig = new CacheConfiguration();
+        cacheConfig.maxEntriesLocalHeap(0).eternal(true);
+        cacheConfig.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration()
+                .className("net.sf.ehcache.distribution.RMICacheReplicatorFactory")
+                .properties("replicateAsynchronously=true,"
+                + "replicatePuts=true,"
+                + "replicatePutsViaCopy=false,"
+                + "replicateUpdates=true,"
+                + "replicateUpdatesViaCopy=false,"
+                + "replicateRemovals=true"));
+        return cacheConfig;
+    }
+    
 }

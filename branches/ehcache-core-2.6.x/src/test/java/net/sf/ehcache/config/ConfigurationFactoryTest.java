@@ -440,7 +440,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testLoadConfigurationFromFileDistribution() throws Exception {
-        File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
+        File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
 
@@ -463,7 +463,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         }
 
         //Check caches. Configuration should have completed
-        assertEquals(61, configurationHelper.createCaches().size());
+        assertEquals(5, configurationHelper.createCaches().size());
 
         Ehcache sampleCache1 = configurationHelper.createCacheFromName("sampleCache1");
         Set listeners = sampleCache1.getCacheEventNotificationService().getCacheEventListeners();
@@ -488,7 +488,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testLoadConfigurationFromFileNoBootstrapPropertiesSet() throws Exception {
-        File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
+        File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
         Ehcache sampleCache3 = configurationHelper.createCacheFromName("sampleCache3");
@@ -505,7 +505,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
      */
     @Test
     public void testLoadConfigurationFromFileWithSpecificPropertiesSet() throws Exception {
-        File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
+        File file = new File(TEST_CONFIG_DIR + "distribution/ehcache-distributed.xml");
         Configuration configuration = ConfigurationFactory.parseConfiguration(file);
         ConfigurationHelper configurationHelper = new ConfigurationHelper(manager, configuration);
         Ehcache sampleCache4 = configurationHelper.createCacheFromName("sampleCache4");
