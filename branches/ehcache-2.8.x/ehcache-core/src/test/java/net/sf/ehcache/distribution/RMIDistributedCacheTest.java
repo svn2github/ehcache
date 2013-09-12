@@ -17,7 +17,6 @@
 package net.sf.ehcache.distribution;
 
 
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -51,11 +50,7 @@ public class RMIDistributedCacheTest extends AbstractRMITest {
      * manager
      */
     protected CacheManager manager;
-    /**
-     * the cache name we wish to test
-     */
-    private final String cacheName1 = "sampleCache1";
-    private final String cacheName2 = "sampleCache2";
+
     /**
      * the cache we wish to test
      */
@@ -77,16 +72,19 @@ public class RMIDistributedCacheTest extends AbstractRMITest {
      */
     @Before
     public void setUp() throws Exception {
-        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml");
-        sampleCache1 = manager.getCache(cacheName1);
+        manager = new CacheManager(createRMICacheManagerConfiguration()
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .cache(createAsynchronousCacheViaInvalidate().name("asynchronousCacheViaInvalidate"))
+                .name("RMIDistributedCacheTest"));
+        sampleCache1 = manager.getCache("asynchronousCache");
         sampleCache1.removeAll();
         element = new Element("key", new Date());
         sampleCache1.put(element);
         CacheManagerPeerListener cacheManagerPeerListener =
                 new RMICacheManagerPeerListener(hostName, port, remoteObjectPort, manager, Integer.valueOf(2000));
         cacheManagerPeerListener.init();
-        cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName1);
-        cache2Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName2);
+        cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + "asynchronousCache");
+        cache2Peer = (CachePeer) Naming.lookup(createNamingUrl() + "asynchronousCacheViaInvalidate");
 
     }
 
@@ -126,7 +124,7 @@ public class RMIDistributedCacheTest extends AbstractRMITest {
         for (int i = 0; i < 100; i++) {
             listeners[i] = new RMICacheManagerPeerListener(hostName, port, remoteObjectPort, manager, Integer.valueOf(2000));
         }
-        cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName1);
+        cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + "asynchronousCache");
         assertNotNull(cache1Peer);
 
         for (int i = 0; i < 100; i++) {
@@ -144,7 +142,7 @@ public class RMIDistributedCacheTest extends AbstractRMITest {
         for (int i = 0; i < 100; i++) {
             listeners[i] = new RMICacheManagerPeerListener(hostName, port, Integer.valueOf(45000), manager, Integer.valueOf(2000));
         }
-        cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + cacheName1);
+        cache1Peer = (CachePeer) Naming.lookup(createNamingUrl() + "asynchronousCache");
         assertNotNull(cache1Peer);
         cache1Peer.put(new Element(1, 4));
 
@@ -168,10 +166,8 @@ public class RMIDistributedCacheTest extends AbstractRMITest {
     @Test
     public void testGetName() throws Exception {
         String lookupCacheName = cache1Peer.getName();
-        assertEquals(cacheName1, lookupCacheName);
+        assertEquals("asynchronousCache", lookupCacheName);
         lookupCacheName = cache2Peer.getName();
-        assertEquals(cacheName2, lookupCacheName);
+        assertEquals("asynchronousCacheViaInvalidate", lookupCacheName);
     }
-
-
 }

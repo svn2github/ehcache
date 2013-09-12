@@ -25,15 +25,14 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.util.RetryAssert;
 
@@ -42,6 +41,8 @@ import org.hamcrest.core.IsSame;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static net.sf.ehcache.distribution.AbstractRMITest.createRMICacheManagerConfiguration;
 
 /**
  * Multicast tests. These require special machine configuration.
@@ -77,9 +78,18 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
     @Before
     public void setUp() throws Exception {
         List<Configuration> configurations = new ArrayList<Configuration>();
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed1.xml").name("cm1"));
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed2.xml").name("cm2"));
-        configurations.add(getConfiguration(AbstractCacheTest.TEST_CONFIG_DIR + "distribution/ehcache-distributed3.xml").name("cm3"));
+        configurations.add(createRMICacheManagerConfiguration()
+                .defaultCache(createAsynchronousCache())
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("MulticastRMIPeerProviderTest-1"));
+        configurations.add(createRMICacheManagerConfiguration()
+                .defaultCache(createAsynchronousCache())
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("MulticastRMIPeerProviderTest-2"));
+        configurations.add(createRMICacheManagerConfiguration()
+                .defaultCache(createAsynchronousCache())
+                .cache(createAsynchronousCache().name("asynchronousCache"))
+                .name("MulticastRMIPeerProviderTest-3"));
 
         List<CacheManager> managers = startupManagers(configurations);
         manager1 = managers.get(0);
@@ -87,7 +97,7 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
         manager3 = managers.get(2);
 
         //wait for cluster to establish
-        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("sampleCache1"), manager1, manager2, manager3);
+        waitForClusterMembership(10, TimeUnit.SECONDS, manager1, manager2, manager3);
     }
 
     /**
@@ -119,8 +129,9 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
     public void testSolePeer() throws Exception {
         tearDown();
 
-        manager1 = new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR
-                + "distribution/ehcache-distributed-no-caches-replicating.xml");
+        manager1 = new CacheManager(createRMICacheManagerConfiguration()
+                .cache(new CacheConfiguration().maxEntriesLocalHeap(0).name("non-replicating"))
+                .name("MulticastRMIPeerProviderTest-4"));
     }
 
     /**
@@ -130,9 +141,9 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
     public void testProviderFromCacheManager() throws InterruptedException {
         MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
 
-        Ehcache m1sampleCache1 = manager1.getCache("sampleCache1");
-        Ehcache m2sampleCache1 = manager2.getCache("sampleCache1");
-        Ehcache m3sampleCache1 = manager3.getCache("sampleCache1");
+        Ehcache m1sampleCache1 = manager1.getCache("asynchronousCache");
+        Ehcache m2sampleCache1 = manager2.getCache("asynchronousCache");
+        Ehcache m3sampleCache1 = manager3.getCache("asynchronousCache");
 
         assertThat(m1sampleCache1.getGuid(), not(is(m2sampleCache1.getGuid())));
         assertThat(m1sampleCache1.getGuid(), not(is(m3sampleCache1.getGuid())));
@@ -140,7 +151,7 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
         //Now remove a node, wait for the cluster to self-heal and then test
         manager1.shutdown();
 
-        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("sampleCache1"), manager2, manager3);
+        waitForClusterMembership(10, TimeUnit.SECONDS, manager2, manager3);
     }
 
     /**
@@ -156,7 +167,7 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
         manager2.addCache("fromDefaultCache");
         manager3.addCache("fromDefaultCache");
 
-        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("fromDefaultCache"), manager1, manager2, manager3);
+        waitForClusterMembership(10, TimeUnit.SECONDS, manager1, manager2, manager3);
     }
 
     @Test
@@ -170,12 +181,11 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
         manager2.addCache("fromDefaultCache");
         manager3.addCache("fromDefaultCache");
 
-        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("fromDefaultCache"), manager1, manager2, manager3);
+        waitForClusterMembership(10, TimeUnit.SECONDS, manager1, manager2, manager3);
 
-        final Ehcache cache = manager1.getCache("fromDefaultCache");
         manager1.removeCache("fromDefaultCache");
 
-        waitForClusterMembership(10, TimeUnit.SECONDS, Collections.singleton("fromDefaultCache"), manager2, manager3);
+        waitForClusterMembership(10, TimeUnit.SECONDS, manager2, manager3);
     }
 
 
