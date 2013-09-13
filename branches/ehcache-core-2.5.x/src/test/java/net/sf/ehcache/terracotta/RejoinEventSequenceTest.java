@@ -57,14 +57,9 @@ public class RejoinEventSequenceTest extends TestCase {
         final AtomicBoolean firstTime = new AtomicBoolean(true);
         TerracottaUnitTesting.setupTerracottaTesting(mockFactory, new Runnable() {
             public void run() {
-                if(!firstTime.getAndSet(false) && nodeLeftFired.get()) {
-                    try {
-                        barrier.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (BrokenBarrierException e) {
-                        e.printStackTrace();
-                    }
+                if(!firstTime.getAndSet(false)) {
+                    info("hitting barrier in Runnable()");
+                    await(barrier);
                 }
                 mockCacheCluster.removeAllListeners();
             }
@@ -101,14 +96,21 @@ public class RejoinEventSequenceTest extends TestCase {
 
             info("Clearing events");
             listener.clearEvents();
-            if(nodeLeftFired.get()) {
-                barrier.reset();
-            }
         }
     }
 
     private static void info(String string) {
         LOG.info("____ " + string);
+    }
+
+    private static void await(CyclicBarrier barrier) {
+        try {
+            barrier.await();
+        } catch (InterruptedException e) {
+            LOG.error("InterruptedException while waiting on barrier ", e);
+        } catch (BrokenBarrierException e) {
+            LOG.error("BrokenBarrierException while waiting on barrier ", e);
+        }
     }
 
     private static final class RecordingListener implements ClusterTopologyListener {
@@ -137,13 +139,8 @@ public class RejoinEventSequenceTest extends TestCase {
             state = EventType.LEFT;
             notifyAll();
             nodeLeftFired.set(true);
-            try {
-                barrier.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (BrokenBarrierException e) {
-                e.printStackTrace();
-            }
+            info("hitting barrier in nodeLeft()");
+            await(barrier);
         }
 
         public synchronized void clusterOnline(ClusterNode node) {
