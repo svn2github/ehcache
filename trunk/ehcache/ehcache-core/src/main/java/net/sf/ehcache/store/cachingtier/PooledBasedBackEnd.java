@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,7 +55,7 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     private static final float PUT_LOAD_THRESHOLD = 0.9f;
 
     private volatile Policy policy;
-    private volatile EvictionCallback<K, V> evictionCallback;
+    private volatile RemovalCallback callback;
     private final AtomicReference<PoolAccessor> poolAccessor = new AtomicReference<PoolAccessor>();
 
     private final OperationObserver<GetOutcome> getObserver = operation(GetOutcome.class).named("arc-get").of(this).tag("private").build();
@@ -79,7 +78,10 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
             }
             return previous;
         } else {
-            evictionCallback.evicted(key, value);
+            final RemovalCallback cb = callback;
+            if (cb != null) {
+                cb.removed(key, value);
+            }
             return null;
         }
     }
@@ -108,7 +110,7 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
 
     @Override
     public V remove(final Object key) {
-        return super.remove(key);
+        return super.removeAndNotify(key, callback);
     }
 
     @Override
@@ -146,13 +148,7 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
         while (evictions-- > 0) {
             final Element evictionCandidate = findEvictionCandidate();
             if (evictionCandidate != null) {
-                remove(evictionCandidate.getObjectKey(), evictionCandidate, new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        evictionCallback.evicted((K)evictionCandidate.getObjectKey(), (V)evictionCandidate);
-                        return null;
-                    }
-                });
+                remove(evictionCandidate.getObjectKey(), evictionCandidate, callback);
             } else {
                 return false;
             }
@@ -184,8 +180,13 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     }
 
     @Override
-    public void registerEvictionCallback(final EvictionCallback<K, V> callback) {
-        this.evictionCallback = callback;
+    public void registerEvictionCallback(final EvictionCallback<K, V> evictionCallback) {
+        this.callback = evictionCallback == null ? null : new RemovalCallback() {
+            @Override
+            public void removed(final Object key, final Object value) {
+                evictionCallback.evicted((K)key, (V)value);
+            }
+        };
     }
 
     @Override
