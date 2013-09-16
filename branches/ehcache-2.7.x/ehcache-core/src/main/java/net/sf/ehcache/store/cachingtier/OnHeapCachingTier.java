@@ -304,7 +304,6 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
     private static class Fault<V> {
 
         private final Callable<V> source;
-        private final Thread owner = Thread.currentThread();
         private V value;
         private Throwable throwable;
         private boolean complete;
@@ -323,26 +322,11 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
 
         private V get() {
             synchronized (this) {
-                boolean interrupted = false;
-                try {
-                    if (Thread.currentThread() == owner & !complete) {
-                        try {
-                            complete(source.call());
-                        } catch (Throwable e) {
-                            fail(e);
-                        }
-                    } else {
-                        while (!complete) {
-                            try {
-                                wait();
-                            } catch (InterruptedException e) {
-                                interrupted = true;
-                            }
-                        }
-                    }
-                } finally {
-                    if (interrupted) {
-                        Thread.currentThread().interrupt();
+                if (!complete) {
+                    try {
+                        complete(source.call());
+                    } catch (Throwable e) {
+                        fail(e);
                     }
                 }
             }

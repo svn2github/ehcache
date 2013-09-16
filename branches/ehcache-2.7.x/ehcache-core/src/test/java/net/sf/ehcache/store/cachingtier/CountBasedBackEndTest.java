@@ -3,10 +3,14 @@ package net.sf.ehcache.store.cachingtier;
 import net.sf.ehcache.Element;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -66,5 +70,36 @@ public class CountBasedBackEndTest {
             size--;
         }
         assertThat(size, is(0));
+    }
+
+    @Test
+    public void testRemoveNotifiesEvictionCallback() {
+        CountBasedBackEnd backEnd = new CountBasedBackEnd(10);
+        final Map evicted = new HashMap();
+        backEnd.registerEvictionCallback(new HeapCacheBackEnd.EvictionCallback() {
+            @Override
+            public void evicted(final Object key, final Object value) {
+                evicted.put(key, value);
+            }
+        });
+        backEnd.remove("foo");
+        assertThat(evicted.size(), is(0));
+        final Element theElement = new Element("foo", "bar");
+        backEnd.putIfAbsent("foo", theElement);
+        assertThat(evicted.size(), is(0));
+        backEnd.remove("foo");
+        assertThat(evicted.size(), is(1));
+        assertThat(evicted.containsKey("foo"), is(true));
+        assertThat((Element) evicted.get("foo"), sameInstance(theElement));
+        assertThat(backEnd.get("foo"), nullValue());
+    }
+
+    @Test
+    public void testRemoveSupportsNoEvictionCallbackBeingRegistered() {
+        CountBasedBackEnd backEnd = new CountBasedBackEnd(10);
+        backEnd.remove("foo");
+        backEnd.putIfAbsent("foo", new Element("foo", "bar"));
+        assertThat(backEnd.remove("foo"), notNullValue());
+        assertThat(backEnd.get("foo"), nullValue());
     }
 }

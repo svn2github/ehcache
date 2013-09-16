@@ -134,7 +134,6 @@ public class CacheStore implements Store {
                     return hack[0];
                 }
             } catch (Throwable e) {
-                authoritativeTier.flush(element);
                 cachingTier.remove(element.getObjectKey());
                 if (e instanceof RuntimeException) {
                     throw (RuntimeException)e;

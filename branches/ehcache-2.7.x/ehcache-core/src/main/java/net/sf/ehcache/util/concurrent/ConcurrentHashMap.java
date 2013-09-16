@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.Enumeration;
 import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
@@ -1250,7 +1249,7 @@ public class ConcurrentHashMap<K, V>
         return internalReplace(k, v, cv, null);
     }
 
-    private final Object internalReplace(Object k, Object v, Object cv, Callable<Void> hook) {
+    private final Object internalReplace(Object k, Object v, Object cv, RemovalCallback hook) {
       RuntimeException runtimeException = null;
       int h = spread(k.hashCode());
         Object oldVal = null;
@@ -1290,7 +1289,7 @@ public class ConcurrentHashMap<K, V>
                         }
                         if (deleted && hook != null) {
                             try {
-                                hook.call();
+                                hook.removed(k, oldVal);
                             } catch (Throwable e) {
                                 runtimeException = e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
                             }
@@ -1346,7 +1345,7 @@ public class ConcurrentHashMap<K, V>
                     }
                     if (deleted && hook != null) {
                         try {
-                            hook.call();
+                            hook.removed(k, oldVal);
                         } catch (Throwable e) {
                             runtimeException = e instanceof RuntimeException ? (RuntimeException) e : new RuntimeException(e);
                         }
@@ -2638,12 +2637,16 @@ public class ConcurrentHashMap<K, V>
         return internalReplace(key, null, value) != null;
     }
 
-    protected boolean remove(Object key, Object value, Callable<Void> hook) {
+    protected boolean remove(Object key, Object value, RemovalCallback hook) {
         if (key == null)
             throw new NullPointerException();
         if (value == null)
             return false;
         return internalReplace(key, null, value, hook) != null;
+    }
+
+    protected V removeAndNotify(Object key, RemovalCallback hook) {
+        return (V)internalReplace(key, null, null, hook);
     }
 
     /**
@@ -3316,4 +3319,10 @@ public class ConcurrentHashMap<K, V>
     }
 
     private static final AtomicIntegerFieldUpdater<ConcurrentHashMap> SIZECTL_UPDATER = AtomicIntegerFieldUpdater.newUpdater(ConcurrentHashMap.class, "sizeCtl");
+
+    protected static interface RemovalCallback {
+
+        void removed(Object key, Object value);
+
+    }
 }

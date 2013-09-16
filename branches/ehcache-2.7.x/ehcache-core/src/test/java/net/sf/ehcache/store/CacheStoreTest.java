@@ -34,6 +34,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -118,7 +119,8 @@ public class CacheStoreTest {
         CacheStore cacheStore = new CacheStore(cachingTier, authoritativeTier);
         Element element = new Element(KEY, NAME);
         final RuntimeException excepted = new RuntimeException("AHA!");
-        when(authoritativeTier.putFaulted(element)).thenThrow(excepted);
+        when(authoritativeTier.putFaulted(element)).thenReturn(true).thenThrow(excepted);
+        cacheStore.put(element);
         try {
             cacheStore.put(element);
         } catch (RuntimeException e) {
@@ -153,7 +155,7 @@ public class CacheStoreTest {
         } catch (RuntimeException e) {
             assertThat(e, sameInstance(excepted));
         }
-        verify(authoritativeTier).flush(element);
+        verify(authoritativeTier, times(2)).flush(element);
         assertThat(cachingTier.get(element.getObjectKey(), new Callable<Element>() {
             @Override
             public Element call() throws Exception {
