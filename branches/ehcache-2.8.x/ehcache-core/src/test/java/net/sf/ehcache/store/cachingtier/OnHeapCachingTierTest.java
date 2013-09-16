@@ -78,7 +78,7 @@ public class OnHeapCachingTierTest {
     }
 
     @Test
-    public void testEvictsAtCapacityAnNotifies() {
+    public void testEvictsAtCapacityAndNotifies() {
         final Map<String, String> evictions = new HashMap<String, String>();
         CachingTier<String, String> cache = new OnHeapCachingTier<String, String>(new NoCapacityHeapCacheBackEnd<String>());
         cache.addListener(new CachingTier.Listener<String, String>() {

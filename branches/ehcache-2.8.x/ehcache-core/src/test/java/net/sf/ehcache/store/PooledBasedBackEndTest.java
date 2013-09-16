@@ -1,19 +1,24 @@
 package net.sf.ehcache.store;
 
+import net.sf.ehcache.Element;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.store.cachingtier.HeapCacheBackEnd;
 import net.sf.ehcache.store.cachingtier.PooledBasedBackEnd;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -50,33 +55,33 @@ public class PooledBasedBackEndTest {
         assertThat(pooledBasedBackEnd.putIfAbsent("key2", "value"), nullValue());
         assertThat(pooledBasedBackEnd.get("key2"), nullValue());
         assertThat(poolAccessor.sum.get(), is(4L));
-        assertThat(evictionCallback.counter.get(), is(1L));
+        assertThat(evictionCallback.counter.get(), is(3L));
 
         assertThat(pooledBasedBackEnd.replace("key", "value2", "value3"), is(false));
         assertThat(poolAccessor.sum.get(), is(4L));
-        assertThat(evictionCallback.counter.get(), is(1L));
+        assertThat(evictionCallback.counter.get(), is(3L));
 
         assertThat(pooledBasedBackEnd.replace("key", "value", "value3"), is(true)); // this is forced, won't fail!
         assertThat(poolAccessor.sum.get(), is(4L));
-        assertThat(evictionCallback.counter.get(), is(1L));
+        assertThat(evictionCallback.counter.get(), is(3L));
 
         poolAccessor.size = 12;
         pooledBasedBackEnd.recalculateSize("key2");
         assertThat(poolAccessor.sum.get(), is(4L));
-        assertThat(evictionCallback.counter.get(), is(1L));
+        assertThat(evictionCallback.counter.get(), is(3L));
 
         pooledBasedBackEnd.recalculateSize("key");
         assertThat(poolAccessor.sum.get(), is(60L));
-        assertThat(evictionCallback.counter.get(), is(1L));
+        assertThat(evictionCallback.counter.get(), is(3L));
 
         poolAccessor.size = 8;
         assertThat(pooledBasedBackEnd.remove("key", "value"), is(false));
         assertThat(poolAccessor.sum.get(), is(60L));
-        assertThat(evictionCallback.counter.get(), is(1L));
+        assertThat(evictionCallback.counter.get(), is(3L));
 
         assertThat(pooledBasedBackEnd.remove("key", "value3"), is(true));
         assertThat(poolAccessor.sum.get(), is(0L));
-        assertThat(evictionCallback.counter.get(), is(1L));
+        assertThat(evictionCallback.counter.get(), is(3L));
 
         assertThat(pooledBasedBackEnd.keySet().isEmpty(), is(true));
     }
@@ -172,6 +177,39 @@ public class PooledBasedBackEndTest {
 
         assertThat(pooledBasedBackEnd.size(), is(0));
         assertThat(poolAccessor.sum.get(), is(0L));
+    }
+
+    @Test
+    public void testRemoveNotifiesEvictionCallback() {
+        PooledBasedBackEnd backEnd = new PooledBasedBackEnd(new LruPolicy());
+        backEnd.registerAccessor(new TestPoolAccessor());
+        final Map evicted = new HashMap();
+        backEnd.registerEvictionCallback(new HeapCacheBackEnd.EvictionCallback() {
+            @Override
+            public void evicted(final Object key, final Object value) {
+                evicted.put(key, value);
+            }
+        });
+        backEnd.remove("foo");
+        assertThat(evicted.size(), is(0));
+        final Element theElement = new Element("foo", "bar");
+        backEnd.putIfAbsent("foo", theElement);
+        assertThat(evicted.size(), is(0));
+        backEnd.remove("foo");
+        assertThat(evicted.size(), is(1));
+        assertThat(evicted.containsKey("foo"), is(true));
+        assertThat((Element) evicted.get("foo"), sameInstance(theElement));
+        assertThat(backEnd.get("foo"), nullValue());
+    }
+
+    @Test
+    public void testRemoveSupportsNoEvictionCallbackBeingRegistered() {
+        PooledBasedBackEnd backEnd = new PooledBasedBackEnd(new LruPolicy());
+        backEnd.registerAccessor(new TestPoolAccessor());
+        backEnd.remove("foo");
+        backEnd.putIfAbsent("foo", new Element("foo", "bar"));
+        assertThat(backEnd.remove("foo"), notNullValue());
+        assertThat(backEnd.get("foo"), nullValue());
     }
 
     private static class TestPoolAccessor implements PoolAccessor {

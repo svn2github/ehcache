@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  *
@@ -45,7 +44,7 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
 
     private volatile long maxEntriesLocalHeap;
     private volatile Policy policy;
-    private volatile EvictionCallback<K, V> evictionCallback;
+    private volatile RemovalCallback callback;
 
     /**
      * Constructs a cap'ed backend
@@ -96,13 +95,23 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
      * {@inheritDoc}
      */
     @Override
-    public void registerEvictionCallback(final EvictionCallback<K, V> callback) {
-        this.evictionCallback = callback;
+    public void registerEvictionCallback(final EvictionCallback<K, V> evictionCallback) {
+        this.callback = evictionCallback == null ? null : new RemovalCallback() {
+            @Override
+            public void removed(final Object key, final Object value) {
+                evictionCallback.evicted((K)key, (V)value);
+            }
+        };
     }
 
     @Override
     public void recalculateSize(final K key) {
         // NO OP!
+    }
+
+    @Override
+    public V remove(final Object key) {
+        return super.removeAndNotify(key, callback);
     }
 
     @Override
@@ -123,15 +132,7 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
         while (maxEntriesLocalHeap < mappingCount() && evictions-- > 0) {
             final Element evictionCandidate = findEvictionCandidate(key, value);
             if (evictionCandidate != null) {
-                remove(evictionCandidate.getObjectKey(), evictionCandidate, new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                      if (evictionCallback != null) {
-                        evictionCallback.evicted((K)evictionCandidate.getObjectKey(), (V)evictionCandidate);
-                      }
-                      return null;
-                    }
-                });
+                remove(evictionCandidate.getObjectKey(), evictionCandidate, callback);
             }
         }
     }
