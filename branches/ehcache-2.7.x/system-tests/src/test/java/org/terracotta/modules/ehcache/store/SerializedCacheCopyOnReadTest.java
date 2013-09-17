@@ -6,10 +6,10 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -49,6 +49,7 @@ public class SerializedCacheCopyOnReadTest extends AbstractCacheTestBase {
         cache.put(new Element("key", value));
       }
 
+      waitForAllCurrentTransactionsToComplete(cache);
       barrier.await();
 
       ValueHolder value = (ValueHolder) cache.get("key").getObjectValue();
