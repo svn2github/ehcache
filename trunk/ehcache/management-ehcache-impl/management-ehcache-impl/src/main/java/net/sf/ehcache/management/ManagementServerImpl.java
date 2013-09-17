@@ -6,7 +6,6 @@ package net.sf.ehcache.management;
 
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.resource.services.validator.impl.EmbeddedEhcacheRequestValidator;
-import net.sf.ehcache.management.service.AgentService;
 import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
@@ -16,6 +15,7 @@ import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.embedded.FilterDetail;
 import org.terracotta.management.embedded.NoIaFilter;
 import org.terracotta.management.embedded.StandaloneServer;
+import org.terracotta.management.resource.services.AgentService;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.LicenseServiceImpl;
 import org.terracotta.management.resource.services.validator.RequestValidator;
