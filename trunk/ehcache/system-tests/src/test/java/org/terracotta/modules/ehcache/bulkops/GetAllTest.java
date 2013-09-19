@@ -72,14 +72,6 @@ public class GetAllTest extends AbstractCacheTestBase {
       }
 
       barrier.await();
-      if (shouldWait) {
-        while (cache.getSize() != numOfElements) {
-          Thread.sleep(1000);
-        }
-      }
-      Assert.assertEquals(numOfElements, cache.getSize());
-
-      barrier.await();
       Set getKeySet = new HashSet<String>();
       for (int i = 0; i < numOfElements; i++) {
         getKeySet.add("key" + i);
@@ -93,6 +85,14 @@ public class GetAllTest extends AbstractCacheTestBase {
         Assert.assertNotNull("val for key " + entry.getKey() + " is null", entry.getValue());
         Assert.assertTrue(vals.contains(entry.getValue().getObjectValue()));
       }
+
+      barrier.await();
+      if (shouldWait) {
+        while (cache.getSize() != numOfElements) {
+          Thread.sleep(1000);
+        }
+      }
+      Assert.assertEquals(numOfElements, cache.getSize());
 
       barrier.await();
       Set removedKeySet = new HashSet<String>();

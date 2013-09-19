@@ -52,7 +52,7 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
 
     private void testBulkOpsSanity(Cache cache, boolean shouldWait) throws InterruptedException, BrokenBarrierException {
       int index = barrier.await();
-      int numOfElements = 2000;
+      final int numOfElements = 2000;
       Set<Element> elements = new HashSet<Element>();
       Set<DummyObject> vals = new HashSet<DummyObject>();
       for (int i = 0; i < numOfElements; i++) {
@@ -63,14 +63,6 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
         cache.putAll(elements);
         System.out.println("XXXXX done with putting " + elements.size() + " entries");
       }
-
-      barrier.await();
-      if (shouldWait) {
-        while (cache.getSize() != numOfElements) {
-          Thread.sleep(1000);
-        }
-      }
-      Assert.assertEquals(numOfElements, cache.getSize());
 
       barrier.await();
       Set getKeySet = new HashSet<DummyObject>();
@@ -86,6 +78,14 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
         Assert.assertNotNull("val for key " + entry.getKey() + " is null", entry.getValue());
         Assert.assertTrue(vals.contains(entry.getValue().getObjectValue()));
       }
+
+      barrier.await();
+      if (shouldWait) {
+        while (cache.getSize() != numOfElements) {
+          Thread.sleep(1000);
+        }
+      }
+      Assert.assertEquals(numOfElements, cache.getSize());
 
       barrier.await();
       Set removedKeySet = new HashSet<DummyObject>();
