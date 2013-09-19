@@ -61,6 +61,9 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
       }
       if (index == 0) {
         cache.putAll(elements);
+        if (shouldWait) {
+          waitForAllCurrentTransactionsToComplete(cache);
+        }
         System.out.println("XXXXX done with putting " + elements.size() + " entries");
       }
 
@@ -79,12 +82,6 @@ public class GetAllNonLiteralTest extends AbstractCacheTestBase {
         Assert.assertTrue(vals.contains(entry.getValue().getObjectValue()));
       }
 
-      barrier.await();
-      if (shouldWait) {
-        while (cache.getSize() != numOfElements) {
-          Thread.sleep(1000);
-        }
-      }
       Assert.assertEquals(numOfElements, cache.getSize());
 
       barrier.await();
