@@ -23,6 +23,7 @@ public class DistributionDeadBucketWriteBehindTest extends AbstractCacheTestBase
 
   public DistributionDeadBucketWriteBehindTest(TestConfig testConfig) {
     super("basic-writebehind-test.xml", testConfig);
+    disableTest();
     testConfig.getClientConfig().setClientClasses(DeadBucketWriteBehindClient.class, NODE_COUNT);
     testConfig.getClientConfig().setParallelClients(true);
     configureTCLogging(AsyncCoordinatorImpl.class.getName(), LogLevel.DEBUG);
