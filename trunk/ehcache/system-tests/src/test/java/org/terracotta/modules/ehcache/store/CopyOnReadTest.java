@@ -7,10 +7,10 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.apache.commons.io.IOUtils;
-import org.terracotta.toolkit.Toolkit;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.test.util.TestBaseUtil;
+import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
 
@@ -45,16 +45,18 @@ public class CopyOnReadTest extends AbstractCacheTestBase {
       Loader loader1 = new Loader("1");
       Loader loader2 = new Loader("2");
 
-      // // hack-tastic! Since system test framework picks manager based on TCCL we need to register these new loaders
-      // ClassProcessorHelper.setContext(loader1, ClassProcessorHelper.getContext(getClass().getClassLoader()));
-      // ClassProcessorHelper.setContext(loader2, ClassProcessorHelper.getContext(getClass().getClassLoader()));
-
-      cache.put(new Element("key", loader1.loadClass(ValueHolder.class.getName()).newInstance()));
+      Element original = new Element("key", loader1.loadClass(ValueHolder.class.getName()).newInstance());
+      cache.put(original);
 
       Thread.currentThread().setContextClassLoader(loader1);
       Object value = cache.get("key").getObjectValue();
+
       // read should be done with TCCL
       Assert.assertEquals(loader1, value.getClass().getClassLoader());
+
+      // clustered caches are always copyOnWrite
+      Assert.assertNotSame(value, original);
+
       // repeated read should get a different object
       Assert.assertNotSame(value, cache.get("key").getObjectValue());
 
