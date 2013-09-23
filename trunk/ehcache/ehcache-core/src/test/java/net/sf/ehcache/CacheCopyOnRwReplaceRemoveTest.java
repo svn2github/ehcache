@@ -1,4 +1,3 @@
-
 /**
  *  Copyright Terracotta, Inc.
  *
@@ -21,66 +20,75 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.config.PersistenceConfiguration;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 import org.terracotta.test.categories.CheckShorts;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 @Category(CheckShorts.class)
-public class CacheCopyOnRwTest {
+@RunWith(Parameterized.class)
+public class CacheCopyOnRwReplaceRemoveTest {
+
+    public static final String MEMORY_CACHE = "memoryCache";
+    public static final String DISK_CACHE = "diskCache";
+
+    @Parameters(name = "copyOnRead:{0}, copyOnWrite:{1}")
+    public static Collection<Object[]> data() {
+        Object[][] data = new Object[][] { { true, false }, { false, true }, { true, true } };
+        return Arrays.asList(data);
+    }
+
+    private final boolean copyOnRead;
+    private final boolean copyOnWrite;
+
     private CacheManager cacheManager;
+
+    public CacheCopyOnRwReplaceRemoveTest(boolean copyOnRead, boolean copyOnWrite) {
+        this.copyOnRead = copyOnRead;
+        this.copyOnWrite = copyOnWrite;
+    }
 
     @Before
     public void setUp() throws Exception {
         cacheManager = CacheManager.create( new Configuration()
-        .diskStore(new DiskStoreConfiguration().path(System.getProperty("java.io.tmpdir")))
-        .maxBytesLocalHeap(100, MemoryUnit.KILOBYTES)
-        .maxBytesLocalDisk(200, MemoryUnit.KILOBYTES));
-
+                .name("copyOnRWReplaceRemoveManager")
+                .diskStore(new DiskStoreConfiguration().path(System.getProperty("java.io.tmpdir")))
+                .maxBytesLocalHeap(100, MemoryUnit.KILOBYTES)
+                .maxBytesLocalDisk(200, MemoryUnit.KILOBYTES));
+        cacheManager.addCache(new Cache(new CacheConfiguration().name(MEMORY_CACHE)
+                .copyOnRead(copyOnRead)
+                .copyOnWrite(copyOnWrite)));
+        cacheManager.addCache(new Cache(new CacheConfiguration().name(DISK_CACHE)
+                .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.LOCALTEMPSWAP))
+                .copyOnRead(copyOnRead)
+                .copyOnWrite(copyOnWrite)));
     }
 
     @After
     public void tearDown() {
         cacheManager.shutdown();
-        cacheManager = null;
     }
 
     @Test
-    public void testCopyOnReadWriteCache() throws Exception {
-        cacheManager.addCache(new Cache(new CacheConfiguration().name("copyOnReadWriteCache").copyOnRead(true)
-            .copyOnWrite(true)));
-        Ehcache cache = cacheManager.getCache("copyOnReadWriteCache");
+    public void testMemoryCache() throws Exception {
+        Ehcache cache = cacheManager.getCache(MEMORY_CACHE);
         testReplaceElement(cache);
         testRemoveElement(cache);
     }
 
     @Test
-    public void testSimpleCache() throws Exception {
-        cacheManager
-                .addCache(new Cache(new CacheConfiguration().name("simpleCache").copyOnRead(false).copyOnWrite(false)));
-        Ehcache cache = cacheManager.getCache("simpleCache");
-        testReplaceElement(cache);
-        testRemoveElement(cache);
-
-    }
-
-    @Test
-    public void testCopyOnReadOnlyCache() throws Exception {
-        cacheManager.addCache(new Cache(new CacheConfiguration().name("copyOnReadOnlyCache").copyOnRead(true)
-                .copyOnWrite(false)));
-        Ehcache cache = cacheManager.getCache("copyOnReadOnlyCache");
-        testReplaceElement(cache);
-        testRemoveElement(cache);
-    }
-
-    @Test
-    public void testCopyOnWriteOnlyCache() throws Exception {
-        cacheManager.addCache(new Cache(new CacheConfiguration().name("copyOnWriteOnlyCache").copyOnRead(false)
-                .copyOnWrite(true)));
-        Ehcache cache = cacheManager.getCache("copyOnWriteOnlyCache");
+    public void testDiskCache() throws Exception {
+        Ehcache cache = cacheManager.getCache(DISK_CACHE);
         testReplaceElement(cache);
         testRemoveElement(cache);
     }
