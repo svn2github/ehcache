@@ -10,9 +10,12 @@ import net.sf.ehcache.concurrent.LockType;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 
 import com.tc.test.config.model.TestConfig;
+
+import java.util.concurrent.Callable;
 
 import junit.framework.Assert;
 
@@ -72,7 +75,7 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
       }
     }
 
-    private void doTestReplace(Cache cache) throws Throwable {
+    private void doTestReplace(final Cache cache) throws Throwable {
       cache.removeAll();
       System.out.println("Running replace test, size: " + cache.getSize());
 
@@ -110,10 +113,16 @@ public class ServerMapLocalSizeTest extends AbstractCacheTestBase {
       } finally {
         clp.getSyncForKey(key).unlock(LockType.WRITE);
       }
-
-      newSize = cache.getStatistics().getLocalHeapSize();
-      System.out.println("After replace, size: " + newSize);
-      Assert.assertEquals(1, newSize);
+      waitForAllCurrentTransactionsToComplete(cache);
+      // wait untill pending transaction complete
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+        @Override
+        public Boolean call() throws Exception {
+          long size = cache.getStatistics().getLocalHeapSize();
+          System.out.println("After replace, size: " + size);
+          return size == 1;
+        }
+      });
       element = cache.get(key);
       System.out.println("Element: " + element);
       Assert.assertNotNull("Element cannot be null", element);
