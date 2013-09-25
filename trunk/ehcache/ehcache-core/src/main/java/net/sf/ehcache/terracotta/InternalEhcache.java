@@ -22,10 +22,9 @@ import net.sf.ehcache.Element;
 /**
  * This is an extension of the Ehcache interface to allow addition of new methods to Cache without breaking the public contract.
  *
- * The Cache class implements InternalEhcache interface, which in turn extends the Ehcahce interface.
+ * The Cache class implements InternalEhcache interface, which in turn extends the {@link Ehcache} interface.
  *
  * @author dkumar
- *
  */
 
 public interface InternalEhcache extends Ehcache {
