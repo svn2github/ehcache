@@ -15,35 +15,17 @@
  */
 package net.sf.ehcache.transaction.xa;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import java.util.concurrent.TimeUnit;
-import javax.transaction.RollbackException;
-import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.xa.XAException;
-
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.statistics.StatisticBuilder;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.SoftLock;
-import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.SoftLockID;
-import net.sf.ehcache.transaction.TransactionAwareAttributeExtractor;
+import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
@@ -59,6 +41,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.statistics.observer.OperationObserver;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+import javax.transaction.RollbackException;
+import javax.transaction.Synchronization;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.xa.XAException;
+
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 /**
@@ -70,6 +64,7 @@ public class XATransactionStore extends AbstractTransactionStore {
 
     private final TransactionManagerLookup transactionManagerLookup;
     private final TransactionIDFactory transactionIdFactory;
+    private final ElementValueComparator comparator;
     private final SoftLockManager softLockManager;
     private final Ehcache cache;
     private final EhcacheXAResourceImpl recoveryResource;
@@ -92,14 +87,13 @@ public class XATransactionStore extends AbstractTransactionStore {
      * @param transactionIdFactory the transaction ID factory
      * @param cache the cache
      * @param store the underlying store
-     * @param copyStrategy the original copy strategy
      */
     public XATransactionStore(TransactionManagerLookup transactionManagerLookup, SoftLockManager softLockManager,
-                              TransactionIDFactory transactionIdFactory, Ehcache cache, Store store,
-                              ReadWriteCopyStrategy<Element> copyStrategy) {
-        super(store, copyStrategy);
-        this.transactionManagerLookup = transactionManagerLookup;
+                              TransactionIDFactory transactionIdFactory, Ehcache cache, Store store, ElementValueComparator comparator) {
+      super(store);
+      this.transactionManagerLookup = transactionManagerLookup;
         this.transactionIdFactory = transactionIdFactory;
+        this.comparator = comparator;
         if (transactionManagerLookup.getTransactionManager() == null) {
             throw new TransactionException("no JTA transaction manager could be located, cannot bind twopc cache with JTA");
         }
@@ -108,7 +102,7 @@ public class XATransactionStore extends AbstractTransactionStore {
 
         // this xaresource is for initial registration and recovery
         this.recoveryResource = new EhcacheXAResourceImpl(cache, underlyingStore, transactionManagerLookup, softLockManager, transactionIdFactory,
-                copyStrategy, commitObserver, rollbackObserver, recoveryObserver);
+                comparator, commitObserver, rollbackObserver, recoveryObserver);
         transactionManagerLookup.register(recoveryResource, true);
     }
 
@@ -137,7 +131,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         if (xaResource == null) {
             LOG.debug("creating new XAResource");
             xaResource = new EhcacheXAResourceImpl(cache, underlyingStore, transactionManagerLookup,
-                    softLockManager, transactionIdFactory, copyStrategy, commitObserver, rollbackObserver,
+                    softLockManager, transactionIdFactory, comparator, commitObserver, rollbackObserver,
                     recoveryObserver);
             transactionToXAResourceMap.put(transaction, xaResource);
             xaResource.addTwoPcExecutionListener(new CleanupXAResource(getCurrentTransaction()));
@@ -310,7 +304,7 @@ public class XATransactionStore extends AbstractTransactionStore {
                 element = getFromUnderlyingStore(key);
             }
         }
-        return copyElementForRead(element);
+        return element;
     }
 
 
@@ -329,7 +323,7 @@ public class XATransactionStore extends AbstractTransactionStore {
                 element = getQuietFromUnderlyingStore(key);
             }
         }
-        return copyElementForRead(element);
+        return element;
     }
 
     /**
@@ -475,7 +469,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         getOrCreateTransactionContext();
 
         Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
-        return internalPut(new StorePutCommand(oldElement, copyElementForWrite(element)));
+        return internalPut(new StorePutCommand(oldElement, element));
     }
 
     /**
@@ -492,7 +486,7 @@ public class XATransactionStore extends AbstractTransactionStore {
         } else {
             cache.getWriterManager().put(element);
         }
-        return internalPut(new StorePutCommand(oldElement, copyElementForWrite(element)));
+        return internalPut(new StorePutCommand(oldElement, element));
     }
 
     private boolean internalPut(final StorePutCommand putCommand) {
@@ -527,7 +521,7 @@ public class XATransactionStore extends AbstractTransactionStore {
     private Element removeInternal(final StoreRemoveCommand command) {
         Element element = command.getEntry().getElement();
         getOrCreateTransactionContext().addCommand(command, element);
-        return copyElementForRead(element);
+        return element;
     }
 
     /**
@@ -568,11 +562,10 @@ public class XATransactionStore extends AbstractTransactionStore {
 
         if (previous == null) {
             Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
-            Element elementForWrite = copyElementForWrite(element);
-            context.addCommand(new StorePutCommand(oldElement, elementForWrite), elementForWrite);
+            context.addCommand(new StorePutCommand(oldElement, element), element);
         }
 
-        return copyElementForRead(previous);
+        return previous;
     }
 
     /**
@@ -583,11 +576,10 @@ public class XATransactionStore extends AbstractTransactionStore {
         XATransactionContext context = getOrCreateTransactionContext();
         Element previous = getCurrentElement(element.getKey(), context);
 
-        Element elementForWrite = copyElementForWrite(element);
-        if (previous != null && comparator.equals(previous, elementForWrite)) {
+        if (previous != null && comparator.equals(previous, element)) {
             Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
-            context.addCommand(new StoreRemoveCommand(element.getObjectKey(), oldElement), elementForWrite);
-            return copyElementForRead(previous);
+            context.addCommand(new StoreRemoveCommand(element.getObjectKey(), oldElement), element);
+            return previous;
         }
         return null;
     }
@@ -602,10 +594,9 @@ public class XATransactionStore extends AbstractTransactionStore {
         Element previous = getCurrentElement(element.getKey(), context);
 
         boolean replaced = false;
-        if (previous != null && comparator.equals(previous, copyElementForWrite(old))) {
+        if (previous != null && comparator.equals(previous, old)) {
             Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
-            Element elementForWrite = copyElementForWrite(element);
-            context.addCommand(new StorePutCommand(oldElement, elementForWrite), elementForWrite);
+            context.addCommand(new StorePutCommand(oldElement, element), element);
             replaced = true;
         }
         return replaced;
@@ -621,22 +612,9 @@ public class XATransactionStore extends AbstractTransactionStore {
 
         if (previous != null) {
             Element oldElement = getQuietFromUnderlyingStore(element.getObjectKey());
-            Element elementForWrite = copyElementForWrite(element);
-            context.addCommand(new StorePutCommand(oldElement, elementForWrite), elementForWrite);
+            context.addCommand(new StorePutCommand(oldElement, element), element);
         }
-        return copyElementForRead(previous);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setAttributeExtractors(Map<String, AttributeExtractor> extractors) {
-        Map<String, AttributeExtractor> wrappedExtractors = new HashMap(extractors.size());
-        for (Entry<String, AttributeExtractor> e : extractors.entrySet()) {
-            wrappedExtractors.put(e.getKey(), new TransactionAwareAttributeExtractor(copyStrategy, e.getValue()));
-        }
-        underlyingStore.setAttributeExtractors(wrappedExtractors);
+        return previous;
     }
 
 }

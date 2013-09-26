@@ -16,39 +16,7 @@
 
 package net.sf.ehcache;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.AbstractExecutorService;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
 import net.sf.ehcache.CacheOperationOutcomes.GetAllOutcome;
-
 import net.sf.ehcache.CacheOperationOutcomes.GetOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.PutAllOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
@@ -97,6 +65,7 @@ import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.statistics.StatisticsGateway;
+import net.sf.ehcache.store.CopyingCacheStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.LegacyStoreWrapper;
 import net.sf.ehcache.store.LruMemoryStore;
@@ -108,12 +77,12 @@ import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.StoreQuery.Ordering;
 import net.sf.ehcache.store.TerracottaStore;
-import net.sf.ehcache.store.compound.ImmutableValueElementCopyStrategy;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.store.TxCopyingCacheStore;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.terracotta.InternalEhcache;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
+import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.local.JtaLocalTransactionStore;
@@ -135,6 +104,38 @@ import org.slf4j.LoggerFactory;
 import org.terracotta.context.annotations.ContextAttribute;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.observer.OperationObserver;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
@@ -158,6 +159,7 @@ import static net.sf.ehcache.statistics.StatisticBuilder.operation;
  *
  * @author Greg Luck
  * @author Geert Bevin
+ * @version $Id: Cache.java 7824 2013-07-23 01:54:39Z vfunshte $
  * @version $Id$
  */
 public class Cache implements InternalEhcache, StoreListener {
@@ -1064,13 +1066,6 @@ public class Cache implements InternalEhcache, StoreListener {
                 onDiskPool = new UnboundedPool();
             }
 
-            ReadWriteCopyStrategy<Element> copyStrategy = null;
-            if (configuration.getTransactionalMode().isTransactional()) {
-                configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
-                copyStrategy = configuration.getCopyStrategyConfiguration().getCopyStrategyInstance();
-                configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(new ImmutableValueElementCopyStrategy());
-            }
-            elementValueComparator = configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration);
 
             Store store;
             if (isTerracottaClustered()) {
@@ -1082,8 +1077,7 @@ public class Cache implements InternalEhcache, StoreListener {
                             + maxConcurrency + ". Please reconfigure cache '" + getName() + "' with concurrency value <= " + maxConcurrency
                             + " or use system property '" + EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP + "' to override the default");
                 }
-
-                final ReadWriteCopyStrategy<Element> copyStrategyTemp = copyStrategy;
+                elementValueComparator = configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration);
 
                 Callable<TerracottaStore> callable = new Callable<TerracottaStore>() {
                     @Override
@@ -1108,7 +1102,7 @@ public class Cache implements InternalEhcache, StoreListener {
                                     + "Please reconfigure cache '" + getName() + "' with transactionalMode = " + clusteredTransactionalMode);
                         }
                         
-                        TerracottaStore terracottaStore = (TerracottaStore) makeTransactionalIfNeeded(tempStore, copyStrategyTemp);
+                        TerracottaStore terracottaStore = (TerracottaStore) makeClusteredTransactionalIfNeeded(tempStore, elementValueComparator);
 
                         if (isSearchable()) {
                             Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
@@ -1159,8 +1153,9 @@ public class Cache implements InternalEhcache, StoreListener {
                 } else {
                     store = featuresManager.createStore(this, onHeapPool, onDiskPool);
                 }
-                store = makeTransactionalIfNeeded(store, copyStrategy);
+                store = handleTransactionalAndCopy(store);
             }
+
 
             this.compoundStore = store;
 
@@ -1205,6 +1200,21 @@ public class Cache implements InternalEhcache, StoreListener {
         }
     }
 
+    private Store handleTransactionalAndCopy(Store store) {
+        Store wrappedStore;
+
+        if (configuration.isLocalTransactional() || configuration.isXaTransactional() || configuration.isXaStrictTransactional()) {
+            elementValueComparator = TxCopyingCacheStore.wrap(
+                    configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration), configuration);
+            wrappedStore = TxCopyingCacheStore.wrapTxStore(makeTransactional(store), configuration);
+        } else {
+            elementValueComparator = CopyingCacheStore.wrapIfCopy(
+                configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration), configuration);
+            wrappedStore = CopyingCacheStore.wrapIfCopy(store, configuration);
+        }
+        return wrappedStore;
+    }
+
     private void handleExceptionInTerracottaStoreCreation(IllegalArgumentException e) {
         if (e.getMessage().contains("copyOnReadEnabled")) {
             throw new InvalidConfigurationException("Conflict in configuration for clustered cache " + getName() + " . " +
@@ -1241,7 +1251,40 @@ public class Cache implements InternalEhcache, StoreListener {
         }
     }
 
-    private Store makeTransactionalIfNeeded(Store clusteredStore, ReadWriteCopyStrategy<Element> copyStrategy) {
+    private AbstractTransactionStore makeTransactional(final Store store) {
+        AbstractTransactionStore wrappedStore;
+
+        if (configuration.isXaStrictTransactional()) {
+            if (transactionManagerLookup.getTransactionManager() == null) {
+                throw new CacheException("You've configured cache " + cacheManager.getName() + "." + configuration.getName()
+                        + " to be transactional, but no TransactionManager could be found!");
+            }
+            // set xa enabled
+            if (configuration.isTerracottaClustered()) {
+                configuration.getTerracottaConfiguration().setCacheXA(true);
+            }
+            SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
+            TransactionIDFactory transactionIDFactory = cacheManager.getOrCreateTransactionIDFactory();
+            wrappedStore = new XATransactionStore(transactionManagerLookup, softLockManager,
+                    transactionIDFactory, this, store, elementValueComparator);
+        } else if (configuration.isXaTransactional()) {
+            SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
+            LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
+                    getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, store, elementValueComparator);
+            wrappedStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup,
+                    cacheManager.getTransactionController());
+        } else if (configuration.isLocalTransactional()) {
+            SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
+            wrappedStore = new LocalTransactionStore(getCacheManager().getTransactionController(), getCacheManager()
+                    .getOrCreateTransactionIDFactory(), softLockManager, this, store, elementValueComparator);
+        } else {
+            throw new IllegalStateException("Method should called only with a transactional configuration");
+        }
+
+        return wrappedStore;
+    }
+
+    private Store makeClusteredTransactionalIfNeeded(final Store store, final ElementValueComparator comparator) {
         Store wrappedStore;
 
         if (configuration.isXaStrictTransactional()) {
@@ -1255,20 +1298,19 @@ public class Cache implements InternalEhcache, StoreListener {
             }
             SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
             TransactionIDFactory transactionIDFactory = cacheManager.getOrCreateTransactionIDFactory();
-            wrappedStore = new XATransactionStore(transactionManagerLookup, softLockManager, transactionIDFactory, this, clusteredStore,
-                    copyStrategy);
+            wrappedStore = new XATransactionStore(transactionManagerLookup, softLockManager, transactionIDFactory, this, store, comparator);
         } else if (configuration.isXaTransactional()) {
             SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
             LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
-                    getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, clusteredStore, copyStrategy);
+                    getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, store, comparator);
             wrappedStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup,
                     cacheManager.getTransactionController());
         } else if (configuration.isLocalTransactional()) {
             SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
             wrappedStore = new LocalTransactionStore(getCacheManager().getTransactionController(), getCacheManager()
-                    .getOrCreateTransactionIDFactory(), softLockManager, this, clusteredStore, copyStrategy);
+                    .getOrCreateTransactionIDFactory(), softLockManager, this, store, comparator);
         } else {
-            wrappedStore = clusteredStore;
+            wrappedStore = store;
         }
 
         return wrappedStore;
@@ -2937,7 +2979,6 @@ public class Cache implements InternalEhcache, StoreListener {
      * <p/>
      * Note, the {@link #getSize} method will have the same value as the size
      * reported by Statistics for the statistics accuracy of
-     * {@link Statistics#STATISTICS_ACCURACY_BEST_EFFORT}.
      */
     public StatisticsGateway getStatistics() throws IllegalStateException {
         checkStatus();

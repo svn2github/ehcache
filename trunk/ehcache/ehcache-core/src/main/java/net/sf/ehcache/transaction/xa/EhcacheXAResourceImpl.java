@@ -15,6 +15,25 @@
  */
 package net.sf.ehcache.transaction.xa;
 
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.transaction.SoftLock;
+import net.sf.ehcache.transaction.SoftLockID;
+import net.sf.ehcache.transaction.SoftLockManager;
+import net.sf.ehcache.transaction.TransactionIDFactory;
+import net.sf.ehcache.transaction.TransactionIDNotFoundException;
+import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
+import net.sf.ehcache.transaction.xa.commands.Command;
+import net.sf.ehcache.transaction.xa.processor.XARequest;
+import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.terracotta.statistics.observer.OperationObserver;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,26 +51,6 @@ import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
-
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.store.ElementValueComparator;
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-import net.sf.ehcache.transaction.SoftLock;
-import net.sf.ehcache.transaction.SoftLockID;
-import net.sf.ehcache.transaction.SoftLockManager;
-import net.sf.ehcache.transaction.TransactionIDFactory;
-import net.sf.ehcache.transaction.TransactionIDNotFoundException;
-import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.transaction.xa.commands.Command;
-import net.sf.ehcache.transaction.xa.processor.XARequest;
-import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.terracotta.statistics.observer.OperationObserver;
 
 /**
  * The EhcacheXAResource implementation
@@ -86,10 +85,11 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
      * @param txnManagerLookup the transaction manager lookup
      * @param softLockManager the soft lock manager
      * @param transactionIDFactory the transaction ID factory
+     * @param comparator the element value comparator
      */
     public EhcacheXAResourceImpl(Ehcache cache, Store underlyingStore, TransactionManagerLookup txnManagerLookup,
                                  SoftLockManager softLockManager, TransactionIDFactory transactionIDFactory,
-                                 ReadWriteCopyStrategy<Element> copyStrategy, OperationObserver<XaCommitOutcome> commitObserver,
+                                 ElementValueComparator comparator, OperationObserver<XaCommitOutcome> commitObserver,
                                  OperationObserver<XaRollbackOutcome> rollbackObserver, OperationObserver<XaRecoveryOutcome> recoveryObserver) {
         this.cache = cache;
         this.underlyingStore = underlyingStore;
@@ -98,8 +98,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
         this.softLockManager = softLockManager;
         this.processor = new XARequestProcessor(this);
         this.transactionTimeout = cache.getCacheManager().getTransactionController().getDefaultTransactionTimeout();
-        this.comparator = cache.getCacheConfiguration().getElementValueComparatorConfiguration()
-            .createElementComparatorInstance(cache.getCacheConfiguration());
+        this.comparator = comparator;
         this.commitObserver = commitObserver;
         this.rollbackObserver = rollbackObserver;
         this.recoveryObserver = recoveryObserver;

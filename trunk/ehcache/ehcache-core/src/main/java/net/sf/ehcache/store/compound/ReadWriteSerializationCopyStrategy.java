@@ -18,6 +18,7 @@ package net.sf.ehcache.store.compound;
 
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.ElementIdHelper;
 import net.sf.ehcache.util.PreferTCCLObjectInputStream;
 
 import java.io.ByteArrayInputStream;
@@ -104,9 +105,20 @@ public class ReadWriteSerializationCopyStrategy implements ReadWriteCopyStrategy
      * @return the duplicated element
      */
     public Element duplicateElementWithNewValue(final Element element, final Object newValue) {
-        return new Element(element.getObjectKey(), newValue, element.getVersion(),
-                element.getCreationTime(), element.getLastAccessTime(), element.getHitCount(), element.usesCacheDefaultLifespan(),
-                element.getTimeToLive(), element.getTimeToIdle(), element.getLastUpdateTime());
+        Element newElement;
+        if (element.usesCacheDefaultLifespan()) {
+            newElement = new Element(element.getObjectKey(), newValue, element.getVersion(),
+                    element.getCreationTime(), element.getLastAccessTime(), element.getHitCount(), element.usesCacheDefaultLifespan(),
+                    Integer.MIN_VALUE, Integer.MIN_VALUE, element.getLastUpdateTime());
+        } else {
+            newElement = new Element(element.getObjectKey(), newValue, element.getVersion(),
+                    element.getCreationTime(), element.getLastAccessTime(), element.getHitCount(), element.usesCacheDefaultLifespan(),
+                    element.getTimeToLive(), element.getTimeToIdle(), element.getLastUpdateTime());
+        }
+        if (ElementIdHelper.hasId(element)) {
+            ElementIdHelper.setId(newElement, ElementIdHelper.getId(element));
+        }
+        return newElement;
     }
 
 }

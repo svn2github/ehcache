@@ -18,6 +18,7 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
@@ -26,10 +27,7 @@ import net.sf.ehcache.concurrent.ReadWriteLockSync;
 import net.sf.ehcache.concurrent.Sync;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
-import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.PinningConfiguration;
-import net.sf.ehcache.config.SearchAttribute;
-import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.pool.Pool;
@@ -37,69 +35,45 @@ import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.Size;
 import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
+import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.search.Attribute;
-import net.sf.ehcache.search.Results;
-import net.sf.ehcache.search.SearchException;
-import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
-import net.sf.ehcache.search.attribute.AttributeExtractorException;
-import net.sf.ehcache.search.attribute.AttributeType;
-import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
-import net.sf.ehcache.search.expression.Criteria;
-import net.sf.ehcache.search.impl.AggregateOnlyResult;
-import net.sf.ehcache.search.impl.BaseResult;
-import net.sf.ehcache.search.impl.DynamicSearchChecker;
-import net.sf.ehcache.search.impl.GroupedResultImpl;
-import net.sf.ehcache.search.impl.OrderComparator;
-import net.sf.ehcache.search.impl.ResultImpl;
-import net.sf.ehcache.search.impl.ResultsImpl;
 import net.sf.ehcache.search.impl.SearchManager;
+import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
+import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.store.chm.SelectableConcurrentHashMap;
-import net.sf.ehcache.store.compound.NullReadWriteCopyStrategy;
 import net.sf.ehcache.store.disk.StoreUpdateException;
-import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.writer.CacheWriterManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
-import net.sf.ehcache.pool.impl.UnboundedPool;
-
 import org.terracotta.statistics.OperationStatistic;
+import org.terracotta.statistics.Statistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.derived.EventRateSimpleMovingAverage;
 import org.terracotta.statistics.derived.OperationResultFilter;
 import org.terracotta.statistics.observer.OperationObserver;
 
-import static net.sf.ehcache.statistics.StatisticBuilder.operation;
-import net.sf.ehcache.store.StoreOperationOutcomes.GetOutcome;
-import net.sf.ehcache.store.StoreOperationOutcomes.PutOutcome;
-import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
-import org.terracotta.statistics.Statistic;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static net.sf.ehcache.search.expression.BaseCriteria.getExtractor;
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
  * configured in the cache.
  *
  * @author Terracotta
+ * @version $Id: MemoryStore.java 7824 2013-07-23 01:54:39Z vfunshte $
  * @version $Id$
  */
 public class MemoryStore extends AbstractStore implements CacheConfigurationListener, Store {
@@ -116,8 +90,6 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     private static final int CONCURRENCY_LEVEL = 100;
 
     private static final int MAX_EVICTION_RATIO = 5;
-
-    private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
     private static final Logger LOG = LoggerFactory.getLogger(MemoryStore.class.getName());
 
@@ -245,20 +217,33 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @return an instance of a NotifyingMemoryStore, configured with the appropriate eviction policy
      */
     public static Store create(final Ehcache cache, Pool pool) {
+        CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
         final BruteForceSearchManager searchManager = new BruteForceSearchManager();
         MemoryStore memoryStore = new MemoryStore(cache, pool, new BasicBackingFactory(), searchManager);
-        cache.getCacheConfiguration().addConfigurationListener(memoryStore);
-        final Store store;
-        if (CopyingCacheStore.requiresCopy(cache.getCacheConfiguration())) {
-            final CopyingCacheStore<MemoryStore> copyingCacheStore = CopyingCacheStore.wrap(memoryStore, cache.getCacheConfiguration());
-            searchManager.setMemoryStore(copyingCacheStore);
-            store = copyingCacheStore;
-        } else {
-            searchManager.setMemoryStore(memoryStore);
-            store = memoryStore;
-        }
+        cacheConfiguration.addConfigurationListener(memoryStore);
+        searchManager.setBruteForceSource(createBruteForceSource(memoryStore, cache.getCacheConfiguration()));
+        return memoryStore;
+    }
 
-        return store;
+    /**
+     * Factory method to wrap the MemoryStore into a BruteForceSource, accounting for transactional and copy
+     * configuration
+     *
+     * @param memoryStore the underlying store acting as source
+     * @param cacheConfiguration the cache configuration
+     * @return a BruteForceSource connected to underlying MemoryStore and matching configuration
+     */
+    protected static BruteForceSource createBruteForceSource(MemoryStore memoryStore, CacheConfiguration cacheConfiguration) {
+        BruteForceSource source = new MemoryStoreBruteForceSource(memoryStore, cacheConfiguration.getSearchable());
+        CopyStrategyHandler copyStrategyHandler = new CopyStrategyHandler(cacheConfiguration.isCopyOnRead(),
+                cacheConfiguration.isCopyOnWrite(),
+                cacheConfiguration.getCopyStrategy());
+        if (cacheConfiguration.getTransactionalMode().isTransactional()) {
+            source = new TransactionalBruteForceSource(source, copyStrategyHandler);
+        } else if (cacheConfiguration.isCopyOnRead() || cacheConfiguration.isCopyOnWrite()) {
+            source = new CopyingBruteForceSource(source, copyStrategyHandler);
+        }
+        return source;
     }
 
     /**
@@ -853,7 +838,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         for (String name : extractors.keySet()) {
             attrs.add(new Attribute(name));
         }
-        ((BruteForceSearchManager)searchManager).searchAttributes.addAll(attrs);
+        ((BruteForceSearchManager)searchManager).addSearchAttributes(attrs);
     }
 
     /**
@@ -1009,318 +994,6 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     public Collection<Element> elementSet() {
         return map.values();
-    }
-
-    /**
-     * Brute force search implementation
-     *
-     * @author teck
-     */
-    public static class BruteForceSearchManager implements SearchManager {
-
-        private volatile MemoryStore memoryStore;
-        private volatile CopyingCacheStore<? extends MemoryStore> copyingStore;
-        
-        /**
-         * account for all search attributes
-         */
-        private final Set<Attribute> searchAttributes = new CopyOnWriteArraySet<Attribute>();
-
-        /**
-         * Create a BruteForceSearchManager
-         */
-        public BruteForceSearchManager() {
-            //
-        }
-
-        /**
-         * set the memory store
-         *
-         * @param memoryStore
-         */
-        public void setMemoryStore(MemoryStore memoryStore) {
-            this.memoryStore = memoryStore;
-            this.copyingStore = new CopyingCacheStore<MemoryStore>(memoryStore, false, false, new NullReadWriteCopyStrategy());
-        }
-
-        /**
-         * set the memory store, keeping a ref to the copying wrapping instance
-         *
-         * @param copyingCacheStore
-         */
-        public void setMemoryStore(CopyingCacheStore<? extends MemoryStore> copyingCacheStore) {
-            this.memoryStore = copyingCacheStore.getUnderlyingStore();
-            this.copyingStore = copyingCacheStore;
-        }
-
-        @Override
-        public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors, DynamicAttributesExtractor 
-                dynIndexer) {
-            Criteria c = query.getCriteria();
-
-            List<AggregatorInstance<?>> aggregators = query.getAggregatorInstances();
-
-            final Set<Attribute<?>> groupByAttributes = query.groupByAttributes();
-            final boolean isGroupBy = !groupByAttributes.isEmpty();
-            boolean includeResults = query.requestsKeys() || query.requestsValues() || !query.requestedAttributes().isEmpty() || isGroupBy;
-
-            boolean hasOrder = !query.getOrdering().isEmpty();
-
-            final Map<Set<?>, BaseResult> groupByResults = new HashMap<Set<?>, BaseResult>();
-            final Map<Set, List<AggregatorInstance<?>>> groupByAggregators = new HashMap<Set, List<AggregatorInstance<?>>>();
-
-            Collection<Element> matches = new LinkedList<Element>();
-            Map<Object, Map<String, AttributeExtractor>> eltExtractors = new HashMap<Object, Map<String, AttributeExtractor>>();
-            
-            for (Element element : memoryStore.elementSet()) {
-                element = copyingStore.copyElementForReadIfNeeded(element);
-
-                if (element.getObjectValue() instanceof SoftLockID) {
-                    SoftLockID sl = (SoftLockID) element.getObjectValue();
-                    element = sl.getOldElement();
-                    
-                    // No previously committed value
-                    if (element == null) { continue; }
-                }
-                
-                Map<String, AttributeExtractor> extractorSuperset = getCombinedExtractors(extractors, dynIndexer, element);
-                eltExtractors.put(element.getObjectKey(), extractorSuperset);
-
-                if (c.execute(element, extractorSuperset)) {
-                    if (!isGroupBy && !hasOrder && query.maxResults() >= 0 && matches.size() == query.maxResults()) {
-                        break;
-                    }
-
-                    matches.add(element);
-                }
-            }
-
-            Collection<BaseResult> results = isGroupBy ? groupByResults.values() : new ArrayList<BaseResult>();
-
-            boolean anyMatches = !matches.isEmpty();
-            for (Element element : matches) {
-                Map<String, AttributeExtractor> extractorSuperset = eltExtractors.get(element.getObjectKey());
-                if (includeResults) {
-                    final Map<String, Object> attributes = getAttributeValues(query.requestedAttributes(), extractorSuperset, element);
-                    final Object[] sortAttributes = getSortAttributes(query, extractorSuperset, element);
-
-                    if (!isGroupBy) {
-                        results.add(new ResultImpl(element.getObjectKey(), element.getObjectValue(), query, attributes, sortAttributes));
-                    } else {
-                        Map<String, Object> groupByValues = getAttributeValues(groupByAttributes, extractorSuperset, element);
-                        Set<?> groupId = new HashSet(groupByValues.values());
-                        BaseResult group = groupByResults.get(groupId);
-                        if (group == null) {
-                            group = new GroupedResultImpl(query, attributes, sortAttributes, Collections.EMPTY_LIST /* placeholder for now */,
-                                    groupByValues);
-                            groupByResults.put(groupId, group);
-                        }
-                        List<AggregatorInstance<?>> groupAggrs = groupByAggregators.get(groupId);
-                        if (groupAggrs == null) {
-                            groupAggrs = new ArrayList<AggregatorInstance<?>>(aggregators.size());
-                            for (AggregatorInstance<?> aggr : aggregators) {
-                                groupAggrs.add(aggr.createClone());
-                            }
-                            groupByAggregators.put(groupId, groupAggrs);
-                        }
-                        // Switch to per-record aggregators
-                        aggregators = groupAggrs;
-                    }
-                }
-                aggregate(aggregators, extractorSuperset, element);
-            }
-
-            if (hasOrder || isGroupBy) {
-                if (isGroupBy) {
-                    results = new ArrayList<BaseResult>(results);
-                }
-
-                if (hasOrder) {
-                    Collections.sort((List<BaseResult>)results, new OrderComparator(query.getOrdering()));
-                }
-                // trim results to max length if necessary
-                int max = query.maxResults();
-                if (max >= 0 && (results.size() > max)) {
-                    results = ((List<BaseResult>)results).subList(0, max);
-                }
-            }
-
-            if (!aggregators.isEmpty()) {
-                for (BaseResult result : results) {
-                    if (isGroupBy) {
-                        GroupedResultImpl group = (GroupedResultImpl)result;
-                        Set<?> groupId = new HashSet(group.getGroupByValues().values());
-                        aggregators = groupByAggregators.get(groupId);
-                    }
-                    setResultAggregators(aggregators, result);
-                }
-            }
-
-            if (!isGroupBy && anyMatches && !includeResults && !aggregators.isEmpty()) {
-                // add one row in the results if the only thing included was aggregators and anything matched
-                BaseResult aggOnly = new AggregateOnlyResult(query);
-                setResultAggregators(aggregators, aggOnly);
-                results.add(aggOnly);
-            }
-
-            return new ResultsImpl((List)results, query.requestsKeys(), query.requestsValues(), !query.requestedAttributes().isEmpty(), anyMatches
-                    && !aggregators.isEmpty());
-        }
-
-        private void setResultAggregators(List<AggregatorInstance<?>> aggregators, BaseResult result)
-        {
-            List<Object> aggregateResults = new ArrayList<Object>();
-            for (AggregatorInstance<?> aggregator : aggregators) {
-                aggregateResults.add(aggregator.aggregateResult());
-            }
-
-            if (!aggregateResults.isEmpty()) {
-                result.setAggregateResults(aggregateResults);
-            }
-        }
-
-        private Map<String, Object> getAttributeValues(Set<Attribute<?>> attributes, Map<String, AttributeExtractor> extractors, Element element) {
-            final Map<String, Object> values;
-            if (attributes.isEmpty()) {
-                values = Collections.emptyMap();
-            } else {
-                values = new HashMap<String, Object>();
-                for (Attribute attribute : attributes) {
-                    String name = attribute.getAttributeName();
-                    values.put(name, getExtractor(name, extractors).attributeFor(element, name));
-                }
-            }
-            return values;
-        }
-        
-        private Map<String, AttributeExtractor> getCombinedExtractors(Map<String, AttributeExtractor> configExtractors, DynamicAttributesExtractor 
-                dynIndexer, Element element) {
-            Map<String, AttributeExtractor> combinedExtractors = new HashMap<String, AttributeExtractor>();
-            combinedExtractors.putAll(configExtractors);
-            
-            if (dynIndexer != null) {
-                Map<String, ? extends Object> dynamic = DynamicSearchChecker.getSearchAttributes(element, configExtractors.keySet(),
-                        dynIndexer);
-
-                for (final Map.Entry<String, ? extends Object> entry: dynamic.entrySet()) {
-                    AttributeExtractor old = combinedExtractors.put(entry.getKey(), new AttributeExtractor() {
-                        @Override
-                        public Object attributeFor(Element element, String attributeName) throws AttributeExtractorException {
-                            if (!attributeName.equals(entry.getKey())) { 
-                                throw new AttributeExtractorException(String.format("Expected attribute name %s but got %s", entry.getKey(), 
-                                        attributeName));
-                            }
-                            return entry.getValue();
-                        }
-                    });
-                    if (old != null) {
-                        throw new AttributeExtractorException(String.format("Attribute name %s already used by configured extractors", 
-                                entry.getKey()));
-                    }
-                }
-            }
-            return combinedExtractors;
-        }
-
-        private void aggregate(List<AggregatorInstance<?>> aggregators, Map<String, AttributeExtractor> extractors, Element element) {
-            for (AggregatorInstance<?> aggregator : aggregators) {
-                Attribute<?> attribute = aggregator.getAttribute();
-                if (attribute == null) {
-                    aggregator.accept(null);
-                } else {
-                    Object val = getExtractor(attribute.getAttributeName(), extractors).attributeFor(element, attribute.getAttributeName());
-                    aggregator.accept(val);
-                }
-            }
-        }
-
-        private Object[] getSortAttributes(StoreQuery query, Map<String, AttributeExtractor> extractors, Element element) {
-            Object[] sortAttributes;
-            List<StoreQuery.Ordering> orderings = query.getOrdering();
-            if (orderings.isEmpty()) {
-                sortAttributes = MemoryStore.EMPTY_OBJECT_ARRAY;
-            } else {
-                sortAttributes = new Object[orderings.size()];
-                for (int i = 0; i < sortAttributes.length; i++) {
-                    String name = orderings.get(i).getAttribute().getAttributeName();
-                    sortAttributes[i] = getExtractor(name, extractors).attributeFor(element, name);
-                }
-            }
-
-            return sortAttributes;
-        }
-
-        @Override
-        public void clear(String cacheName, int segmentId) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void put(String cacheName, int segmentId, Element element, byte[] key, Map<String, AttributeExtractor> extractors, 
-                DynamicAttributesExtractor dynamicIndexer) {
-            if (extractors.isEmpty() && dynamicIndexer == null) {
-                return;
-            }
-          
-          boolean isXa = element.getObjectValue() instanceof SoftLockID;
-
-          if (isXa) {
-            SoftLockID sl = (SoftLockID) element.getObjectValue();
-            element = sl.getOldElement();
-            
-            // No previous value committed - do not index
-            if (element == null) { return; }
-          } 
-          
-          // Handle dynamic attribute extractor, if any
-          Map<String, ? extends Object> dynAttrs = DynamicSearchChecker.getSearchAttributes(element, extractors.keySet(),
-                                                                       dynamicIndexer);
-          Set<Attribute<?>> attrs = new HashSet<Attribute<?>>(dynAttrs.size());
-          for (Entry<String, ? extends Object> attr : dynAttrs.entrySet()) {
-              if (!AttributeType.isSupportedType(attr.getValue())) {
-                  throw new CacheException(String.format("Unsupported attribute type specified %s for dynamically extracted attribute %s",
-                          attr.getClass().getName(), attr.getKey()));
-              }
-              attrs.add(new Attribute(attr.getKey()));
-          }
-          
-          Searchable config = memoryStore.cache.getCacheConfiguration().getSearchable(); 
-          if (config == null) { return; }
-          for (Entry<String, AttributeExtractor> entry : extractors.entrySet()) {
-            String name = entry.getKey();
-            SearchAttribute sa = config.getSearchAttributes().get(name);
-            Class<?> c = ConfigurationHelper.getSearchAttributeType(sa);
-            if (c == null) { continue; }
-            
-            AttributeExtractor extractor = entry.getValue();
-            Object av = extractor.attributeFor(element, name);
-            
-            AttributeType schemaType = AttributeType.typeFor(c);
-            AttributeType type = AttributeType.typeFor(name, av);
-            
-            String schemaTypeName = c.isEnum() ? c.getName() : schemaType.name();
-            String typeName = AttributeType.ENUM == type ? ((Enum) av).getDeclaringClass().getName() : type.name();
-            
-            if (!typeName.equals(schemaTypeName)) { throw new SearchException(
-                                                                        String
-                                                                            .format("Expecting a %s value for attribute [%s] but was %s",
-                                                                                    schemaTypeName, name, typeName)); 
-            }
-          }
-          
-          searchAttributes.addAll(attrs);
-        }
-
-        @Override
-        public void remove(String cacheName, Object key, int segmentId, boolean isRemoval) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Set<Attribute> getSearchAttributes(String cacheName) {
-            return searchAttributes;
-        }
-
     }
 
     /**

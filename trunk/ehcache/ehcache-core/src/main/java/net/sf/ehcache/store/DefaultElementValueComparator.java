@@ -17,7 +17,6 @@ package net.sf.ehcache.store;
 
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 
 import java.util.Arrays;
 
@@ -29,15 +28,12 @@ import java.util.Arrays;
  */
 public class DefaultElementValueComparator implements ElementValueComparator {
 
-    private final CacheConfiguration cacheConfiguration;
-
     /**
      * Constructor
      *
      * @param cacheConfiguration the cache configuration
      */
     public DefaultElementValueComparator(CacheConfiguration cacheConfiguration) {
-        this.cacheConfiguration = cacheConfiguration;
     }
 
     /**
@@ -50,7 +46,7 @@ public class DefaultElementValueComparator implements ElementValueComparator {
             if (e1.getObjectValue() == null) {
                 return e2.getObjectValue() == null;
             } else {
-                return compareValues(copyForReadIfNeeded(e1).getObjectValue(), copyForReadIfNeeded(e2).getObjectValue());
+                return compareValues(e1.getObjectValue(), e2.getObjectValue());
             }
         } else {
             return false;
@@ -67,19 +63,6 @@ public class DefaultElementValueComparator implements ElementValueComparator {
                 return objectValue1.equals(objectValue2);
             }
         }
-    }
-
-    private Element copyForReadIfNeeded(Element element) {
-        ReadWriteCopyStrategy<Element> readWriteCopyStrategy = cacheConfiguration.getCopyStrategy();
-        if (readWriteCopyStrategy == null || skipCopyForRead()) {
-            return element;
-        }
-        return readWriteCopyStrategy.copyForRead(element);
-    }
-
-    private boolean skipCopyForRead() {
-        // only do a copy for read before comparing if both copy on read and copy on write are enabled
-        return !(cacheConfiguration.isCopyOnRead() && cacheConfiguration.isCopyOnWrite());
     }
 
 }

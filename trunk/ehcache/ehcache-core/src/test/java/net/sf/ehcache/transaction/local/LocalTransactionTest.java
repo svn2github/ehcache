@@ -1,12 +1,15 @@
 package net.sf.ehcache.transaction.local;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.store.TxCopyingCacheStore;
 import net.sf.ehcache.transaction.DeadLockException;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
@@ -16,6 +19,9 @@ import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -33,6 +39,12 @@ public class LocalTransactionTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
+        final ConsoleHandler consoleHandler = new ConsoleHandler();
+        consoleHandler.setLevel(Level.ALL);
+        final Logger logger = Logger.getLogger(LocalTransactionStore.class.getName());
+        logger.addHandler(consoleHandler);
+        logger.setLevel(Level.ALL);
+
         cacheManager = new CacheManager(LocalTransactionTest.class.getResourceAsStream("/ehcache-tx-local.xml"));
         transactionController = cacheManager.getTransactionController();
         transactionController.begin();
@@ -869,6 +881,31 @@ public class LocalTransactionTest extends TestCase {
         assertEquals(new Element(1, "one#2"), txCacheOverflow.get(1));
         assertEquals(new Element(2, "two#2"), txCacheOverflow.get(2));
         transactionController.commit();
+    }
+
+    public void testGetOldElementFromStore() {
+        Cache txCache = cacheManager.getCache("txCacheMemoryOnly");
+
+        CacheStoreHelper cacheStoreHelper = new CacheStoreHelper(txCache);
+        TxCopyingCacheStore store = (TxCopyingCacheStore)cacheStoreHelper.getStore();
+
+        transactionController.begin();
+        txCache.removeAll();
+        transactionController.commit();
+
+        Element one = new Element(1, "one");
+        transactionController.begin();
+        txCache.put(one);
+        txCache.put(new Element(2, "two"));
+        transactionController.commit();
+
+        Element oneUp = new Element(1, "oneUp");
+        transactionController.begin();
+        txCache.put(oneUp);
+        assertEquals(one, store.getOldElement(1));
+        transactionController.commit();
+
+        assertEquals(oneUp, store.getOldElement(1));
     }
 
     private static class TxThread extends Thread {

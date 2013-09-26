@@ -16,26 +16,19 @@
 
 package net.sf.ehcache.search;
 
-import bitronix.tm.TransactionManagerServices;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
-import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.search.Person.Gender;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.search.impl.GroupedResultImpl;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -49,91 +42,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.transaction.TransactionManager;
-
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
-public class TransactionalSearchTest {
+public class CopyOnRWSearchTest {
 
-    @Rule
-    public final TestName testName = new TestName();
-    
-    @Parameters(name = "transactional-mode:{0}")
+    private final boolean copyOnRead;
+    private final boolean copyOnWrite;
+
+    @Parameters(name = "copyOnRead:{0}, copyOnWrite:{1}")
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {TransactionalMode.LOCAL}, {TransactionalMode.XA}, {TransactionalMode.XA_STRICT}
-        });
+        Object[][] data = new Object[][] { { true, false }, { false, true }, { true, true } };
+        return Arrays.asList(data);
     }
 
-    @Before
-    public void setupTransactionManager() {
-        switch (txnMode) {
-            case XA:
-            case XA_STRICT:
-                TransactionManagerServices.getConfiguration().setJournal("null").setGracefulShutdownInterval(0).setBackgroundRecoveryIntervalSeconds(1);
-                txnManager = TransactionManagerServices.getTransactionManager();
-                break;
-            default:
-                txnManager = null;
-                break;
-        }
-    }
-
-    @After
-    public void shutdownTransactionManager() throws Exception {
-        switch (txnMode) {
-            case XA:
-            case XA_STRICT:
-                if (txnManager.getTransaction() != null) {
-                    txnManager.rollback();
-                }
-                TransactionManagerServices.getTransactionManager().shutdown();
-                txnManager = null;
-                break;
-            default:
-                txnManager = null;
-                break;
-        }
-    }
-
-    private void beginTransaction(CacheManager manager) throws Exception {
-        switch (txnMode) {
-            case XA:
-            case XA_STRICT:
-                txnManager.begin();
-                break;
-            case LOCAL:
-                manager.getTransactionController().begin();
-                break;
-        }
-    }
-
-    private void commitTransaction(CacheManager manager) throws Exception {
-        switch (txnMode) {
-            case XA:
-            case XA_STRICT:
-                txnManager.commit();
-                break;
-            case LOCAL:
-                manager.getTransactionController().commit();
-                break;
-        }
-    }
-
-    private final TransactionalMode txnMode;
-
-    private TransactionManager txnManager;
-
-    public TransactionalSearchTest(TransactionalMode txnMode) {
-        this.txnMode = txnMode;
+    public CopyOnRWSearchTest(boolean copyOnRead, boolean copyOnWrite) {
+        this.copyOnRead = copyOnRead;
+        this.copyOnWrite = copyOnWrite;
     }
 
     private CacheConfiguration getBaseCacheConfiguration() {
-        return new CacheConfiguration(testName.getMethodName(), 0).transactionalMode(txnMode);
+        return new CacheConfiguration("copy-search", 0).copyOnRead(copyOnRead).copyOnWrite(copyOnWrite);
     }
 
     @Test
@@ -167,6 +101,16 @@ public class TransactionalSearchTest {
     }
 
     @Test
+    public void testBeanAttributeExtractorWithTypeCache() throws Exception {
+        CacheConfiguration config = getBaseCacheConfiguration();
+        config.searchable(new Searchable().
+                searchAttribute(new SearchAttribute().name("age").type("int")).
+                searchAttribute(new SearchAttribute().name("gender").type(Gender.class.getName())).
+                searchAttribute(new SearchAttribute().name("name").type("String")));
+        testCacheWithConfiguration(config);
+    }
+
+    @Test
     public void testDynamicAttributeExtractorCache() throws Exception {
         CacheConfiguration config = getBaseCacheConfiguration();
         Searchable searchable = new Searchable();
@@ -186,34 +130,32 @@ public class TransactionalSearchTest {
     }
 
     private void testCacheWithConfiguration(CacheConfiguration config) throws Exception {
-        CacheManager cacheManager = new CacheManager(new Configuration().name(testName.getMethodName()));
+        CacheManager cacheManager = new CacheManager();
         try {
             Ehcache cache = new Cache(config);
             cacheManager.addCache(cache);
 
             assertTrue(cache.isSearchable());
 
-            beginTransaction(cacheManager);
-            try {
-                //This data should appear in the search results
-                SearchTestUtil.populateData(cache);
-            } finally {
-                commitTransaction(cacheManager);
-            }
+            //This data should appear in the search results
+            SearchTestUtil.populateData(cache);
 
-            beginTransaction(cacheManager);
-            try {
-                // These puts shouldn't appear in the search results
-                cache.put(new Element(1, new Person("Chris Dennis", 31, Gender.MALE)));
-                cache.put(new Element(2, new Person("Cassie (Dog)", 3, Gender.FEMALE)));
-                cache.put(new Element(20, new Person("Doug Lea", 97, Gender.MALE)));
-                basicQueries(cache);
-            } finally {
-                commitTransaction(cacheManager);
-            }
+            basicQueries(cache);
+
+            valueQuery(cache);
         } finally {
             cacheManager.shutdown();
         }
+    }
+
+    private void valueQuery(Ehcache cache) {
+        Query query = cache.createQuery();
+        query.includeValues();
+        query.addCriteria(cache.getSearchAttribute("gender").eq(Gender.FEMALE));
+        query.end();
+
+        Results results = query.execute();
+        assertThat(results.all().get(0).getValue(), instanceOf(Person.class));
     }
 
     private void basicQueries(Ehcache cache) {
@@ -224,73 +166,73 @@ public class TransactionalSearchTest {
         query.includeKeys();
         query.addCriteria(age.ne(35));
         query.end();
-        verify(cache, query, 2, 4);
+        verify(query, 2, 4);
 
         query = cache.createQuery();
         query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("age").lt(30));
         query.end();
         query.execute();
-        verify(cache, query, 2);
+        verify(query, 2);
 
         query = cache.createQuery();
         query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("age").le(30));
         query.end();
         query.execute();
-        verify(cache, query, 2, 4);
+        verify(query, 2, 4);
 
         query = cache.createQuery();
         query.includeKeys();
-        query.addCriteria(cache.getSearchAttribute("age").in(new HashSet(Arrays.asList(23, 35))));
+        query.addCriteria(cache.getSearchAttribute("age").in(new HashSet<Integer>(Arrays.asList(23, 35))));
         query.end();
         query.execute();
-        verify(cache, query, 1, 2, 3);
+        verify(query, 1, 2, 3);
 
         query = cache.createQuery();
         query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("age").gt(30));
         query.end();
         query.execute();
-        verify(cache, query, 1, 3);
+        verify(query, 1, 3);
 
         query = cache.createQuery();
         query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("age").between(23, 35, true, false));
         query.end();
         query.execute();
-        verify(cache, query, 2, 4);
+        verify(query, 2, 4);
 
         query = cache.createQuery();
         query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("age").ge(30));
         query.end();
         query.execute();
-        verify(cache, query, 1, 3, 4);
+        verify(query, 1, 3, 4);
 
         query = cache.createQuery();
         query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("age").eq(35).or(cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
         query.end();
-        verify(cache, query, 1, 2, 3);
+        verify(query, 1, 2, 3);
 
         query = cache.createQuery();
         query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("age").eq(35).and(cache.getSearchAttribute("gender").eq(Gender.MALE)));
         query.end();
-        verify(cache, query, 1, 3);
+        verify(query, 1, 3);
 
         query = cache.createQuery();
         query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("age").eq(35).and(cache.getSearchAttribute("gender").eq(Gender.FEMALE)));
         query.end();
-        verify(cache, query);
+        verify(query);
 
         query = cache.createQuery();
         query.includeKeys();
         query.addCriteria(cache.getSearchAttribute("gender").eq(Gender.MALE).not());
         query.end();
-        verify(cache, query, 2);
+        verify(query, 2);
 
         try {
             cache.getSearchAttribute("DOES_NOT_EXIST_PLEASE_DO_NOT_CREATE_ME");
@@ -300,7 +242,7 @@ public class TransactionalSearchTest {
         }
     }
 
-    private void verify(Ehcache cache, Query query, Integer... expectedKeys) {
+    private void verify(Query query, Integer... expectedKeys) {
         Results results = query.execute();
         assertEquals(expectedKeys.length, results.size());
         if (expectedKeys.length == 0) {
@@ -328,7 +270,8 @@ public class TransactionalSearchTest {
                 searchAttribute(new SearchAttribute().name("gender")).
                 searchAttribute(new SearchAttribute().name("name")).
                 searchAttribute(new SearchAttribute().name("department")));
-        CacheManager cacheManager = new CacheManager(new Configuration().name("testBasicGroupBy"));
+        CacheManager cacheManager = new CacheManager();
+
         try {
             Ehcache cache = new Cache(config);
             cacheManager.addCache(cache);
@@ -338,7 +281,6 @@ public class TransactionalSearchTest {
             int numOfMalesPerDept = 100;
             int numOfFemalesPerDept = 100;
 
-            beginTransaction(cacheManager);
             for (int i = 0; i < numOfDepts; i++) {
                 for (int j = 0; j < numOfMalesPerDept; j++) {
                     cache.put(new Element("male" + i + "-" + j, new Person("male" + j, j, Gender.MALE, "department" + i)));
@@ -349,7 +291,6 @@ public class TransactionalSearchTest {
                 }
             }
 
-            commitTransaction(cacheManager);
 
             Query query;
             Results results;
@@ -373,9 +314,6 @@ public class TransactionalSearchTest {
             int i = 1;
             for (Iterator<Result> iter = results.all().iterator(); iter.hasNext();) {
                 Result maleResult = iter.next();
-//                Method getUnderylingResult = maleResult.getClass().getDeclaredMethod("getUnderylingResult");
-//                getUnderylingResult.setAccessible(true);
-//                maleResult = (Result) getUnderylingResult.invoke(maleResult);
 
                 System.out.println("XXXXXXXXX: " + maleResult);
                 assertTrue(maleResult instanceof GroupedResultImpl);
@@ -394,9 +332,6 @@ public class TransactionalSearchTest {
                 assertEquals(numOfMalesPerDept - 1, ((Integer) aggregateResults.get(2)).intValue());
 
                 Result femaleResult = iter.next();
-//                getUnderylingResult = femaleResult.getClass().getDeclaredMethod("getUnderylingResult");
-//                getUnderylingResult.setAccessible(true);
-//                femaleResult = (Result) getUnderylingResult.invoke(femaleResult);
                 System.out.println("XXXXXXXXX: " + femaleResult);
 
                 assertEquals("department" + (numOfDepts - i), femaleResult.getAttribute(cache.getSearchAttribute("department")));
@@ -419,5 +354,7 @@ public class TransactionalSearchTest {
         } finally {
             cacheManager.shutdown();
         }
+
+
     }
 }

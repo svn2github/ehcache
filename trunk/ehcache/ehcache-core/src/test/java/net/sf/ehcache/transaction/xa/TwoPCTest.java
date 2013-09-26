@@ -5,11 +5,14 @@ import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.internal.TransactionStatusChangeListener;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.store.TxCopyingCacheStore;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -135,9 +138,10 @@ public class TwoPCTest {
     }
 
     private static Object getStoreField(Ehcache cache, String storeFieldName) throws IllegalAccessException, NoSuchFieldException {
-        Field storeField = cache.getClass().getDeclaredField("compoundStore");
-        storeField.setAccessible(true);
-        XATransactionStore store = (XATransactionStore)storeField.get(cache);
+        CacheStoreHelper cacheStoreHelper = new CacheStoreHelper((Cache)cache);
+
+        TxCopyingCacheStore copyingCacheStore = (TxCopyingCacheStore)cacheStoreHelper.getStore();
+        XATransactionStore store = (XATransactionStore)copyingCacheStore.getUnderlyingStore();
 
         Field field = store.getClass().getDeclaredField(storeFieldName);
         field.setAccessible(true);

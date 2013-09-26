@@ -3,6 +3,7 @@ package net.sf.ehcache.store.compound;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.DefaultElementValueComparator;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -64,7 +65,8 @@ public class PartialSerializationCopyStrategyTest {
             Element storageValue = copyStrategy.copyForWrite(new Element(1, foo1));
             Assert.assertTrue(storageValue.getObjectValue() instanceof byte[]);
             Assert.assertTrue(comparator.equals(copyStrategy.copyForWrite(new Element(1, foo1)), storageValue));
-            Assert.assertTrue(comparator.equals(copyStrategy.copyForWrite(new Element(1, foo11)), storageValue));
+            Assert.assertFalse(comparator.equals(copyStrategy.copyForWrite(new Element(1, foo11)), storageValue));
+//            Assert.assertTrue(comparator.equals(copyStrategy.copyForWrite(new Element(1, foo11)), storageValue));
             Assert.assertFalse(comparator.equals(copyStrategy.copyForWrite(new Element(1, foo2)), storageValue));
         }
     }

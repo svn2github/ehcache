@@ -4,15 +4,16 @@ import bitronix.tm.BitronixTransaction;
 import bitronix.tm.TransactionManagerServices;
 import bitronix.tm.internal.TransactionStatusChangeListener;
 import bitronix.tm.recovery.Recoverer;
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
-
 import bitronix.tm.resource.ResourceRegistrar;
 import bitronix.tm.resource.common.XAResourceProducer;
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.store.TxCopyingCacheStore;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,9 @@ import javax.transaction.Status;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+
+import junit.framework.AssertionFailedError;
+import junit.framework.TestCase;
 
 /**
  * @author Ludovic Orban
@@ -169,6 +173,28 @@ public class XATransactionTest extends TestCase {
 
         tm.commit();
     }
+
+    public void testGetOldElementFromStore() throws Exception {
+        Cache txCache = (Cache)cache1;
+
+        CacheStoreHelper cacheStoreHelper = new CacheStoreHelper(txCache);
+        TxCopyingCacheStore store = (TxCopyingCacheStore)cacheStoreHelper.getStore();
+
+        Element one = new Element(1, "one");
+        tm.begin();
+        txCache.put(one);
+        tm.commit();
+
+        Element oneUp = new Element(1, "oneUp");
+        tm.begin();
+        txCache.put(oneUp);
+        assertEquals(one, store.getOldElement(1));
+        tm.commit();
+
+        assertEquals(oneUp, store.getOldElement(1));
+    }
+
+
 
     private static class TxThread extends Thread {
         private volatile boolean failed;

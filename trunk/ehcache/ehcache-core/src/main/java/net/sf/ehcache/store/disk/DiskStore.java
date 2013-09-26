@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.store.disk;
 
-import static net.sf.ehcache.statistics.StatisticBuilder.operation;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
@@ -39,7 +37,6 @@ import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.store.AbstractStore;
 import net.sf.ehcache.store.AuthoritativeTier;
 import net.sf.ehcache.store.CacheStore;
-import net.sf.ehcache.store.CopyingCacheStore;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Policy;
 import net.sf.ehcache.store.Store;
@@ -75,6 +72,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 /**
  * Implements a persistent-to-disk store.
@@ -187,10 +186,10 @@ public final class DiskStore extends AbstractStore implements StripedReadWriteLo
         DiskStore diskStore = result;
 
         final OnHeapCachingTier<Object, Element> onHeapCache = OnHeapCachingTier.createOnHeapCache(cache, onHeapPool);
-        return CopyingCacheStore.wrapIfCopy(new CacheStore(
+        return new CacheStore(
             onHeapCache,
             diskStore, cache.getCacheConfiguration()
-        ), cache.getCacheConfiguration());
+        );
     }
 
     /**
