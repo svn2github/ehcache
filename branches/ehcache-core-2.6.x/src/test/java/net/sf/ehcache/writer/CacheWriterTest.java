@@ -861,7 +861,7 @@ public class CacheWriterTest {
             cache.putWithWriter(new Element("key3", "value1"));
             cache.removeWithWriter("key2");
 
-            sleepFor(2, TimeUnit.SECONDS);
+            sleepFor(3, TimeUnit.SECONDS);
 
             assertEquals(2, writer.getWriterEvents().size());
             assertEquals(1, (long) writer.getWriteCount().get("key1"));
