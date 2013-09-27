@@ -77,7 +77,9 @@ import net.sf.ehcache.store.StoreListener;
 import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.StoreQuery.Ordering;
 import net.sf.ehcache.store.TerracottaStore;
+import net.sf.ehcache.store.TerracottaTransactionalCopyingCacheStore;
 import net.sf.ehcache.store.TxCopyingCacheStore;
+import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.StoreUpdateException;
 import net.sf.ehcache.terracotta.InternalEhcache;
@@ -1102,7 +1104,7 @@ public class Cache implements InternalEhcache, StoreListener {
                                     + "Please reconfigure cache '" + getName() + "' with transactionalMode = " + clusteredTransactionalMode);
                         }
                         
-                        TerracottaStore terracottaStore = (TerracottaStore) makeClusteredTransactionalIfNeeded(tempStore, elementValueComparator);
+                        TerracottaStore terracottaStore = makeClusteredTransactionalIfNeeded((TerracottaStore) tempStore, elementValueComparator);
 
                         if (isSearchable()) {
                             Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
@@ -1203,7 +1205,7 @@ public class Cache implements InternalEhcache, StoreListener {
     private Store handleTransactionalAndCopy(Store store) {
         Store wrappedStore;
 
-        if (configuration.isLocalTransactional() || configuration.isXaTransactional() || configuration.isXaStrictTransactional()) {
+        if (configuration.getTransactionalMode().isTransactional()) {
             elementValueComparator = TxCopyingCacheStore.wrap(
                     configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration), configuration);
             wrappedStore = TxCopyingCacheStore.wrapTxStore(makeTransactional(store), configuration);
@@ -1284,31 +1286,37 @@ public class Cache implements InternalEhcache, StoreListener {
         return wrappedStore;
     }
 
-    private Store makeClusteredTransactionalIfNeeded(final Store store, final ElementValueComparator comparator) {
-        Store wrappedStore;
+    private TerracottaStore makeClusteredTransactionalIfNeeded(final TerracottaStore store, final ElementValueComparator comparator) {
+        TerracottaStore wrappedStore;
 
-        if (configuration.isXaStrictTransactional()) {
-            if (transactionManagerLookup.getTransactionManager() == null) {
-                throw new CacheException("You've configured cache " + cacheManager.getName() + "." + configuration.getName()
-                        + " to be transactional, but no TransactionManager could be found!");
+        if (configuration.getTransactionalMode().isTransactional()) {
+            if (configuration.isXaStrictTransactional()) {
+                if (transactionManagerLookup.getTransactionManager() == null) {
+                    throw new CacheException("You've configured cache " + cacheManager.getName() + "." + configuration.getName()
+                            + " to be transactional, but no TransactionManager could be found!");
+                }
+                // set xa enabled
+                if (configuration.isTerracottaClustered()) {
+                    configuration.getTerracottaConfiguration().setCacheXA(true);
+                }
+                SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
+                TransactionIDFactory transactionIDFactory = cacheManager.getOrCreateTransactionIDFactory();
+                wrappedStore = new XATransactionStore(transactionManagerLookup, softLockManager, transactionIDFactory, this, store, comparator);
+            } else if (configuration.isXaTransactional()) {
+                SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
+                LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
+                        getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, store, comparator);
+                wrappedStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup,
+                        cacheManager.getTransactionController());
+            } else if (configuration.isLocalTransactional()) {
+                SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
+                wrappedStore = new LocalTransactionStore(getCacheManager().getTransactionController(), getCacheManager()
+                        .getOrCreateTransactionIDFactory(), softLockManager, this, store, comparator);
+            } else {
+                throw new IllegalStateException("Should not get there");
             }
-            // set xa enabled
-            if (configuration.isTerracottaClustered()) {
-                configuration.getTerracottaConfiguration().setCacheXA(true);
-            }
-            SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
-            TransactionIDFactory transactionIDFactory = cacheManager.getOrCreateTransactionIDFactory();
-            wrappedStore = new XATransactionStore(transactionManagerLookup, softLockManager, transactionIDFactory, this, store, comparator);
-        } else if (configuration.isXaTransactional()) {
-            SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
-            LocalTransactionStore localTransactionStore = new LocalTransactionStore(getCacheManager().getTransactionController(),
-                    getCacheManager().getOrCreateTransactionIDFactory(), softLockManager, this, store, comparator);
-            wrappedStore = new JtaLocalTransactionStore(localTransactionStore, transactionManagerLookup,
-                    cacheManager.getTransactionController());
-        } else if (configuration.isLocalTransactional()) {
-            SoftLockManager softLockManager = cacheManager.createSoftLockManager(this);
-            wrappedStore = new LocalTransactionStore(getCacheManager().getTransactionController(), getCacheManager()
-                    .getOrCreateTransactionIDFactory(), softLockManager, this, store, comparator);
+
+            wrappedStore = new TerracottaTransactionalCopyingCacheStore(wrappedStore, new ReadWriteSerializationCopyStrategy());
         } else {
             wrappedStore = store;
         }

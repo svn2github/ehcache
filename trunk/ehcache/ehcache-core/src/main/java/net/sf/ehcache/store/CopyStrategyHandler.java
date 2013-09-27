@@ -24,7 +24,7 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
  *
  * @author ljacomet
  */
-public class CopyStrategyHandler {
+public final class CopyStrategyHandler {
 
     private final boolean copyOnRead;
     private final boolean copyOnWrite;
@@ -54,6 +54,10 @@ public class CopyStrategyHandler {
      * @return a copy of the element with the reconstructed original value
      */
     public Element copyElementForReadIfNeeded(Element element) {
+        if (element == null) {
+            return null;
+        }
+
         if (copyOnRead && copyOnWrite) {
             return copyStrategy.copyForRead(element);
         } else if (copyOnRead) {
@@ -73,6 +77,7 @@ public class CopyStrategyHandler {
         if (element == null) {
             return null;
         }
+
         if (copyOnRead && copyOnWrite) {
             return copyStrategy.copyForWrite(element);
         } else if (copyOnWrite) {
@@ -92,6 +97,7 @@ public class CopyStrategyHandler {
         if (element == null) {
             return null;
         }
+
         if (copyOnRead && copyOnWrite) {
             return copyStrategy.copyForWrite(element);
         } else {
