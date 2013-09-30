@@ -4,7 +4,9 @@
 package org.terracotta.ehcache.tests.xa;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TerracottaTransactionalCopyingCacheStore;
 import net.sf.ehcache.transaction.xa.XATransactionStore;
 
 import org.terracotta.modules.ehcache.store.nonstop.NonStopStoreWrapper;
@@ -17,11 +19,12 @@ public class EhCacheXAResourceExtractor {
 
   public static XAResource extractXAResource(Cache cache) {
     try {
-      Store store = (Store) getPrivateField(cache, "compoundStore");
+      CacheStoreHelper helper = new CacheStoreHelper(cache);
+      Store store = helper.getStore();
       if (store instanceof NonStopStoreWrapper) {
         store = (Store) getPrivateField(store, "delegate");
       }
-      return ((XATransactionStore) store).getOrCreateXAResource();
+      return ((XATransactionStore) ((TerracottaTransactionalCopyingCacheStore)store).getUnderlyingStore()).getOrCreateXAResource();
     } catch (Exception e) {
       throw new RuntimeException("cannot extract XAResource out of cache " + cache, e);
     }
