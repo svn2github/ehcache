@@ -1,13 +1,13 @@
 package net.sf.ehcache.management.resource.services;
 
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 
 import static com.jayway.restassured.RestAssured.expect;
@@ -18,17 +18,17 @@ import static org.hamcrest.Matchers.equalTo;
  * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/cacheManagers/caches/elements endpoint
  * works fine
  */
-public class ElementsResourceServiceImplIT extends ResourceServiceImplITHelper {
+public class ElementsResourceServiceImplTest extends ResourceServiceImplITHelper {
   protected static final String EXPECTED_RESOURCE_LOCATION = "{baseUrl}/tc-management-api/agents{agentIds}/cacheManagers{cmIds}/caches{cacheIds}/elements";
 
   @BeforeClass
   public static void setUpCluster() throws Exception {
-    setUpCluster(ElementsResourceServiceImplIT.class);
+    setUpCluster(ElementsResourceServiceImplTest.class);
   }
 
   @Before
   public void setUp() throws UnsupportedEncodingException {
-    cacheManagerProgrammatic = getCacheManagerProgrammatic();
+    cacheManagerMaxBytes = getCacheManagerMaxbytes();
   }
 
   @Test
@@ -65,7 +65,7 @@ public class ElementsResourceServiceImplIT extends ResourceServiceImplITHelper {
    * @throws Exception
    */
   public void deleteElementsTest() throws Exception {
-    Cache exampleCache = cacheManagerProgrammatic.getCache("testCache2");
+    Cache exampleCache = cacheManagerMaxBytes.getCache("testCache2");
     for (int i=0; i<1000 ; i++) {
       exampleCache.put(new Element("key" + i, "value" + i));
     }
@@ -103,7 +103,7 @@ public class ElementsResourceServiceImplIT extends ResourceServiceImplITHelper {
    * @throws Exception
    */
   public void deleteElementsTest__clustered() throws Exception {
-    Cache exampleCache = cacheManagerProgrammatic.getCache("testCache2");
+    Cache exampleCache = cacheManagerMaxBytes.getCache("testCache2");
     for (int i=0; i<1000 ; i++) {
       exampleCache.put(new Element("key" + i, "value" + i));
     }
@@ -136,8 +136,8 @@ public class ElementsResourceServiceImplIT extends ResourceServiceImplITHelper {
 
   @After
   public void  tearDown() {
-    if (cacheManagerProgrammatic != null) {
-      cacheManagerProgrammatic.shutdown();
+    if (cacheManagerMaxBytes != null) {
+      cacheManagerMaxBytes.shutdown();
     }
   }
 

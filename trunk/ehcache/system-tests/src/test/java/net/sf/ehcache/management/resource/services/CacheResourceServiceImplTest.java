@@ -6,10 +6,9 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.*;
 import net.sf.ehcache.management.resource.CacheEntity;
-import org.junit.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,13 +20,13 @@ import static org.hamcrest.Matchers.*;
  * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/cacheManagers/caches endpoint
  * works fine
  */
-public class CacheResourceServiceImplIT extends ResourceServiceImplITHelper {
+public class CacheResourceServiceImplTest extends ResourceServiceImplITHelper {
 
   protected static final String EXPECTED_RESOURCE_LOCATION = "{baseUrl}/tc-management-api/agents{agentIds}/cacheManagers{cmIds}/caches{cacheIds}";
 
   @BeforeClass
   public static void setUpCluster() throws Exception {
-    setUpCluster(CacheResourceServiceImplIT.class);
+    setUpCluster(CacheResourceServiceImplTest.class);
   }
 
   @Test

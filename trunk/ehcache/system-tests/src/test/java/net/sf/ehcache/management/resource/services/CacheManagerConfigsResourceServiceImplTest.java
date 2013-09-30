@@ -1,14 +1,13 @@
 package net.sf.ehcache.management.resource.services;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.jayway.restassured.internal.path.xml.NodeChildrenImpl;
 import com.jayway.restassured.internal.path.xml.NodeImpl;
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.path.xml.element.Node;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 
@@ -21,18 +20,18 @@ import static junit.framework.Assert.assertTrue;
  * works fine
  * @author Anthony Dahanne
  */
-public class CacheManagerConfigsResourceServiceImplIT extends ResourceServiceImplITHelper {
+public class CacheManagerConfigsResourceServiceImplTest extends ResourceServiceImplITHelper {
 
   protected static final String EXPECTED_RESOURCE_LOCATION = "{baseUrl}/tc-management-api/agents{agentIds}/cacheManagers{cmIds}/configs";
 
   @BeforeClass
   public static void setUpCluster() throws Exception {
-    setUpCluster(CacheManagerConfigsResourceServiceImplIT.class);
+    setUpCluster(CacheManagerConfigsResourceServiceImplTest.class);
   }
 
   @Before
   public void setUp() throws UnsupportedEncodingException {
-    cacheManagerProgrammatic = getCacheManagerProgrammatic();
+    cacheManagerMaxBytes = getCacheManagerMaxbytes();
   }
 
   @Test
@@ -174,8 +173,8 @@ public class CacheManagerConfigsResourceServiceImplIT extends ResourceServiceImp
 
   @After
   public void tearDown() {
-    if (cacheManagerProgrammatic != null) {
-      cacheManagerProgrammatic.shutdown();
+    if (cacheManagerMaxBytes != null) {
+      cacheManagerMaxBytes.shutdown();
     }
   }
 

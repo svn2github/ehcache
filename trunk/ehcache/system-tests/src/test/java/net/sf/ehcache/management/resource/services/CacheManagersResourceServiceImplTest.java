@@ -1,15 +1,12 @@
 package net.sf.ehcache.management.resource.services;
 
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.resource.CacheManagerEntity;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,18 +19,18 @@ import static org.hamcrest.Matchers.*;
  * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/cacheManagers/ endpoint
  * works fine
  */
-public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHelper {
+public class CacheManagersResourceServiceImplTest extends ResourceServiceImplITHelper {
 
   protected static final String EXPECTED_RESOURCE_LOCATION = "{baseUrl}/tc-management-api/agents{agentIds}/cacheManagers{cmIds}";
 
   @BeforeClass
   public static void setUpCluster() throws Exception {
-    setUpCluster(CacheManagersResourceServiceImplIT.class);
+    setUpCluster(CacheManagersResourceServiceImplTest.class);
   }
 
   @Before
   public void setUp() throws UnsupportedEncodingException {
-    cacheManagerProgrammatic = getCacheManagerProgrammatic();
+    cacheManagerMaxBytes = getCacheManagerMaxbytes();
   }
 
   @Test
@@ -378,8 +375,8 @@ public class CacheManagersResourceServiceImplIT extends ResourceServiceImplITHel
 
   @After
   public void  tearDown() {
-    if (cacheManagerProgrammatic != null) {
-      cacheManagerProgrammatic.shutdown();
+    if (cacheManagerMaxBytes != null) {
+      cacheManagerMaxBytes.shutdown();
     }
   }
 

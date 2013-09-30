@@ -7,14 +7,9 @@ import com.tc.test.config.builder.TcMirrorGroup;
 import com.tc.test.config.builder.TcServer;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 import net.sf.ehcache.config.*;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.terracotta.test.util.TestBaseUtil;
-
-import java.io.File;
-import java.util.Properties;
 
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.path.json.JsonPath.from;
@@ -29,7 +24,6 @@ public abstract class ResourceServiceImplITHelper {
     System.getProperties().remove("tc.config");
   }
 
-  protected static String CLASSNAME;
   private static ClusterManager clusterManager;
   private static TcConfig tcConfig;
 
@@ -38,8 +32,8 @@ public abstract class ResourceServiceImplITHelper {
 
   protected static final String BASEURI = "http://localhost";
   protected static final String INFO = "/info";
-  protected static CacheManager cacheManagerProgrammatic;
-  protected static CacheManager cacheManagerXml;
+  protected static CacheManager cacheManagerMaxBytes;
+  protected static CacheManager cacheManagerMaxElements;
 
   protected static final String STANDALONE_BASE_URL = BASEURI +":" + STANDALONE_REST_AGENT_PORT;
   protected static final String CLUSTERED_BASE_URL =  BASEURI +":" + TSA_GROUP_PORT;
@@ -61,7 +55,7 @@ public abstract class ResourceServiceImplITHelper {
     clusterManager = new ClusterManager(clazz,tcConfig);
     clusterManager.start();
 
-    cacheManagerXml = getCacheManagerXml();
+    cacheManagerMaxElements = getCacheManagerMaxEntries();
 
   }
 
@@ -69,14 +63,14 @@ public abstract class ResourceServiceImplITHelper {
   @AfterClass
   public static void tearDownCluster() throws Exception {
 
-    if (cacheManagerXml != null) {
-      cacheManagerXml.shutdown();
+    if (cacheManagerMaxElements != null) {
+      cacheManagerMaxElements.shutdown();
     }
     clusterManager.stop();
   }
 
 
-  protected static CacheManager getCacheManagerProgrammatic() {
+  protected static CacheManager getCacheManagerMaxbytes() {
     Configuration configuration = new Configuration();
     configuration.setName("testCacheManagerProgrammatic");
     configuration.setMaxBytesLocalDisk("10M");
@@ -97,9 +91,23 @@ public abstract class ResourceServiceImplITHelper {
   }
 
 
-  protected static CacheManager getCacheManagerXml() {
-    CacheManager cacheManager = new CacheManager(ResourceServiceImplITHelper.class.getResource("/management/clustered-ehcache-rest-agent-test.xml"));
-    return cacheManager;
+  protected static CacheManager getCacheManagerMaxEntries() {
+    Configuration configuration = new Configuration();
+    configuration.setName("testCacheManager");
+    configuration.addTerracottaConfig(new TerracottaClientConfiguration().url(CLUSTER_URL));
+    CacheConfiguration defaultCacheConfiguration = new CacheConfiguration().eternal(true).terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(10000);
+    CacheConfiguration cacheConfiguration = new CacheConfiguration().name("testCache").terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(10000);
+    configuration.setDefaultCacheConfiguration(defaultCacheConfiguration);
+    configuration.addCache(cacheConfiguration);
+    ManagementRESTServiceConfiguration managementRESTServiceConfiguration = new ManagementRESTServiceConfiguration();
+    managementRESTServiceConfiguration.setBind("0.0.0.0:"+STANDALONE_REST_AGENT_PORT);
+    managementRESTServiceConfiguration.setEnabled(true);
+    configuration.addManagementRESTService(managementRESTServiceConfiguration);
+
+    CacheManager mgr = new CacheManager(configuration);
+    Cache exampleCache = mgr.getCache("testCache");
+    assert (exampleCache != null);
+    return mgr;
   }
 
 
@@ -107,38 +115,6 @@ public abstract class ResourceServiceImplITHelper {
     RestAssured.baseURI = BASEURI;
   }
 
-  public static void main(String[] args) throws Exception {
-    ClusterManager clusterManager;
-    TcConfig tcConfig;
-
-    tcConfig = new TcConfig()
-            .mirrorGroup(
-                    new TcMirrorGroup()
-                            .server(
-                                    new TcServer().tsaGroupPort(TSA_GROUP_PORT)
-                            )
-            );
-
-    TestBaseUtil.jarFor(ResourceServiceImplITHelper.class);
-    File workingDir = new File("./target/" + ResourceServiceImplITHelper.class.getSimpleName());
-    tcConfig.fillUpConfig();
-
-    clusterManager = new ClusterManager(ResourceServiceImplITHelper.class, tcConfig);
-    clusterManager.start();
-
-
-    ResourceServiceImplITHelper resourceServiceImplITHelper = new ResourceServiceImplITHelper() {
-
-    };
-
-    CacheManager cacheManagerXml = resourceServiceImplITHelper.getCacheManagerXml();
-    CacheManager cacheManagerProgrammatic = resourceServiceImplITHelper.getCacheManagerProgrammatic();
-    Cache exampleCache = cacheManagerProgrammatic.getCache("testCache2");
-    for (int i=0; i<1000 ; i++) {
-      exampleCache.put(new Element("key" + i, "value" + i));
-    }
-
-  }
 
   protected String getEhCacheAgentId() {
     // looking up the ehcache agent id, so that we ask for it throguh the tsa

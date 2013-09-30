@@ -1,13 +1,13 @@
 package net.sf.ehcache.management.resource.services;
 
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 
 import static com.jayway.restassured.RestAssured.expect;
@@ -18,15 +18,15 @@ import static org.hamcrest.Matchers.*;
  * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/cacheManagers/caches endpoint
  * works fine
  */
-public class CacheStatisticSamplesResourceServiceImplIT extends ResourceServiceImplITHelper {
+public class CacheStatisticSamplesResourceServiceImplTest extends ResourceServiceImplITHelper {
 
 
   protected static final String EXPECTED_RESOURCE_LOCATION = "{baseUrl}/tc-management-api/agents{agentIds}/cacheManagers{cmIds}/caches{cacheIds}/statistics/samples{sampleIds}";
 
   @BeforeClass
   public static void setUpCluster() throws Exception {
-    setUpCluster(CacheStatisticSamplesResourceServiceImplIT.class);
-    cacheManagerProgrammatic = getCacheManagerProgrammatic();
+    setUpCluster(CacheStatisticSamplesResourceServiceImplTest.class);
+    cacheManagerMaxBytes = getCacheManagerMaxbytes();
   }
 
   @Before
@@ -63,8 +63,8 @@ public class CacheStatisticSamplesResourceServiceImplIT extends ResourceServiceI
     String cachesFilter = "";
     String samplesFilter = "";
 
-    Cache exampleCache = cacheManagerXml.getCache("testCache");
-    Cache exampleCache2 = cacheManagerProgrammatic.getCache("testCache2");
+    Cache exampleCache = cacheManagerMaxElements.getCache("testCache");
+    Cache exampleCache2 = cacheManagerMaxBytes.getCache("testCache2");
 
     for (int i = 0; i < 1000; i++) {
       exampleCache2.put(new Element("key" + i, "value" + i));
@@ -271,8 +271,8 @@ public class CacheStatisticSamplesResourceServiceImplIT extends ResourceServiceI
 
   @AfterClass
   public static void tearDown() {
-    if (cacheManagerProgrammatic != null) {
-      cacheManagerProgrammatic.shutdown();
+    if (cacheManagerMaxBytes != null) {
+      cacheManagerMaxBytes.shutdown();
     }
   }
 

@@ -2,30 +2,26 @@ package net.sf.ehcache.management.resource.services;
 
 import com.jayway.restassured.http.ContentType;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-
 import static com.jayway.restassured.RestAssured.expect;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.containsString;
 
 /**
  * @author: Anthony Dahanne
  * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/ endpoint
  * works fine
  */
-public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
+public class AgentsResourceServiceImplTest extends ResourceServiceImplITHelper {
 
   protected static final String EXPECTED_RESOURCE_LOCATION = "/tc-management-api/agents";
 
   @BeforeClass
   public static void setUpCluster() throws Exception {
-    setUpCluster(AgentsResourceServiceImplIT.class);
+    setUpCluster(AgentsResourceServiceImplTest.class);
   }
 
 
@@ -107,7 +103,7 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
    */
   public void getAgentsTest__TwoCacheManagers() throws Exception {
     // we configure the second cache manager programmatically
-    cacheManagerProgrammatic = getCacheManagerProgrammatic();
+    cacheManagerMaxBytes = getCacheManagerMaxbytes();
     // let's check the agent was edited correctly server side
     expect().contentType(ContentType.JSON)
             .rootPath("get(0)")
@@ -116,8 +112,8 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
             .body("rootRepresentables.cacheManagerNames", equalTo("testCacheManagerProgrammatic,testCacheManager"))
             .statusCode(200)
             .when().get(STANDALONE_BASE_URL + EXPECTED_RESOURCE_LOCATION);
-    cacheManagerProgrammatic.clearAll();
-    cacheManagerProgrammatic.shutdown();
+    cacheManagerMaxBytes.clearAll();
+    cacheManagerMaxBytes.shutdown();
   }
 
 
@@ -128,8 +124,8 @@ public class AgentsResourceServiceImplIT extends ResourceServiceImplITHelper {
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", Matchers.equalTo("embedded"))
             .body("get(0).agencyOf", Matchers.equalTo("TSA"))
-            .body("get(0).rootRepresentables.urls", Matchers.equalTo("http://localhost:"+TSA_GROUP_PORT))
-            .body("get(1).agentId", Matchers.containsString("localhost_"))
+            .body("get(0).rootRepresentables.urls", Matchers.equalTo("http://localhost:" + TSA_GROUP_PORT))
+            .body("get(1).agentId", anyOf(containsString("localhost_"), containsString("127.0.0.1_"), containsString("localhost.localdomain_"), containsString("localhost.home_")))
             .body("get(1).agencyOf", Matchers.equalTo("Ehcache"))
             .body("get(1).rootRepresentables.isEmpty()", Matchers.is(Boolean.TRUE))
             .statusCode(200)
