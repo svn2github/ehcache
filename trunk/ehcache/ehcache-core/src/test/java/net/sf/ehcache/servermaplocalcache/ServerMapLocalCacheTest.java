@@ -212,7 +212,7 @@ public class ServerMapLocalCacheTest extends TestCase {
         public void run() {
             try {
                 while (!testStatus.isStopTestRequested()) {
-                    long oid = random.nextInt((int) factory.getOidCounter().get());
+                    long oid = random.nextLong()%(factory.getOidCounter().get()) + 1;
                     TCObjectSelf tcoSelf = serverMapLocalCache.getFromTCObjectSelfStore(oid);
                     if (tcoSelf != null) {
                         nonNullReadsCounter.incrementAndGet();
