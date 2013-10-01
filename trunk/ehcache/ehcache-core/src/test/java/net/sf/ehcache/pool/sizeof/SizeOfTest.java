@@ -2,6 +2,9 @@ package net.sf.ehcache.pool.sizeof;
 
 import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assume.assumeThat;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -39,6 +42,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
 
   @BeforeClass
   public static void setup() {
+    assumeThat(System.getProperty("os.name"), not(containsString("AIX")));
     deepSizeOf(new CrossCheckingSizeOf(), new EvilPair(new Object(), new SomeClass(true)));
     System.err.println("JVM identified as: " + JvmInformation.CURRENT_JVM_INFORMATION);
   }
