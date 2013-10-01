@@ -15,26 +15,6 @@
  */
 package net.sf.ehcache;
 
-import java.io.File;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
@@ -85,6 +65,26 @@ import net.sf.ehcache.writer.writebehind.WriteBehind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.statistics.StatisticsManager;
+
+import java.io.File;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -506,16 +506,7 @@ public class CacheManager {
 
         ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
         if (managementRESTService == null && clustered && ManagementServerLoader.isManagementAvailable()) {
-            managementRESTService = new ManagementRESTServiceConfiguration();
-
-            String url = configuration.getTerracottaConfiguration().getUrl();
-            if (url != null && url.contains("@")) {
-                managementRESTService.setSslEnabled(true);
-            }
-
-            managementRESTService.setEnabled(true);
-            managementRESTService.setBind(ManagementRESTServiceConfiguration.NO_BIND);
-            managementRESTService.setSecurityServiceLocation(ManagementRESTServiceConfiguration.AUTO_LOCATION);
+            managementRESTService = getDefaultClusteredManagementRESTServiceConfiguration(configuration);
         }
         if (managementRESTService != null && managementRESTService.isEnabled()) {
             /**
@@ -556,6 +547,21 @@ public class CacheManager {
         localTransactionsRecoveryThread.start();
 
 
+    }
+
+    private ManagementRESTServiceConfiguration getDefaultClusteredManagementRESTServiceConfiguration(Configuration configuration) {
+        ManagementRESTServiceConfiguration managementRESTService;
+        managementRESTService = new ManagementRESTServiceConfiguration();
+
+        String url = configuration.getTerracottaConfiguration().getUrl();
+        if (url != null && url.contains("@")) {
+            managementRESTService.setSslEnabled(true);
+        }
+
+        managementRESTService.setEnabled(true);
+        managementRESTService.setBind(ManagementRESTServiceConfiguration.NO_BIND);
+        managementRESTService.setSecurityServiceLocation(ManagementRESTServiceConfiguration.AUTO_LOCATION);
+        return managementRESTService;
     }
 
     private void assertNoCacheManagerExistsWithSameName(Configuration configuration) {
@@ -689,6 +695,9 @@ public class CacheManager {
                 } catch (MBeanRegistrationProviderException e) {
                     LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
                 }
+            }
+            if (runtimeCfg.getConfiguration().getManagementRESTService() == null) {
+
             }
         }
         return clusteredInstanceFactory;

@@ -4,26 +4,6 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.lang.management.ManagementFactory;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -53,6 +33,26 @@ import org.terracotta.management.resource.AgentMetadataEntity;
 import org.terracotta.management.resource.services.AgentService;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 /**
  * A controller class registering new {@link CacheManager}.
@@ -86,26 +86,32 @@ public class DfltSamplerRepositoryService
   private final Map<String, SamplerRepoEntry> cacheManagerSamplerRepo = new HashMap<String, SamplerRepoEntry>();
 
   private final ReadWriteLock cacheManagerSamplerRepoLock = new ReentrantReadWriteLock();
-  private final ObjectName objectName;
+  private volatile ObjectName objectName;
   protected final ManagementRESTServiceConfiguration configuration;
 
   public DfltSamplerRepositoryService(String clientUUID, ManagementRESTServiceConfiguration configuration) {
     this.configuration = configuration;
-    ObjectName objectName = null;
-    if (clientUUID != null) {
-      try {
-        objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
-        MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
-        platformMBeanServer.registerMBean(this, objectName);
-      } catch (InstanceAlreadyExistsException iaee) {
-        // the MBean has already been registered -> mark its name as null so it won't be unregistered by this instance
-        objectName = null;
-      } catch (Exception e) {
-        LOG.warn("Error registering SamplerRepositoryService MBean with UUID: " + clientUUID, e);
-        objectName = null;
+    registerMBean(clientUUID);
+  }
+
+  public synchronized void registerMBean(String clientUUID) {
+    if (objectName == null) {
+      ObjectName objectName = null;
+      if (clientUUID != null) {
+        try {
+          objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
+          MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
+          platformMBeanServer.registerMBean(this, objectName);
+        } catch (InstanceAlreadyExistsException iaee) {
+          // the MBean has already been registered -> mark its name as null so it won't be unregistered by this instance
+          objectName = null;
+        } catch (Exception e) {
+          LOG.warn("Error registering SamplerRepositoryService MBean with UUID: " + clientUUID, e);
+          objectName = null;
+        }
       }
+      this.objectName = objectName;
     }
-    this.objectName = objectName;
   }
 
   @Override
