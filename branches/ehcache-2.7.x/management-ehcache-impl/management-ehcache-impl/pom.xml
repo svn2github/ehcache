@@ -26,6 +26,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>net.sf.ehcache.internal</groupId>
+      <artifactId>ehcache-terracotta-bootstrap</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
     </dependency>

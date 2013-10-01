@@ -432,6 +432,9 @@ public class NonStopStoreWrapper implements TerracottaStore {
 
     @Override
     public long getTimeoutMillis() {
+      if (NonStopBypass.isBypassEnabledForCurrentThread()) {
+        return Long.MAX_VALUE;
+      }
       return ehcacheNonStopConfig.getBulkOpsTimeoutMultiplyFactor() * ehcacheNonStopConfig.getTimeoutMillis();
     }
 

@@ -42,7 +42,7 @@ public class TestCacheEntityBuilder {
 
     EasyMock.replay(samplerFoo, samplerBar, samplerGoo);
 
-    CacheEntityBuilder ceb = CacheEntityBuilder.createWith(samplerFoo, cmName);
+    CacheEntityBuilder ceb = CacheEntityBuilder.createWith(null, samplerFoo, cmName);
     ceb.add(samplerGoo, cmName);
     ceb.add(samplerBar, cmName);
 

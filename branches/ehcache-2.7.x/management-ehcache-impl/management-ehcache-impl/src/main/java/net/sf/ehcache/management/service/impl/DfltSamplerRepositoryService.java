@@ -4,26 +4,6 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.lang.management.ManagementFactory;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -44,7 +24,7 @@ import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
-
+import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
@@ -53,6 +33,28 @@ import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
+import org.terracotta.modules.ehcache.store.nonstop.NonStopBypass;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 /**
  * A controller class registering new {@link CacheManager}.
@@ -89,6 +91,9 @@ public class DfltSamplerRepositoryService
   private final ObjectName objectName;
   protected final ManagementRESTServiceConfiguration configuration;
 
+  private final Thread precalculationThread;
+  private final ConcurrentMap<String, ConcurrentMap<String, Object>> precalculatedSizes = new ConcurrentHashMap<String, ConcurrentMap<String, Object>>();
+
   public DfltSamplerRepositoryService(String clientUUID, ManagementRESTServiceConfiguration configuration) {
     this.configuration = configuration;
     ObjectName objectName = null;
@@ -105,11 +110,49 @@ public class DfltSamplerRepositoryService
         objectName = null;
       }
     }
+
+    final int delay = Integer.getInteger("net.sf.ehcache.agent.precalculation.delay", 30);
+    LOG.debug("agent precalculation delay: {}", delay);
+    if (delay > 0) {
+      precalculationThread = new Thread(
+      new Runnable() {
+        @Override
+        public void run() {
+          while (true) {
+            try {
+              NonStopBypass.setBypassEnabledForCurrentThread(true);
+              Thread.sleep(delay * 1000L);
+              precalculate();
+            } catch (InterruptedException ie) {
+              // just let the thread die
+              return;
+            } catch (Exception e) {
+              LOG.warn("Error precalculating clustered caches size", e);
+            } finally {
+              NonStopBypass.setBypassEnabledForCurrentThread(false);
+            }
+          }
+        }
+      });
+      precalculationThread.setName("Ehcache Agent Precalculation Thread");
+      precalculationThread.start();
+    } else {
+      precalculationThread = null;
+    }
     this.objectName = objectName;
   }
 
   @Override
   public void dispose() {
+    if (precalculationThread != null) {
+      precalculationThread.interrupt();
+      try {
+        precalculationThread.join(3000);
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+      }
+      precalculatedSizes.clear();
+    }
     if (objectName != null) {
       try {
         MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -118,6 +161,48 @@ public class DfltSamplerRepositoryService
         LOG.warn("Error unregistering SamplerRepositoryService MBean: " + objectName, e);
       }
     }
+  }
+
+  long getPrecalculatedSize(String cmName, String cName) {
+    ConcurrentMap<String, Object> cacheMap = precalculatedSizes.get(cmName);
+    if (cacheMap == null) {
+      return 0L;
+    }
+    Object size = cacheMap.get(cName);
+    if (size == null) {
+      return 0L;
+    }
+    return (Long)size;
+  }
+
+  private void precalculate() {
+    LOG.debug("starting precalculation...");
+    Map<String, SamplerRepoEntry> samplerRepo = new HashMap<String, SamplerRepoEntry>();
+    synchronized (cacheManagerSamplerRepoLock) {
+      samplerRepo.putAll(cacheManagerSamplerRepo);
+    }
+
+    for (Map.Entry<String, SamplerRepoEntry> entry : samplerRepo.entrySet()) {
+      Collection<CacheSampler> cacheSamplers = entry.getValue().getComprehensiveCacheSamplers(null);
+      String cmName = entry.getKey();
+      ConcurrentMap<String, Object> map = precalculatedSizes.get(cmName);
+      if (map == null) {
+        map = new ConcurrentHashMap<String, Object>();
+        precalculatedSizes.put(cmName, map);
+      }
+      LOG.debug("processing precalculation for cache manager {}", cmName);
+
+      for (CacheSampler sampler : cacheSamplers) {
+        String cName = sampler.getCacheName();
+        LOG.debug("processing precalculation for cache {}", cName);
+        if (sampler.isTerracottaClustered()) {
+          long size = sampler.getSize();
+          map.put(cName, size);
+          LOG.debug("precalculatedSizes cache {} size: {}", cName, size);
+        }
+      }
+    }
+    LOG.debug("precalculation done.");
   }
 
   /**
@@ -306,10 +391,12 @@ public class DfltSamplerRepositoryService
     cacheManagerSamplerRepoLock.readLock().lock();
 
     try {
+      NonStopBypass.setBypassEnabledForCurrentThread(true);
+
       if (cacheManagerNames == null) {
         for (Map.Entry<String, SamplerRepoEntry> entry : cacheManagerSamplerRepo.entrySet()) {
           for (CacheSampler sampler : entry.getValue().getComprehensiveCacheSamplers(cacheNames)) {
-            builder = builder == null ? CacheEntityBuilder.createWith(sampler, entry.getKey()) : builder
+            builder = builder == null ? CacheEntityBuilder.createWith(this, sampler, entry.getKey()) : builder
                 .add(sampler, entry.getKey());
           }
         }
@@ -318,7 +405,7 @@ public class DfltSamplerRepositoryService
           SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cmName);
           if (entry != null) {
             for (CacheSampler sampler : entry.getComprehensiveCacheSamplers(cacheNames)) {
-              builder = builder == null ? CacheEntityBuilder.createWith(sampler, cmName) : builder.add(sampler, cmName);
+              builder = builder == null ? CacheEntityBuilder.createWith(this, sampler, cmName) : builder.add(sampler, cmName);
             }
           }
         }
@@ -326,6 +413,7 @@ public class DfltSamplerRepositoryService
       if (builder == null) entities = new HashSet<CacheEntity>(0);
       else entities = attributes == null ? builder.build() : builder.add(attributes).build();
     } finally {
+      NonStopBypass.setBypassEnabledForCurrentThread(false);
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
 
