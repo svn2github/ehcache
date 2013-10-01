@@ -69,6 +69,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
         cacheElementCountBoundBootstrapCacheLoader.triggerLoad();
         assertThat(cacheElementCountBound.getDiskStoreSize(), is(onDiskElements));
         assertThat(cacheElementCountBound.getMemoryStoreSize(), is(100L));
+        assertThat(cacheElementCountBound.getStatistics().getEvictionCount(), is(0L));
     }
 
     @Test
@@ -87,6 +88,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
         cacheSizeBoundBootstrapCacheLoader.triggerLoad();
         assertThat(cacheSizeBound.getMemoryStoreSize(), greaterThan(0L));
         assertThat(cacheSizeBound.getLiveCacheStatistics().getLocalHeapSizeInBytes(), lessThanOrEqualTo(KILOBYTES.toBytes(220L)));
+        assertThat(cacheSizeBound.getStatistics().getEvictionCount(), is(0L));
     }
 
     private void initCacheManager(CacheUT cut) {
@@ -95,6 +97,7 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
                 manager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskPersistent")));
                 cacheElementCountBoundBootstrapCacheLoader = new TestDiskStoreBootstrapCacheLoader();
                 cacheElementCountBound = new Cache(new CacheConfiguration("maxElementsInMemory", 100)
+                    .statistics(true)
                     .eternal(true)
                     .diskPersistent(true)
                     .overflowToDisk(true)
@@ -105,10 +108,11 @@ public class DiskStoreBootstrapCacheLoaderFactoryTest {
                 manager = new CacheManager(new Configuration().diskStore(new DiskStoreConfiguration().path("java.io.tmpdir/DiskPersistentSize")));
                 cacheSizeBoundBootstrapCacheLoader = new TestDiskStoreBootstrapCacheLoader();
                 cacheSizeBound = new Cache(new CacheConfiguration("maxOnHeap", 0)
+                    .statistics(true)
                     .eternal(true)
                     .diskPersistent(true)
                     .overflowToDisk(true)
-                    .maxBytesLocalHeap(220, KILOBYTES)
+                    .maxBytesLocalHeap(22, KILOBYTES)
                     .maxBytesLocalDisk(300, MEGABYTES), null, cacheSizeBoundBootstrapCacheLoader);
                 manager.addCache(cacheSizeBound);
                 cacheSizeBound.setSampledStatisticsEnabled(true);
