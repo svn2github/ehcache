@@ -9,7 +9,6 @@ import net.sf.ehcache.util.counter.Counter;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import org.slf4j.Logger;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
@@ -106,15 +105,11 @@ abstract class ConstrainableEntityBuilderSupport<SAMPLER> {
         value = ((Counter)value).getValue();
       }
 
-    } catch (RuntimeException e) {
-      getLog().warn(String.format("Failed to invoke method %s while constructing entity. %s", method.getName(),
-          e.getMessage()));
-    } catch (IllegalAccessException e) {
-      getLog().warn(String.format("Failed to invoke method %s while constructing entity due to access restriction.",
-          method.getName()));
-    } catch (InvocationTargetException e) {
-      getLog().warn(String.format("Failed to invoke method %s while constructing entity. %s", method.getName(),
-          e.getMessage()));
+    } catch (Exception e) {
+      value = null;
+      String msg = String.format("Failed to invoke method %s while constructing entity.", method.getName());
+      getLog().warn(msg);
+      getLog().debug(msg, e);
     } finally {
       attributeMap.put(attribute, value);
     }
