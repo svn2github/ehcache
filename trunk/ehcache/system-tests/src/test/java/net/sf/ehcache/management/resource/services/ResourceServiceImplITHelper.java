@@ -5,6 +5,7 @@ import com.tc.test.config.builder.ClusterManager;
 import com.tc.test.config.builder.TcConfig;
 import com.tc.test.config.builder.TcMirrorGroup;
 import com.tc.test.config.builder.TcServer;
+import com.tc.util.PortChooser;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.*;
@@ -27,8 +28,8 @@ public abstract class ResourceServiceImplITHelper {
   private static ClusterManager clusterManager;
   private static TcConfig tcConfig;
 
-  public static int TSA_GROUP_PORT = 22222;
-  public static int STANDALONE_REST_AGENT_PORT = 12121;
+  public static int TSA_GROUP_PORT = new PortChooser().chooseRandomPort();
+  public static int STANDALONE_REST_AGENT_PORT = new PortChooser().chooseRandomPort();
 
   protected static final String BASEURI = "http://localhost";
   protected static final String INFO = "/info";

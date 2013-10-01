@@ -65,7 +65,7 @@ public class CacheManagerConfigsResourceServiceImplTest extends ResourceServiceI
     assertEquals("5M", ehcacheNode.attributes().get("maxBytesLocalHeap"));
     assertEquals("testCacheManagerProgrammatic", ehcacheNode.attributes().get("name"));
     Node managementNode = ehcacheNode.get("managementRESTService");
-    assertEquals("0.0.0.0:12121", managementNode.attributes().get("bind"));
+    assertEquals("0.0.0.0:"+ STANDALONE_REST_AGENT_PORT, managementNode.attributes().get("bind"));
     assertEquals("true", managementNode.attributes().get("enabled"));
     Node cacheNode = ehcacheNode.get("cache");
     assertEquals("testCache2", cacheNode.attributes().get("name"));
@@ -100,7 +100,7 @@ public class CacheManagerConfigsResourceServiceImplTest extends ResourceServiceI
     assertEquals("5M", ehcacheNode.attributes().get("maxBytesLocalHeap"));
     assertEquals("testCacheManagerProgrammatic", ehcacheNode.attributes().get("name"));
     managementNode = ehcacheNode.get("managementRESTService");
-    assertEquals("0.0.0.0:12121", managementNode.attributes().get("bind"));
+    assertEquals("0.0.0.0:"+STANDALONE_REST_AGENT_PORT, managementNode.attributes().get("bind"));
     assertEquals("true", managementNode.attributes().get("enabled"));
     cacheNode = ehcacheNode.get("cache");
     assertEquals("testCache2", cacheNode.attributes().get("name"));
@@ -126,7 +126,7 @@ public class CacheManagerConfigsResourceServiceImplTest extends ResourceServiceI
     assertEquals("5M", ehcacheNode.attributes().get("maxBytesLocalHeap"));
     assertEquals("testCacheManagerProgrammatic", ehcacheNode.attributes().get("name"));
     Node managementNode = ehcacheNode.get("managementRESTService");
-    assertEquals("0.0.0.0:12121", managementNode.attributes().get("bind"));
+    assertEquals("0.0.0.0:"+STANDALONE_REST_AGENT_PORT, managementNode.attributes().get("bind"));
     assertEquals("true", managementNode.attributes().get("enabled"));
     Node cacheNode = ehcacheNode.get("cache");
     assertEquals("testCache2", cacheNode.attributes().get("name"));
@@ -160,7 +160,7 @@ public class CacheManagerConfigsResourceServiceImplTest extends ResourceServiceI
     assertEquals("5M", ehcacheNode.attributes().get("maxBytesLocalHeap"));
     assertEquals("testCacheManagerProgrammatic", ehcacheNode.attributes().get("name"));
     managementNode = ehcacheNode.get("managementRESTService");
-    assertEquals("0.0.0.0:12121", managementNode.attributes().get("bind"));
+    assertEquals("0.0.0.0:" + STANDALONE_REST_AGENT_PORT, managementNode.attributes().get("bind"));
     assertEquals("true", managementNode.attributes().get("enabled"));
     cacheNode = ehcacheNode.get("cache");
     assertEquals("testCache2", cacheNode.attributes().get("name"));
