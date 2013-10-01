@@ -88,7 +88,7 @@ public class DfltSamplerRepositoryService
   private final Map<String, SamplerRepoEntry> cacheManagerSamplerRepo = new HashMap<String, SamplerRepoEntry>();
 
   private final ReadWriteLock cacheManagerSamplerRepoLock = new ReentrantReadWriteLock();
-  private final ObjectName objectName;
+  private volatile ObjectName objectName;
   protected final ManagementRESTServiceConfiguration configuration;
 
   private final Thread precalculationThread;
@@ -96,21 +96,9 @@ public class DfltSamplerRepositoryService
 
   public DfltSamplerRepositoryService(String clientUUID, ManagementRESTServiceConfiguration configuration) {
     this.configuration = configuration;
-    ObjectName objectName = null;
     if (clientUUID != null) {
-      try {
-        objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
-        MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
-        platformMBeanServer.registerMBean(this, objectName);
-      } catch (InstanceAlreadyExistsException iaee) {
-        // the MBean has already been registered -> mark its name as null so it won't be unregistered by this instance
-        objectName = null;
-      } catch (Exception e) {
-        LOG.warn("Error registering SamplerRepositoryService MBean with UUID: " + clientUUID, e);
-        objectName = null;
-      }
+      registerMBean(clientUUID);
     }
-
     final int delay = Integer.getInteger("net.sf.ehcache.agent.precalculation.delay", 30);
     LOG.debug("agent precalculation delay: {}", delay);
     if (delay > 0) {
@@ -139,9 +127,37 @@ public class DfltSamplerRepositoryService
     } else {
       precalculationThread = null;
     }
-    this.objectName = objectName;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public final synchronized void registerMBean(String clientUUID) {
+    if (clientUUID == null) {
+      throw new NullPointerException("clientUUID cannot be null");
+    }
+    if (objectName == null) {
+      ObjectName objectName;
+      try {
+        objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
+        MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
+        platformMBeanServer.registerMBean(this, objectName);
+      } catch (InstanceAlreadyExistsException iaee) {
+        // the MBean has already been registered -> mark its name as null so it won't be unregistered by this instance
+        objectName = null;
+      } catch (Exception e) {
+        LOG.warn("Error registering SamplerRepositoryService MBean with UUID: " + clientUUID, e);
+        objectName = null;
+      }
+      this.objectName = objectName;
+    }
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void dispose() {
     if (precalculationThread != null) {

@@ -15,26 +15,6 @@
  */
 package net.sf.ehcache;
 
-import java.io.File;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterScheme;
 import net.sf.ehcache.cluster.ClusterSchemeNotAvailableException;
@@ -85,6 +65,26 @@ import net.sf.ehcache.writer.writebehind.WriteBehind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.statistics.StatisticsManager;
+
+import java.io.File;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A container for {@link Ehcache}s that maintain all aspects of their lifecycle.
@@ -357,7 +357,7 @@ public class CacheManager {
      * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create
      * multiple
      * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link
-     * newInstance()} methods also registers the CacheManager with its name.
+     * #newInstance()} methods also registers the CacheManager with its name.
      * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same
      * instance
      * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
@@ -508,28 +508,10 @@ public class CacheManager {
 
         ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
         if (managementRESTService == null && clustered && ManagementServerLoader.isManagementAvailable()) {
-            managementRESTService = new ManagementRESTServiceConfiguration();
-
-            String url = configuration.getTerracottaConfiguration().getUrl();
-            if (url != null && url.contains("@")) {
-                managementRESTService.setSslEnabled(true);
-            }
-
-            managementRESTService.setEnabled(true);
-            managementRESTService.setBind(ManagementRESTServiceConfiguration.NO_BIND);
-            managementRESTService.setSecurityServiceLocation(ManagementRESTServiceConfiguration.AUTO_LOCATION);
+            managementRESTService = getDefaultClusteredManagementRESTServiceConfiguration(configuration);
         }
         if (managementRESTService != null && managementRESTService.isEnabled()) {
-            /**
-             * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class
-             * loader space.
-             */
-            synchronized (CacheManager.class) {
-                ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
-                String clientUUID = clusteredInstanceFactory == null ? null : clusteredInstanceFactory.getUUID();
-                ManagementServerLoader.register(this, clientUUID, managementRESTService);
-                registeredMgmtSvrBind = managementRESTService.getBind();
-            }
+            initializeManagementService(managementRESTService);
         }
 
         if (featuresManager != null) {
@@ -558,6 +540,34 @@ public class CacheManager {
         localTransactionsRecoveryThread.start();
 
 
+    }
+
+    private void initializeManagementService(ManagementRESTServiceConfiguration managementRESTService) {
+        /**
+         * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class
+         * loader space.
+         */
+        synchronized (CacheManager.class) {
+            ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
+            String clientUUID = clusteredInstanceFactory == null ? null : clusteredInstanceFactory.getUUID();
+            ManagementServerLoader.register(this, clientUUID, managementRESTService);
+            registeredMgmtSvrBind = managementRESTService.getBind();
+        }
+    }
+
+    private ManagementRESTServiceConfiguration getDefaultClusteredManagementRESTServiceConfiguration(Configuration configuration) {
+        ManagementRESTServiceConfiguration managementRESTService;
+        managementRESTService = new ManagementRESTServiceConfiguration();
+
+        String url = configuration.getTerracottaConfiguration().getUrl();
+        if (url != null && url.contains("@")) {
+            managementRESTService.setSslEnabled(true);
+        }
+
+        managementRESTService.setEnabled(true);
+        managementRESTService.setBind(ManagementRESTServiceConfiguration.NO_BIND);
+        managementRESTService.setSecurityServiceLocation(ManagementRESTServiceConfiguration.AUTO_LOCATION);
+        return managementRESTService;
     }
 
     private void assertNoCacheManagerExistsWithSameName(Configuration configuration) {
@@ -691,9 +701,25 @@ public class CacheManager {
                 } catch (MBeanRegistrationProviderException e) {
                     LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
                 }
+
+                initializeManagementDelayed(clusteredInstanceFactory);
             }
         }
         return clusteredInstanceFactory;
+    }
+
+    private void initializeManagementDelayed(ClusteredInstanceFactory clusteredInstanceFactory) {
+        ManagementRESTServiceConfiguration managementRESTService = getConfiguration().getManagementRESTService();
+        if (managementRESTService == null && ManagementServerLoader.isManagementAvailable()) {
+            managementRESTService = getDefaultClusteredManagementRESTServiceConfiguration(getConfiguration());
+            initializeManagementService(managementRESTService);
+        } else if (managementRESTService != null && managementRESTService.isEnabled()) {
+            try {
+                ManagementServerLoader.registerMBean(registeredMgmtSvrBind, clusteredInstanceFactory.getUUID());
+            } catch (Exception e) {
+                LOG.warn("Failed to initialize the management MBean", e);
+            }
+        }
     }
 
     private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
@@ -1080,7 +1106,7 @@ public class CacheManager {
      * Subsequent calls with config having same name of the cacheManager will return same instance until it has been shut down.
      * There can be only one unnamed CacheManager in the VM
      *
-     * @param fileName name of the file to read the config from
+     * @param configuration the configuration object
      * @param msg Message printed when creating new cacheManager
      * @return a new cacheManager or an already existing one in the VM with same name
      * @since 2.5
