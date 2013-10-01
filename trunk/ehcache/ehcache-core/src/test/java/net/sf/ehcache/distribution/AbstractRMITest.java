@@ -19,8 +19,11 @@ package net.sf.ehcache.distribution;
 import static net.sf.ehcache.util.RetryAssert.assertBy;
 import static net.sf.ehcache.util.RetryAssert.sizeOf;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeThat;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,6 +73,11 @@ public abstract class AbstractRMITest {
 
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractRMITest.class);
 
+    @BeforeClass
+    public static void disableOnAix() {
+      assumeThat(System.getProperty("os.name"), not(containsString("AIX")));
+    }
+    
     protected static Configuration getConfiguration(String fileName) {
         return ConfigurationFactory.parseConfiguration(new File(fileName));
     }
