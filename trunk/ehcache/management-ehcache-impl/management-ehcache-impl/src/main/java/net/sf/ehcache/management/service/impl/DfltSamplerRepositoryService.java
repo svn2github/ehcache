@@ -91,29 +91,39 @@ public class DfltSamplerRepositoryService
 
   public DfltSamplerRepositoryService(String clientUUID, ManagementRESTServiceConfiguration configuration) {
     this.configuration = configuration;
-    registerMBean(clientUUID);
+    if (clientUUID != null) {
+      registerMBean(clientUUID);
+    }
   }
 
-  public synchronized void registerMBean(String clientUUID) {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public final synchronized void registerMBean(String clientUUID) {
+    if (clientUUID == null) {
+      throw new NullPointerException("clientUUID cannot be null");
+    }
     if (objectName == null) {
-      ObjectName objectName = null;
-      if (clientUUID != null) {
-        try {
-          objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
-          MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
-          platformMBeanServer.registerMBean(this, objectName);
-        } catch (InstanceAlreadyExistsException iaee) {
-          // the MBean has already been registered -> mark its name as null so it won't be unregistered by this instance
-          objectName = null;
-        } catch (Exception e) {
-          LOG.warn("Error registering SamplerRepositoryService MBean with UUID: " + clientUUID, e);
-          objectName = null;
-        }
+      ObjectName objectName;
+      try {
+        objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
+        MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
+        platformMBeanServer.registerMBean(this, objectName);
+      } catch (InstanceAlreadyExistsException iaee) {
+        // the MBean has already been registered -> mark its name as null so it won't be unregistered by this instance
+        objectName = null;
+      } catch (Exception e) {
+        LOG.warn("Error registering SamplerRepositoryService MBean with UUID: " + clientUUID, e);
+        objectName = null;
       }
       this.objectName = objectName;
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void dispose() {
     if (objectName != null) {

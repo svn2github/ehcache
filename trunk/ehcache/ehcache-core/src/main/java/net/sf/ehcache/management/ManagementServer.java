@@ -67,7 +67,12 @@ public interface ManagementServer {
    */
   public void initialize(String clientUUID, ManagementRESTServiceConfiguration configuration);
 
-
+  /**
+   * Register this servive as an MBean if not done already
+   *
+   * @param clientUUID the clusteredInstanceFactory UUID
+   */
+  public void registerMBean(String clientUUID);
 
 
 }

@@ -355,7 +355,7 @@ public class CacheManager {
      * Since 2.5, every newly created CacheManager is registered with its name (uses a default name if unnamed), and trying to create
      * multiple
      * CacheManager with same names (or multiple unnamed CacheManagers) is not allowed and throws an exception. Using any of the {@link
-     * newInstance()} methods also registers the CacheManager with its name.
+     * #newInstance()} methods also registers the CacheManager with its name.
      * It is recommended to use one of the {@link #newInstance()} methods to instantiate new CacheManagers as those methods return the same
      * instance
      * of CacheManager for same names (or unnamed). Shutting down the CacheManager will deregister it and new ones can be created again.
@@ -509,16 +509,7 @@ public class CacheManager {
             managementRESTService = getDefaultClusteredManagementRESTServiceConfiguration(configuration);
         }
         if (managementRESTService != null && managementRESTService.isEnabled()) {
-            /**
-             * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class
-             * loader space.
-             */
-            synchronized (CacheManager.class) {
-                ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
-                String clientUUID = clusteredInstanceFactory == null ? null : clusteredInstanceFactory.getUUID();
-                ManagementServerLoader.register(this, clientUUID, managementRESTService);
-                registeredMgmtSvrBind = managementRESTService.getBind();
-            }
+            initializeManagementService(managementRESTService);
         }
 
         if (featuresManager != null) {
@@ -547,6 +538,19 @@ public class CacheManager {
         localTransactionsRecoveryThread.start();
 
 
+    }
+
+    private void initializeManagementService(ManagementRESTServiceConfiguration managementRESTService) {
+        /**
+         * ManagementServer will only be instantiated and started if one isn't already running on the configured port for this class
+         * loader space.
+         */
+        synchronized (CacheManager.class) {
+            ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
+            String clientUUID = clusteredInstanceFactory == null ? null : clusteredInstanceFactory.getUUID();
+            ManagementServerLoader.register(this, clientUUID, managementRESTService);
+            registeredMgmtSvrBind = managementRESTService.getBind();
+        }
     }
 
     private ManagementRESTServiceConfiguration getDefaultClusteredManagementRESTServiceConfiguration(Configuration configuration) {
@@ -695,12 +699,25 @@ public class CacheManager {
                 } catch (MBeanRegistrationProviderException e) {
                     LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
                 }
-            }
-            if (runtimeCfg.getConfiguration().getManagementRESTService() == null) {
 
+                initializeManagementDelayed(clusteredInstanceFactory);
             }
         }
         return clusteredInstanceFactory;
+    }
+
+    private void initializeManagementDelayed(ClusteredInstanceFactory clusteredInstanceFactory) {
+        ManagementRESTServiceConfiguration managementRESTService = getConfiguration().getManagementRESTService();
+        if (managementRESTService == null && ManagementServerLoader.isManagementAvailable()) {
+            managementRESTService = getDefaultClusteredManagementRESTServiceConfiguration(getConfiguration());
+            initializeManagementService(managementRESTService);
+        } else if (managementRESTService != null && managementRESTService.isEnabled()) {
+            try {
+                ManagementServerLoader.registerMBean(registeredMgmtSvrBind, clusteredInstanceFactory.getUUID());
+            } catch (Exception e) {
+                LOG.warn("Failed to initialize the management MBean", e);
+            }
+        }
     }
 
     private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
@@ -1087,7 +1104,7 @@ public class CacheManager {
      * Subsequent calls with config having same name of the cacheManager will return same instance until it has been shut down.
      * There can be only one unnamed CacheManager in the VM
      *
-     * @param fileName name of the file to read the config from
+     * @param configuration the configuration object
      * @param msg Message printed when creating new cacheManager
      * @return a new cacheManager or an already existing one in the VM with same name
      * @since 2.5
