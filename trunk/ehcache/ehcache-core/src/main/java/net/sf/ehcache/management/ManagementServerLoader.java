@@ -66,11 +66,16 @@ public class ManagementServerLoader {
      */
     public static boolean isManagementAvailable() {
         try {
-            RESOURCE_CLASS_LOADER.loadClass("net.sf.ehcache.management.ManagementServerImpl");
+          ServiceLoader loader = ServiceLoader.load(ManagementServer.class, RESOURCE_CLASS_LOADER);
+          Iterator loaderIterator = loader.iterator();
+          if (loaderIterator.hasNext()) {
             return true;
-        } catch (ClassNotFoundException e) {
-            return false;
+          }
+        } catch (Exception e) {
+          LOG.debug("Unable to load META-INF/services/net.sf.ehcache.management.ManagementServer ; the management" +
+                  " agent won't be available");
         }
+        return false;
     }
 
     /**
@@ -133,8 +138,8 @@ public class ManagementServerLoader {
    * @return a {@link ManagementServer} instance
    */
   private static Object loadOSorEEManagementServer() throws Exception {
-      Object managementServerImpl;
-      ServiceLoader loader = ServiceLoader.load(ManagementServer.class, RESOURCE_CLASS_LOADER);
+    Object managementServerImpl;
+    ServiceLoader loader = ServiceLoader.load(ManagementServer.class, RESOURCE_CLASS_LOADER);
 
     Iterator loaderIterator = loader.iterator();
     if (!loaderIterator.hasNext()) {
@@ -152,8 +157,7 @@ public class ManagementServerLoader {
           throw new RuntimeException("Several META-INF/services/net.sf.ehcache.management.ManagementServer " +
                   "found in the classpath, aborting agent start up");
         }
-        LOG.info("The ManagementServer implementation that is going to be used is {} ; " +
-                "if you are using EhCache EE it should be net.sf.ehcache.management.ManagementServerImplEE.",
+        LOG.info("The ManagementServer implementation that is going to be used is {} .",
                 managementServerImpl.getClass().toString());
       }
       return managementServerImpl;
@@ -185,18 +189,18 @@ public class ManagementServerLoader {
         Class<?> managementServerImplClass;
         boolean removeMgmtSvr = false;
         try {
-            managementServerImplClass = RESOURCE_CLASS_LOADER.loadClass("net.sf.ehcache.management.ManagementServerImpl");
+            managementServerImplClass = RESOURCE_CLASS_LOADER.loadClass("net.sf.ehcache.management.ManagementServer");
             Method registerMethod = managementServerImplClass.getMethod("unregister", new Class[] {cacheManager.getClass()});
             registerMethod.invoke(managementServerImpl, cacheManager);
 
-            Method hasRegisteredMethod = managementServerImplClass.getMethod("hasRegistered", new Class[] {});
-            Boolean hasRegistered = (Boolean) hasRegisteredMethod.invoke(managementServerImpl, new Object[] {});
+            Method hasRegisteredMethod = managementServerImplClass.getMethod("hasRegistered");
+            Boolean hasRegistered = (Boolean) hasRegisteredMethod.invoke(managementServerImpl);
 
             // there are no more cacheManagers registered to the rest agent, we can now stop it
             if (!hasRegistered) {
                 removeMgmtSvr = true;
-                Method stopMethod = managementServerImplClass.getMethod("stop", new Class[] {});
-                stopMethod.invoke(managementServerImpl, new Object[] {});
+                Method stopMethod = managementServerImplClass.getMethod("stop");
+                stopMethod.invoke(managementServerImpl);
             }
 
         } catch (Exception e) {

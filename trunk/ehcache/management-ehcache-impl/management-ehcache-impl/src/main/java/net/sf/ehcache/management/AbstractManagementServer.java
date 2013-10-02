@@ -41,9 +41,7 @@ public abstract class AbstractManagementServer implements ManagementServer {
   @Override
   public void stop() {
     try {
-      if (samplerRepoSvc.hasRegistered()) {
-        samplerRepoSvc.dispose();
-      }
+      samplerRepoSvc.dispose();
       standaloneServer.stop();
       ServiceLocator.unload();
     } catch (Exception e) {
