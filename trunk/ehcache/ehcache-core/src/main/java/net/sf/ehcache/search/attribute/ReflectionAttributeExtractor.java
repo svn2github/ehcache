@@ -38,7 +38,7 @@ import net.sf.ehcache.config.InvalidConfigurationException;
  * <li>"element.toString()" -- call toString() on the element
  * </ol>
  * The method and field name portions of the expression are case sensitive
- *
+ * 
  * @author teck
  */
 public class ReflectionAttributeExtractor implements AttributeExtractor {
@@ -47,17 +47,24 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
     private static final String KEY = "key";
     private static final String VALUE = "value";
 
-    private final String expression;
     private final Part[] parts;
     private final StartType start;
 
     /**
      * Create a new ReflectionAttributeExtractor
-     *
+     * 
      * @param expression
      */
     public ReflectionAttributeExtractor(String expression) throws InvalidConfigurationException {
+        if (expression == null) {
+            throw new NullPointerException();
+        }
+
         String trimmed = expression.trim();
+
+        if (trimmed.length() == 0) {
+            throw new InvalidConfigurationException("empty expression");
+        }
 
         String[] tokens = trimmed.split("\\.");
 
@@ -79,12 +86,11 @@ public class ReflectionAttributeExtractor implements AttributeExtractor {
         }
 
         this.parts = parseExpression(tokens, trimmed);
-        this.expression = trimmed;
     }
 
     /**
      * Evaluate the expression for the given element
-     *
+     * 
      * @return the attribute value
      * @throws AttributeExtractorException if there is an error in evaluating the expression
      */

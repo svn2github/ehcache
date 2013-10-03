@@ -27,10 +27,6 @@ import net.sf.ehcache.Element;
  *
  * @author teck
  */
-/**
- * @author teck
- *
- */
 public class JavaBeanAttributeExtractor implements AttributeExtractor {
 
     private static final Object NO_VALUE = new Object();
@@ -38,8 +34,6 @@ public class JavaBeanAttributeExtractor implements AttributeExtractor {
     private transient volatile MethodRef lastKeyMethod;
     private transient volatile MethodRef lastValueMethod;
 
-    private final String isMethodName;
-    private final String getMethodName;
     private final String beanProperty;
 
     /**
@@ -52,19 +46,13 @@ public class JavaBeanAttributeExtractor implements AttributeExtractor {
             throw new NullPointerException();
         }
 
+        beanProperty = beanProperty.trim();
+        
         if (beanProperty.length() == 0) {
             throw new IllegalArgumentException("bean property empty");
         }
 
-        this.beanProperty = beanProperty;
-
-        String upperFirstProp = "" + Character.toUpperCase(beanProperty.charAt(0));
-        if (beanProperty.length() > 1) {
-            upperFirstProp += beanProperty.substring(1);
-        }
-
-        isMethodName = "is" + upperFirstProp;
-        getMethodName = "get" + upperFirstProp;
+        this.beanProperty = beanProperty;             
     }
 
     /**
@@ -111,11 +99,16 @@ public class JavaBeanAttributeExtractor implements AttributeExtractor {
         throw new AttributeExtractorException("Bean property [" + beanProperty + "] not present on either key or value");
     }
 
-    private MethodRef findMethod(Object obj) {
+    private MethodRef findMethod(Object obj) {        
+        String upperFirstProp = "" + Character.toUpperCase(beanProperty.charAt(0));
+        if (beanProperty.length() > 1) {
+            upperFirstProp += beanProperty.substring(1);
+        }
+        
         final Class target = obj.getClass();
 
         try {
-            return new MethodRef(target, target.getMethod(getMethodName));
+            return new MethodRef(target, target.getMethod("get" + upperFirstProp));
         } catch (SecurityException e) {
             throw new AttributeExtractorException(e);
         } catch (NoSuchMethodException e) {
@@ -123,7 +116,7 @@ public class JavaBeanAttributeExtractor implements AttributeExtractor {
         }
 
         try {
-            Method m = target.getMethod(isMethodName);
+            Method m = target.getMethod("is" + upperFirstProp);
             if (m.getReturnType().equals(Boolean.class) || m.getReturnType().equals(Boolean.TYPE)) {
                 return new MethodRef(target, m);
             }
