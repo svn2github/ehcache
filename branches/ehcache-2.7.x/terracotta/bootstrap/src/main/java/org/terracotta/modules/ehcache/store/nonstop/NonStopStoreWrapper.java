@@ -394,33 +394,40 @@ public class NonStopStoreWrapper implements TerracottaStore {
     }
   }
 
-  private TerracottaStore getTimeoutBehavior() {
+  private TerracottaStore getTimeoutBehavior(boolean rejoin) {
     // THIS IS HAND MADE CODE -- DO NOT GENERATED
     if (ehcacheNonStopConfiguration == null) { throw new AssertionError("Ehcache NonStopConfig cannot be null"); }
 
-    TimeoutBehaviorConfiguration behaviorConfiguration = ehcacheNonStopConfiguration.getTimeoutBehavior();
-    switch (behaviorConfiguration.getTimeoutBehaviorType()) {
-      case EXCEPTION:
-        return ExceptionOnTimeoutStore.getInstance();
-      case LOCAL_READS:
-        if (localReadDelegate == null) {
-          if (delegate == null) { return NoOpOnTimeoutStore.getInstance(); }
-          localReadDelegate = new LocalReadsOnTimeoutStore(delegate);
-        }
-        return localReadDelegate;
-      case LOCAL_READS_AND_EXCEPTION_ON_WRITES:
-        if (localReadDelegate == null) {
-          if (delegate == null) {
-            return new LocalReadsAndExceptionOnWritesTimeoutStore();
-          } else {
-            localReadDelegate = new LocalReadsAndExceptionOnWritesTimeoutStore(delegate);
+    if (ehcacheNonStopConfiguration.isEnabled()) {
+      TimeoutBehaviorConfiguration behaviorConfiguration = ehcacheNonStopConfiguration.getTimeoutBehavior();
+      switch (behaviorConfiguration.getTimeoutBehaviorType()) {
+        case EXCEPTION:
+          return ExceptionOnTimeoutStore.getInstance();
+        case LOCAL_READS:
+          if (localReadDelegate == null) {
+            if (delegate == null) { return NoOpOnTimeoutStore.getInstance(); }
+            localReadDelegate = new LocalReadsOnTimeoutStore(delegate);
           }
-        }
-        return localReadDelegate;
-      case NOOP:
-        return NoOpOnTimeoutStore.getInstance();
-      default:
-        return ExceptionOnTimeoutStore.getInstance();
+          return localReadDelegate;
+        case LOCAL_READS_AND_EXCEPTION_ON_WRITES:
+          if (localReadDelegate == null) {
+            if (delegate == null) {
+              return new LocalReadsAndExceptionOnWritesTimeoutStore();
+            } else {
+              localReadDelegate = new LocalReadsAndExceptionOnWritesTimeoutStore(delegate);
+            }
+          }
+          return localReadDelegate;
+        case NOOP:
+          return NoOpOnTimeoutStore.getInstance();
+        default:
+          return ExceptionOnTimeoutStore.getInstance();
+      }
+    } else if (rejoin) {
+      return RejoinWithoutNonStopStore.getInstance();
+    } else {
+      //This is only here to cover any potential toolkit bugs.
+      return ExceptionOnTimeoutStore.getInstance();
     }
   }
 
@@ -588,7 +595,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
           if (m.getReturnType() != Void.TYPE) {
             out.print("return ");
           }
-          out.print("getTimeoutBehavior()." + m.getName() + "(");
+          out.print("getTimeoutBehavior(false)." + m.getName() + "(");
           for (int i = 0; i < params.length; i++) {
             out.print("arg" + i);
             if (i < params.length - 1) {
@@ -601,7 +608,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
           if (m.getReturnType() != Void.TYPE) {
             out.print("return ");
           }
-          out.print("getTimeoutBehavior()." + m.getName() + "(");
+          out.print("getTimeoutBehavior(false)." + m.getName() + "(");
           for (int i = 0; i < params.length; i++) {
             out.print("arg" + i);
             if (i < params.length - 1) {
@@ -615,7 +622,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
           if (m.getReturnType() != Void.TYPE) {
             out.print("return ");
           }
-          out.print("getTimeoutBehavior()." + m.getName() + "(");
+          out.print("getTimeoutBehavior(true)." + m.getName() + "(");
           for (int i = 0; i < params.length; i++) {
             out.print("arg" + i);
             if (i < params.length - 1) {
@@ -679,13 +686,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getTransactionalMode();
+      return getTimeoutBehavior(false).getTransactionalMode();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getTransactionalMode();
+      return getTimeoutBehavior(false).getTransactionalMode();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getTransactionalMode();
+      return getTimeoutBehavior(true).getTransactionalMode();
     } finally {
       nonStop.finish();
     }
@@ -706,13 +713,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().remove(arg0);
+      return getTimeoutBehavior(false).remove(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().remove(arg0);
+      return getTimeoutBehavior(false).remove(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().remove(arg0);
+      return getTimeoutBehavior(true).remove(arg0);
     } finally {
       nonStop.finish();
     }
@@ -733,13 +740,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().get(arg0);
+      return getTimeoutBehavior(false).get(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().get(arg0);
+      return getTimeoutBehavior(false).get(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().get(arg0);
+      return getTimeoutBehavior(true).get(arg0);
     } finally {
       nonStop.finish();
     }
@@ -761,13 +768,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().put(arg0);
+      return getTimeoutBehavior(false).put(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().put(arg0);
+      return getTimeoutBehavior(false).put(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().put(arg0);
+      return getTimeoutBehavior(true).put(arg0);
     } finally {
       nonStop.finish();
     }
@@ -788,13 +795,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      getTimeoutBehavior().putAll(arg0);
+      getTimeoutBehavior(false).putAll(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      getTimeoutBehavior().putAll(arg0);
+      getTimeoutBehavior(false).putAll(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      getTimeoutBehavior().putAll(arg0);
+      getTimeoutBehavior(true).putAll(arg0);
     } finally {
       nonStop.finish();
     }
@@ -816,13 +823,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().putIfAbsent(arg0);
+      return getTimeoutBehavior(false).putIfAbsent(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().putIfAbsent(arg0);
+      return getTimeoutBehavior(false).putIfAbsent(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().putIfAbsent(arg0);
+      return getTimeoutBehavior(true).putIfAbsent(arg0);
     } finally {
       nonStop.finish();
     }
@@ -842,13 +849,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      getTimeoutBehavior().flush();
+      getTimeoutBehavior(false).flush();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      getTimeoutBehavior().flush();
+      getTimeoutBehavior(false).flush();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      getTimeoutBehavior().flush();
+      getTimeoutBehavior(true).flush();
     } finally {
       nonStop.finish();
     }
@@ -869,13 +876,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().containsKey(arg0);
+      return getTimeoutBehavior(false).containsKey(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().containsKey(arg0);
+      return getTimeoutBehavior(false).containsKey(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().containsKey(arg0);
+      return getTimeoutBehavior(true).containsKey(arg0);
     } finally {
       nonStop.finish();
     }
@@ -899,13 +906,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().replace(arg0, arg1, arg2);
+      return getTimeoutBehavior(false).replace(arg0, arg1, arg2);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().replace(arg0, arg1, arg2);
+      return getTimeoutBehavior(false).replace(arg0, arg1, arg2);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().replace(arg0, arg1, arg2);
+      return getTimeoutBehavior(true).replace(arg0, arg1, arg2);
     } finally {
       nonStop.finish();
     }
@@ -927,13 +934,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().replace(arg0);
+      return getTimeoutBehavior(false).replace(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().replace(arg0);
+      return getTimeoutBehavior(false).replace(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().replace(arg0);
+      return getTimeoutBehavior(true).replace(arg0);
     } finally {
       nonStop.finish();
     }
@@ -954,13 +961,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getSize();
+      return getTimeoutBehavior(false).getSize();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getSize();
+      return getTimeoutBehavior(false).getSize();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getSize();
+      return getTimeoutBehavior(true).getSize();
     } finally {
       nonStop.finish();
     }
@@ -980,13 +987,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      getTimeoutBehavior().removeAll();
+      getTimeoutBehavior(false).removeAll();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      getTimeoutBehavior().removeAll();
+      getTimeoutBehavior(false).removeAll();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      getTimeoutBehavior().removeAll();
+      getTimeoutBehavior(true).removeAll();
     } finally {
       nonStop.finish();
     }
@@ -1006,13 +1013,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      getTimeoutBehavior().removeAll(arg0);
+      getTimeoutBehavior(false).removeAll(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      getTimeoutBehavior().removeAll(arg0);
+      getTimeoutBehavior(false).removeAll(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      getTimeoutBehavior().removeAll(arg0);
+      getTimeoutBehavior(true).removeAll(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1035,13 +1042,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().removeElement(arg0, arg1);
+      return getTimeoutBehavior(false).removeElement(arg0, arg1);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().removeElement(arg0, arg1);
+      return getTimeoutBehavior(false).removeElement(arg0, arg1);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().removeElement(arg0, arg1);
+      return getTimeoutBehavior(true).removeElement(arg0, arg1);
     } finally {
       nonStop.finish();
     }
@@ -1062,13 +1069,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getKeys();
+      return getTimeoutBehavior(false).getKeys();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getKeys();
+      return getTimeoutBehavior(false).getKeys();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getKeys();
+      return getTimeoutBehavior(true).getKeys();
     } finally {
       nonStop.finish();
     }
@@ -1180,13 +1187,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getAllQuiet(arg0);
+      return getTimeoutBehavior(false).getAllQuiet(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getAllQuiet(arg0);
+      return getTimeoutBehavior(false).getAllQuiet(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getAllQuiet(arg0);
+      return getTimeoutBehavior(true).getAllQuiet(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1208,13 +1215,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getAll(arg0);
+      return getTimeoutBehavior(false).getAll(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getAll(arg0);
+      return getTimeoutBehavior(false).getAll(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getAll(arg0);
+      return getTimeoutBehavior(true).getAll(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1235,13 +1242,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      getTimeoutBehavior().setNodeCoherent(arg0);
+      getTimeoutBehavior(false).setNodeCoherent(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      getTimeoutBehavior().setNodeCoherent(arg0);
+      getTimeoutBehavior(false).setNodeCoherent(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      getTimeoutBehavior().setNodeCoherent(arg0);
+      getTimeoutBehavior(true).setNodeCoherent(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1262,13 +1269,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      getTimeoutBehavior().setAttributeExtractors(arg0);
+      getTimeoutBehavior(false).setAttributeExtractors(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      getTimeoutBehavior().setAttributeExtractors(arg0);
+      getTimeoutBehavior(false).setAttributeExtractors(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      getTimeoutBehavior().setAttributeExtractors(arg0);
+      getTimeoutBehavior(true).setAttributeExtractors(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1289,13 +1296,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().hasAbortedSizeOf();
+      return getTimeoutBehavior(false).hasAbortedSizeOf();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().hasAbortedSizeOf();
+      return getTimeoutBehavior(false).hasAbortedSizeOf();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().hasAbortedSizeOf();
+      return getTimeoutBehavior(true).hasAbortedSizeOf();
     } finally {
       nonStop.finish();
     }
@@ -1316,13 +1323,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getOnDiskSize();
+      return getTimeoutBehavior(false).getOnDiskSize();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getOnDiskSize();
+      return getTimeoutBehavior(false).getOnDiskSize();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getOnDiskSize();
+      return getTimeoutBehavior(true).getOnDiskSize();
     } finally {
       nonStop.finish();
     }
@@ -1342,13 +1349,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      getTimeoutBehavior().setInMemoryEvictionPolicy(arg0);
+      getTimeoutBehavior(false).setInMemoryEvictionPolicy(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      getTimeoutBehavior().setInMemoryEvictionPolicy(arg0);
+      getTimeoutBehavior(false).setInMemoryEvictionPolicy(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      getTimeoutBehavior().setInMemoryEvictionPolicy(arg0);
+      getTimeoutBehavior(true).setInMemoryEvictionPolicy(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1371,13 +1378,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().putWithWriter(arg0, arg1);
+      return getTimeoutBehavior(false).putWithWriter(arg0, arg1);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().putWithWriter(arg0, arg1);
+      return getTimeoutBehavior(false).putWithWriter(arg0, arg1);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().putWithWriter(arg0, arg1);
+      return getTimeoutBehavior(true).putWithWriter(arg0, arg1);
     } finally {
       nonStop.finish();
     }
@@ -1397,13 +1404,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      getTimeoutBehavior().recalculateSize(arg0);
+      getTimeoutBehavior(false).recalculateSize(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      getTimeoutBehavior().recalculateSize(arg0);
+      getTimeoutBehavior(false).recalculateSize(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      getTimeoutBehavior().recalculateSize(arg0);
+      getTimeoutBehavior(true).recalculateSize(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1424,13 +1431,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().isCacheCoherent();
+      return getTimeoutBehavior(false).isCacheCoherent();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().isCacheCoherent();
+      return getTimeoutBehavior(false).isCacheCoherent();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().isCacheCoherent();
+      return getTimeoutBehavior(true).isCacheCoherent();
     } finally {
       nonStop.finish();
     }
@@ -1451,13 +1458,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getOnDiskSizeInBytes();
+      return getTimeoutBehavior(false).getOnDiskSizeInBytes();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getOnDiskSizeInBytes();
+      return getTimeoutBehavior(false).getOnDiskSizeInBytes();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getOnDiskSizeInBytes();
+      return getTimeoutBehavior(true).getOnDiskSizeInBytes();
     } finally {
       nonStop.finish();
     }
@@ -1478,13 +1485,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getTerracottaClusteredSize();
+      return getTimeoutBehavior(false).getTerracottaClusteredSize();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getTerracottaClusteredSize();
+      return getTimeoutBehavior(false).getTerracottaClusteredSize();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getTerracottaClusteredSize();
+      return getTimeoutBehavior(true).getTerracottaClusteredSize();
     } finally {
       nonStop.finish();
     }
@@ -1504,13 +1511,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      getTimeoutBehavior().expireElements();
+      getTimeoutBehavior(false).expireElements();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      getTimeoutBehavior().expireElements();
+      getTimeoutBehavior(false).expireElements();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      getTimeoutBehavior().expireElements();
+      getTimeoutBehavior(true).expireElements();
     } finally {
       nonStop.finish();
     }
@@ -1532,13 +1539,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().isNodeCoherent();
+      return getTimeoutBehavior(false).isNodeCoherent();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().isNodeCoherent();
+      return getTimeoutBehavior(false).isNodeCoherent();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().isNodeCoherent();
+      return getTimeoutBehavior(true).isNodeCoherent();
     } finally {
       nonStop.finish();
     }
@@ -1558,13 +1565,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      getTimeoutBehavior().addStoreListener(arg0);
+      getTimeoutBehavior(false).addStoreListener(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      getTimeoutBehavior().addStoreListener(arg0);
+      getTimeoutBehavior(false).addStoreListener(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      getTimeoutBehavior().addStoreListener(arg0);
+      getTimeoutBehavior(true).addStoreListener(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1586,13 +1593,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().isClusterCoherent();
+      return getTimeoutBehavior(false).isClusterCoherent();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().isClusterCoherent();
+      return getTimeoutBehavior(false).isClusterCoherent();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().isClusterCoherent();
+      return getTimeoutBehavior(true).isClusterCoherent();
     } finally {
       nonStop.finish();
     }
@@ -1613,13 +1620,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getInMemoryEvictionPolicy();
+      return getTimeoutBehavior(false).getInMemoryEvictionPolicy();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getInMemoryEvictionPolicy();
+      return getTimeoutBehavior(false).getInMemoryEvictionPolicy();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getInMemoryEvictionPolicy();
+      return getTimeoutBehavior(true).getInMemoryEvictionPolicy();
     } finally {
       nonStop.finish();
     }
@@ -1642,13 +1649,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().removeWithWriter(arg0, arg1);
+      return getTimeoutBehavior(false).removeWithWriter(arg0, arg1);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().removeWithWriter(arg0, arg1);
+      return getTimeoutBehavior(false).removeWithWriter(arg0, arg1);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().removeWithWriter(arg0, arg1);
+      return getTimeoutBehavior(true).removeWithWriter(arg0, arg1);
     } finally {
       nonStop.finish();
     }
@@ -1670,13 +1677,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getSearchAttribute(arg0);
+      return getTimeoutBehavior(false).getSearchAttribute(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getSearchAttribute(arg0);
+      return getTimeoutBehavior(false).getSearchAttribute(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getSearchAttribute(arg0);
+      return getTimeoutBehavior(true).getSearchAttribute(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1697,13 +1704,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().containsKeyOnDisk(arg0);
+      return getTimeoutBehavior(false).containsKeyOnDisk(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().containsKeyOnDisk(arg0);
+      return getTimeoutBehavior(false).containsKeyOnDisk(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().containsKeyOnDisk(arg0);
+      return getTimeoutBehavior(true).containsKeyOnDisk(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1726,13 +1733,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().executeQuery(arg0);
+      return getTimeoutBehavior(false).executeQuery(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().executeQuery(arg0);
+      return getTimeoutBehavior(false).executeQuery(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().executeQuery(arg0);
+      return getTimeoutBehavior(true).executeQuery(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1753,13 +1760,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getQuiet(arg0);
+      return getTimeoutBehavior(false).getQuiet(arg0);
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getQuiet(arg0);
+      return getTimeoutBehavior(false).getQuiet(arg0);
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getQuiet(arg0);
+      return getTimeoutBehavior(true).getQuiet(arg0);
     } finally {
       nonStop.finish();
     }
@@ -1780,13 +1787,13 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
       handleNonStopToolkitInstantiationException(e);
-      return getTimeoutBehavior().getStatus();
+      return getTimeoutBehavior(false).getStatus();
     } catch (NonStopException e) {
       nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
-      return getTimeoutBehavior().getStatus();
+      return getTimeoutBehavior(false).getStatus();
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
-      return getTimeoutBehavior().getStatus();
+      return getTimeoutBehavior(true).getStatus();
     } finally {
       nonStop.finish();
     }
