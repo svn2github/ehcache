@@ -16,15 +16,24 @@
 
 package net.sf.ehcache.constructs.blocking;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import org.junit.Ignore;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
-import java.util.concurrent.ExecutionException;
-
-import static junit.framework.Assert.assertSame;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 
@@ -34,18 +43,40 @@ import static org.junit.Assert.fail;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
+public class UpdatingSelfPopulatingCacheTest {
 
-    /**
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+  private CacheManager cacheManager;
+  private Cache cache;
+
+  @Before
+  public void setUp() throws Exception {
+    Configuration configuration = new Configuration();
+    configuration.name("upSelfPopCM")
+        .diskStore(new DiskStoreConfiguration().path(temporaryFolder.newFolder().getAbsolutePath()))
+        .addCache(new CacheConfiguration("cache", 1).timeToIdleSeconds(2)
+            .timeToLiveSeconds(5)
+            .overflowToDisk(true)
+            .diskPersistent(true));
+    cacheManager = CacheManager.newInstance(configuration);
+    cache = cacheManager.getCache("cache");
+  }
+
+  @After
+  public void tearDown() {
+    cacheManager.shutdown();
+  }
+
+  /**
      * Tests fetching an entry, and then an update.
-     * TODO FIXME: Was noticed breaking 30/8/10
      */
     @Test
-    @Ignore
     public void testFetchAndUpdate() throws Exception {
-        final String value = "value";
+        final Object value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
-        selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
+        UpdatingSelfPopulatingCache selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
 
 
         //test null
@@ -53,16 +84,16 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
 
         // Lookup
         element = selfPopulatingCache.get("key");
-        assertSame(value, element.getObjectValue());
-        assertEquals(2, factory.getCount());
+        assertThat(element.getObjectValue(), sameInstance(value));
+        assertThat(factory.getCount(), is(2));
 
         Object actualValue = selfPopulatingCache.get("key").getObjectValue();
-        assertSame(value, actualValue);
-        assertEquals(3, factory.getCount());
+        assertThat(actualValue, sameInstance(value));
+        assertThat(factory.getCount(), is(3));
 
         actualValue = selfPopulatingCache.get("key").getObjectValue();
-        assertSame(value, actualValue);
-        assertEquals(4, factory.getCount());
+        assertThat(actualValue, sameInstance(value));
+        assertThat(factory.getCount(), is(4));
     }
 
     /**
@@ -83,19 +114,16 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
             }
         };
 
-        selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
+        UpdatingSelfPopulatingCache selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
 
         // Lookup
         try {
             selfPopulatingCache.get("key");
             fail();
         } catch (final Exception e) {
-            Thread.sleep(20);
-
             // Check the error
             assertEquals("Could not update object for cache entry with key \"key\".", e.getMessage());
         }
-
     }
 
     /**
@@ -105,7 +133,7 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
     public void testRefresh() throws Exception {
         final String value = "value";
         final CountingCacheEntryFactory factory = new CountingCacheEntryFactory(value);
-        selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
+        UpdatingSelfPopulatingCache selfPopulatingCache = new UpdatingSelfPopulatingCache(cache, factory);
 
         // Refresh
         try {
@@ -115,15 +143,5 @@ public class UpdatingSelfPopulatingCacheTest extends SelfPopulatingCacheTest {
             //expected.
             assertEquals("UpdatingSelfPopulatingCache objects should not be refreshed.", e.getMessage());
         }
-
-    }
-
-    /**
-     * Tests the async load with a single item
-     */
-    @Override
-    @Test
-    public void testAsynchronousLoad() throws InterruptedException, ExecutionException {
-        super.testAsynchronousLoad();
     }
 }
