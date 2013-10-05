@@ -3,7 +3,6 @@
  */
 package org.terracotta.modules.ehcache.store;
 
-import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -36,7 +35,6 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
@@ -45,6 +43,7 @@ import org.terracotta.modules.ehcache.concurrency.TCCacheLockProvider;
 import org.terracotta.statistics.Statistic;
 import org.terracotta.statistics.observer.OperationObserver;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
+import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.internal.ToolkitInternal;
@@ -63,9 +62,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.event.EventListenerList;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 public class ClusteredStore implements TerracottaStore, StoreListener  {
 
@@ -106,7 +106,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
                                                                                                          .of(this)
                                                                                                          .build();
   private final CacheCluster                                 topology;
-  private final ConcurrentMap<String, Serializable>          configMap;
+  private final ToolkitMap<String, Serializable>             configMap;
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache, CacheCluster topology) {
     validateConfig(cache);

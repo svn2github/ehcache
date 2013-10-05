@@ -4,10 +4,10 @@
 package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
-
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.event.CacheDisposalNotification;
@@ -116,4 +116,8 @@ public interface ToolkitInstanceFactory {
   ToolkitLock getLockForCache(Ehcache cache, String lockName);
 
   ToolkitNotifier<CacheDisposalNotification> getOrCreateCacheDisposalNotifier(Ehcache cache);
+
+  ToolkitCacheInternal<String, Serializable> getOrCreateWanAwareToolkitCache(String cacheManagerName,
+                                                                             String cacheName,
+                                                                             CacheConfiguration ehcacheConfig);
 }

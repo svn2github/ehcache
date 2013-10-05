@@ -12,7 +12,6 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
-
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
@@ -127,14 +126,43 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache) {
-    final Configuration clusteredCacheConfig = createClusteredCacheConfig(cache);
-    addNonStopConfigForCache(cache);
-    return getOrCreateToolkitCache(cache.getCacheManager().getName(), cache.getName(), clusteredCacheConfig);
+  public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(final Ehcache cache) {
+    final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
+    final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
+    final String cacheManagerName = getCacheManagerName(cache);
+    final String cacheName = cache.getName();
+
+/*
+    return terracottaConfiguration.isWanEnabled()
+        ? getOrCreateWanAwareToolkitCache(cacheManagerName, cacheName, ehcacheConfig)
+        : getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
+*/
+    return getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
   }
 
-  private ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(String cacheManagerMan, String cacheName, Configuration config) {
-    return (ToolkitCacheInternal<String, Serializable>) toolkit.getCache(getFullyQualifiedCacheName(cacheManagerMan, cacheName), config, Serializable.class);
+  @Override
+  public ToolkitCacheInternal<String, Serializable> getOrCreateWanAwareToolkitCache(final String cacheManagerName,
+                                                                                    final String cacheName,
+                                                                                    final CacheConfiguration ehcacheConfig) {
+    final ToolkitCacheInternal<String, Serializable> toolkitCache =
+        getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
+
+    final String fullyQualifiedCacheName = getFullyQualifiedCacheName(cacheManagerName, cacheName);
+    final ToolkitMap<String, Serializable> configMap = getOrCreateConfigMap(fullyQualifiedCacheName);
+    return new WanAwareToolkitCache<String, Serializable>(toolkitCache, configMap);
+  }
+
+  private ToolkitCacheInternal<String, Serializable> getOrCreateRegularToolkitCache(final String cacheManagerName,
+                                                                                    final String cacheName,
+                                                                                    final CacheConfiguration ehcacheConfig) {
+    final Configuration clusteredCacheConfig = createClusteredCacheConfig(ehcacheConfig, cacheManagerName);
+    final String fullyQualifiedCacheName = getFullyQualifiedCacheName(cacheManagerName, cacheName);
+    addNonStopConfigForCache(ehcacheConfig, fullyQualifiedCacheName);
+    return getOrCreateToolkitCache(fullyQualifiedCacheName, clusteredCacheConfig);
+  }
+
+  private ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(final String fullyQualifiedCacheName, final Configuration config) {
+    return (ToolkitCacheInternal<String, Serializable>) toolkit.getCache(fullyQualifiedCacheName, config, Serializable.class);
   }
 
   @Override
@@ -146,6 +174,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return toolkit.getNotifier(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER + CONFIG_NOTIFIER_SUFFIX,
       CacheConfigChangeNotificationMsg.class);
   }
+
   @Override
   public ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(Ehcache cache) {
     return getOrCreateCacheEventNotifier(cache.getCacheManager().getName(), cache.getName());
@@ -162,9 +191,9 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         CacheEventNotificationMsg.class);
   }
 
-  private static Configuration createClusteredCacheConfig(Ehcache cache) {
+  private static Configuration createClusteredCacheConfig(final CacheConfiguration ehcacheConfig,
+                                                          final String cacheManagerName) {
     ToolkitCacheConfigBuilder builder = new ToolkitCacheConfigBuilder();
-    final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     builder.maxTTISeconds((int) ehcacheConfig.getTimeToIdleSeconds());
     builder.maxTTLSeconds((int) ehcacheConfig.getTimeToLiveSeconds());
@@ -193,10 +222,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       builder.concurrency(terracottaConfiguration.getConcurrency());
     }
 
-    final String cmName = cache.getCacheManager().isNamed() ? cache.getCacheManager().getName()
-        : TerracottaClusteredInstanceFactory.DEFAULT_CACHE_MANAGER_NAME;
     builder.localCacheEnabled(terracottaConfiguration.isLocalCacheEnabled());
-    builder.configField(ConfigFieldsInternal.LOCAL_STORE_MANAGER_NAME_NAME, cmName);
+    builder.configField(ConfigFieldsInternal.LOCAL_STORE_MANAGER_NAME_NAME, cacheManagerName);
     builder.pinnedInLocalMemory(isPinnedInLocalMemory(ehcacheConfig));
     builder.evictionEnabled(!isPinnedInCache(ehcacheConfig));
     builder.maxCountLocalHeap((int) ehcacheConfig.getMaxEntriesLocalHeap());
@@ -303,9 +330,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
+    return getOrCreateConfigMap(getFullyQualifiedCacheName(cacheManagerName, cacheName));
+  }
+
+  private ToolkitMap<String, Serializable> getOrCreateConfigMap(final String fullyQualifiedCacheName) {
     // TODO: what should be the local cache config for the map?
-    return toolkit.getMap(getFullyQualifiedCacheName(cacheManagerName, cacheName) + DELIMITER
-                          + CLUSTERED_STORE_CONFIG_MAP, String.class, Serializable.class);
+    return toolkit.getMap(fullyQualifiedCacheName + DELIMITER + CLUSTERED_STORE_CONFIG_MAP, String.class, Serializable.class);
   }
 
   @Override
@@ -367,7 +397,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     getOrCreateNewSoftLocksSet(cacheManagerName, cacheName).destroy();
     getOrCreateCacheEventNotifier(cacheManagerName, cacheName).destroy();
     getOrCreateConfigChangeNotifier(cacheManagerName, cacheName).destroy();
-    getOrCreateToolkitCache(cacheManagerName, cacheName,
+    getOrCreateToolkitCache(getFullyQualifiedCacheName(cacheManagerName, cacheName),
         new ToolkitCacheConfigBuilder().maxCountLocalHeap(1)
             .maxBytesLocalOffheap(0)
             .build()).destroy();
@@ -381,15 +411,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return existed;
   }
 
-  private void addNonStopConfigForCache(Ehcache cache) {
-    final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
+  private void addNonStopConfigForCache(final CacheConfiguration ehcacheConfig, final String fullyQualifiedCacheName) {
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     ToolkitNonStopConfiguration nonstopConfiguration = new ToolkitNonStopConfiguration(
-                                                                                       terracottaConfiguration
-                                                                                           .getNonstopConfiguration());
+        terracottaConfiguration.getNonstopConfiguration());
     toolkit.getFeature(ToolkitFeatureType.NONSTOP).getNonStopConfigurationRegistry()
-        .registerForInstance(nonstopConfiguration, getFullyQualifiedCacheName(cache), ToolkitObjectType.CACHE);
-
+        .registerForInstance(nonstopConfiguration, fullyQualifiedCacheName, ToolkitObjectType.CACHE);
   }
 
   @Override
