@@ -120,7 +120,7 @@ public class SizeOfTest extends AbstractSizeOfTest {
     SizeOf sizeOf = new CrossCheckingSizeOf();
 
     int size = 80000;
-
+    int perfectMatches = 0;
     for (int j = 0; j < 5; j++) {
       container = new Object[size];
       long usedBefore = measureMemoryUse();
@@ -144,6 +144,10 @@ public class SizeOfTest extends AbstractSizeOfTest {
                    " bytes are actually being used, while we believe " + mem + " are (" +
                    (used - mem) / size + ")",
             Math.abs(percentage) < .015f, is(true));
+      }
+      if(used == mem && ++perfectMatches > 1) {
+        System.err.println("Two perfect matches, that's good enough... bye y'all!");
+        break;
       }
     }
   }
