@@ -327,7 +327,7 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
                 cache.put("" + i, value);
             }
             assertEquals(10000, cache.getElementCountInMemory());
-            RetryAssert.assertBy(2, SECONDS, new Callable<Long>() {
+            RetryAssert.assertBy(10, SECONDS, new Callable<Long>() {
                     public Long call() throws Exception {
                         return cache.getElementCountOnDisk();
                     }
