@@ -38,9 +38,7 @@ import com.tc.test.config.builder.TcServer;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
 
 /**
  * LazyCacheManagerAgentResourceRESTTest
@@ -96,9 +94,7 @@ public class LazyCacheManagerAgentResourceRESTTest {
         expect().contentType(ContentType.JSON)
                 .body("size()", is(1))
                 .rootPath("get(0)")
-                .body("agentId", equalTo("embedded"))
                 .body("agencyOf", equalTo("TSA"))
-                .body("rootRepresentables.urls", endsWith(String.valueOf(ResourceServiceImplITHelper.TSA_GROUP_PORT)))
                 .statusCode(200)
                 .when().get(ResourceServiceImplITHelper.CLUSTERED_BASE_URL + EXPECTED_RESOURCE_LOCATION);
 
@@ -109,10 +105,7 @@ public class LazyCacheManagerAgentResourceRESTTest {
         cacheManager.addCache(new Cache(new CacheConfiguration("test", 10).terracotta(new TerracottaConfiguration())));
         expect().contentType(ContentType.JSON)
                 .body("size()", is(2))
-                .body("get(0).agentId", equalTo("embedded"))
                 .body("get(0).agencyOf", equalTo("TSA"))
-                .body("get(0).rootRepresentables.urls", endsWith(String.valueOf(ResourceServiceImplITHelper.TSA_GROUP_PORT)))
-                .body("get(1).agentId", startsWith("localhost"))
                 .body("get(1).agencyOf", equalTo("Ehcache"))
                 .statusCode(200)
                 .when().get(ResourceServiceImplITHelper.CLUSTERED_BASE_URL + EXPECTED_RESOURCE_LOCATION);
