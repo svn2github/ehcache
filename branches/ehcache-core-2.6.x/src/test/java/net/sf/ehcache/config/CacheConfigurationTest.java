@@ -6,8 +6,9 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 
 import org.hamcrest.core.StringContains;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -23,13 +24,18 @@ import static org.junit.Assert.fail;
  */
 public class CacheConfigurationTest {
 
-    private CacheManager cacheManager;
+    private static CacheManager cacheManager;
 
-    @Before
-    public void setup() {
+    @BeforeClass
+    public static void setupClass() {
         Configuration configTestCM = new Configuration().name("configTestCM")
                         .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir"));
-        this.cacheManager = CacheManager.newInstance(configTestCM);
+        cacheManager = CacheManager.newInstance(configTestCM);
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+        cacheManager.shutdown();
     }
 
     @Test
