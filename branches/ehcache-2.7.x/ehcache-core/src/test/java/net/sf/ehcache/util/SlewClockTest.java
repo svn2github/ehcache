@@ -1,5 +1,7 @@
 package net.sf.ehcache.util;
 
+import org.hamcrest.Matchers;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -12,7 +14,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Alex Snaps
@@ -24,17 +32,29 @@ public class SlewClockTest {
     private static final int     THREADS      = 10;
     private static final long    DURATION     = 15;
 
+    private static volatile SlewClock.TimeProvider timeProvider;
+
+    @BeforeClass
+    public static void installPluggableProvider() {
+        TimeProviderLoader.setTimeProvider(new SlewClock.TimeProvider() {
+            @Override
+            public long currentTimeMillis() {
+                return timeProvider.currentTimeMillis();
+            }
+        });
+    }
 
     @Test
-    public void testTimeMillis() throws Throwable {
+    public void testSlewClockEventuallyCatchesUpWithWallClock() throws Throwable {
         final AtomicLong slewStart = new AtomicLong();
         final AtomicLong offset = new AtomicLong(0);
         final List<Throwable> errors = Collections.synchronizedList(new ArrayList<Throwable>());
-        TimeProviderLoader.setTimeProvider(new SlewClock.TimeProvider() {
+        this.timeProvider = new SlewClock.TimeProvider() {
             public long currentTimeMillis() {
                 return System.currentTimeMillis() - offset.get();
             }
-        });
+        };
+        SlewClock.realignWithTimeProvider();
         final AtomicBoolean stopped = new AtomicBoolean(false);
         final AtomicInteger catchingUp = new AtomicInteger();
         SlewClockVerifierThread[] threads = new SlewClockVerifierThread[THREADS];
@@ -60,6 +80,73 @@ public class SlewClockTest {
         assertThat(catchingUp.get(), is(THREADS));
     }
 
+    @Test
+    public void testHonorsMaxLatencyWhenGoingBackInTimeMultipleTimes() throws Throwable {
+        this.timeProvider = mock(SlewClock.TimeProvider.class);
+
+        final RuntimeException tooMuch = new RuntimeException("Querying time too often!");
+        long value;
+        long lastValue = 101L;
+
+        when(timeProvider.currentTimeMillis()).thenReturn(100L).thenThrow(tooMuch);
+        SlewClock.realignWithTimeProvider();
+        verifyCurrentTimeMillisInvocationsAndReset(timeProvider, 1);
+
+        when(timeProvider.currentTimeMillis()).thenReturn(lastValue).thenThrow(tooMuch);
+        value = assertLatencyIsLessThan(25);
+        assertThat(value, greaterThanOrEqualTo(lastValue));
+        lastValue = value;
+        verifyCurrentTimeMillisInvocationsAndReset(timeProvider, 1);
+
+        when(timeProvider.currentTimeMillis()).thenReturn(50L).thenThrow(tooMuch);
+        value = assertLatencyIsLessThan(25);
+        assertThat(value, greaterThanOrEqualTo(lastValue));
+        lastValue = value;
+        verifyCurrentTimeMillisInvocationsAndReset(timeProvider, 1);
+
+        when(timeProvider.currentTimeMillis()).thenReturn(51L, 52L).thenThrow(tooMuch);
+        value = assertLatencyIsLessThan(50);
+        assertThat(value, greaterThanOrEqualTo(lastValue));
+        lastValue = value;
+        verifyCurrentTimeMillisInvocationsAndReset(timeProvider, 2);
+
+        when(timeProvider.currentTimeMillis()).thenReturn(53L, 0L, 1L).thenThrow(tooMuch);
+        value = assertLatencyIsLessThan(100);
+        assertThat(value, greaterThanOrEqualTo(lastValue));
+        lastValue = value;
+        verifyCurrentTimeMillisInvocationsAndReset(timeProvider, 3);
+
+        when(timeProvider.currentTimeMillis()).thenReturn(2L, 3L).thenThrow(tooMuch);
+        value = assertLatencyIsLessThan(50);
+        assertThat(value, greaterThanOrEqualTo(lastValue));
+        lastValue = value;
+        verifyCurrentTimeMillisInvocationsAndReset(timeProvider, 2);
+
+        when(timeProvider.currentTimeMillis()).thenReturn(4L, 5L).thenThrow(tooMuch);
+        value = assertLatencyIsLessThan(50);
+        assertThat(value, greaterThanOrEqualTo(lastValue));
+        lastValue = value;
+        verifyCurrentTimeMillisInvocationsAndReset(timeProvider, 2);
+
+        when(timeProvider.currentTimeMillis()).thenReturn(103L).thenThrow(tooMuch);
+        value = assertLatencyIsLessThan(25);
+        assertThat(value, greaterThanOrEqualTo(lastValue));
+        verifyCurrentTimeMillisInvocationsAndReset(timeProvider, 1);
+    }
+
+    private static void verifyCurrentTimeMillisInvocationsAndReset(final SlewClock.TimeProvider mock, final int wantedNumberOfInvocations) {
+        verify(mock, times(wantedNumberOfInvocations)).currentTimeMillis();
+        reset(mock);
+    }
+
+    private static long assertLatencyIsLessThan(final int maxLatencyInMillis) {
+        long begin = System.nanoTime();
+        final long value = SlewClock.timeMillis();
+        long duration = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - begin);
+        assertThat("SlewClock.timeMillis() latency", duration, Matchers.lessThan((long)maxLatencyInMillis));
+        System.err.println("Duration: " + duration + " < " + maxLatencyInMillis);
+        return value;
+    }
 
     private static class SlewClockVerifierThread extends Thread {
         private final AtomicBoolean stopped;
@@ -82,7 +169,6 @@ public class SlewClockTest {
 
         @Override
         public void run() {
-            long run =0;
             while (!stopped.get()) {
                 long timeMillis = SlewClock.timeMillis();
                 if(SlewClock.isThreadCatchingUp()) {

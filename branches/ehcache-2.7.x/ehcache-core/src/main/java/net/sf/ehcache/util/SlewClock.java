@@ -41,12 +41,24 @@ final class SlewClock {
 
     private static final int  SLEEP_BASE    = Integer.getInteger("net.sf.ehcache.util.Timestamper.sleep.min", 25);
 
-    private static final AtomicLong CURRENT = new AtomicLong(getCurrentTime());
+    private static final AtomicLong CURRENT = new AtomicLong(Long.MIN_VALUE);
 
     private static final VicariousThreadLocal<Long> OFFSET = new VicariousThreadLocal<Long>();
 
     private SlewClock() {
         // You shall not instantiate me!
+    }
+
+    /**
+     * For testing purposes, you probably never want to use this.
+     * This method will resync, basically resetting any on going slewing, its internal clock tracking with whatever value
+     * the provider seeds it with.
+     *
+     * @deprecated
+     */
+    @Deprecated
+    static void realignWithTimeProvider() {
+        CURRENT.set(getCurrentTime());
     }
 
     /**
@@ -63,7 +75,7 @@ final class SlewClock {
                 if (wall == mono) {
                     OFFSET.remove();
                     return wall;
-                } else if (wall >= mono) {
+                } else if (wall > mono) {
                     if (CURRENT.compareAndSet(mono, wall)) {
                         OFFSET.remove();
                         return wall;
@@ -76,13 +88,12 @@ final class SlewClock {
                     } else {
                         Long lastDelta = OFFSET.get();
                         if (lastDelta == null || delta < lastDelta) {
-                            long update = wall - delta;
-                            update = update < mono ? mono + 1 : update;
-                            if (CURRENT.compareAndSet(mono, update)) {
+                            if (CURRENT.compareAndSet(mono, mono + 1)) {
                                 OFFSET.set(Long.valueOf(delta));
-                                return update;
+                                return mono + 1;
                             }
                         } else {
+                            OFFSET.set(Long.valueOf(Math.max(delta, lastDelta)));
                             try {
                                 long sleep = sleepTime(delta, lastDelta);
                                 LOG.trace("{} sleeping for {}ms to adjust for wall-clock drift.", Thread.currentThread(), sleep);
