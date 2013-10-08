@@ -55,6 +55,7 @@ public abstract class ResourceServiceImplITHelper {
 
     clusterManager = new ClusterManager(clazz,tcConfig);
     clusterManager.addExtraJvmArg("-Xmx768m");
+    clusterManager.addExtraJvmArg("-XX:MaxPermSize=128m");
     clusterManager.start();
 
     cacheManagerMaxElements = getCacheManagerMaxEntries();
