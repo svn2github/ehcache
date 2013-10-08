@@ -7,10 +7,16 @@ import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.StringContains;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Handler;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -20,26 +26,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Handler;
-import java.util.logging.LogManager;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-
 /**
  * @author Alex Snaps
  */
 public class CacheConfigurationTest {
 
-    private CacheManager cacheManager;
+    private static CacheManager cacheManager;
 
-    @Before
-    public void setup() {
-        this.cacheManager = CacheManager.getInstance();
+    @BeforeClass
+    public static void setupClass() {
+        Configuration configTestCM = new Configuration().name("configTestCM")
+                                 .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir"));
+        cacheManager = CacheManager.newInstance(configTestCM);
     }
 
-    @After
-    public void tearDown() {
+    @AfterClass
+    public static void tearDownClass() {
         cacheManager.shutdown();
     }
 
