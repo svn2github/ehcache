@@ -10,8 +10,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -29,7 +27,9 @@ public class CacheConfigurationTest {
 
     @Before
     public void setup() {
-        this.cacheManager = CacheManager.getInstance();
+        Configuration configTestCM = new Configuration().name("configTestCM")
+                        .diskStore(new DiskStoreConfiguration().path("java.io.tmpdir"));
+        this.cacheManager = CacheManager.newInstance(configTestCM);
     }
 
     @Test
@@ -202,16 +202,6 @@ public class CacheConfigurationTest {
             cacheManager.addCache(new Cache(config));
         } catch (InvalidConfigurationException e) {
             Assert.assertThat(e.getMessage(), StringContains.containsString("Persistence configuration found with no strategy set."));
-        }
-    }
-
-    private String getDiskStorePath(final Cache cache) {
-        try {
-            Field declaredField = Cache.class.getDeclaredField("diskStorePath");
-            declaredField.setAccessible(true);
-            return (String)declaredField.get(cache);
-        } catch (Exception e) {
-            throw new RuntimeException("Did you rename Cache.diskStorePath ?!", e);
         }
     }
 }
