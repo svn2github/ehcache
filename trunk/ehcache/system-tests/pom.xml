@@ -261,6 +261,7 @@
               <groupId>org.terracotta</groupId>
               <artifactId>maven-forge-plugin</artifactId>
               <configuration>
+                <argLine>-Xmx768m</argLine>
                 <includes>
                   <include>**/*Test.java</include>
                 </includes>
