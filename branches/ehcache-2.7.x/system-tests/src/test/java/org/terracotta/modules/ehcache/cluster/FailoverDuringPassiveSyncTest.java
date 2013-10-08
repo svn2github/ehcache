@@ -21,6 +21,8 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
 
   public FailoverDuringPassiveSyncTest(TestConfig testConfig) {
     super("failover-during-passive-sync-test.xml", testConfig, FailoverDuringPassiveSyncTestApp.class);
+    testConfig.getCrashConfig().setShouldIgnoreUnexpectedL2Crash(true);
+    testConfig.setRestartZappedL2(false);
     testConfig.getGroupConfig().setMemberCount(3);
 
     testConfig.addTcProperty("seda." + ServerConfigurationContext.OBJECTS_SYNC_STAGE + ".sleepMs", "2000");
@@ -76,6 +78,9 @@ public class FailoverDuringPassiveSyncTest extends AbstractTerracottaActivePassi
         info("Waiting for passive[2] to get zapped.");
         Thread.sleep(1000);
       }
+
+      info("Restarting passive[2]");
+      mbean.startServer(0, 2);
 
       info("Waiting for passive[2] to respin.");
       mbean.waitUntilEveryPassiveStandBy(0);
