@@ -23,23 +23,20 @@ import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.l1bridge.AbstractRemoteAgentEndpointImpl;
+import org.terracotta.management.l1bridge.RemoteCallDescriptor;
+import org.terracotta.management.l1bridge.RemoteCallException;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
 import org.terracotta.management.resource.services.AgentService;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,13 +61,13 @@ import javax.management.ObjectName;
  *
  * @author brandony
  */
-public class DfltSamplerRepositoryService
+public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImpl
     implements SamplerRepositoryService, EntityResourceFactory, CacheManagerService, CacheService, AgentService,
     DfltSamplerRepositoryServiceMBean {
 
   private static final Logger LOG = LoggerFactory.getLogger(DfltSamplerRepositoryService.class);
 
-  public static final String MBEAN_NAME_PREFIX = "net.sf.ehcache:type=RepositoryService";
+  public static final String MBEAN_NAME_PREFIX = "net.sf.ehcache:type=" + IDENTIFIER;
   public static final String AGENCY = "Ehcache";
 
   private final ThreadLocal<Boolean> tsaBridged = new ThreadLocal<Boolean>() {
@@ -140,19 +137,10 @@ public class DfltSamplerRepositoryService
    * {@inheritDoc}
    */
   @Override
-  public byte[] invoke(String ticket, String token, String iaCallbackUrl, String methodName, Class<?>[] argsTypes, Object[] args) {
+  public byte[] invoke(RemoteCallDescriptor remoteCallDescriptor) throws RemoteCallException {
     try {
       tsaBridged.set(true);
-      Method method = getClass().getMethod(methodName, argsTypes);
-      Object res = method.invoke(this, args);
-      return serialize(res);
-    } catch (Exception e) {
-      Throwable t = getRootCause(e);
-      if (t instanceof RuntimeException) {
-        throw (RuntimeException)t;
-      } else {
-        throw new RuntimeException(t);
-      }
+      return super.invoke(remoteCallDescriptor);
     } finally {
       tsaBridged.set(false);
     }
@@ -172,30 +160,6 @@ public class DfltSamplerRepositoryService
   @Override
   public String getAgency() {
     return AGENCY;
-  }
-
-  private static Throwable getRootCause(Throwable t) {
-    Throwable last = null;
-    while (t != null) {
-      last = t;
-      t = t.getCause();
-    }
-    if (last instanceof InvocationTargetException) {
-      last = ((InvocationTargetException)last).getTargetException();
-    }
-    return last;
-  }
-
-
-  private byte[] serialize(Object obj) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
-    try {
-      oos.writeObject(obj);
-    } finally {
-      oos.close();
-    }
-    return baos.toByteArray();
   }
 
   /**
