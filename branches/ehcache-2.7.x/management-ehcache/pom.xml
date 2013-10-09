@@ -5,12 +5,12 @@
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-root</artifactId>
-    <version>2.7.5-SNAPSHOT</version>
+    <version>2.7.6-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
   
   <artifactId>management-ehcache</artifactId>
-  <version>2.7.5-SNAPSHOT</version>
+  <version>2.7.6-SNAPSHOT</version>
   <name>management-ehcache</name>
   <description>A library defining the ehcache management resource service interfaces and resource entities.</description>
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test" defaultTransactionTimeoutInSeconds="300">
+
+	<cache name="testCache" maxElementsInMemory="500" transactionalMode="local">
+		<terracotta clustered="true" consistency="strong" />
+	</cache>
+
+	<terracottaConfig url="localhost:PORT" rejoin="false" />
+
+</ehcache>
