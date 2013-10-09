@@ -202,12 +202,16 @@ public class BruteForceSearchManager implements SearchManager {
                     for (Object val: rh.aggregatorInputs) {
                         aggregators.get(i++).accept(val);
                     }
-                    if (includeResults) {
-                        setResultAggregators(aggregators, rh.result);
-                    }
+                }
+            }
+            if (includeResults && !isGroupBy) {
+                // Set the same aggregate values for each result
+                for (ResultHolder rh: results) {
+                    setResultAggregators(aggregators, rh.result);
                 }
             }
         }
+        
         List<BaseResult> output;
         
         if (!isGroupBy && anyMatches && !includeResults && !aggregators.isEmpty()) {
