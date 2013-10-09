@@ -176,7 +176,7 @@ public class ProcessingBucket<E extends Serializable> {
 
   public void destroy() {
     try {
-      debug("destroying bucket " + toolkitList.getName() + " " + toolkitList.size());
+      debug("destroying bucket " + bucketName + " " + toolkitList.size());
       toolkitList.destroy();
     } catch (Throwable t) {
       if (isTCNRE(t) && !cluster.areOperationsEnabled()) {
