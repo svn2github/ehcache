@@ -205,6 +205,12 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
           bucket.destroy();
           list.remove(bucket);
           bucketManager.removeBucket(bucket.getBucketName());
+        } catch (Throwable t) {
+          if (PlatformExceptionUtils.shouldIgnore(t)) {
+            LOGGER.warn("cleanupDeadBucket caught " + t);
+          } else {
+            LOGGER.error("cleanupDeadBucket caught ", t);
+          }
         } finally {
           nodeWriteLock.unlock();
         }
