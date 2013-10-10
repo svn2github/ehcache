@@ -75,6 +75,26 @@ public class BruteForceSearchManager implements SearchManager {
         //
     }
 
+    /**
+     * Concrete search result with relevant inputs to aggregate functions (if any) 
+     */
+    private static final class ResultHolder implements Comparable<ResultHolder> {
+        private final BaseResult result;
+        private final List<Object> aggregatorInputs;
+        private final OrderComparator<BaseResult> comp;
+        
+        private ResultHolder(BaseResult res, List<Object> values, OrderComparator<BaseResult> cmp) {
+            result = res;
+            aggregatorInputs = values;
+            comp = cmp;
+        }
+
+        @Override
+        public int compareTo(ResultHolder other) {
+            return comp.compare(this.result, other.result);
+        }
+    }
+    
     @Override
     public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors, DynamicAttributesExtractor
             dynIndexer) {
@@ -88,7 +108,7 @@ public class BruteForceSearchManager implements SearchManager {
 
         boolean hasOrder = !query.getOrdering().isEmpty();
 
-        final Map<Set<?>, BaseResult> groupByResults = new HashMap<Set<?>, BaseResult>();
+        final Map<Set<?>, ResultHolder> groupByResults = new HashMap<Set<?>, ResultHolder>();
         final Map<Set, List<AggregatorInstance<?>>> groupByAggregators = new HashMap<Set, List<AggregatorInstance<?>>>();
 
         Collection<Element> matches = new LinkedList<Element>();
@@ -108,75 +128,105 @@ public class BruteForceSearchManager implements SearchManager {
             }
         }
 
-        Collection<BaseResult> results = isGroupBy ? groupByResults.values() : new ArrayList<BaseResult>();
+        Collection<ResultHolder> results = isGroupBy ? groupByResults.values() : new ArrayList<ResultHolder>();
 
         boolean anyMatches = !matches.isEmpty();
+        OrderComparator<BaseResult> comp = new OrderComparator<BaseResult>(query.getOrdering());
+        
         for (Element element : matches) {
             Map<String, AttributeExtractor> extractorSuperset = eltExtractors.get(element.getObjectKey());
-            if (includeResults) {
-                final Map<String, Object> attributes = getAttributeValues(query.requestedAttributes(), extractorSuperset, element);
-                final Object[] sortAttributes = getSortAttributes(query, extractorSuperset, element);
 
-                if (!isGroupBy) {
-                    results.add(new ResultImpl(element.getObjectKey(), element.getObjectValue(), query, attributes, sortAttributes));
-                } else {
-                    Map<String, Object> groupByValues = getAttributeValues(groupByAttributes, extractorSuperset, element);
-                    Set<?> groupId = new HashSet<Object>(groupByValues.values());
-                    BaseResult group = groupByResults.get(groupId);
-                    if (group == null) {
-                        group = new GroupedResultImpl(query, attributes, sortAttributes, Collections.emptyList() /* placeholder for now */,
-                                groupByValues);
-                        groupByResults.put(groupId, group);
+            List<Object> resultAggs = new ArrayList<Object>(aggregators.size());
+            for (AggregatorInstance<?> agg: aggregators) {
+                Attribute aggrAttr = agg.getAttribute();
+                // placeholder input for count
+                Object val = aggrAttr != null ? 
+                    getExtractor(aggrAttr.getAttributeName(), extractorSuperset).attributeFor(element, aggrAttr.getAttributeName()) : null;
+                resultAggs.add(val);
+            }
+            
+            Map<String, Object> attributes = getAttributeValues(query.requestedAttributes(), extractorSuperset, element);
+            Object[] sortAttributes = getSortAttributes(query, extractorSuperset, element);
+
+            if (!isGroupBy) {
+                results.add(new ResultHolder(new ResultImpl(element.getObjectKey(), element.getObjectValue(), query, attributes, sortAttributes), 
+                            resultAggs, comp));
+            } else {
+                Map<String, Object> groupByValues = getAttributeValues(groupByAttributes, extractorSuperset, element);
+                Set<?> groupId = new HashSet<Object>(groupByValues.values());
+                List<AggregatorInstance<?>> groupAggrs = groupByAggregators.get(groupId);
+                if (groupAggrs == null) {
+                    groupAggrs = new ArrayList<AggregatorInstance<?>>(aggregators.size());
+                    for (AggregatorInstance<?> aggr : aggregators) {
+                        groupAggrs.add(aggr.createClone());
                     }
-                    List<AggregatorInstance<?>> groupAggrs = groupByAggregators.get(groupId);
-                    if (groupAggrs == null) {
-                        groupAggrs = new ArrayList<AggregatorInstance<?>>(aggregators.size());
-                        for (AggregatorInstance<?> aggr : aggregators) {
-                            groupAggrs.add(aggr.createClone());
-                        }
-                        groupByAggregators.put(groupId, groupAggrs);
-                    }
-                    // Switch to per-record aggregators
-                    aggregators = groupAggrs;
+                    groupByAggregators.put(groupId, groupAggrs);
+                }
+                int i = 0;
+                for (AggregatorInstance<?> inst: groupAggrs) {
+                    inst.accept(resultAggs.get(i++));
+                }
+                ResultHolder group = groupByResults.get(groupId);
+                if (group == null) {
+                    group = new ResultHolder(new GroupedResultImpl(query, attributes, sortAttributes, Collections.emptyList(),
+                            groupByValues), Collections.emptyList(), comp);
+                    groupByResults.put(groupId, group);
                 }
             }
-            aggregate(aggregators, extractorSuperset, element);
         }
 
         if (hasOrder || isGroupBy) {
             if (isGroupBy) {
-                results = new ArrayList<BaseResult>(results);
+                results = new ArrayList<ResultHolder>(results);
             }
 
             if (hasOrder) {
-                Collections.sort((List<BaseResult>)results, new OrderComparator<BaseResult>(query.getOrdering()));
+                Collections.sort((List<ResultHolder>)results);
             }
             // trim results to max length if necessary
             int max = query.maxResults();
             if (max >= 0 && (results.size() > max)) {
-                results = ((List<BaseResult>)results).subList(0, max);
+                results = ((List<ResultHolder>)results).subList(0, max);
             }
         }
 
         if (!aggregators.isEmpty()) {
-            for (BaseResult result : results) {
+            for (ResultHolder rh : results) {
                 if (isGroupBy) {
-                    GroupedResultImpl group = (GroupedResultImpl)result;
+                    GroupedResultImpl group = (GroupedResultImpl)rh.result;
                     Set<?> groupId = new HashSet<Object>(group.getGroupByValues().values());
                     aggregators = groupByAggregators.get(groupId);
+                    setResultAggregators(aggregators, group);
+                } else {
+                    int i = 0;
+                    for (Object val: rh.aggregatorInputs) {
+                        aggregators.get(i++).accept(val);
+                    }
                 }
-                setResultAggregators(aggregators, result);
+            }
+            if (includeResults && !isGroupBy) {
+                // Set the same aggregate values for each result
+                for (ResultHolder rh: results) {
+                    setResultAggregators(aggregators, rh.result);
+                }
             }
         }
-
+        
+        List<BaseResult> output;
+        
         if (!isGroupBy && anyMatches && !includeResults && !aggregators.isEmpty()) {
             // add one row in the results if the only thing included was aggregators and anything matched
             BaseResult aggOnly = new AggregateOnlyResult(query);
             setResultAggregators(aggregators, aggOnly);
-            results.add(aggOnly);
+            output = Collections.singletonList(aggOnly);
+        } else {
+            output = new ArrayList<BaseResult>(results.size());
+            for (ResultHolder rh: results) {
+                output.add(rh.result);
+            }
         }
 
-        return new ResultsImpl((List)results, query.requestsKeys(), query.requestsValues(), !query.requestedAttributes().isEmpty(), anyMatches
+        return new ResultsImpl(output, query.requestsKeys(), query.requestsValues(), !query.requestedAttributes().isEmpty(), anyMatches
                 && !aggregators.isEmpty());
     }
 
@@ -233,18 +283,6 @@ public class BruteForceSearchManager implements SearchManager {
             }
         }
         return combinedExtractors;
-    }
-
-    private void aggregate(List<AggregatorInstance<?>> aggregators, Map<String, AttributeExtractor> extractors, Element element) {
-        for (AggregatorInstance<?> aggregator : aggregators) {
-            Attribute<?> attribute = aggregator.getAttribute();
-            if (attribute == null) {
-                aggregator.accept(null);
-            } else {
-                Object val = getExtractor(attribute.getAttributeName(), extractors).attributeFor(element, attribute.getAttributeName());
-                aggregator.accept(val);
-            }
-        }
     }
 
     private Object[] getSortAttributes(StoreQuery query, Map<String, AttributeExtractor> extractors, Element element) {

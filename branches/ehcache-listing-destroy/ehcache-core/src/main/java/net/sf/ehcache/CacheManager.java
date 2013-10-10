@@ -375,9 +375,6 @@ public class CacheManager {
             InputStream configurationInputStream) {
         Configuration configuration;
 
-
-        LibraryInit.init();
-
         if (initialConfiguration == null) {
             configuration = parseConfiguration(configurationFileName, configurationURL, configurationInputStream);
         } else {

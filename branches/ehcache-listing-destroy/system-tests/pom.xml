@@ -22,6 +22,9 @@
   <description>System tests for ehcache-terracotta</description>
 
   <properties>
+    <surefire.min-memory>512m</surefire.min-memory>
+    <surefire.max-memory>1024m</surefire.max-memory>
+    <surefire.additional-jvm-args>-XX:MaxPermSize=512m</surefire.additional-jvm-args>
     <skipSagFinder>true</skipSagFinder>
     <skipCheckstyle>true</skipCheckstyle>
     <derby.version>10.10.1.1</derby.version>
