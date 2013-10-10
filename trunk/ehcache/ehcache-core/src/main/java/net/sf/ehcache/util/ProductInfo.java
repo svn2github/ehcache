@@ -29,7 +29,6 @@ import net.sf.ehcache.CacheException;
  *
  */
 public class ProductInfo {
-    private static final String BIGMEMORY_VERSION_RESOURCE = "/org/terracotta/bigmemory/version.properties";
     private static final String EHCACHE_VERSION_RESOURCE = "/net/sf/ehcache/version.properties";
     private static final String UNKNOWN = "UNKNOWN";
     private final Properties props = new Properties();
@@ -38,11 +37,7 @@ public class ProductInfo {
      * Construct a default product info
      */
     public ProductInfo() {
-        if (ProductInfo.class.getResource(BIGMEMORY_VERSION_RESOURCE) != null) {
-            parseProductInfo(BIGMEMORY_VERSION_RESOURCE);
-        } else {
-            parseProductInfo(EHCACHE_VERSION_RESOURCE);
-        }
+        parseProductInfo(EHCACHE_VERSION_RESOURCE);        
     }
 
     /**

@@ -65,7 +65,7 @@ public class UpdateChecker extends TimerTask {
         } else {
             throw new AssertionError("Unknown product name: " + productName);
         }
-        putUrlSafe("kidID", kitId);
+        putUrlSafe("kitID", kitId);
         putUrlSafe("id", Integer.toString(getClientId()));
         putUrlSafe("os-name", getProperty("os.name"));
         putUrlSafe("jvm-name", getProperty("java.vm.name"));
