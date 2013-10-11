@@ -66,18 +66,10 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
    * Same as {@link #clear()}, except that it does not generate any server events
    * and completely ignores {@link #isActive()} flag.
    */
+  @Override
   public void clearVersioned() {
     //TODO: do not generate server events
-    delegate.clear();
-  }
-
-  /**
-   * Same as {@link #putIfAbsent(Object, Object)}, except that it does not generate any server events
-   * and completely ignores {@link #isActive()} flag.
-   */
-  public V putIfAbsentVersioned(final K key, final V value, final long version) {
-    //TODO: do not generate server events
-    return delegate.putIfAbsent(key, value);
+    delegate.clearVersioned();
   }
 
   private void setState(boolean active) {
@@ -93,6 +85,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
   public void unlockedPutNoReturn(final K k, final V v, final int createTime, final int customTTI, final int customTTL) {
     if (isActive()) {
       delegate.unlockedPutNoReturn(k, v, createTime, customTTI, customTTL);
@@ -101,6 +94,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
   public void unlockedPutNoReturnVersioned(final K k, final V v, final long version, final int createTime,
                                            final int customTTI, final int customTTL) {
     delegate.unlockedPutNoReturnVersioned(k, v, version, createTime, customTTI, customTTL);
@@ -117,6 +111,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   @Override
   public V unlockedGet(final Object k, final boolean quiet) {return delegate.unlockedGet(k, quiet);}
 
+  @Override
   public Map<K, V> unlockedGetAll(final Collection<K> keys, final boolean quiet) {
     return delegate.unlockedGetAll(keys, quiet);
   }
@@ -176,18 +171,20 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void putIfAbsentOrOlderVersion(final K key, final V value, final long version) {
-    delegate.putIfAbsentOrOlderVersion(key, value, version);
+  public void putIfAbsentVersioned(final K key, final V value, final long version) {
+    delegate.putIfAbsentVersioned(key, value, version);
   }
 
   @Override
-  public void putIfAbsentOrOlderVersion(final K key, final V value, final long version, final int createTimeInSecs, final int customMaxTTISeconds, final int customMaxTTLSeconds) {
-    delegate.putIfAbsentOrOlderVersion(key, value, version, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
+  public void putIfAbsentVersioned(final K key, final V value, final long version, final int createTimeInSecs,
+                                   final int customMaxTTISeconds, final int customMaxTTLSeconds) {
+    delegate.putIfAbsentVersioned(key, value, version, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
   }
 
   @Override
   public void disposeLocally() {delegate.disposeLocally();}
 
+  @Override
   public void removeAll(final Set<K> keys) {
     if (isActive()) {
       delegate.removeAll(keys);
@@ -214,6 +211,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     return delegate.getVersionedValue(key);
   }
 
+  @Override
   public void removeListener(final ToolkitCacheListener<K> listener) {
     if (isActive()) {
       delegate.removeListener(listener);
@@ -222,6 +220,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
   public void addListener(final ToolkitCacheListener<K> listener) {
     if (isActive()) {
       delegate.addListener(listener);
@@ -230,6 +229,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
   public V putIfAbsent(final K key, final V value, final long createTimeInSecs, final int maxTTISeconds,
                        final int maxTTLSeconds) {
     if (isActive()) {
@@ -239,6 +239,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
   public void putNoReturn(final K key, final V value, final long createTimeInSecs, final int maxTTISeconds,
                           final int maxTTLSeconds) {
     if (isActive()) {
@@ -248,6 +249,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
   public Map<K, V> getAllQuiet(final Collection<K> keys) {
     if (isActive()) {
       return delegate.getAllQuiet(keys);
@@ -265,6 +267,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
   public ToolkitReadWriteLock createLockForKey(final K key) {return delegate.createLockForKey(key);}
 
   @Override
