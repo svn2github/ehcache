@@ -7,6 +7,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.cache.VersionUpdateListener;
+import org.terracotta.toolkit.internal.cache.VersionedValue;
 import org.terracotta.toolkit.search.QueryBuilder;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
 
@@ -61,6 +62,16 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     setState(false);
   }
 
+  /**
+   * Same as {@link #clear()}, except that it does not generate any server events
+   * and completely ignores {@link #isActive()} flag.
+   */
+  @Override
+  public void clearVersioned() {
+    //TODO: do not generate server events
+    delegate.clearVersioned();
+  }
+
   private void setState(boolean active) {
     configMap.replace(CACHE_ACTIVE_KEY, !active, active);
   }
@@ -74,6 +85,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
   public void unlockedPutNoReturn(final K k, final V v, final int createTime, final int customTTI, final int customTTL) {
     if (isActive()) {
       delegate.unlockedPutNoReturn(k, v, createTime, customTTI, customTTL);
@@ -82,6 +94,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
   public void unlockedPutNoReturnVersioned(final K k, final V v, final long version, final int createTime,
                                            final int customTTI, final int customTTL) {
     delegate.unlockedPutNoReturnVersioned(k, v, version, createTime, customTTI, customTTL);
@@ -98,6 +111,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   @Override
   public V unlockedGet(final Object k, final boolean quiet) {return delegate.unlockedGet(k, quiet);}
 
+  @Override
   public Map<K, V> unlockedGetAll(final Collection<K> keys, final boolean quiet) {
     return delegate.unlockedGetAll(keys, quiet);
   }
@@ -147,27 +161,37 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public void putVersioned(final K key, final V value, final long version) {
-    if (isActive()) {
-      delegate.putVersioned(key, value, version);
-    } else {
-      throw new IllegalStateException(NOT_ACTIVE_MSG);
-    }
+    delegate.putVersioned(key, value, version);
   }
 
   @Override
   public void putVersioned(final K key, final V value, final long version, final int createTimeInSecs,
                            final int customMaxTTISeconds, final int customMaxTTLSeconds) {
-    if (isActive()) {
-      delegate.putVersioned(key, value, version, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
-    } else {
-      throw new IllegalStateException(NOT_ACTIVE_MSG);
-    }
+    delegate.putVersioned(key, value, version, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
+  }
+
+  @Override
+  public void putIfAbsentVersioned(final K key, final V value, final long version) {
+    delegate.putIfAbsentVersioned(key, value, version);
+  }
+
+  @Override
+  public void putIfAbsentVersioned(final K key, final V value, final long version, final int createTimeInSecs,
+                                   final int customMaxTTISeconds, final int customMaxTTLSeconds) {
+    delegate.putIfAbsentVersioned(key, value, version, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
   }
 
   @Override
   public void disposeLocally() {delegate.disposeLocally();}
 
-  public void removeAll(final Set<K> keys) {delegate.removeAll(keys);}
+  @Override
+  public void removeAll(final Set<K> keys) {
+    if (isActive()) {
+      delegate.removeAll(keys);
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
   public void removeVersioned(final Object key, final long version) {delegate.removeVersioned(key, version);}
@@ -177,10 +201,35 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     delegate.registerVersionUpdateListener(listener);
   }
 
-  public void removeListener(final ToolkitCacheListener<K> listener) {delegate.removeListener(listener);}
+  @Override
+  public Set<K> keySetForSegment(final int segmentIndex) {
+    return delegate.keySetForSegment(segmentIndex);
+  }
 
-  public void addListener(final ToolkitCacheListener<K> listener) {delegate.addListener(listener);}
+  @Override
+  public VersionedValue<V> getVersionedValue(final Object key) {
+    return delegate.getVersionedValue(key);
+  }
 
+  @Override
+  public void removeListener(final ToolkitCacheListener<K> listener) {
+    if (isActive()) {
+      delegate.removeListener(listener);
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
+
+  @Override
+  public void addListener(final ToolkitCacheListener<K> listener) {
+    if (isActive()) {
+      delegate.addListener(listener);
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
+
+  @Override
   public V putIfAbsent(final K key, final V value, final long createTimeInSecs, final int maxTTISeconds,
                        final int maxTTLSeconds) {
     if (isActive()) {
@@ -190,6 +239,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
+  @Override
   public void putNoReturn(final K key, final V value, final long createTimeInSecs, final int maxTTISeconds,
                           final int maxTTLSeconds) {
     if (isActive()) {
@@ -199,11 +249,25 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
     }
   }
 
-  public Map<K, V> getAllQuiet(final Collection<K> keys) {return delegate.getAllQuiet(keys);}
+  @Override
+  public Map<K, V> getAllQuiet(final Collection<K> keys) {
+    if (isActive()) {
+      return delegate.getAllQuiet(keys);
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
-  public V getQuiet(final Object key) {return delegate.getQuiet(key);}
+  public V getQuiet(final Object key) {
+    if (isActive()) {
+      return delegate.getQuiet(key);
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
+  @Override
   public ToolkitReadWriteLock createLockForKey(final K key) {return delegate.createLockForKey(key);}
 
   @Override
@@ -213,7 +277,13 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   public Configuration getConfiguration() {return delegate.getConfiguration();}
 
   @Override
-  public Map<K, V> getAll(final Collection<? extends K> keys) {return delegate.getAll(keys);}
+  public Map<K, V> getAll(final Collection<? extends K> keys) {
+    if (isActive()) {
+      return delegate.getAll(keys);
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
   public void putNoReturn(final K key, final V value) {
@@ -261,7 +331,13 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public V replace(final K key, final V value) {return delegate.replace(key, value);}
+  public V replace(final K key, final V value) {
+    if (isActive()) {
+      return delegate.replace(key, value);
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
   public int size() {return delegate.size();}
@@ -270,10 +346,22 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   public boolean isEmpty() {return delegate.isEmpty();}
 
   @Override
-  public boolean containsKey(final Object key) {return delegate.containsKey(key);}
+  public boolean containsKey(final Object key) {
+    if (isActive()) {
+      return delegate.containsKey(key);
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
-  public boolean containsValue(final Object value) {return delegate.containsValue(value);}
+  public boolean containsValue(final Object value) {
+    if (isActive()) {
+      return delegate.containsValue(value);
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
   public V get(final Object key) {
@@ -303,19 +391,49 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void putAll(final Map<? extends K, ? extends V> m) {delegate.putAll(m);}
+  public void putAll(final Map<? extends K, ? extends V> m) {
+    if (isActive()) {
+      delegate.putAll(m);
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
-  public void clear() {delegate.clear();}
+  public void clear() {
+    if (isActive()) {
+      delegate.clear();
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
-  public Set<K> keySet() {return delegate.keySet();}
+  public Set<K> keySet() {
+    if (isActive()) {
+      return delegate.keySet();
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
-  public Collection<V> values() {return delegate.values();}
+  public Collection<V> values() {
+    if (isActive()) {
+      return delegate.values();
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
-  public Set<Entry<K, V>> entrySet() {return delegate.entrySet();}
+  public Set<Entry<K, V>> entrySet() {
+    if (isActive()) {
+      return delegate.entrySet();
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
   public boolean equals(final Object o) {return delegate.equals(o);}
@@ -327,7 +445,13 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   public boolean isDestroyed() {return delegate.isDestroyed();}
 
   @Override
-  public void destroy() {delegate.destroy();}
+  public void destroy() {
+    if (isActive()) {
+      delegate.destroy();
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
+  }
 
   @Override
   public void setAttributeExtractor(final ToolkitAttributeExtractor<K, V> attrExtractor) {
