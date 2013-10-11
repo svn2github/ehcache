@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="true"/>
+
+  <cache name="test"
+         maxEntriesLocalHeap="10"
+         eternal="true">
+         <pinning store="incache"/>
+         <terracotta concurrency="256" clustered="true" consistency="strong"/>
+  </cache>
+  
+  <terracottaConfig url="localhost:PORT"/>  
+</ehcache>
