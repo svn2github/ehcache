@@ -94,7 +94,7 @@
               <execution>
                 <id>list-dependencies</id>
                 <configuration>
-                  <outputFile>${project.build.outputDirectory}/META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt</outputFile>
+                  <outputFile>${project.build.outputDirectory}/META-INF/devmode/${project.groupId}/${project.artifactId}/dependencies.txt</outputFile>
                 </configuration>                
                 <goals>
                   <goal>list</goal>
