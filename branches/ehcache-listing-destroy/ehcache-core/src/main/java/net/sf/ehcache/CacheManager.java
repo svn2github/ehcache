@@ -454,6 +454,8 @@ public class CacheManager {
         terracottaClient = new TerracottaClient(this, configuration.getTerracottaConfiguration());
         if (terracottaClient.createClusteredInstanceFactory()) {
             clustered = true;
+            ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
+            clusteredInstanceFactory.connectClusteredCacheManager(getName());
         }
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, configuration);

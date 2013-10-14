@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.terracotta;
 
-import java.util.concurrent.Callable;
-
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.event.CacheEventListener;
@@ -26,6 +24,8 @@ import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
+
+import java.util.concurrent.Callable;
 
 /**
  * A {@link ClusteredInstanceFactory} implementation that delegates all operations to an underlying delegate except for the following
@@ -129,5 +129,10 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     @Override
     public boolean destroyCache(final String cacheManagerName, final String cacheName) {
         return delegate.destroyCache(cacheManagerName, cacheName);
+    }
+
+    @Override
+    public void connectClusteredCacheManager(String cacheManagerName) {
+        delegate.connectClusteredCacheManager(cacheManagerName);
     }
 }

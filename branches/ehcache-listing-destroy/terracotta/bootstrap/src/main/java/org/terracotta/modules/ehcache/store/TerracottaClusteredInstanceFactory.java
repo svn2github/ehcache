@@ -34,6 +34,9 @@ import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
 import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 
+import com.terracotta.entity.ClusteredEntityManager;
+import com.terracotta.entity.ehcache.ClusteredCacheManager;
+
 import java.util.concurrent.Callable;
 
 public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFactory {
@@ -50,6 +53,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   private final SoftLockManagerProvider         softLockManagerProvider;
   private final AsyncCoordinatorFactory         asyncCoordinatorFactory;
   private final TerracottaStoreInitializationService      initializationService;
+  private final ClusteredEntityManager clusteredEntityManager;
 
   public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
     toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
@@ -58,6 +62,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory(toolkitInstanceFactory);
     softLockManagerProvider = new SoftLockManagerProvider(toolkitInstanceFactory);
     asyncCoordinatorFactory = createAsyncCoordinatorFactory();
+    clusteredEntityManager = new ClusteredEntityManager(toolkitInstanceFactory.getToolkit());
     logEhcacheBuildInfo();
   }
 
@@ -158,6 +163,19 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     boolean destroyed = toolkitInstanceFactory.destroy(cacheManagerName, cacheName);
     destroyed |= asyncCoordinatorFactory.destroy(cacheManagerName, cacheName);
     return destroyed;
+  }
+
+  @Override
+  public void connectClusteredCacheManager(String cacheManagerName) {
+    ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
+    if (clusteredCacheManager == null) {
+      clusteredCacheManager = new ClusteredCacheManager();
+      try {
+        clusteredEntityManager.addRootEntity(cacheManagerName, clusteredCacheManager);
+      } catch (IllegalStateException isex) {
+        clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
+      }
+    }
   }
 
   public static String getToolkitMapNameForCache(String cacheManagerName, String cacheName) {
