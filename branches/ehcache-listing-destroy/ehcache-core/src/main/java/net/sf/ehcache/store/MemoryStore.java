@@ -73,7 +73,7 @@ import static net.sf.ehcache.statistics.StatisticBuilder.operation;
  * configured in the cache.
  *
  * @author Terracotta
- * @version $Id: MemoryStore.java 7824 2013-07-23 01:54:39Z vfunshte $
+ * @version $Id$
  * @version $Id$
  */
 public class MemoryStore extends AbstractStore implements CacheConfigurationListener, Store {
