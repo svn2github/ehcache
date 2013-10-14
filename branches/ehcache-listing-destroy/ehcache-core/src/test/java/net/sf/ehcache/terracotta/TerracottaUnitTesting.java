@@ -16,19 +16,10 @@
 
 package net.sf.ehcache.terracotta;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.Callable;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.concurrent.CacheLockProvider;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.NonstopConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRuntimeType;
@@ -36,6 +27,12 @@ import net.sf.ehcache.terracotta.TerracottaClusteredInstanceHelper.TerracottaRun
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Abhishek Sanoujam
@@ -68,7 +65,7 @@ public class TerracottaUnitTesting {
                 terracottaStore);
 
         TerracottaClusteredInstanceHelper mockHelper = Mockito.mock(TerracottaClusteredInstanceHelper.class);
-        when(mockHelper.newClusteredInstanceFactory((Map<String, CacheConfiguration>) any(), (TerracottaClientConfiguration) any()))
+        when(mockHelper.newClusteredInstanceFactory((TerracottaClientConfiguration) any()))
                 .thenAnswer(new Answer<ClusteredInstanceFactory>() {
                     public ClusteredInstanceFactory answer(InvocationOnMock invocation) throws Throwable {
                         if (onNewClusteredInstanceFactory != null) {

@@ -16,21 +16,19 @@
 
 package net.sf.ehcache.terracotta;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.cluster.CacheCluster;
-import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Class encapsulating the idea of a Terracotta client. Provides access to the {@link ClusteredInstanceFactory} for the cluster
@@ -53,10 +51,9 @@ public class TerracottaClient {
     private ExecutorService l1TerminatorThreadPool;
 
     /**
-     * Constructor accepting the {@link TerracottaClientRejoinListener} and the {@link TerracottaClientConfiguration}
+     * Constructor accepting the {@link CacheManager} and the {@link TerracottaClientConfiguration}
      *
      * @param cacheManager
-     * @param rejoinAction
      * @param terracottaClientConfiguration
      */
     public TerracottaClient(CacheManager cacheManager, TerracottaClientConfiguration terracottaClientConfiguration) {
@@ -114,17 +111,19 @@ public class TerracottaClient {
      * Returns true if the clusteredInstanceFactory was created, otherwise returns false.
      * Multiple threads calling this method block and only one of them creates the factory.
      *
-     * @param cacheConfigs
      * @return true if the clusteredInstanceFactory was created, otherwise returns false
      */
-    public boolean createClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
+    public boolean createClusteredInstanceFactory() {
+        if (terracottaClientConfiguration == null) {
+            return false;
+        }
         if (clusteredInstanceFactory != null) {
             return false;
         }
         final boolean created;
         synchronized (this) {
             if (clusteredInstanceFactory == null) {
-                clusteredInstanceFactory = createNewClusteredInstanceFactory(cacheConfigs);
+                clusteredInstanceFactory = createNewClusteredInstanceFactory();
                 created = true;
             } else {
                 created = false;
@@ -159,7 +158,7 @@ public class TerracottaClient {
         clusteredInstanceFactory.shutdown();
     }
 
-    private synchronized ClusteredInstanceFactoryWrapper createNewClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
+    private synchronized ClusteredInstanceFactoryWrapper createNewClusteredInstanceFactory() {
         // shut down the old factory
         if (clusteredInstanceFactory != null) {
             info("Shutting down old ClusteredInstanceFactory...");
@@ -167,7 +166,7 @@ public class TerracottaClient {
         }
         info("Creating new ClusteredInstanceFactory");
         ClusteredInstanceFactory factory;
-        factory = TerracottaClusteredInstanceHelper.getInstance().newClusteredInstanceFactory(cacheConfigs, terracottaClientConfiguration);
+        factory = TerracottaClusteredInstanceHelper.getInstance().newClusteredInstanceFactory(terracottaClientConfiguration);
         CacheCluster underlyingCacheCluster = factory.getTopology();
 
         cacheCluster.setUnderlyingCacheCluster(underlyingCacheCluster);

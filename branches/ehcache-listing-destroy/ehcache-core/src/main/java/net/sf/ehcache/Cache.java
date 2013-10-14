@@ -1124,7 +1124,7 @@ public class Cache implements InternalEhcache, StoreListener {
                     nonstopConfig.freezeConfig();
                 }
 
-                store = cacheManager.getClusteredInstanceFactory(this).createNonStopStore(callable, this);
+                store = cacheManager.getClusteredInstanceFactory().createNonStopStore(callable, this);
                 clusterStateListener = new CacheClusterStateStatisticsListener(this);
                 getCacheCluster().addTopologyListener(clusterStateListener);
             } else {
