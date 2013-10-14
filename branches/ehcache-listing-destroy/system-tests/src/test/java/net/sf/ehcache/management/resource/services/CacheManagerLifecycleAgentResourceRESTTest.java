@@ -41,12 +41,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
- * LazyCacheManagerAgentResourceRESTTest
- * This test illustrates that dynamically adding a clustered cache to a cache manager
- * correctly registers the agent as an MBean.
- * See CRQ-77 / ENG-325
+ * CacheManagerLifecycleAgentResourceRESTTest
+ * This test illustrates agent lifecycle compared to CacheManager one.
  */
-public class LazyCacheManagerAgentResourceRESTTest {
+public class CacheManagerLifecycleAgentResourceRESTTest {
     private static final String EXPECTED_RESOURCE_LOCATION = "/tc-management-api/agents";
     private static ClusterManager clusterManager;
     private CacheManager cacheManager;
@@ -64,7 +62,7 @@ public class LazyCacheManagerAgentResourceRESTTest {
         TestBaseUtil.jarFor(ResourceServiceImplITHelper.class);
         tcConfig.fillUpConfig();
 
-        clusterManager = new ClusterManager(LazyCacheManagerAgentResourceRESTTest.class, tcConfig);
+        clusterManager = new ClusterManager(CacheManagerLifecycleAgentResourceRESTTest.class, tcConfig);
         clusterManager.start();
     }
 
@@ -90,25 +88,13 @@ public class LazyCacheManagerAgentResourceRESTTest {
     }
 
     @Test
-    public void given_a_clustered_cache_manager_when_no_clustered_cache_then_only_L2_agent_available() {
-        expect().contentType(ContentType.JSON)
-                .body("size()", is(1))
-                .rootPath("get(0)")
-                .body("agencyOf", equalTo("TSA"))
-                .statusCode(200)
-                .when().get(ResourceServiceImplITHelper.CLUSTERED_BASE_URL + EXPECTED_RESOURCE_LOCATION);
-
-    }
-
-    @Test
-    public void given_a_clustered_cache_manager_when_adding_a_clustered_cache_then_L2_agent_and_L1_agent() {
-        cacheManager.addCache(new Cache(new CacheConfiguration("test", 10).terracotta(new TerracottaConfiguration())));
-        expect().contentType(ContentType.JSON)
-                .body("size()", is(2))
-                .body("get(0).agencyOf", equalTo("TSA"))
-                .body("get(1).agencyOf", equalTo("Ehcache"))
-                .statusCode(200)
-                .when().get(ResourceServiceImplITHelper.CLUSTERED_BASE_URL + EXPECTED_RESOURCE_LOCATION);
+    public void given_a_clustered_cache_manager_when_no_clustered_cache_then_L1_and_L2_agent_available() {
+      expect().contentType(ContentType.JSON)
+              .body("size()", is(2))
+              .body("get(0).agencyOf", equalTo("TSA"))
+              .body("get(1).agencyOf", equalTo("Ehcache"))
+              .statusCode(200)
+              .when().get(ResourceServiceImplITHelper.CLUSTERED_BASE_URL + EXPECTED_RESOURCE_LOCATION);
     }
 
     @Test
