@@ -12,6 +12,7 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
+
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
@@ -38,6 +39,9 @@ import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.store.ConfigFieldsInternal;
 import org.terracotta.toolkit.nonstop.NonStopConfigurationRegistry;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
+
+import com.terracotta.entity.ClusteredEntityManager;
+import com.terracotta.entity.ehcache.ClusteredCacheManager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -77,15 +81,18 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                                                          + "softNotifierLock";
 
   protected final Toolkit     toolkit;
+  private final ClusteredEntityManager clusteredEntityManager;
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
     updateDefaultNonStopConfig(toolkit);
+    clusteredEntityManager = new ClusteredEntityManager(toolkit);
   }
 
   // Constructor to enable unit testing
-  ToolkitInstanceFactoryImpl(Toolkit toolkit) {
+  ToolkitInstanceFactoryImpl(Toolkit toolkit, ClusteredEntityManager clusteredEntityManager) {
     this.toolkit = toolkit;
+    this.clusteredEntityManager = clusteredEntityManager;
   }
 
   private void updateDefaultNonStopConfig(Toolkit toolkitParam) {
@@ -424,6 +431,19 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     toolkit.getFeature(ToolkitFeatureType.NONSTOP).getNonStopConfigurationRegistry()
         .deregisterForInstance(getFullyQualifiedCacheName(cache), ToolkitObjectType.CACHE);
 
+  }
+
+  @Override
+  public void linkClusteredCacheManager(String cacheManagerName) {
+    ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
+    if (clusteredCacheManager == null) {
+      clusteredCacheManager = new ClusteredCacheManager();
+      try {
+        clusteredEntityManager.addRootEntity(cacheManagerName, clusteredCacheManager);
+      } catch (IllegalStateException isex) {
+        clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
+      }
+    }
   }
 
   private static class EhcacheTcConfig {

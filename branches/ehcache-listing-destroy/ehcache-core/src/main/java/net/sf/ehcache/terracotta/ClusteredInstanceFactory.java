@@ -111,8 +111,9 @@ public interface ClusteredInstanceFactory {
     boolean destroyCache(String cacheManagerName, String cacheName);
 
     /**
-     * Connects this cache manager to the cluster
+     * Links this cache manager to the cluster
+     *
      * @param cacheManagerName the name of the cache manager
      */
-    void connectClusteredCacheManager(String cacheManagerName);
+    void linksClusteredCacheManager(String cacheManagerName);
 }

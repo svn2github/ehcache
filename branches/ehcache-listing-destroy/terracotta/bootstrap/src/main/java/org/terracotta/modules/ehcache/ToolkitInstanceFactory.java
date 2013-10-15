@@ -8,6 +8,7 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
+
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.event.CacheDisposalNotification;
@@ -120,4 +121,11 @@ public interface ToolkitInstanceFactory {
   ToolkitCacheInternal<String, Serializable> getOrCreateWanAwareToolkitCache(String cacheManagerName,
                                                                              String cacheName,
                                                                              CacheConfiguration ehcacheConfig);
+
+  /**
+   * Links a terracotta enabled cache manager to the cluster
+   *
+   * @param cacheManagerName the cache manager name
+   */
+  void linkClusteredCacheManager(String cacheManagerName);
 }

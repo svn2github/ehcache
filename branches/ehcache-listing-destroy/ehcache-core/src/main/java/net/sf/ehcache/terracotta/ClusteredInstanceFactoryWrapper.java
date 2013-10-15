@@ -132,7 +132,7 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     }
 
     @Override
-    public void connectClusteredCacheManager(String cacheManagerName) {
-        delegate.connectClusteredCacheManager(cacheManagerName);
+    public void linksClusteredCacheManager(String cacheManagerName) {
+        delegate.linksClusteredCacheManager(cacheManagerName);
     }
 }
