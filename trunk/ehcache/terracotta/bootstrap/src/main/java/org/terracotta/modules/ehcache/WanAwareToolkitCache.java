@@ -475,4 +475,15 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public String getName() {return delegate.getName();}
+
+  @Override
+  public void quickClear() {
+    delegate.quickClear();
+
+  }
+
+  @Override
+  public int quickSize() {
+    return delegate.quickSize();
+  }
 }
