@@ -4,11 +4,7 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -53,7 +49,6 @@ import org.terracotta.management.l1bridge.RemoteCallDescriptor;
 import org.terracotta.management.l1bridge.RemoteCallException;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
-import org.terracotta.management.resource.exceptions.ExceptionUtils;
 import org.terracotta.management.resource.services.AgentService;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
@@ -148,8 +143,6 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
     try {
       tsaBridged.set(true);
       return super.invoke(remoteCallDescriptor);
-    } catch (Exception e) {
-      throw ExceptionUtils.newPlainException(getRootCause(e));
     } finally {
       tsaBridged.set(false);
     }
@@ -169,29 +162,6 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
   @Override
   public String getAgency() {
     return AGENCY;
-  }
-
-  private static Throwable getRootCause(Throwable t) {
-    Throwable last = null;
-    while (t != null) {
-      last = t;
-      t = t.getCause();
-    }
-    if (last instanceof InvocationTargetException) {
-      last = ((InvocationTargetException)last).getTargetException();
-    }
-    return last;
-  }
-
-  private byte[] serialize(Object obj) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
-    try {
-      oos.writeObject(obj);
-    } finally {
-      oos.close();
-    }
-    return baos.toByteArray();
   }
 
   /**
@@ -481,8 +451,7 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
         throw new ServiceExecutionException("CacheManager not found !");
       }
     } catch (Exception e) {
-      Throwable t = getRootCause(e);
-      throw new ServiceExecutionException(ExceptionUtils.newPlainException(t));
+      throw new ServiceExecutionException(e);
     } finally {
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
