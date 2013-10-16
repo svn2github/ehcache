@@ -49,6 +49,7 @@ import org.terracotta.management.l1bridge.RemoteCallDescriptor;
 import org.terracotta.management.l1bridge.RemoteCallException;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
+import org.terracotta.management.resource.exceptions.ExceptionUtils;
 import org.terracotta.management.resource.services.AgentService;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
@@ -451,7 +452,8 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
         throw new ServiceExecutionException("CacheManager not found !");
       }
     } catch (Exception e) {
-      throw new ServiceExecutionException(e);
+      Throwable t = ExceptionUtils.getRootCause(e);
+      throw new ServiceExecutionException(t.getMessage());
     } finally {
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
