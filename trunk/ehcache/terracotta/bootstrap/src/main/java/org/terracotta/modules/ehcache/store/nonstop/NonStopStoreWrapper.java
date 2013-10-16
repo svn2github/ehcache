@@ -472,6 +472,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
     bulkMethods.add("getAllQuiet");
     bulkMethods.add("getAll");
     bulkMethods.add("removeAll");
+    bulkMethods.add("quickClear");
     bulkMethods.add("getSize");
     bulkMethods.add("getTerracottaClusteredSize");
     validateMethodNamesExist(TerracottaStore.class, bulkMethods);
@@ -650,6 +651,31 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return _ret;
     } else {
       return NoOpOnTimeoutStore.getInstance().unsafeGet(arg0);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void quickClear() {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    // public abstract void net.sf.ehcache.store.TerracottaStore.quickClear()
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
+    try {
+      throwNonStopExceptionWhenClusterNotInit();
+      this.delegate.quickClear();
+      nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
+    } catch (NonStopToolkitInstantiationException e) {
+      handleNonStopToolkitInstantiationException(e);
+      getTimeoutBehavior(false).quickClear();
+    } catch (NonStopException e) {
+      nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
+      getTimeoutBehavior(false).quickClear();
+    } catch (RejoinException e) {
+      nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
+      getTimeoutBehavior(true).quickClear();
+    } finally {
+      nonStop.finish();
     }
   }
 

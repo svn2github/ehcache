@@ -314,7 +314,15 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
         if (underlyingStore instanceof TerracottaStore) {
             return ((TerracottaStore)underlyingStore).createWriteBehind();
         }
-        throw new UnsupportedOperationException();
+        throw new CacheException("underlying store is not an instance of TerracottaStore");
+    }
+
+    @Override
+    public void quickClear() {
+        if (underlyingStore instanceof TerracottaStore) {
+            ((TerracottaStore)underlyingStore).quickClear();
+        }
+        throw new CacheException("underlying store is not an instance of TerracottaStore");
     }
 
     /**

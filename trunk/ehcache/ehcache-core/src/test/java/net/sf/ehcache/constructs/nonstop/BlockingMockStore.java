@@ -340,6 +340,11 @@ public class BlockingMockStore implements TerracottaStore {
         return null;
     }
 
+    @Override
+    public void quickClear() {
+        neverReturn();
+    }
+
     public Element unsafeGetQuiet(Object key) {
         // unsafe gets never block
         return null;

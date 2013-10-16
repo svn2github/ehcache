@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheOperationOutcomes.ClusterEventOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.NonStopOperationOutcomes;
+import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
@@ -30,6 +32,8 @@ import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.search.Attribute;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.util.CacheTransactionHelper;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
@@ -152,6 +156,14 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public void removeAll() {
+        if (cache instanceof Cache) {
+            Store store = new CacheStoreHelper((Cache)cache).getStore();
+            if (store instanceof TerracottaStore) {
+                ((TerracottaStore)store).quickClear();
+                return;
+            }
+        }
+
         CacheTransactionHelper.beginTransactionIfNeeded(cache);
         try {
             cache.removeAll();
@@ -1207,6 +1219,10 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getSize() {
+        if (cache instanceof Cache && ((Cache)cache).isTerracottaClustered()) {
+            return getRemoteSizeSample().getMostRecentSample().getCounterValue();
+        }
+
         try {
             return cache.getStatistics().getSize();
         } catch (RuntimeException e) {

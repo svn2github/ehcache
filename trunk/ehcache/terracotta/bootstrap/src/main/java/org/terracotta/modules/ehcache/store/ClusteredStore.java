@@ -493,9 +493,14 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
   }
 
   @Override
+  public void quickClear() {
+    backend.quickClear();
+  }
+
+  @Override
   @Statistic(name = "size", tags = "remote")
   public int getTerracottaClusteredSize() {
-    return backend.size();
+    return backend.quickSize();
   }
 
   @Override
