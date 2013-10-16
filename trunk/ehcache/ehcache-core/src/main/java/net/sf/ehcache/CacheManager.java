@@ -27,6 +27,7 @@ import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
+import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationSource;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.distribution.CacheManagerPeerListener;
@@ -421,9 +422,11 @@ public class CacheManager {
     }
 
     private void doInit(Configuration configuration) {
-        if (configuration.getTerracottaConfiguration() != null) {
+        TerracottaClientConfiguration tcc = configuration.getTerracottaConfiguration();
+        
+        if (tcc != null) {
             // TODO this shouldn't be done!
-            configuration.getTerracottaConfiguration().freezeConfig();
+            tcc.freezeConfig();
         }
         runtimeCfg = configuration.setupFor(this, DEFAULT_NAME);
 
@@ -452,16 +455,13 @@ public class CacheManager {
 
         terracottaClient = new TerracottaClient(this, configuration.getTerracottaConfiguration());
 
-        boolean clustered = false;
         Map<String, CacheConfiguration> cacheConfigs = configuration.getCacheConfigurations();
         if (configuration.getDefaultCacheConfiguration() != null && configuration.getDefaultCacheConfiguration().isTerracottaClustered()) {
             terracottaClient.createClusteredInstanceFactory(cacheConfigs);
-            clustered = true;
         } else {
             for (CacheConfiguration config : cacheConfigs.values()) {
                 if (config.isTerracottaClustered()) {
                     terracottaClient.createClusteredInstanceFactory(cacheConfigs);
-                    clustered = true;
                     break;
                 }
             }
@@ -502,8 +502,12 @@ public class CacheManager {
         }
 
         ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
-        if (managementRESTService == null && clustered && ManagementServerLoader.isManagementAvailable()) {
+        if (managementRESTService == null && tcc != null && ManagementServerLoader.isManagementAvailable()) {
             managementRESTService = getDefaultClusteredManagementRESTServiceConfiguration(configuration);
+            
+            // We can't do the right thing here as ManagementRESTService isn't a dynamic property
+            // What to do?
+            // configuration.addManagementRESTService(managementRESTService);
         }
         if (managementRESTService != null && managementRESTService.isEnabled()) {
             initializeManagementService(managementRESTService);

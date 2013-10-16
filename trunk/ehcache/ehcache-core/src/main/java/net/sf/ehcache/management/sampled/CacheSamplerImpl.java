@@ -17,6 +17,8 @@
 package net.sf.ehcache.management.sampled;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.sf.ehcache.CacheOperationOutcomes.ClusterEventOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.NonStopOperationOutcomes;
@@ -25,7 +27,9 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
+import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.util.CacheTransactionHelper;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
@@ -1357,6 +1361,29 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     @Override
     public boolean getSearchable() {
         return cache.getCacheConfiguration().getSearchable() != null;
+    }
+
+    @Override
+    public Map<String, String> getSearchAttributes() {
+        Map<String, String> result = new HashMap<String, String>();
+        
+        if (cache != null && cache.getCacheConfiguration().getSearchable() != null) {
+            Map<String, Attribute> attrMap = new HashMap<String, Attribute>();
+
+            for (Attribute attr : cache.getSearchAttributes()) {
+                attrMap.put(attr.getAttributeName(), attr);
+            }
+            
+            for (SearchAttribute sa : cache.getCacheConfiguration().getSearchAttributes().values()) {
+                String saName = sa.getName();
+                String typeName = sa.getTypeName();
+
+                if (attrMap.containsKey(saName) && typeName != null) {
+                    result.put(saName, typeName);
+                }
+            }
+        }
+        return result;
     }
 
     /**

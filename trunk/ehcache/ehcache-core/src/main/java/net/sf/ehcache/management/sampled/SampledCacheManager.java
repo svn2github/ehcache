@@ -449,4 +449,9 @@ public class SampledCacheManager extends BaseEmitterBean implements SampledCache
         result.put("MaxBytesLocalDisk", getMaxBytesLocalDisk());
         return result;
     }
+
+    @Override
+    public Object[][] executeQuery(String queryString) {
+        return sampledCacheManagerDelegate.executeQuery(queryString);
+    }
 }

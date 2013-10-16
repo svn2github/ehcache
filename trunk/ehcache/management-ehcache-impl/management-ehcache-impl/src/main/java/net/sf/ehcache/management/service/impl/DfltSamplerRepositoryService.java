@@ -4,39 +4,11 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Status;
-import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
-import net.sf.ehcache.event.CacheManagerEventListener;
-import net.sf.ehcache.management.resource.CacheConfigEntity;
-import net.sf.ehcache.management.resource.CacheEntity;
-import net.sf.ehcache.management.resource.CacheManagerConfigEntity;
-import net.sf.ehcache.management.resource.CacheManagerEntity;
-import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
-import net.sf.ehcache.management.sampled.CacheManagerSampler;
-import net.sf.ehcache.management.sampled.CacheManagerSamplerImpl;
-import net.sf.ehcache.management.sampled.CacheSampler;
-import net.sf.ehcache.management.sampled.CacheSamplerImpl;
-import net.sf.ehcache.management.service.CacheManagerService;
-import net.sf.ehcache.management.service.CacheService;
-import net.sf.ehcache.management.service.EntityResourceFactory;
-import net.sf.ehcache.management.service.SamplerRepositoryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.terracotta.management.ServiceExecutionException;
-import org.terracotta.management.ServiceLocator;
-import org.terracotta.management.l1bridge.AbstractRemoteAgentEndpointImpl;
-import org.terracotta.management.l1bridge.RemoteCallDescriptor;
-import org.terracotta.management.l1bridge.RemoteCallException;
-import org.terracotta.management.resource.AgentEntity;
-import org.terracotta.management.resource.AgentMetadataEntity;
-import org.terracotta.management.resource.services.AgentService;
-import org.terracotta.management.resource.services.LicenseService;
-import org.terracotta.management.resource.services.Utils;
-
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,6 +22,41 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Status;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import net.sf.ehcache.event.CacheManagerEventListener;
+import net.sf.ehcache.management.resource.CacheConfigEntity;
+import net.sf.ehcache.management.resource.CacheEntity;
+import net.sf.ehcache.management.resource.CacheManagerConfigEntity;
+import net.sf.ehcache.management.resource.CacheManagerEntity;
+import net.sf.ehcache.management.resource.CacheStatisticSampleEntity;
+import net.sf.ehcache.management.resource.QueryResultsEntity;
+import net.sf.ehcache.management.sampled.CacheManagerSampler;
+import net.sf.ehcache.management.sampled.CacheManagerSamplerImpl;
+import net.sf.ehcache.management.sampled.CacheSampler;
+import net.sf.ehcache.management.sampled.CacheSamplerImpl;
+import net.sf.ehcache.management.service.CacheManagerService;
+import net.sf.ehcache.management.service.CacheService;
+import net.sf.ehcache.management.service.EntityResourceFactory;
+import net.sf.ehcache.management.service.SamplerRepositoryService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.terracotta.management.ServiceExecutionException;
+import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.l1bridge.AbstractRemoteAgentEndpointImpl;
+import org.terracotta.management.l1bridge.RemoteCallDescriptor;
+import org.terracotta.management.l1bridge.RemoteCallException;
+import org.terracotta.management.resource.AgentEntity;
+import org.terracotta.management.resource.AgentMetadataEntity;
+import org.terracotta.management.resource.exceptions.ExceptionUtils;
+import org.terracotta.management.resource.services.AgentService;
+import org.terracotta.management.resource.services.LicenseService;
+import org.terracotta.management.resource.services.Utils;
 
 /**
  * A controller class registering new {@link CacheManager}.
@@ -141,6 +148,8 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
     try {
       tsaBridged.set(true);
       return super.invoke(remoteCallDescriptor);
+    } catch (Exception e) {
+      throw ExceptionUtils.newPlainException(getRootCause(e));
     } finally {
       tsaBridged.set(false);
     }
@@ -160,6 +169,29 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
   @Override
   public String getAgency() {
     return AGENCY;
+  }
+
+  private static Throwable getRootCause(Throwable t) {
+    Throwable last = null;
+    while (t != null) {
+      last = t;
+      t = t.getCause();
+    }
+    if (last instanceof InvocationTargetException) {
+      last = ((InvocationTargetException)last).getTargetException();
+    }
+    return last;
+  }
+
+  private byte[] serialize(Object obj) throws IOException {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(baos);
+    try {
+      oos.writeObject(obj);
+    } finally {
+      oos.close();
+    }
+    return baos.toByteArray();
   }
 
   /**
@@ -435,7 +467,38 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
   }
+  
+  @Override
+  public Collection<QueryResultsEntity> executeQuery(String cacheManagerName, String queryString) throws ServiceExecutionException {
+    cacheManagerSamplerRepoLock.writeLock().lock();
 
+    try {
+      SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
+      if (entry != null) {
+        CacheManagerSampler cms = entry.getCacheManagerSampler();
+        return buildQueryResultsEntity(cacheManagerName, cms.executeQuery(queryString));
+      } else {
+        throw new ServiceExecutionException("CacheManager not found !");
+      }
+    } catch (Exception e) {
+      Throwable t = getRootCause(e);
+      throw new ServiceExecutionException(ExceptionUtils.newPlainException(t));
+    } finally {
+      cacheManagerSamplerRepoLock.writeLock().unlock();
+    }
+  }
+
+  private Collection<QueryResultsEntity> buildQueryResultsEntity(String cacheManagerName, Object[][] data) {
+    QueryResultsEntity qre = new QueryResultsEntity();
+
+    qre.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
+    qre.setVersion(this.getClass().getPackage().getImplementationVersion());
+	qre.setName(cacheManagerName);
+	qre.setData(data);
+	
+    return Collections.singleton(qre);
+  }
+  
   private void checkForInvalidAttributes(String cacheManagerName, CacheManagerEntity resource) throws ServiceExecutionException {
     boolean invalidAttributesFound =  false;
     StringBuilder errorMessage =  new StringBuilder("You are not allowed to update those attributes : ");
@@ -803,5 +866,4 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
       cacheManager = null;
     }
   }
-
 }

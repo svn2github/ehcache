@@ -22,6 +22,7 @@ import java.util.Set;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
+import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.Criteria;
 
@@ -61,6 +62,12 @@ public interface StoreQuery {
     Cache getCache();
 
     /**
+     * 
+     * @return select target names, searchAttribute or aggregator
+     */
+    String[] getTargets();
+    
+    /**
      * Get the set of attributes requested by this query
      *
      * @return the requested attributes (if any)
@@ -90,8 +97,15 @@ public interface StoreQuery {
 
     /**
      * Get the requested aggregators
-     *
+     * 
      * @return the include aggregators (if any)
+     */
+    List<Aggregator> getAggregators();
+    
+    /**
+     * Get the requested aggregator instances
+     *
+     * @return the include aggregator instances (if any)
      */
     List<AggregatorInstance<?>> getAggregatorInstances();
 
@@ -113,5 +127,5 @@ public interface StoreQuery {
          */
         Direction getDirection();
     }
-
+    
 }

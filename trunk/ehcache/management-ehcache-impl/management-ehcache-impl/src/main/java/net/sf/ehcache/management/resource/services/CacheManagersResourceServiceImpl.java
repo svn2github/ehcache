@@ -44,6 +44,7 @@ public final class CacheManagersResourceServiceImpl implements CacheManagersReso
   /**
    * {@inheritDoc}
    */
+  @Override
   public Collection<CacheManagerEntity> getCacheManagers(UriInfo info) {
     LOG.debug(String.format("Invoking getCacheManagers: %s", info.getRequestUri()));
 

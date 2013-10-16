@@ -8,6 +8,7 @@
  */
 package net.sf.ehcache.search.parser;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -18,6 +19,8 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.search.parser.MAggregate.AggOp;
+import net.sf.ehcache.store.StoreQuery;
 
 /**
  * The Class ParseModel.
@@ -32,7 +35,7 @@ public class ParseModel {
     /**
      * The targets.
      */
-    private MTarget[] targets;
+    private List<MTarget> targets = new ArrayList<MTarget>();
 
     /**
      * The limit.
@@ -98,14 +101,17 @@ public class ParseModel {
         } else {
             this.includedAttributes.add(ma);
         }
+        this.targets.add(new MTarget(ma));
     }
 
     public void includeTargetAggregator(MAggregate ma) {
         this.includedAggregators.add(ma);
+        this.targets.add(new MTarget(ma));
     }
 
     public void includeTargetStar() {
         this.includeStar = true;
+        this.targets.add(new MTarget());
     }
 
     /**
@@ -192,7 +198,7 @@ public class ParseModel {
      * @return the targets
      */
     public MTarget[] getTargets() {
-        return targets;
+        return targets.toArray(new MTarget[0]);
     }
 
     public boolean isIncludedTargetKeys() {
@@ -271,6 +277,25 @@ public class ParseModel {
             q.maxResults(limit);
         }
 
+        List<String> targetList = new ArrayList<String>();
+        for (MTarget target : targets) {
+        	if (target.isAttribute()) {
+        		targetList.add(target.getAttribute().getName());
+        	} else if (target.isAggregate()) {
+        		MAggregate agg = target.getAggregate();
+        		AggOp op = agg.getOp();
+        		MAttribute ma = agg.getAttribute();
+
+        		targetList.add(op.toString().toLowerCase() + "(" + ma.getName() + ")");
+        	} else {
+                for (Attribute attr : getAttributesImpliedByStar(ehcache)) {
+                    if (Query.KEY.equals(attr) || Query.VALUE.equals(attr)) continue; // TODO
+            		targetList.add(attr.getAttributeName());
+                }
+        	}
+        }
+        q.targets(targetList.toArray(new String[0]));
+        
         // targets. what to retrieve
         for (MAttribute ma : getIncludedTargetAttributes()) {
             q.includeAttribute(ma.asEhcacheObject());

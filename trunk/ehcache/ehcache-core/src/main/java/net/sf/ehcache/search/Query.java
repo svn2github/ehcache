@@ -158,4 +158,11 @@ public interface Query {
      */
     public Query end();
 
+    /**
+     * Set the names of the select targets. These will either be searchAttribute names or
+     * aggregator display names, eg. 'ave(salary)'
+     * 
+     * This is used by BMQL to form the return results.
+     */
+    Query targets(String[] targets);
 }

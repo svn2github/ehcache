@@ -30,10 +30,12 @@
     <suppress checks="CyclomaticComplexity" files="NonstopConfiguration"/>
     <suppress checks="CyclomaticComplexity" files="Segment.java"/>
     <suppress checks="CyclomaticComplexity" files="CacheManager.java"/>
+    <suppress checks="CyclomaticComplexity" files="CacheManagerSamplerImpl.java"/>
     <suppress checks="CyclomaticComplexity" files="NonstopExecutorServiceImpl.java"/>
     <suppress checks="FileLength" files="CacheManager.java"/>
     <suppress checks="NPathComplexity" files="Cache.java"/>
     <suppress checks="NPathComplexity" files="CacheManager.java"/>
+    <suppress checks="NPathComplexity" files="CacheManagerSamplerImpl.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="CacheManager.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="DiskStore.java"/>
     <suppress checks="ClassDataAbstractionCoupling" files="Cache.java"/>
