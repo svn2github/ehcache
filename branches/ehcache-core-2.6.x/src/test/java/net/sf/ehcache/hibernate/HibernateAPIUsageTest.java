@@ -124,12 +124,16 @@ public class HibernateAPIUsageTest extends AbstractCacheTest {
             Thread.sleep(100);
             //this is now fixed
             assertThat(cache.getElementCountInMemory(), lessThanOrEqualTo(10000L));
-            RetryAssert.assertBy(1, SECONDS, new Callable<Long>() {
+            RetryAssert.assertBy(10, SECONDS, new Callable<Long>() {
                 public Long call() throws Exception {
                     return cache.getElementCountOnDisk();
                 }
             }, lessThan(1002L));
-            assertThat(cache.getElementCountOnDisk(), greaterThan(999L));
+            RetryAssert.assertBy(10, SECONDS, new Callable<Long>() {
+                public Long call() throws Exception {
+                    return cache.getElementCountOnDisk();
+                }
+            }, greaterThan(999L));
 
             //clear
             cache.clear();
