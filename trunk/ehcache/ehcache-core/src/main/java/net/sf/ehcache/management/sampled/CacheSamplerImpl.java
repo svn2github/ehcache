@@ -1219,7 +1219,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getSize() {
-        if (cache instanceof Cache && ((Cache)cache).isTerracottaClustered()) {
+        if (cache.getCacheConfiguration().isTerracottaClustered()) {
             return getRemoteSizeSample().getMostRecentSample().getCounterValue();
         }
 
