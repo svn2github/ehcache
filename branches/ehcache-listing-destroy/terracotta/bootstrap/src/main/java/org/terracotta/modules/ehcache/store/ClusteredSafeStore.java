@@ -152,6 +152,40 @@ public class ClusteredSafeStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  public void quickClear() throws NonStopException, RejoinException {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    try {
+      this.delegateClusteredStore.quickClear();
+    } catch(NonStopException e) {
+      throw e;
+    } catch(RejoinException e) {
+      throw e;
+    } catch (Throwable t) {
+      EXCEPTION_HANDLER.handleException(t);
+      throw new CacheException("Uncaught exception in quickClear() - " + t.getMessage(), t);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public int quickSize() throws NonStopException, RejoinException {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    try {
+      return this.delegateClusteredStore.quickSize();
+    } catch(NonStopException e) {
+      throw e;
+    } catch(RejoinException e) {
+      throw e;
+    } catch (Throwable t) {
+      EXCEPTION_HANDLER.handleException(t);
+      throw new CacheException("Uncaught exception in quickSize() - " + t.getMessage(), t);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Set getLocalKeys() throws NonStopException, RejoinException {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!

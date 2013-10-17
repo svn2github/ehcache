@@ -207,6 +207,16 @@ public class LocalReadsAndExceptionOnWritesTimeoutStore implements TerracottaSto
     }
 
     @Override
+    public void quickClear() {
+        writer.quickClear();
+    }
+
+    @Override
+    public int quickSize() {
+        return reader.quickSize();
+    }
+
+    @Override
     public Set getLocalKeys() {
         return reader.getLocalKeys();
     }

@@ -16,6 +16,8 @@
 
 package net.sf.ehcache.management.sampled;
 
+import java.util.Map;
+
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 
@@ -432,6 +434,14 @@ public interface CacheSampler extends LegacyCacheStatistics {
      */
     boolean getSearchable();
 
+    /**
+     * Get the declared search attributes and their type names.
+     * Note: doesn't deal with DynamicAttributeExctractor.
+     * 
+     * @return map of search attribute name -> type name
+     */
+    Map<String, String> getSearchAttributes();
+    
     /**
      * Gets the cache search rate.
      *

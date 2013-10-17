@@ -5,7 +5,12 @@
 
 package net.sf.ehcache.management.service;
 
+import java.util.Collection;
+
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.resource.CacheManagerEntity;
+import net.sf.ehcache.management.resource.QueryResultsEntity;
+
 import org.terracotta.management.ServiceExecutionException;
 
 /**
@@ -24,4 +29,13 @@ public interface CacheManagerService {
    */
   void updateCacheManager(String cacheManagerName,
                            CacheManagerEntity resource) throws ServiceExecutionException;
+  
+  /**
+   * Execute query against cache manager and returns results array
+   * 
+   * @param queryString
+   * @return
+   * @throws ServiceExecutionException
+   */
+  Collection<QueryResultsEntity> executeQuery(String cacheManagerName, String queryString) throws ServiceExecutionException;
 }

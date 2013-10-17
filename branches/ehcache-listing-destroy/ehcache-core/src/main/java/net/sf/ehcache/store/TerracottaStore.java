@@ -44,6 +44,18 @@ public interface TerracottaStore extends Store {
     public Element unsafeGet(Object key);
 
     /**
+     * Remove all the contents of the store.
+     */
+    public void quickClear();
+
+    /**
+     * Get an approximate count of elements in the store.
+     *
+     * @return an approximate count of elements in the store.
+     */
+    public int quickSize();
+
+    /**
      * Returns set of keys from the cache which are present in the node locally.
      *
      * @return set of keys present locally in the node

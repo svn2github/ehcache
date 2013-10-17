@@ -45,6 +45,7 @@ class CacheQuery implements Query, StoreQuery {
     private volatile boolean includeKeys;
     private volatile boolean includeValues;
     private volatile int maxResults = -1;
+    private String[] targets;
 
     private final List<Ordering> orderings = Collections.synchronizedList(new ArrayList<Ordering>());
     private final Set<Attribute<?>> includedAttributes = Collections.synchronizedSet(new HashSet<Attribute<?>>());
@@ -262,6 +263,13 @@ class CacheQuery implements Query, StoreQuery {
     /**
      * {@inheritDoc}
      */
+    public List<Aggregator> getAggregators() {
+        return Collections.unmodifiableList(this.aggregators);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public List<AggregatorInstance<?>> getAggregatorInstances() {
         assertFrozen();
         return Collections.unmodifiableList(createAggregatorInstances(aggregators));
@@ -303,6 +311,21 @@ class CacheQuery implements Query, StoreQuery {
             throw new SearchException("Query is frozen and cannot be mutated");
         }
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Query targets(String[] targets) {
+        this.targets = targets;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String[] getTargets() {
+        return this.targets;
+    }
 
     /**
      * StoreQuery implementation (essentially a snapshot of this (non-frozen) query builder
@@ -314,7 +337,8 @@ class CacheQuery implements Query, StoreQuery {
         private final Set<Attribute<?>> copiedAttributes = Collections.unmodifiableSet(new HashSet<Attribute<?>>(includedAttributes));
         private final int copiedMaxResults = maxResults;
         private final List<Ordering> copiedOrdering = Collections.unmodifiableList(new ArrayList<Ordering>(orderings));
-        private final List<AggregatorInstance<?>> copiedAggregators = Collections.unmodifiableList(createAggregatorInstances(aggregators));
+        private final List<Aggregator> copiedAggregators = Collections.unmodifiableList(aggregators);
+        private final List<AggregatorInstance<?>> copiedAggregatorInstances = Collections.unmodifiableList(createAggregatorInstances(aggregators));
         private final Set<Attribute<?>> copiedGroupByAttributes = Collections.unmodifiableSet(new HashSet<Attribute<?>>(groupByAttributes));
 
         public Criteria getCriteria() {
@@ -349,8 +373,16 @@ class CacheQuery implements Query, StoreQuery {
             return copiedOrdering;
         }
 
-        public List<AggregatorInstance<?>> getAggregatorInstances() {
+        public List<Aggregator> getAggregators() {
             return copiedAggregators;
+        }
+
+        public List<AggregatorInstance<?>> getAggregatorInstances() {
+            return copiedAggregatorInstances;
+        }
+        
+        public String[] getTargets() {
+            return targets;
         }
     }
 
@@ -379,5 +411,4 @@ class CacheQuery implements Query, StoreQuery {
             return direction;
         }
     }
-
 }

@@ -1173,6 +1173,11 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         return sampledCacheDelegate.getSearchable();
     }
 
+    @Override
+    public Map<String, String> getSearchAttributes() {
+        return sampledCacheDelegate.getSearchAttributes();
+    }
+
     /**
      * {@inheritDoc}
      */

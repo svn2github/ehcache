@@ -306,4 +306,12 @@ public interface CacheManagerSampler {
      * @return Original input for maxBytesLocalOffHeap
      */
     String getMaxBytesLocalOffHeapAsString();
+    
+    /**
+     * Execute a BMSQL query against the CacheManager and return result grid.
+     * 
+     * @param queryString
+     * @return query result grid
+     */
+    Object[][] executeQuery(String queryString);
 }

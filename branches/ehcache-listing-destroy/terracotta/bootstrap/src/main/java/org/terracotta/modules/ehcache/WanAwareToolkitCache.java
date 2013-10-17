@@ -410,11 +410,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public Set<K> keySet() {
-    if (isActive()) {
-      return delegate.keySet();
-    } else {
-      throw new IllegalStateException(NOT_ACTIVE_MSG);
-    }
+    return delegate.keySet(); //TODO: throw an exception if not active
   }
 
   @Override
@@ -475,4 +471,15 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public String getName() {return delegate.getName();}
+
+  @Override
+  public void quickClear() {
+    delegate.quickClear();
+
+  }
+
+  @Override
+  public int quickSize() {
+    return delegate.quickSize();
+  }
 }

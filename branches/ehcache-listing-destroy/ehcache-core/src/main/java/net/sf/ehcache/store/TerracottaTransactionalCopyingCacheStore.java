@@ -46,6 +46,16 @@ public final class TerracottaTransactionalCopyingCacheStore extends AbstractCopy
     }
 
     @Override
+    public void quickClear() {
+        getUnderlyingStore().quickClear();
+    }
+
+    @Override
+    public int quickSize() {
+      return getUnderlyingStore().quickSize();
+    }
+
+    @Override
     public Set getLocalKeys() {
         return getUnderlyingStore().getLocalKeys();
     }

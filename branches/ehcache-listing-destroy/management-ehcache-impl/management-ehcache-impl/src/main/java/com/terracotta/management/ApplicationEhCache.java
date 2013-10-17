@@ -4,10 +4,10 @@
  */
 package com.terracotta.management;
 
-import org.terracotta.management.application.DefaultApplication;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import org.terracotta.management.application.DefaultApplication;
 
 public class ApplicationEhCache extends DefaultApplication {
 
@@ -20,6 +20,7 @@ public class ApplicationEhCache extends DefaultApplication {
     s.add(net.sf.ehcache.management.resource.services.CacheManagerConfigsResourceServiceImpl.class);
     s.add(net.sf.ehcache.management.resource.services.CacheConfigsResourceServiceImpl.class);
     s.add(net.sf.ehcache.management.resource.services.AgentsResourceServiceImpl.class);
+    s.add(net.sf.ehcache.management.resource.services.QueryResourceServiceImpl.class);
     return s;
   }
 

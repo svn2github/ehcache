@@ -32,22 +32,26 @@ import org.terracotta.test.categories.CheckShorts;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
 
 @Category(CheckShorts.class)
 public class BulkOpsEventListenerTest extends AbstractCacheTest {
@@ -133,7 +137,7 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
     }
 
     @Test
-    public void testMultiThreadedBulkOpsPut() throws InterruptedException{
+    public void testMultiThreadedBulkOpsPut() throws Exception{
         final Cache cache = new Cache("putCache", 1000000, true, false, 100000, 200000, false, 1);
         manager.addCache(cache);
 
@@ -174,21 +178,22 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
             }
         });
 
-        CountDownLatch endLatch = new CountDownLatch(2);
-        Producer p1 = new Producer(cache, p1Value, stopCondition, barrier, endLatch);
-        new Thread(p1, "p1").start();
-        Producer p2 = new Producer(cache, p2Value, stopCondition, barrier, endLatch);
-        new Thread(p2, "p2").start();
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        Producer p1 = new Producer(cache, p1Value, stopCondition, barrier);
+        Producer p2 = new Producer(cache, p2Value, stopCondition, barrier);
 
-        LOGGER.info("Waiting for multiple putters to end");
-        assumeTrue(endLatch.await(1, TimeUnit.MINUTES));
+        List<Future<Void>> futures = executorService.invokeAll(asList(p1, p2), 1, TimeUnit.MINUTES);
+
+        for (Future<Void> future : futures) {
+            assertThat(future.get(), nullValue());
+        }
 
         assertThat(stopCondition.get(), is(true));
         assertThat(eventListener.putCount.get(), is(p1.batchPut + p2.batchPut));
     }
 
     @Test
-    public void testMultiThreadedBulkOpsPutAndRemove() throws InterruptedException{
+    public void testMultiThreadedBulkOpsPutAndRemove() throws Exception{
         final Cache cache = new Cache("putRemoveCache", 1000000, true, false, 100000, 200000, false, 1);
         manager.addCache(cache);
 
@@ -196,8 +201,6 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
         cache.getCacheEventNotificationService().registerListener(eventListener);
 
         final AtomicBoolean stopCondition = new AtomicBoolean(false);
-
-        final CountDownLatch endLatch = new CountDownLatch(2);
 
         final AtomicInteger retryCount = new AtomicInteger(0);
 
@@ -219,99 +222,76 @@ public class BulkOpsEventListenerTest extends AbstractCacheTest {
                 }
             }
         });
-        Producer p3 = new Producer(cache, "p1Value", stopCondition, barrier, endLatch);
-        new Thread(p3, "p3").start();
-        Consumer consumer = new Consumer(cache, stopCondition, barrier, endLatch);
-        new Thread(consumer, "c1").start();
 
-        LOGGER.info("Waiting for put and remove to end");
-        assumeTrue(endLatch.await(1, TimeUnit.MINUTES));
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        Producer producer = new Producer(cache, "p1Value", stopCondition, barrier);
+        Consumer consumer = new Consumer(cache, stopCondition, barrier);
+
+        List<Future<Void>> futures = executorService.invokeAll(asList(producer, consumer), 1, TimeUnit.MINUTES);
+
+        for (Future<Void> future : futures) {
+            assertThat(future.get(), nullValue());
+        }
 
         assertThat(stopCondition.get(), is(true));
-        assertThat(eventListener.putCount.get(), is(p3.batchPut));
+        assertThat(eventListener.putCount.get(), is(producer.batchPut));
         assertThat(eventListener.elementsRemoved.size(), is(consumer.batchRemoved));
 
     }
 
-    private static class Producer implements Runnable {
+    private static class Producer implements Callable<Void> {
         private final int batchPut = BATCH_SIZE;
         private final Cache cache;
         private final CyclicBarrier barrier;
         private final String value;
         private final AtomicBoolean stopCondition;
-        private final CountDownLatch endLatch;
 
-        public Producer(Cache cache, String value, AtomicBoolean stopCondition, CyclicBarrier barrier, CountDownLatch endLatch) {
+        public Producer(Cache cache, String value, AtomicBoolean stopCondition, CyclicBarrier barrier) {
             this.cache = cache;
             this.value = value;
             this.stopCondition = stopCondition;
             this.barrier = barrier;
-            this.endLatch = endLatch;
         }
 
-        public void run() {
-            try {
-                while (!stopCondition.get()) {
-                    Set<Element> elements = new HashSet<Element>();
-                    for (int j = 0; j < batchPut; j++) {
-                        elements.add(new Element("key" + j, value));
-                    }
-                    this.cache.putAll(elements);
-                    LOGGER.info("Producer done with run");
-                    try {
-                        barrier.await(1, TimeUnit.MINUTES);
-                    } catch (Exception e) {
-                        LOGGER.error("Failed while waiting on barrier", e);
-                        fail("Failed while waiting on barrier");
-                        return;
-                    }
+        @Override
+        public Void call() throws Exception {
+            while (!stopCondition.get()) {
+                Set<Element> elements = new HashSet<Element>();
+                for (int j = 0; j < batchPut; j++) {
+                    elements.add(new Element("key" + j, value));
                 }
-            } catch (Exception e) {
-                LOGGER.error("Producer failed with exception", e);
-                fail("Produce failed with exception");
-            } finally {
-                endLatch.countDown();
+                this.cache.putAll(elements);
+                LOGGER.info("Producer done with run");
+                barrier.await(1, TimeUnit.MINUTES);
             }
+            return null;
         }
     }
 
-    private static class Consumer implements Runnable{
+    private static class Consumer implements Callable<Void>{
         private final int batchRemoved = BATCH_SIZE;
         private final Cache cache;
         private final AtomicBoolean stopCondition;
         private final CyclicBarrier barrier;
-        private final CountDownLatch endLatch;
 
-        public Consumer(Cache cache, AtomicBoolean stopCondition, CyclicBarrier barrier, CountDownLatch endLatch) {
+        public Consumer(Cache cache, AtomicBoolean stopCondition, CyclicBarrier barrier) {
             this.cache = cache;
             this.stopCondition = stopCondition;
             this.barrier = barrier;
-            this.endLatch = endLatch;
         }
 
-        public void run() {
-            try {
-                while (!stopCondition.get()) {
-                    Set<String> elements = new HashSet<String>();
-                    for (int j = batchRemoved - 1; j >= 0; j--) {
-                        elements.add("key" + j);
-                    }
-                    this.cache.removeAll(elements);
-                    LOGGER.info("Consumer done with run");
-                    try {
-                        barrier.await(1, TimeUnit.MINUTES);
-                    } catch (Exception e) {
-                        LOGGER.error("Failed while waiting on barrier", e);
-                        fail("Failed while waiting on barrier");
-                        return;
-                    }
+        @Override
+        public Void call() throws Exception {
+            while (!stopCondition.get()) {
+                Set<String> elements = new HashSet<String>();
+                for (int j = batchRemoved - 1; j >= 0; j--) {
+                    elements.add("key" + j);
                 }
-            } catch (Exception e) {
-                LOGGER.error("Consumer failed with exception", e);
-                fail("Consumer failed with exception");
-            } finally {
-                endLatch.countDown();
+                this.cache.removeAll(elements);
+                LOGGER.info("Consumer done with run");
+                barrier.await(1, TimeUnit.MINUTES);
             }
+            return null;
         }
     }
 

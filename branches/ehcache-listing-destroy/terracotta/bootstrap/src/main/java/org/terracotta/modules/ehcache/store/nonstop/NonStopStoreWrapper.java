@@ -472,6 +472,8 @@ public class NonStopStoreWrapper implements TerracottaStore {
     bulkMethods.add("getAllQuiet");
     bulkMethods.add("getAll");
     bulkMethods.add("removeAll");
+    bulkMethods.add("quickClear");
+    bulkMethods.add("quickSize");
     bulkMethods.add("getSize");
     bulkMethods.add("getTerracottaClusteredSize");
     validateMethodNamesExist(TerracottaStore.class, bulkMethods);
@@ -652,6 +654,58 @@ public class NonStopStoreWrapper implements TerracottaStore {
       return NoOpOnTimeoutStore.getInstance().unsafeGet(arg0);
     }
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void quickClear() {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    // public abstract void net.sf.ehcache.store.TerracottaStore.quickClear()
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
+    try {
+      throwNonStopExceptionWhenClusterNotInit();
+      this.delegate.quickClear();
+      nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
+    } catch (NonStopToolkitInstantiationException e) {
+      handleNonStopToolkitInstantiationException(e);
+      getTimeoutBehavior(false).quickClear();
+    } catch (NonStopException e) {
+      nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
+      getTimeoutBehavior(false).quickClear();
+    } catch (RejoinException e) {
+      nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
+      getTimeoutBehavior(true).quickClear();
+    } finally {
+      nonStop.finish();
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public int quickSize() {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    // public abstract int net.sf.ehcache.store.TerracottaStore.quickSize()
+    nonStop.start(bulkOpsToolkitNonStopConfiguration);
+    try {
+      throwNonStopExceptionWhenClusterNotInit();
+      int _ret = this.delegate.quickSize();
+      nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
+      return _ret;
+    } catch (NonStopToolkitInstantiationException e) {
+      handleNonStopToolkitInstantiationException(e);
+      return getTimeoutBehavior(false).quickSize();
+    } catch (NonStopException e) {
+      nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
+      return getTimeoutBehavior(false).quickSize();
+    } catch (RejoinException e) {
+      nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
+      return getTimeoutBehavior(true).quickSize();
+    } finally {
+      nonStop.finish();
+    }
+  }
+
 
   /**
    * {@inheritDoc}

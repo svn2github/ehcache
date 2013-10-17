@@ -574,6 +574,22 @@ public final class RejoinWithoutNonStopStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
+  public void quickClear() {
+    throw new RejoinCacheException("Client started rejoin during quickClear()");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int quickSize() {
+    throw new RejoinCacheException("Client started rejoin during quickSize()");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public Element unsafeGetQuiet(Object key) throws RejoinCacheException {
     throw new RejoinCacheException("Client started rejoin during unsafeGetQuiet(Object key)");
   }

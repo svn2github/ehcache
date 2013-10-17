@@ -495,6 +495,22 @@ public final class NoOpOnTimeoutStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
+  public void quickClear() {
+    // no-op
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int quickSize() {
+    return 0;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public Element unsafeGetQuiet(Object key) {
     return null;
   }
