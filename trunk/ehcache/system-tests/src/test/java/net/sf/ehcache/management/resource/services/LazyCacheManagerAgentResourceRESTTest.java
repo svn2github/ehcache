@@ -16,6 +16,9 @@
 
 package net.sf.ehcache.management.resource.services;
 
+import static com.jayway.restassured.RestAssured.expect;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -35,10 +38,6 @@ import com.tc.test.config.builder.ClusterManager;
 import com.tc.test.config.builder.TcConfig;
 import com.tc.test.config.builder.TcMirrorGroup;
 import com.tc.test.config.builder.TcServer;
-
-import static com.jayway.restassured.RestAssured.expect;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * LazyCacheManagerAgentResourceRESTTest
@@ -81,7 +80,8 @@ public class LazyCacheManagerAgentResourceRESTTest {
     private Configuration getConfiguration(String name) {
         TerracottaClientConfiguration terracottaClientConfiguration = new TerracottaClientConfiguration();
         terracottaClientConfiguration.setUrl(ResourceServiceImplITHelper.CLUSTER_URL);
-        return new Configuration().name(name).terracotta(terracottaClientConfiguration);
+        return new Configuration().name(name).terracotta(terracottaClientConfiguration)
+            .defaultCache(new CacheConfiguration().terracotta(new TerracottaConfiguration()));
     }
 
     @After
