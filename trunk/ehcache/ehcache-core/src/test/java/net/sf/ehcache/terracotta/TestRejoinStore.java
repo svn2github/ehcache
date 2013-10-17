@@ -376,6 +376,11 @@ public class TestRejoinStore implements TerracottaStore {
         map.clear();
     }
 
+    public int quickSize() {
+      alwaysCalledMethod();
+      return 0;
+    }
+
     public Element unsafeGetQuiet(Object key) {
         alwaysCalledMethod();
         return null;

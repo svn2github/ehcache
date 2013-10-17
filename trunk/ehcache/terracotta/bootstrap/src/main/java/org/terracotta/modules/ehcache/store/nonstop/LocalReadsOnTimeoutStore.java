@@ -605,6 +605,14 @@ public class LocalReadsOnTimeoutStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
+  public int quickSize() {
+    return getUnderlyingLocalKeys().size();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public Element unsafeGetQuiet(Object key) {
     return delegate.unsafeGet(key);
   }

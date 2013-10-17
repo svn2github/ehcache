@@ -325,6 +325,14 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
         throw new CacheException("underlying store is not an instance of TerracottaStore");
     }
 
+    @Override
+    public int quickSize() {
+        if (underlyingStore instanceof TerracottaStore) {
+            return ((TerracottaStore)underlyingStore).quickSize();
+        }
+        throw new CacheException("underlying store is not an instance of TerracottaStore");
+    }
+
     /**
      * Method to get to the {@link Element} matching the key, oblivious of any in-flight transaction.
      *

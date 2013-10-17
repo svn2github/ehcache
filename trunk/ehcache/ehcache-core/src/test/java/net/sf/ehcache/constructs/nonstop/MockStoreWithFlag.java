@@ -338,6 +338,11 @@ public class MockStoreWithFlag implements TerracottaStore {
         markAccessFlag();
     }
 
+    public int quickSize() {
+        markAccessFlag();
+        return 0;
+    }
+
     public Element unsafeGetQuiet(Object key) {
         markAccessFlag();
         return null;

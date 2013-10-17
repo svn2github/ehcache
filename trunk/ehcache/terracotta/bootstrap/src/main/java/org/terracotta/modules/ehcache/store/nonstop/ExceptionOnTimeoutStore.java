@@ -589,6 +589,14 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
+  public int quickSize() {
+    throw new NonStopCacheException("quickSize() timed out");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public Element unsafeGetQuiet(Object key) {
     throw new NonStopCacheException("unsafeGetQuiet() timed out");
   }
