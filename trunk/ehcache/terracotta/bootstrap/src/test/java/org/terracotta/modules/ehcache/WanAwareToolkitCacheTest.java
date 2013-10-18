@@ -1,7 +1,6 @@
 package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
-import org.junit.Before;
 import org.junit.Test;
 import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
@@ -14,11 +13,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -27,18 +22,12 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  */
 public class WanAwareToolkitCacheTest {
 
-  private WanAwareToolkitCache<String, String> cache;
-  private ToolkitCacheInternal<String, String> delegate;
-
-  @Before
-  public void setUp() {
-    delegate = mock(ToolkitCacheInternal.class);
-    final ToolkitMap<String, Serializable> configMap = new MockToolkitMap<String, Serializable>();
-    cache = new WanAwareToolkitCache<String, String>(delegate, configMap);
-  }
-
   @Test
   public void testMustCallDelegateIfActiveAndThrowISEOtherwise() {
+    final ToolkitCacheInternal<String, String> delegate = mock(ToolkitCacheInternal.class);
+    final ToolkitMap<String, Serializable> configMap = new MockToolkitMap<String, Serializable>();
+
+    final WanAwareToolkitCache<String, String> cache = new WanAwareToolkitCache<String, String>(delegate, configMap);
     cache.activate();
     cache.put("k1", "v1");
     verify(delegate).put("k1", "v1");
@@ -55,46 +44,16 @@ public class WanAwareToolkitCacheTest {
 
   @Test
   public void testMustBeInactiveByDefault() {
+    final ToolkitCacheInternal<String, String> delegate = mock(ToolkitCacheInternal.class);
+    final ToolkitMap<String, Serializable> configMap = new MockToolkitMap<String, Serializable>();
+
+    final WanAwareToolkitCache<String, String> cache = new WanAwareToolkitCache<String, String>(delegate, configMap);
     try {
       cache.put("k1", "v1");
       fail("Exception expected, but not thrown");
     } catch (IllegalStateException e) {
       // just as planned
     }
-    verifyNoMoreInteractions(delegate);
-  }
-
-  @Test
-  public void testMustDropPutIfAbsentVersionedIfTombstoneExists() {
-    cache.removeVersioned("key", 0L);
-    verify(delegate).removeVersioned("key", 0L);
-
-    cache.putIfAbsentVersioned("key", "value", 1L);
-    verify(delegate, never()).putIfAbsentVersioned(anyString(), anyString(), anyLong());
-    verifyNoMoreInteractions(delegate);
-  }
-
-  @Test
-  public void testMustClearTombstoneAfterPutIfAbsentVersionedDropped() {
-    cache.removeVersioned("key", 0L);
-    verify(delegate).removeVersioned("key", 0L);
-
-    cache.putIfAbsentVersioned("key", "value", 1L);
-    cache.putIfAbsentVersioned("key2", "value2", 2L);
-    verify(delegate).putIfAbsentVersioned("key2", "value2", 2L);
-    verifyNoMoreInteractions(delegate);
-  }
-
-  @Test
-  public void testMustClearTombstoneOnPutVersioned() {
-    cache.removeVersioned("key", 0L);
-    verify(delegate).removeVersioned("key", 0L);
-
-    cache.putVersioned("key", "value", 1L);
-    verify(delegate).putVersioned("key", "value", 1L);
-
-    cache.putIfAbsentVersioned("key", "value", 1L);
-    verify(delegate).putIfAbsentVersioned("key", "value", 1L);
     verifyNoMoreInteractions(delegate);
   }
 

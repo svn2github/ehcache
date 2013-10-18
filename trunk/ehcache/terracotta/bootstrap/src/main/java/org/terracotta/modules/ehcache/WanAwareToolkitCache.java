@@ -13,10 +13,8 @@ import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A wrapper around {@link ToolkitCacheInternal}
@@ -31,8 +29,6 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   private final ToolkitCacheInternal<K, V> delegate;
   private final ToolkitMap<String, Serializable> configMap;
-
-  private final Set<Object> tombstones = Collections.newSetFromMap(new ConcurrentHashMap<Object, Boolean>());
 
   public WanAwareToolkitCache(final ToolkitCacheInternal<K, V> delegate,
                               final ToolkitMap<String, Serializable> configMap) {
@@ -49,7 +45,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
    */
   public boolean isActive() {
     final Serializable active = configMap.get(CACHE_ACTIVE_KEY);
-    return (active == null) ? false : (Boolean) active;
+    return (active == null) ? false : (Boolean)active;
   }
 
   /**
@@ -110,8 +106,6 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   @Override
   public void unlockedRemoveNoReturnVersioned(final Object key, final long version) {
     delegate.unlockedRemoveNoReturnVersioned(key, version);
-    // store removals
-    tombstones.add(key);
   }
 
   @Override
@@ -168,30 +162,22 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   @Override
   public void putVersioned(final K key, final V value, final long version) {
     delegate.putVersioned(key, value, version);
-    // clear tombstone on incremental put
-    tombstones.remove(key);
   }
 
   @Override
   public void putVersioned(final K key, final V value, final long version, final int createTimeInSecs,
                            final int customMaxTTISeconds, final int customMaxTTLSeconds) {
     delegate.putVersioned(key, value, version, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
-    // clear tombstone on incremental put
-    tombstones.remove(key);
   }
 
   @Override
   public void putIfAbsentVersioned(final K key, final V value, final long version) {
-    // drop sync update if tombstone exists
-    if (tombstones.remove(key)) { return; }
     delegate.putIfAbsentVersioned(key, value, version);
   }
 
   @Override
   public void putIfAbsentVersioned(final K key, final V value, final long version, final int createTimeInSecs,
                                    final int customMaxTTISeconds, final int customMaxTTLSeconds) {
-    // drop sync update if tombstone exists
-    if (tombstones.remove(key)) { return; }
     delegate.putIfAbsentVersioned(key, value, version, createTimeInSecs, customMaxTTISeconds, customMaxTTLSeconds);
   }
 
@@ -208,11 +194,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
-  public void removeVersioned(final Object key, final long version) {
-    delegate.removeVersioned(key, version);
-    // store removals
-    tombstones.add(key);
-  }
+  public void removeVersioned(final Object key, final long version) {delegate.removeVersioned(key, version);}
 
   @Override
   public void registerVersionUpdateListener(final VersionUpdateListener listener) {
@@ -428,7 +410,11 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public Set<K> keySet() {
-    return delegate.keySet(); //TODO: throw an exception if not active
+    if (isActive()) {
+      return delegate.keySet();
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
   }
 
   @Override
