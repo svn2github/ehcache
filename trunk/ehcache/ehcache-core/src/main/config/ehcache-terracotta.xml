@@ -163,14 +163,18 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     Simplest example for pointing to a Terracotta server on this machine:
     <terracottaConfig url="localhost:9510"/>
 
-    This element has one attribute "rejoin" which can take values of either "true" or "false":
-    <terracottaConfig rejoin="true" url="localhost:9510" />
+    This element has two attributes "rejoin" and "wanEnabledTSA", which can take values of either "true" or "false":
+    <terracottaConfig rejoin="true" wanEnabledTSA="true" url="localhost:9510" />
 
-    By default, this attribute is false.
+    By default, these attributes are false.
 
     Without rejoin, if the Terracotta Server is restarted the client cannot connect back to the
     server. When enabled, this allows the client to connect to the new cluster without the
     need to restart the node.
+    
+    When wanEnabledTSA is true, the client will wait for the WAN Orchestrator to provide the 
+    list of WAN enabled caches. Once the Orchestrator is up and running then the client will proceed 
+    to create the clustered data structures.
 
     Example using a path to Terracotta configuration file:
     <terracottaConfig url="/app/config/tc-config.xml"/>

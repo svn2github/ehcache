@@ -1175,6 +1175,7 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals("tc", configurationHelper.getConfigurationBean().getName());
         assertEquals(false, configurationHelper.getConfigurationBean().getUpdateCheck());
         assertEquals(Configuration.Monitoring.AUTODETECT, configurationHelper.getConfigurationBean().getMonitoring());
+        assertEquals(false, configurationHelper.getConfigurationBean().getTerracottaConfiguration().isWanEnabledTSA());
 
         //Check default cache
         Ehcache defaultCache = configurationHelper.createDefaultCache();
@@ -1674,6 +1675,13 @@ public class ConfigurationFactoryTest extends AbstractCacheTest {
         assertEquals(false, cacheConfiguration.isOverflowToOffHeap());
 
         assertEquals(2164260864L, configuration.getTotalConfiguredOffheap());
+    }
+    
+    @Test
+    public void testTerracottaConfigurationForWAN() {
+        File file = new File(TEST_CONFIG_DIR + "terracotta/ehcache-terracotta-wan.xml");
+        Configuration configuration = ConfigurationFactory.parseConfiguration(file);
+        assertEquals(true, configuration.getTerracottaConfiguration().isWanEnabledTSA());
     }
 
 }

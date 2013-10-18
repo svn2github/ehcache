@@ -30,6 +30,11 @@ public class TerracottaClientConfiguration implements Cloneable {
      * Default value of rejoin attribute
      */
     public static final boolean DEFAULT_REJOIN_VALUE = false;
+    
+    /**
+     * Default value for whether WAN replication enabled or not
+     */
+    public static final boolean DEFAULT_WAN_ENABLED_TSA_VALUE = false;
 
     private static final String TC_CONFIG_HEADER = "<tc:tc-config xmlns:tc=\"http://www.terracotta.org/config\">";
     private static final String TC_CONFIG_FOOTER = "</tc:tc-config>";
@@ -37,6 +42,7 @@ public class TerracottaClientConfiguration implements Cloneable {
     private String url;
     private String embeddedConfig;
     private boolean rejoin = DEFAULT_REJOIN_VALUE;
+    private boolean wanEnabledTSA = DEFAULT_WAN_ENABLED_TSA_VALUE;
     private volatile boolean configFrozen;
 
     /**
@@ -162,6 +168,38 @@ public class TerracottaClientConfiguration implements Cloneable {
         return this;
     }
 
+    /**
+     * Returns true if it is a WAN enabled TSA
+     *
+     * @return wanEnabledTSA
+     */
+    public boolean isWanEnabledTSA() {
+        return wanEnabledTSA;
+    }
+
+    /**
+     * Set wanEnabledTSA value
+     *
+     * @param wanEnabledTSA 
+     */
+    public void setWanEnabledTSA(boolean wanEnabledTSA) {
+        if (configFrozen) {
+            throw new CacheException("Cannot set wanEnabledTSA once config has been frozen");
+        }
+        this.wanEnabledTSA = wanEnabledTSA;
+    }
+
+    /**
+     * Builder method to set wanEnabledTSA
+     *
+     * @param wanEnabledTSA
+     * @return this instance
+     */
+    public TerracottaClientConfiguration wanEnabledTSA(boolean wanEnabledTSA) {
+        this.setWanEnabledTSA(wanEnabledTSA);
+        return this;
+    }
+    
     /**
      * Freezes the config
      */
