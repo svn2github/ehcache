@@ -5,6 +5,7 @@ package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
@@ -126,6 +127,7 @@ public interface ToolkitInstanceFactory {
    * Links a terracotta enabled cache manager to the cluster
    *
    * @param cacheManagerName the cache manager name
+   * @param configuration
    */
-  void linkClusteredCacheManager(String cacheManagerName);
+  void linkClusteredCacheManager(String cacheManagerName, Configuration configuration);
 }

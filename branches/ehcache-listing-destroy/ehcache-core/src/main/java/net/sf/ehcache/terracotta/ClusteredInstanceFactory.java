@@ -17,6 +17,7 @@ package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.TerracottaStore;
@@ -114,6 +115,7 @@ public interface ClusteredInstanceFactory {
      * Links this cache manager to the cluster
      *
      * @param cacheManagerName the name of the cache manager
+     * @param configuration
      */
-    void linksClusteredCacheManager(String cacheManagerName);
+    void linkClusteredCacheManager(String cacheManagerName, Configuration configuration);
 }

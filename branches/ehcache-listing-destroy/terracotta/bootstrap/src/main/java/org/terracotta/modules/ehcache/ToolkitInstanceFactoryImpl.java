@@ -5,10 +5,12 @@ package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
@@ -42,8 +44,11 @@ import org.terracotta.toolkit.store.ToolkitConfigFields;
 
 import com.terracotta.entity.ClusteredEntityManager;
 import com.terracotta.entity.ehcache.ClusteredCacheManager;
+import com.terracotta.entity.ehcache.ClusteredCacheManagerConfiguration;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -434,16 +439,32 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public void linkClusteredCacheManager(String cacheManagerName) {
+  public void linkClusteredCacheManager(String cacheManagerName, net.sf.ehcache.config.Configuration configuration) {
     ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
     if (clusteredCacheManager == null) {
-      clusteredCacheManager = new ClusteredCacheManager();
+      String xmlConfig = convertConfigurationToXML(configuration, cacheManagerName);
+      clusteredCacheManager = new ClusteredCacheManager(new ClusteredCacheManagerConfiguration(xmlConfig));
       try {
         clusteredEntityManager.addRootEntity(cacheManagerName, clusteredCacheManager);
       } catch (IllegalStateException isex) {
         clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
       }
     }
+  }
+
+  private String convertConfigurationToXML(net.sf.ehcache.config.Configuration configuration, String cacheManagerName) {
+    net.sf.ehcache.config.Configuration targetConfiguration = cloneConfiguration(configuration);
+    targetConfiguration.setName(cacheManagerName);
+    targetConfiguration.getCacheConfigurations().clear();
+    return ConfigurationUtil.generateCacheManagerConfigurationText(targetConfiguration);
+  }
+
+  private net.sf.ehcache.config.Configuration cloneConfiguration(net.sf.ehcache.config.Configuration configuration) {
+    String tmp = ConfigurationUtil.generateCacheManagerConfigurationText(configuration);
+    net.sf.ehcache.config.Configuration targetConfiguration;
+    targetConfiguration = ConfigurationFactory.parseConfiguration(
+        new BufferedInputStream(new ByteArrayInputStream(tmp.getBytes())));
+    return targetConfiguration;
   }
 
   private static class EhcacheTcConfig {

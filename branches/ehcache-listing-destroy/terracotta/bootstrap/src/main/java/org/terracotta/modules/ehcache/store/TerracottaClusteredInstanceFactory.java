@@ -6,6 +6,7 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.CacheWriterConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
@@ -161,8 +162,8 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   }
 
   @Override
-  public void linksClusteredCacheManager(String cacheManagerName) {
-    toolkitInstanceFactory.linkClusteredCacheManager(cacheManagerName);
+  public void linkClusteredCacheManager(String cacheManagerName, Configuration configuration) {
+    toolkitInstanceFactory.linkClusteredCacheManager(cacheManagerName, configuration);
   }
 
   public static String getToolkitMapNameForCache(String cacheManagerName, String cacheName) {

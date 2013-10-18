@@ -18,6 +18,7 @@ package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.TerracottaStore;
@@ -132,7 +133,7 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     }
 
     @Override
-    public void linksClusteredCacheManager(String cacheManagerName) {
-        delegate.linksClusteredCacheManager(cacheManagerName);
+    public void linkClusteredCacheManager(String cacheManagerName, Configuration configuration) {
+        delegate.linkClusteredCacheManager(cacheManagerName, configuration);
     }
 }
