@@ -25,6 +25,7 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeNotNull;
 
 /**
  * @author Alex Snaps
@@ -261,6 +262,8 @@ public class CacheConfigurationTest {
 
         LogManager logManager = LogManager.getLogManager();
         Logger logger = logManager.getLogger(CacheConfiguration.class.getName());
+        assumeNotNull(logger);
+
         logger.addHandler(new Handler() {
             @Override
             public void publish(LogRecord record) {
