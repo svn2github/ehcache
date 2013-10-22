@@ -52,6 +52,9 @@ public class TerracottaConfigConfigurationElement extends SimpleNodeElement {
         }
         addAttribute(new SimpleNodeAttribute("rejoin", tcConfigConfiguration.isRejoin()).optional(true).defaultValue(
                 TerracottaClientConfiguration.DEFAULT_REJOIN_VALUE));
+        
+        addAttribute(new SimpleNodeAttribute("wanEnabledTSA", tcConfigConfiguration.isWanEnabledTSA()).optional(true).defaultValue(
+                TerracottaClientConfiguration.DEFAULT_WAN_ENABLED_TSA_VALUE));
 
         if (tcConfigConfiguration.getOriginalEmbeddedConfig() != null) {
             addChildElement(new TCConfigElement(this, tcConfigConfiguration.getOriginalEmbeddedConfig()));

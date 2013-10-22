@@ -45,7 +45,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
    */
   public boolean isActive() {
     final Serializable active = configMap.get(CACHE_ACTIVE_KEY);
-    return (active == null) ? false : (Boolean) active;
+    return (active == null) ? false : (Boolean)active;
   }
 
   /**
@@ -410,7 +410,11 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
 
   @Override
   public Set<K> keySet() {
-    return delegate.keySet(); //TODO: throw an exception if not active
+    if (isActive()) {
+      return delegate.keySet();
+    } else {
+      throw new IllegalStateException(NOT_ACTIVE_MSG);
+    }
   }
 
   @Override
