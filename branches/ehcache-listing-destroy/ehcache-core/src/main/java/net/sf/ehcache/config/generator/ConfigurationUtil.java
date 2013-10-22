@@ -105,8 +105,9 @@ public abstract class ConfigurationUtil {
     /**
      * Generates configuration text for a {@link CacheConfiguration}
      *
-     * @param cacheConfiguration
-     *            the {@link CacheConfiguration}
+     * @param configuration the {@link Configuration}
+     * @param cacheConfiguration the {@link CacheConfiguration}
+     * 
      * @return text representing the {@link CacheConfiguration}
      */
     public static String generateCacheConfigurationText(Configuration configuration, CacheConfiguration cacheConfiguration) {

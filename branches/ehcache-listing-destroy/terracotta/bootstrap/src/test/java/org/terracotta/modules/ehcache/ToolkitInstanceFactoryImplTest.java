@@ -9,29 +9,6 @@
 
 package org.terracotta.modules.ehcache;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration;
-
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
-import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.ToolkitFeatureType;
-import org.terracotta.toolkit.config.Configuration;
-import org.terracotta.toolkit.feature.NonStopFeature;
-import org.terracotta.toolkit.nonstop.NonStopConfigurationRegistry;
-import org.terracotta.toolkit.store.ToolkitConfigFields;
-
-import com.terracotta.entity.ClusteredEntityManager;
-import com.terracotta.entity.ehcache.ClusteredCacheManager;
-import com.terracotta.entity.ehcache.ClusteredCacheManagerConfiguration;
-
-import java.io.Serializable;
-
-import junit.framework.Assert;
-
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -45,146 +22,208 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.terracotta.toolkit.Toolkit;
+import org.terracotta.toolkit.ToolkitFeatureType;
+import org.terracotta.toolkit.collections.ToolkitMap;
+import org.terracotta.toolkit.config.Configuration;
+import org.terracotta.toolkit.feature.NonStopFeature;
+import org.terracotta.toolkit.nonstop.NonStopConfigurationRegistry;
+import org.terracotta.toolkit.store.ToolkitConfigFields;
+
+import com.terracotta.entity.ClusteredEntityManager;
+import com.terracotta.entity.ehcache.ClusteredCache;
+import com.terracotta.entity.ehcache.ClusteredCacheManager;
+import com.terracotta.entity.ehcache.ClusteredCacheManagerConfiguration;
+
+import java.io.Serializable;
+
+import junit.framework.Assert;
 
 /**
  * ToolkitInstanceFactoryImplTest
  */
 public class ToolkitInstanceFactoryImplTest {
 
-    @Test
-    public void testMaxEntriesInCacheToMaxTotalCountTransformation() {
-        verifyMapping(10, 10);
-    }
+  @Test
+  public void testMaxEntriesInCacheToMaxTotalCountTransformation() {
+    verifyMapping(10, 10);
+  }
 
-    private void verifyMapping(int maxEntries, int maxCount) {
-        Toolkit toolkit = mock(Toolkit.class);
+  private void verifyMapping(int maxEntries, int maxCount) {
+    Toolkit toolkit = mock(Toolkit.class);
 
-        makeToolkitReturnNonStopConfigurationRegistry(toolkit);
+    makeToolkitReturnNonStopConfigurationRegistry(toolkit);
+    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+    when(clusteredEntityManager.getRootEntity(anyString(), eq(ClusteredCacheManager.class)))
+        .thenReturn(mock(ClusteredCacheManager.class));
+    ToolkitInstanceFactoryImpl factory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
 
-        ToolkitInstanceFactoryImpl factory = new ToolkitInstanceFactoryImpl(toolkit, mock(ClusteredEntityManager.class));
+    CacheConfiguration configuration = new CacheConfiguration().terracotta(new TerracottaConfiguration())
+        .maxEntriesInCache(maxEntries);
 
-        CacheConfiguration configuration = new CacheConfiguration().terracotta(new TerracottaConfiguration()).maxEntriesInCache(maxEntries);
+    Ehcache ehcache = mock(Ehcache.class);
+    configureEhcacheMockForToolkitUse(ehcache, configuration);
 
-        Ehcache ehcache = mock(Ehcache.class);
-        configureEhcacheMockForToolkitUse(ehcache, configuration);
+    factory.getOrCreateToolkitCache(ehcache);
 
-        factory.getOrCreateToolkitCache(ehcache);
+    ArgumentCaptor<Configuration> captor = ArgumentCaptor.forClass(Configuration.class);
+    verify(toolkit).getCache(anyString(), captor.capture(), eq(Serializable.class));
+    assertThat(captor.getValue().getInt(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME), is(maxCount));
+  }
 
-        ArgumentCaptor<Configuration> captor = ArgumentCaptor.forClass(Configuration.class);
-        verify(toolkit).getCache(anyString(), captor.capture(), eq(Serializable.class));
-        assertThat(captor.getValue().getInt(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME), is(maxCount));
-    }
+  private void configureEhcacheMockForToolkitUse(Ehcache ehcache, CacheConfiguration configuration) {
+    CacheManager cacheManager = mock(CacheManager.class);
+    when(ehcache.getCacheConfiguration()).thenReturn(configuration);
+    when(ehcache.getCacheManager()).thenReturn(cacheManager);
+  }
 
-    private void configureEhcacheMockForToolkitUse(Ehcache ehcache, CacheConfiguration configuration) {CacheManager cacheManager = mock(CacheManager.class);
-        when(ehcache.getCacheConfiguration()).thenReturn(configuration);
-        when(ehcache.getCacheManager()).thenReturn(cacheManager);
-    }
+  private void makeToolkitReturnNonStopConfigurationRegistry(Toolkit toolkit) {
+    NonStopFeature feature = mock(NonStopFeature.class);
+    when(toolkit.getFeature(any(ToolkitFeatureType.class))).thenReturn(feature);
+    when(feature.getNonStopConfigurationRegistry()).thenReturn(mock(NonStopConfigurationRegistry.class));
+  }
 
-    private void makeToolkitReturnNonStopConfigurationRegistry(Toolkit toolkit) {NonStopFeature feature = mock(NonStopFeature.class);
-        when(toolkit.getFeature(any(ToolkitFeatureType.class))).thenReturn(feature);
-        when(feature.getNonStopConfigurationRegistry()).thenReturn(mock(NonStopConfigurationRegistry.class));
-    }
+
+  /**
+   * This test case was added while fixing DEV-9223. From now on, we assume that the default value for maxTotalCount in
+   * Toolkit (-1), and the default value for maxEntriesInCache in EhCache (0) will be aligned. That is, they both will
+   * mean the same thing. Currently they mean no-limit cache. If someone changes the default value of one of those, then
+   * this test case will fail and we would need to handle it.
+   */
+  @Test
+  public void testToolkitAndEhCacheDefaultsAreAligned() {
+    Assert.assertEquals(0, CacheConfiguration.DEFAULT_MAX_ENTRIES_IN_CACHE);
+    Assert.assertEquals(-1, ToolkitConfigFields.DEFAULT_MAX_TOTAL_COUNT);
+  }
+
+  @Test
+  public void testGetOrCreateToolkitCache() {
+    CacheConfiguration cacheConfig = mock(CacheConfiguration.class);
+    when(cacheConfig.getTerracottaConfiguration()).thenReturn(mock(TerracottaConfiguration.class));
+
+    final String cacheMgrName = "testCacheName";
+    CacheManager cacheManager = mock(CacheManager.class);
+    when(cacheManager.isNamed()).thenReturn(true);
+    when(cacheManager.getName()).thenReturn(cacheMgrName);
     
-    
-    /**
-     * This test case was added while fixing DEV-9223.
-     * From now on, we assume that the default value for maxTotalCount in Toolkit (-1),
-     * and the default value for maxEntriesInCache in EhCache (0) will be aligned.
-     * That is, they both will mean the same thing. Currently they mean no-limit cache.
-     * If someone changes the default value of one of those, then this test case will fail
-     * and we would need to handle it.    
-     */
-    @Test
-    public void testToolkitAndEhCacheDefaultsAreAligned() {
-      Assert.assertEquals(0, CacheConfiguration.DEFAULT_MAX_ENTRIES_IN_CACHE);
-      Assert.assertEquals(-1, ToolkitConfigFields.DEFAULT_MAX_TOTAL_COUNT);
-    }
+    final String cacheName = "testCacheName";
+    Ehcache ehcahce = mock(Ehcache.class);
+    when(ehcahce.getCacheConfiguration()).thenReturn(cacheConfig);
+    when(ehcahce.getName()).thenReturn(cacheName);
+    when(ehcahce.getCacheManager()).thenReturn(cacheManager);
 
-    @Test
-    public void testRetrievingExistingClusteredCacheManagerEntity() {
-        String name = "existing";
+    NonStopFeature nonStopFeature = mock(NonStopFeature.class);
+    when(nonStopFeature.getNonStopConfigurationRegistry()).thenReturn(mock(NonStopConfigurationRegistry.class));
+    Toolkit toolkit = mock(Toolkit.class);
+    when(toolkit.getFeature(ToolkitFeatureType.NONSTOP)).thenReturn(nonStopFeature);
+    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
 
-        net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
+    toolkitInstanceFactory.getOrCreateToolkitCache(ehcahce);
+  }
 
-        ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
-        when(clusteredEntityManager.getRootEntity(name, ClusteredCacheManager.class)).thenReturn(new ClusteredCacheManager(new ClusteredCacheManagerConfiguration("test")));
+  @Test
+  public void testRetrievingExistingClusteredCacheManagerEntity() {
+    String name = "existing";
 
-        ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class), clusteredEntityManager);
+    net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
 
-        toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
-        verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
-        verifyNoMoreInteractions(clusteredEntityManager);
-    }
+    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+    Toolkit toolkit = mock(Toolkit.class);
+    when(toolkit.getMap(anyString(), eq(String.class), eq(ClusteredCache.class))).thenReturn(mock(ToolkitMap.class));
+    when(clusteredEntityManager.getRootEntity(name, ClusteredCacheManager.class))
+        .thenReturn(new ClusteredCacheManager(name, new ClusteredCacheManagerConfiguration("test"), toolkit));
 
-    @Test
-    public void testCreatingNewClusteredCacheManagerEntity() {
-        String name = "newCM";
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
+                                                                                       clusteredEntityManager);
 
-        net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
+    toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
+    verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
+    verifyNoMoreInteractions(clusteredEntityManager);
+  }
 
-        ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+  @Test
+  public void testCreatingNewClusteredCacheManagerEntity() {
+    String name = "newCM";
 
-        ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class), clusteredEntityManager);
+    net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
 
-        toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
-        verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
-        verify(clusteredEntityManager).addRootEntity(eq(name), any(ClusteredCacheManager.class));
-        verifyNoMoreInteractions(clusteredEntityManager);
-    }
+    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
 
-    @Test
-    public void testTryingToCreateNewClusteredCacheManagerEntityButLooseRace() {
-        String name = "newCM";
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
+                                                                                       clusteredEntityManager);
 
-        net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
+    toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
+    verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
+    verify(clusteredEntityManager).addRootEntity(eq(name), any(ClusteredCacheManager.class));
+    verifyNoMoreInteractions(clusteredEntityManager);
+  }
 
-        ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
-        doThrow(new IllegalStateException("exists")).when(clusteredEntityManager).addRootEntity(eq(name), any(ClusteredCacheManager.class));
+  @Test
+  public void testTryingToCreateNewClusteredCacheManagerEntityButLooseRace() {
+    String name = "newCM";
 
-        ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class), clusteredEntityManager);
+    net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
 
-        toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
-        InOrder inOrder = inOrder(clusteredEntityManager);
-        inOrder.verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
-        inOrder.verify(clusteredEntityManager).addRootEntity(eq(name), any(ClusteredCacheManager.class));
-        inOrder.verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
-        verifyNoMoreInteractions(clusteredEntityManager);
-    }
+    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+    doThrow(new IllegalStateException("exists")).when(clusteredEntityManager)
+        .addRootEntity(eq(name), any(ClusteredCacheManager.class));
 
-    @Test
-    public void testConfigurationSavedContainsNoCachesAnymore() {
-        String name = "newCM";
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
+                                                                                       clusteredEntityManager);
 
-        net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
-        configuration.addCache(new CacheConfiguration("test", 1));
+    toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
+    InOrder inOrder = inOrder(clusteredEntityManager);
+    inOrder.verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
+    inOrder.verify(clusteredEntityManager).addRootEntity(eq(name), any(ClusteredCacheManager.class));
+    inOrder.verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
+    verifyNoMoreInteractions(clusteredEntityManager);
+  }
 
-        ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+  @Test
+  public void testConfigurationSavedContainsNoCachesAnymore() {
+    String name = "newCM";
 
-        ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class), clusteredEntityManager);
+    net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
+    configuration.addCache(new CacheConfiguration("test", 1));
 
-        toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
-        ArgumentCaptor<ClusteredCacheManager> captor = ArgumentCaptor.forClass(ClusteredCacheManager.class);
-        verify(clusteredEntityManager).addRootEntity(eq(name), captor.capture());
+    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
 
-        assertThat(captor.getValue().getConfiguration().getConfigurationAsText(), not(containsString("<cache")));
-    }
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
+                                                                                       clusteredEntityManager);
 
-    @Test
-    public void testConfigurationSavedContainsCacheManagerName() {
-        String name = "newCM";
+    toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
+    ArgumentCaptor<ClusteredCacheManager> captor = ArgumentCaptor.forClass(ClusteredCacheManager.class);
+    verify(clusteredEntityManager).addRootEntity(eq(name), captor.capture());
 
-        net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
-        configuration.addCache(new CacheConfiguration("test", 1));
+    assertThat(captor.getValue().getConfiguration().getConfigurationAsText(), not(containsString("<cache")));
+  }
 
-        ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+  @Test
+  public void testConfigurationSavedContainsCacheManagerName() {
+    String name = "newCM";
 
-        ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class), clusteredEntityManager);
+    net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
+    configuration.addCache(new CacheConfiguration("test", 1));
 
-        toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
-        ArgumentCaptor<ClusteredCacheManager> captor = ArgumentCaptor.forClass(ClusteredCacheManager.class);
-        verify(clusteredEntityManager).addRootEntity(eq(name), captor.capture());
+    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
 
-        assertThat(captor.getValue().getConfiguration().getConfigurationAsText(), containsString("name=\""+name));
-    }
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
+                                                                                       clusteredEntityManager);
+
+    toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
+    ArgumentCaptor<ClusteredCacheManager> captor = ArgumentCaptor.forClass(ClusteredCacheManager.class);
+    verify(clusteredEntityManager).addRootEntity(eq(name), captor.capture());
+
+    assertThat(captor.getValue().getConfiguration().getConfigurationAsText(), containsString("name=\"" + name));
+  }
 
 }
