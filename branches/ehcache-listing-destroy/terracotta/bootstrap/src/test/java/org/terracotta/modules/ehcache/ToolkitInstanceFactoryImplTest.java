@@ -105,40 +105,31 @@ public class ToolkitInstanceFactoryImplTest {
   }
 
   @Test
-  public void testGetOrCreateToolkitCache() {
-    CacheConfiguration cacheConfig = mock(CacheConfiguration.class);
-    when(cacheConfig.getTerracottaConfiguration()).thenReturn(mock(TerracottaConfiguration.class));
-
+  public void testAddCacheEntityInfo() {
+    CacheConfiguration cacheConfig = new CacheConfiguration();
     final String cacheMgrName = "testCacheName";
-    CacheManager cacheManager = mock(CacheManager.class);
-    when(cacheManager.isNamed()).thenReturn(true);
-    when(cacheManager.getName()).thenReturn(cacheMgrName);
-    
     final String cacheName = "testCacheName";
-    Ehcache ehcahce = mock(Ehcache.class);
-    when(ehcahce.getCacheConfiguration()).thenReturn(cacheConfig);
-    when(ehcahce.getName()).thenReturn(cacheName);
-    when(ehcahce.getCacheManager()).thenReturn(cacheManager);
-
-    NonStopFeature nonStopFeature = mock(NonStopFeature.class);
-    when(nonStopFeature.getNonStopConfigurationRegistry()).thenReturn(mock(NonStopConfigurationRegistry.class));
+    
     Toolkit toolkit = mock(Toolkit.class);
-    when(toolkit.getFeature(ToolkitFeatureType.NONSTOP)).thenReturn(nonStopFeature);
+    when(toolkit.getMap(anyString(), eq(String.class), eq(ClusteredCache.class))).thenReturn(mock(ToolkitMap.class));
+
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
     ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
+    when(clusteredEntityManager.getRootEntity(cacheMgrName, ClusteredCacheManager.class))
+        .thenReturn(new ClusteredCacheManager(cacheMgrName, new ClusteredCacheManagerConfiguration("test"), toolkit));
 
-    toolkitInstanceFactory.getOrCreateToolkitCache(ehcahce);
+    toolkitInstanceFactory.addCacheEntityInfo(cacheName, cacheConfig, cacheMgrName);
   }
 
   @Test
   public void testRetrievingExistingClusteredCacheManagerEntity() {
     String name = "existing";
-
     net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
 
-    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
     Toolkit toolkit = mock(Toolkit.class);
     when(toolkit.getMap(anyString(), eq(String.class), eq(ClusteredCache.class))).thenReturn(mock(ToolkitMap.class));
+
+    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
     when(clusteredEntityManager.getRootEntity(name, ClusteredCacheManager.class))
         .thenReturn(new ClusteredCacheManager(name, new ClusteredCacheManagerConfiguration("test"), toolkit));
 

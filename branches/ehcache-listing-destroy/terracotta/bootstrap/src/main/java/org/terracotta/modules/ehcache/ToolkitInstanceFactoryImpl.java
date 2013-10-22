@@ -171,12 +171,17 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final String fullyQualifiedCacheName = getFullyQualifiedCacheName(cacheManagerName, cacheName);
     addNonStopConfigForCache(ehcacheConfig, fullyQualifiedCacheName);
     ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateToolkitCache(fullyQualifiedCacheName, toolkitCacheConfig);
-    ClusteredCacheManager clusteredCacheManager = clusteredEntityManager
-        .getRootEntity(getCacheManagerName(fullyQualifiedCacheName), ClusteredCacheManager.class);
-    String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(null, ehcacheConfig);
+    addCacheEntityInfo(cacheName, ehcacheConfig, getCacheManagerName(fullyQualifiedCacheName));
+    return toolkitCache;
+  }
+
+  void addCacheEntityInfo(final String cacheName, final CacheConfiguration ehcacheConfig, final String cacheManagerName) {
+    ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName,
+                                                                                       ClusteredCacheManager.class);
+    String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(new net.sf.ehcache.config.Configuration(),
+                                                                        ehcacheConfig);
     ClusteredCache clusteredCache = new ClusteredCache(new ClusteredCacheConfiguration(xmlConfig));
     clusteredCacheManager.addCache(cacheName, clusteredCache);
-    return toolkitCache;
   }
 
   private ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(final String fullyQualifiedCacheName,
