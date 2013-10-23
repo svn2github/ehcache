@@ -171,7 +171,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final String fullyQualifiedCacheName = getFullyQualifiedCacheName(cacheManagerName, cacheName);
     addNonStopConfigForCache(ehcacheConfig, fullyQualifiedCacheName);
     ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateToolkitCache(fullyQualifiedCacheName, toolkitCacheConfig);
-    addCacheEntityInfo(cacheName, ehcacheConfig, getCacheManagerName(fullyQualifiedCacheName));
+    addCacheEntityInfo(cacheName, ehcacheConfig, cacheManagerName);
     return toolkitCache;
   }
 
@@ -181,7 +181,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(new net.sf.ehcache.config.Configuration(),
                                                                         ehcacheConfig);
     ClusteredCache clusteredCache = new ClusteredCache(new ClusteredCacheConfiguration(xmlConfig));
-    clusteredCacheManager.addCache(cacheName, clusteredCache);
+    try {
+      clusteredCacheManager.addCache(cacheName, clusteredCache);
+    } catch (IllegalStateException ise) {
+      // TODO: ignore for now
+    }
+
   }
 
   private ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(final String fullyQualifiedCacheName,
@@ -289,10 +294,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   public static String getFullyQualifiedCacheName(String cacheMgrName, String cacheName) {
     return EHCACHE_NAME_PREFIX + DELIMITER + cacheMgrName + DELIMITER + cacheName;
-  }
-
-  private static String getCacheManagerName(String fullyQualifiedCacheName) {
-    return fullyQualifiedCacheName.split("|")[1];
   }
 
   private static String getCacheManagerName(Ehcache cache) {
