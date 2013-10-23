@@ -23,23 +23,14 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CountingCacheEventListener.CacheEvent;
-import static net.sf.ehcache.event.CountingCacheEventListener.getCountingCacheEventListener;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import net.sf.ehcache.util.RetryAssert;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -51,9 +42,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.sf.ehcache.util.RetryAssert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static net.sf.ehcache.event.CountingCacheEventListener.getCountingCacheEventListener;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -517,11 +515,15 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         long elementsEvictedCounter = cacheEventNotificationService.getElementsEvictedCounter();
 
         //should trigger a removal notification because it is not Serializable when it is evicted
-        cache.put(new Element(12 + "", new Object()));
+      Element element = new Element(12 + "", new Object());
+      element.setEternal(true);
+      cache.put(element);
 
         for (int i = 0; i < 10; i++) {
             // use non-serializable object for all values
-            cache.put(new Element(i + "", new Object()));
+          element = new Element(i + "", new Object());
+          element.setEternal(true);
+          cache.put(element);
             cache.get(i + "");
         }
         assertThat(cache.getMemoryStoreSize(), equalTo(10L));
