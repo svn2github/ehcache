@@ -515,15 +515,15 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         long elementsEvictedCounter = cacheEventNotificationService.getElementsEvictedCounter();
 
         //should trigger a removal notification because it is not Serializable when it is evicted
-      Element element = new Element(12 + "", new Object());
-      element.setEternal(true);
-      cache.put(element);
+        Element element = new Element(12 + "", new Object());
+        element.setEternal(true);
+        cache.put(element);
 
         for (int i = 0; i < 10; i++) {
             // use non-serializable object for all values
-          element = new Element(i + "", new Object());
-          element.setEternal(true);
-          cache.put(element);
+            element = new Element(i + "", new Object());
+            element.setEternal(true);
+            cache.put(element);
             cache.get(i + "");
         }
         assertThat(cache.getMemoryStoreSize(), equalTo(10L));
