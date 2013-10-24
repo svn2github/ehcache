@@ -22,12 +22,18 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.terracotta.modules.ehcache.wan.WANUtil;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFeatureType;
+import org.terracotta.toolkit.collections.ToolkitMap;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.feature.NonStopFeature;
+import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.nonstop.NonStopConfigurationRegistry;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
 
@@ -40,53 +46,100 @@ import junit.framework.Assert;
  */
 public class ToolkitInstanceFactoryImplTest {
 
-    @Test
-    public void testMaxEntriesInCacheToMaxTotalCountTransformation() {
-        verifyMapping(10, 10);
-    }
+  private static final String                        CACHE_MANAGER_NAME = "CACHE_MANAGER_NAME";
+  private static final String                        CACHE_NAME         = "CACHE_NAME";
 
-    private void verifyMapping(int maxEntries, int maxCount) {
-        Toolkit toolkit = mock(Toolkit.class);
+  @Mock private Toolkit                                    toolkit;
+  @Mock private WANUtil                                    wanUtil;
+  @Mock private Ehcache                                    ehcache;
+  @Mock private CacheManager                               cacheManager;
 
-        makeToolkitReturnNonStopConfigurationRegistry(toolkit);
+  private ToolkitInstanceFactoryImpl                 factory;
+  private ToolkitCacheInternal<String, Serializable> resultantCache;
 
-        ToolkitInstanceFactoryImpl factory = new ToolkitInstanceFactoryImpl(toolkit);
+  @Before
+  public void setUp() {
+    MockitoAnnotations.initMocks(this);
+    toolkit = mock(Toolkit.class);
+    when(toolkit.getMap(anyString(), any(Class.class), any(Class.class))).thenReturn(mock(ToolkitMap.class));
+    makeToolkitReturnNonStopConfigurationRegistry();
 
-        CacheConfiguration configuration = new CacheConfiguration().terracotta(new TerracottaConfiguration()).maxEntriesInCache(maxEntries);
+    wanUtil = mock(WANUtil.class);
+    ehcache = mock(Ehcache.class);
+    when(cacheManager.isNamed()).thenReturn(true);
+    when(cacheManager.getName()).thenReturn(CACHE_MANAGER_NAME);
+    when(ehcache.getCacheManager()).thenReturn(cacheManager);
+    when(ehcache.getName()).thenReturn(CACHE_NAME);
+    CacheConfiguration configuration = new CacheConfiguration().terracotta(new TerracottaConfiguration());
+    when(ehcache.getCacheConfiguration()).thenReturn(configuration);
 
-        Ehcache ehcache = mock(Ehcache.class);
-        configureEhcacheMockForToolkitUse(ehcache, configuration);
+    factory = new ToolkitInstanceFactoryImpl(toolkit);
+    factory.setWANUtil(wanUtil);
+  }
 
-        factory.getOrCreateToolkitCache(ehcache);
+  @Test
+  public void testGetOrCreateToolkitCacheForWanEnabled() throws Exception {
+    whenCacheIsWanEnabled().callGetOrCreateToolkitCache().assertInstanceOfWanAwareToolkitCache(true);
+  }
 
-        ArgumentCaptor<Configuration> captor = ArgumentCaptor.forClass(Configuration.class);
-        verify(toolkit).getCache(anyString(), captor.capture(), eq(Serializable.class));
-        assertThat(captor.getValue().getInt(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME), is(maxCount));
-    }
+  @Test
+  public void testGetOrCreateToolkitCacheForWanDisabled() throws Exception {
+    whenCacheIsWanDisabled().callGetOrCreateToolkitCache().assertInstanceOfWanAwareToolkitCache(false);
+  }
 
-    private void configureEhcacheMockForToolkitUse(Ehcache ehcache, CacheConfiguration configuration) {CacheManager cacheManager = mock(CacheManager.class);
-        when(ehcache.getCacheConfiguration()).thenReturn(configuration);
-        when(ehcache.getCacheManager()).thenReturn(cacheManager);
-    }
+  @Test
+  public void testMaxEntriesInCacheToMaxTotalCountTransformation() {
+    CacheConfiguration configuration = new CacheConfiguration().terracotta(new TerracottaConfiguration()).maxEntriesInCache(10);
+    forEhcacheConfig(configuration).callGetOrCreateToolkitCache().validateMaxTotalCountForToolkitCacheIs(10);
+  }
 
-    private void makeToolkitReturnNonStopConfigurationRegistry(Toolkit toolkit) {NonStopFeature feature = mock(NonStopFeature.class);
-        when(toolkit.getFeature(any(ToolkitFeatureType.class))).thenReturn(feature);
-        when(feature.getNonStopConfigurationRegistry()).thenReturn(mock(NonStopConfigurationRegistry.class));
-    }
-    
-    
-    /**
-     * This test case was added while fixing DEV-9223.
-     * From now on, we assume that the default value for maxTotalCount in Toolkit (-1),
-     * and the default value for maxEntriesInCache in EhCache (0) will be aligned.
-     * That is, they both will mean the same thing. Currently they mean no-limit cache.
-     * If someone changes the default value of one of those, then this test case will fail
-     * and we would need to handle it.    
-     */
-    @Test
-    public void testToolkitAndEhCacheDefaultsAreAligned() {
-      Assert.assertEquals(0, CacheConfiguration.DEFAULT_MAX_ENTRIES_IN_CACHE);
-      Assert.assertEquals(-1, ToolkitConfigFields.DEFAULT_MAX_TOTAL_COUNT);
-    }
+  private void validateMaxTotalCountForToolkitCacheIs(int maxTotalCount) {
+    ArgumentCaptor<Configuration> captor = ArgumentCaptor.forClass(Configuration.class);
+    verify(toolkit).getCache(anyString(), captor.capture(), eq(Serializable.class));
+    assertThat(captor.getValue().getInt(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME), is(10));
+  }
 
+  private ToolkitInstanceFactoryImplTest forEhcacheConfig(CacheConfiguration configuration) {
+    when(ehcache.getCacheConfiguration()).thenReturn(configuration);
+    return this;
+  }
+
+
+  private void makeToolkitReturnNonStopConfigurationRegistry() {
+    NonStopFeature feature = mock(NonStopFeature.class);
+    when(toolkit.getFeature(any(ToolkitFeatureType.class))).thenReturn(feature);
+    when(feature.getNonStopConfigurationRegistry()).thenReturn(mock(NonStopConfigurationRegistry.class));
+  }
+
+  /**
+   * This test case was added while fixing DEV-9223. From now on, we assume that the default value for maxTotalCount in
+   * Toolkit (-1), and the default value for maxEntriesInCache in EhCache (0) will be aligned. That is, they both will
+   * mean the same thing. Currently they mean no-limit cache. If someone changes the default value of one of those, then
+   * this test case will fail and we would need to handle it.
+   */
+  @Test
+  public void testToolkitAndEhCacheDefaultsAreAligned() {
+    Assert.assertEquals(0, CacheConfiguration.DEFAULT_MAX_ENTRIES_IN_CACHE);
+    Assert.assertEquals(-1, ToolkitConfigFields.DEFAULT_MAX_TOTAL_COUNT);
+  }
+
+
+  private void assertInstanceOfWanAwareToolkitCache(boolean expectedResult) {
+    Assert.assertEquals(expectedResult, (resultantCache instanceof WanAwareToolkitCache));
+  }
+
+  private ToolkitInstanceFactoryImplTest callGetOrCreateToolkitCache() {
+    resultantCache = factory.getOrCreateToolkitCache(ehcache);
+    return this;
+  }
+
+  private ToolkitInstanceFactoryImplTest whenCacheIsWanEnabled() {
+    when(wanUtil.isWanEnabledCache(CACHE_MANAGER_NAME, CACHE_NAME)).thenReturn(true);
+    return this;
+  }
+
+  private ToolkitInstanceFactoryImplTest whenCacheIsWanDisabled() {
+    when(wanUtil.isWanEnabledCache(CACHE_MANAGER_NAME, CACHE_NAME)).thenReturn(false);
+    return this;
+  }
 }

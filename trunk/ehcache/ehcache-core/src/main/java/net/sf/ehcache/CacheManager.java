@@ -534,7 +534,12 @@ public class CacheManager {
         localTransactionsRecoveryThread.setDaemon(true);
         localTransactionsRecoveryThread.start();
 
-
+        //Wait for the Orchestrator if required
+        if (configuration.getTerracottaConfiguration() != null) {
+            if (configuration.getTerracottaConfiguration().isWanEnabledTSA()) {
+                terracottaClient.waitForOrchestrator(getName());
+            }
+        }
     }
 
     private void initializeManagementService(ManagementRESTServiceConfiguration managementRESTService) {

@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -35,6 +36,7 @@ import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.util.SetAsList;
 import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.ClusteredCacheInternalContext;
@@ -64,8 +66,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.event.EventListenerList;
-
-import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 public class ClusteredStore implements TerracottaStore, StoreListener  {
 
@@ -136,6 +136,10 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
     } else {
       localKeyCacheMaxsize = -1;
       keyLookupCache = null;
+    }
+
+    if (!cache.getCacheManager().getConfiguration().getTerracottaConfiguration().isWanEnabledTSA()) {
+      toolkitInstanceFactory.markCacheWanDisabled(cache.getCacheManager().getName(), cache.getName());
     }
 
     ToolkitInternal toolkitInternal = (ToolkitInternal) toolkitInstanceFactory.getToolkit();

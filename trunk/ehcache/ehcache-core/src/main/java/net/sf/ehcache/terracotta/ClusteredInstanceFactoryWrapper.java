@@ -130,4 +130,11 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     public boolean destroyCache(final String cacheManagerName, final String cacheName) {
         return delegate.destroyCache(cacheManagerName, cacheName);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void waitForOrchestrator(String cacheManagerName) {
+        delegate.waitForOrchestrator(cacheManagerName);
+    }
 }

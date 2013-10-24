@@ -109,4 +109,10 @@ public interface ClusteredInstanceFactory {
      * @return true if the cache existed before being destroyed
      */
     boolean destroyCache(String cacheManagerName, String cacheName);
+    
+    /**
+     * Wait until the Orchestrator is running for the given CacheManager
+     * @param cacheManagerName name of the CacheManager
+     */
+    public void waitForOrchestrator(String cacheManagerName);
 }
