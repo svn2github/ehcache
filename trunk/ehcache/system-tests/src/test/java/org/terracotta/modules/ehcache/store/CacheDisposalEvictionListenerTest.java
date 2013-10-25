@@ -13,6 +13,7 @@ import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
+import com.tc.l2.L2DebugLogging;
 import com.tc.objectserver.impl.ServerMapEvictionEngine;
 import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
@@ -34,7 +35,7 @@ public class CacheDisposalEvictionListenerTest extends AbstractCacheTestBase {
     testConfig.getClientConfig().setParallelClients(true);
     testConfig.getL2Config().setMaxHeap(192);
     testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
-    configureTCLogging(ServerMapEvictionEngine.class.getName(), LogLevel.DEBUG);
+    configureTCLogging(ServerMapEvictionEngine.class.getName(), L2DebugLogging.LogLevel.DEBUG);
   }
 
   public static class App extends ClientBase implements CacheEventListener {
