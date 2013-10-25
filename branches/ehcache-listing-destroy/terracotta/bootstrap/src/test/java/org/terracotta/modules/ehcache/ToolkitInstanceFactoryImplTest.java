@@ -95,6 +95,7 @@ public class ToolkitInstanceFactoryImplTest {
     when(clusteredEntityManager.getRootEntity(any(String.class), any(Class.class))).thenReturn(clusteredCacheManager);
     factory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
     factory.setWANUtil(wanUtil);
+    factory.linkClusteredCacheManager(CACHE_MANAGER_NAME, null);
   }
 
   @Test
@@ -165,16 +166,7 @@ public class ToolkitInstanceFactoryImplTest {
   
   @Test
   public void testAddCacheEntityInfo() {
-    CacheConfiguration cacheConfig = new CacheConfiguration();
-    final String cacheMgrName = "testCacheName";
-    final String cacheName = "testCacheName";
-    
-    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
-    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
-    when(clusteredEntityManager.getRootEntity(cacheMgrName, ClusteredCacheManager.class))
-        .thenReturn(new ClusteredCacheManager(cacheMgrName, new ClusteredCacheManagerConfiguration(defaultCMConfig), toolkit));
-
-    toolkitInstanceFactory.addCacheEntityInfo(cacheName, cacheConfig, cacheMgrName, "testTKCacheName");
+    factory.addCacheEntityInfo(CACHE_NAME, new CacheConfiguration(), "testTKCacheName");
   }
 
   @Test
@@ -274,10 +266,10 @@ public class ToolkitInstanceFactoryImplTest {
   }
 
   private final String defaultCMConfig = "<ehcache name=\"test-lifecycle\">" +
+                                         "  <terracottaConfig url=\"localhost:PORT\"/>" +
                                          "  <defaultCache" +
                                          "      maxElementsInMemory=\"10\"" +
                                          "      eternal=\"true\"/>" +
-                                         "  <terracottaConfig url=\"localhost:PORT\"/>" +
                                          "</ehcache>";
 
 }
