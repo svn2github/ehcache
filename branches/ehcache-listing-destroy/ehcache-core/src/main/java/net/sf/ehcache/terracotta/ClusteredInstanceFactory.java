@@ -121,7 +121,14 @@ public interface ClusteredInstanceFactory {
      * Links this cache manager to the cluster
      *
      * @param cacheManagerName the name of the cache manager
-     * @param configuration
+     * @param configuration the cache manager configuration
      */
     void linkClusteredCacheManager(String cacheManagerName, Configuration configuration);
+
+    /**
+     * Un-links the cache from its cluster entity
+     *
+     * @param cacheName the cache to unlink
+     */
+    void unlinkCache(String cacheName);
 }

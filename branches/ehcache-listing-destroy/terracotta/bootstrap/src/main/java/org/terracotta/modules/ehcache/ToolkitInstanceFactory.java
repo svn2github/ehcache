@@ -134,4 +134,11 @@ public interface ToolkitInstanceFactory {
    * @param configuration
    */
   void linkClusteredCacheManager(String cacheManagerName, Configuration configuration);
+
+  /**
+   * Un-links a terracotta enabled cache from the cluster
+   *
+   * @param cacheName the cache name
+   */
+  void unlinkCache(String cacheName);
 }

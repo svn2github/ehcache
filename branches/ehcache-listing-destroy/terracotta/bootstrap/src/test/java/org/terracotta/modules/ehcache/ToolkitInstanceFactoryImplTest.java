@@ -9,19 +9,6 @@
 
 package org.terracotta.modules.ehcache;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -37,7 +24,8 @@ import org.terracotta.modules.ehcache.wan.WANUtil;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFeatureType;
 import org.terracotta.toolkit.collections.ToolkitMap;
-import org.terracotta.toolkit.collections.ToolkitMap;
+import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
+import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.feature.NonStopFeature;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
@@ -52,6 +40,20 @@ import com.terracotta.entity.ehcache.ClusteredCacheManagerConfiguration;
 import java.io.Serializable;
 
 import junit.framework.Assert;
+
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * ToolkitInstanceFactoryImplTest
@@ -74,6 +76,9 @@ public class ToolkitInstanceFactoryImplTest {
     MockitoAnnotations.initMocks(this);
     toolkit = mock(Toolkit.class);
     when(toolkit.getMap(anyString(), any(Class.class), any(Class.class))).thenReturn(mock(ToolkitMap.class));
+    ToolkitReadWriteLock lock = mock(ToolkitReadWriteLock.class);
+    when(lock.readLock()).thenReturn(mock(ToolkitLock.class));
+    when(toolkit.getReadWriteLock(any(String.class))).thenReturn(lock);
     makeToolkitReturnNonStopConfigurationRegistry();
 
     wanUtil = mock(WANUtil.class);
@@ -85,9 +90,10 @@ public class ToolkitInstanceFactoryImplTest {
     CacheConfiguration configuration = new CacheConfiguration().terracotta(new TerracottaConfiguration());
     when(ehcache.getCacheConfiguration()).thenReturn(configuration);
 
-    ClusteredEntityManager mock = mock(ClusteredEntityManager.class);
-    when(mock.getRootEntity(any(String.class), any(Class.class))).thenReturn(mock(ClusteredCacheManager.class));
-    factory = new ToolkitInstanceFactoryImpl(toolkit, mock);
+    ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+    ClusteredCacheManager clusteredCacheManager = new ClusteredCacheManager("aName", new ClusteredCacheManagerConfiguration(defaultCMConfig), toolkit);
+    when(clusteredEntityManager.getRootEntity(any(String.class), any(Class.class))).thenReturn(clusteredCacheManager);
+    factory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
     factory.setWANUtil(wanUtil);
   }
 
@@ -163,13 +169,10 @@ public class ToolkitInstanceFactoryImplTest {
     final String cacheMgrName = "testCacheName";
     final String cacheName = "testCacheName";
     
-    Toolkit toolkit = mock(Toolkit.class);
-    when(toolkit.getMap(anyString(), eq(String.class), eq(ClusteredCache.class))).thenReturn(mock(ToolkitMap.class));
-
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
     ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
     when(clusteredEntityManager.getRootEntity(cacheMgrName, ClusteredCacheManager.class))
-        .thenReturn(new ClusteredCacheManager(cacheMgrName, new ClusteredCacheManagerConfiguration("test"), toolkit));
+        .thenReturn(new ClusteredCacheManager(cacheMgrName, new ClusteredCacheManagerConfiguration(defaultCMConfig), toolkit));
 
     toolkitInstanceFactory.addCacheEntityInfo(cacheName, cacheConfig, cacheMgrName);
   }
@@ -269,5 +272,12 @@ public class ToolkitInstanceFactoryImplTest {
 
     assertThat(captor.getValue().getConfiguration().getConfigurationAsText(), containsString("name=\"" + name));
   }
+
+  private final String defaultCMConfig = "<ehcache name=\"test-lifecycle\">" +
+                                         "  <defaultCache" +
+                                         "      maxElementsInMemory=\"10\"" +
+                                         "      eternal=\"true\"/>" +
+                                         "  <terracottaConfig url=\"localhost:PORT\"/>" +
+                                         "</ehcache>";
 
 }

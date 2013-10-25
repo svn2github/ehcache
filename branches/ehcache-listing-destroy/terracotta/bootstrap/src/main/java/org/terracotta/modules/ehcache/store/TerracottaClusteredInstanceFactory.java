@@ -166,6 +166,11 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     toolkitInstanceFactory.linkClusteredCacheManager(cacheManagerName, configuration);
   }
 
+  @Override
+  public void unlinkCache(String cacheName) {
+    toolkitInstanceFactory.unlinkCache(cacheName);
+  }
+
   public static String getToolkitMapNameForCache(String cacheManagerName, String cacheName) {
     return ToolkitInstanceFactoryImpl.getFullyQualifiedCacheName(cacheManagerName, cacheName);
   }

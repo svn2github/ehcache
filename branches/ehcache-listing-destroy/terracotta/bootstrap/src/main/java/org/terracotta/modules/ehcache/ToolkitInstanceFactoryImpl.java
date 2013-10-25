@@ -63,6 +63,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
+import static java.lang.String.format;
+
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   public static final String  DELIMITER                                = "|";
@@ -91,6 +93,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   protected final Toolkit     toolkit;
   private WANUtil             wanUtil;
   private final ClusteredEntityManager clusteredEntityManager;
+  private ClusteredCacheManager clusteredCacheManagerEntity;
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
@@ -191,20 +194,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateToolkitCache(fullyQualifiedCacheName, toolkitCacheConfig);
     addCacheEntityInfo(cacheName, ehcacheConfig, cacheManagerName);
     return toolkitCache;
-  }
-
-  void addCacheEntityInfo(final String cacheName, final CacheConfiguration ehcacheConfig, final String cacheManagerName) {
-    ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName,
-                                                                                       ClusteredCacheManager.class);
-    String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(new net.sf.ehcache.config.Configuration(),
-                                                                        ehcacheConfig);
-    ClusteredCache clusteredCache = new ClusteredCache(new ClusteredCacheConfiguration(xmlConfig));
-    try {
-      clusteredCacheManager.addCache(cacheName, clusteredCache);
-    } catch (IllegalStateException ise) {
-      // TODO: ignore for now
-    }
-
   }
 
   private ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(final String fullyQualifiedCacheName,
@@ -488,7 +477,42 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
       }
     }
+    clusteredCacheManagerEntity = clusteredCacheManager;
   }
+
+  void addCacheEntityInfo(final String cacheName, final CacheConfiguration ehcacheConfig, final String cacheManagerName) {
+    ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName,
+                                                                                       ClusteredCacheManager.class);
+    if (clusteredCacheManager == null) {
+      throw new IllegalStateException(format("ClusteredCacheManger entity named %s not found", cacheManagerName));
+    }
+
+    ClusteredCache cacheEntity = clusteredCacheManager.getCache(cacheName);
+    if (cacheEntity == null) {
+      net.sf.ehcache.config.Configuration configuration = parseCacheManagerConfiguration(clusteredCacheManager.getConfiguration()
+          .getConfigurationAsText());
+      String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(configuration, ehcacheConfig);
+      cacheEntity = new ClusteredCache(new ClusteredCacheConfiguration(xmlConfig));
+      try {
+        clusteredCacheManager.addCache(cacheName, cacheEntity);
+      } catch (IllegalStateException ise) {
+        cacheEntity = clusteredCacheManager.getCache(cacheName);
+      }
+    }
+    // TODO check some config elements
+    ToolkitReadWriteLock toolkitReadWriteLock = clusteredCacheManager.getCacheLock(cacheName);
+    toolkitReadWriteLock.readLock().lock();
+  }
+
+  @Override
+  public void unlinkCache(String cacheName) {
+    try {
+      clusteredCacheManagerEntity.getCacheLock(cacheName).readLock().unlock();
+    } catch (Exception e) {
+      // TODO handle exception
+    }
+  }
+
 
   private String convertConfigurationToXML(net.sf.ehcache.config.Configuration configuration, String cacheManagerName) {
     net.sf.ehcache.config.Configuration targetConfiguration = cloneConfiguration(configuration);
@@ -500,8 +524,14 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private net.sf.ehcache.config.Configuration cloneConfiguration(net.sf.ehcache.config.Configuration configuration) {
     String tmp = ConfigurationUtil.generateCacheManagerConfigurationText(configuration);
     net.sf.ehcache.config.Configuration targetConfiguration;
+    targetConfiguration = parseCacheManagerConfiguration(tmp);
+    return targetConfiguration;
+  }
+
+  private net.sf.ehcache.config.Configuration parseCacheManagerConfiguration(String xmlCacheManagerConfig) {
+    net.sf.ehcache.config.Configuration targetConfiguration;
     targetConfiguration = ConfigurationFactory.parseConfiguration(
-        new BufferedInputStream(new ByteArrayInputStream(tmp.getBytes())));
+        new BufferedInputStream(new ByteArrayInputStream(xmlCacheManagerConfig.getBytes())));
     return targetConfiguration;
   }
 

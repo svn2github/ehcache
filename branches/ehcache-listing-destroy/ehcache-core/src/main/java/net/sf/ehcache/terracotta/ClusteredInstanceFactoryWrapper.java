@@ -137,6 +137,11 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
         delegate.linkClusteredCacheManager(cacheManagerName, configuration);
     }
 
+    @Override
+    public void unlinkCache(String cacheName) {
+        delegate.unlinkCache(cacheName);
+    }
+
     /**
      * {@inheritDoc}
      */
