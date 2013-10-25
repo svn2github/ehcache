@@ -2513,8 +2513,10 @@ public class Cache implements InternalEhcache, StoreListener {
 
         // null the lockProvider too explicitly to help gc
         lockProvider = null;
-        getCacheManager().getClusteredInstanceFactory().unlinkCache(getName());
-        
+        if (isTerracottaClustered()) {
+            getCacheManager().getClusteredInstanceFactory().unlinkCache(getName());
+        }
+
         cacheStatus.changeState(Status.STATUS_SHUTDOWN);
     }
 
