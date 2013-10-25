@@ -169,4 +169,10 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   public static String getToolkitMapNameForCache(String cacheManagerName, String cacheName) {
     return ToolkitInstanceFactoryImpl.getFullyQualifiedCacheName(cacheManagerName, cacheName);
   }
+
+  @Override
+  public void waitForOrchestrator(String cacheManagerName) {
+    toolkitInstanceFactory.waitForOrchestrator(cacheManagerName);
+
+  }
 }

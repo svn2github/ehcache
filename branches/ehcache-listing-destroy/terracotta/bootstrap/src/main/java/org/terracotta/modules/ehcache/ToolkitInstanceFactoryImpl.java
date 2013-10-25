@@ -26,6 +26,7 @@ import org.terracotta.modules.ehcache.store.ToolkitNonStopConfiguration;
 import org.terracotta.modules.ehcache.store.nonstop.ToolkitNonstopDisableConfig;
 import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedClusteredSoftLock;
+import org.terracotta.modules.ehcache.wan.WANUtil;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFeatureType;
 import org.terracotta.toolkit.ToolkitObjectType;
@@ -76,7 +77,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private static final String NEW_SOFT_LOCKS_LIST_SUFFIX               = "newSoftLocks";
 
   private static final String ASYNC_CONFIG_MAP                         = "asyncConfigMap";
-  private static final String CLUSTERED_STORE_CONFIG_MAP               = EHCACHE_NAME_PREFIX + DELIMITER + "configMap";
+  static final String         CLUSTERED_STORE_CONFIG_MAP               = EHCACHE_NAME_PREFIX + DELIMITER + "configMap";
 
   private static final String EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME    = EHCACHE_NAME_PREFIX + DELIMITER
                                                                          + "softWriteLock";
@@ -88,18 +89,22 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                                                          + "softNotifierLock";
 
   protected final Toolkit     toolkit;
+  private WANUtil             wanUtil;
   private final ClusteredEntityManager clusteredEntityManager;
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
     updateDefaultNonStopConfig(toolkit);
     clusteredEntityManager = new ClusteredEntityManager(toolkit);
+
+    this.wanUtil = new WANUtil(this);
   }
 
   // Constructor to enable unit testing
   ToolkitInstanceFactoryImpl(Toolkit toolkit, ClusteredEntityManager clusteredEntityManager) {
     this.toolkit = toolkit;
     this.clusteredEntityManager = clusteredEntityManager;
+    setWANUtil(new WANUtil(this));
   }
 
   private void updateDefaultNonStopConfig(Toolkit toolkitParam) {
@@ -135,6 +140,16 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
+  public void waitForOrchestrator(String cacheManagerName) {
+    wanUtil.waitForOrchestrator(cacheManagerName);
+  }
+
+  @Override
+  public void markCacheWanDisabled(String cacheManagerName, String cacheName) {
+    wanUtil.markCacheWanDisabled(cacheManagerName, cacheName);
+  }
+
+  @Override
   public Toolkit getToolkit() {
     return toolkit;
   }
@@ -149,7 +164,10 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
      * terracottaConfiguration.isWanEnabled() ? getOrCreateWanAwareToolkitCache(cacheManagerName, cacheName,
      * ehcacheConfig) : getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
      */
-    return getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
+
+    return wanUtil.isWanEnabledCache(cacheManagerName, cacheName)
+        ? getOrCreateWanAwareToolkitCache(cacheManagerName, cacheName, ehcacheConfig)
+        : getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
   }
 
   @Override
@@ -562,4 +580,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     }
 
   }
+
+  /**
+   * Method to be used for Unit Test only
+   */
+  void setWANUtil(WANUtil wanUtil) {
+    this.wanUtil = wanUtil;
+  }
+
 }

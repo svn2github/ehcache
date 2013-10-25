@@ -5,6 +5,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
+
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.test.util.WaitUtil;
@@ -12,6 +13,9 @@ import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 
+import com.tc.l2.L2DebugLogging;
+import com.tc.objectserver.impl.ServerMapEvictionEngine;
+import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
 
 import java.util.concurrent.Callable;
@@ -30,6 +34,8 @@ public class CacheDisposalEvictionListenerTest extends AbstractCacheTestBase {
     super("evict-cache-test.xml", testConfig, App.class, App.class);
     testConfig.getClientConfig().setParallelClients(true);
     testConfig.getL2Config().setMaxHeap(192);
+    testConfig.addTcProperty(TCPropertiesConsts.EHCACHE_EVICTOR_LOGGING_ENABLED, "true");
+    configureTCLogging(ServerMapEvictionEngine.class.getName(), L2DebugLogging.LogLevel.DEBUG);
   }
 
   public static class App extends ClientBase implements CacheEventListener {

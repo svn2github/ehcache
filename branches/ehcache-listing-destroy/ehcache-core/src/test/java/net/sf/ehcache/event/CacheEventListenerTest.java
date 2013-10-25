@@ -24,25 +24,17 @@ import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CountingCacheEventListener.CacheEvent;
-import static net.sf.ehcache.DiskStoreTest.getDiskStore;
-import static net.sf.ehcache.event.CountingCacheEventListener.getCountingCacheEventListener;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
-import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import net.sf.ehcache.util.RetryAssert;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.terracotta.test.categories.CheckShorts;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -54,11 +46,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import net.sf.ehcache.util.RetryAssert;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.terracotta.test.categories.CheckShorts;
+import static net.sf.ehcache.DiskStoreTest.getDiskStore;
+import static net.sf.ehcache.event.CountingCacheEventListener.getCountingCacheEventListener;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -526,11 +525,12 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
 
         //should trigger a removal notification because it is not Serializable when it is evicted
-        cache.put(new Element(12 + "", new Object()));
+        Element element = new Element(12 + "", new Object(), true);
+        cache.put(element);
 
         for (int i = 0; i < 10; i++) {
             // use non-serializable object for all values
-            cache.put(new Element(i + "", new Object()));
+            cache.put(new Element(i + "", new Object(), true));
             cache.get(i + "");
         }
         DiskStoreHelper.flushAllEntriesToDisk((Cache)cache).get();

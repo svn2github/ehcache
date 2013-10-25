@@ -152,6 +152,14 @@ public class TerracottaClient {
             shutdownClusteredInstanceFactoryWrapper(clusteredInstanceFactory);
         }
     }
+    
+    /**
+     * Wait for the Orchestrator for this CacheManager
+     * @param cacheManagerName
+     */
+    public void waitForOrchestrator(String cacheManagerName) {
+        clusteredInstanceFactory.waitForOrchestrator(cacheManagerName);
+    }
 
     private void shutdownClusteredInstanceFactoryWrapper(ClusteredInstanceFactoryWrapper clusteredInstanceFactory) {
         clusteredInstanceFactory.getActualFactory().getTopology().removeAllListeners();

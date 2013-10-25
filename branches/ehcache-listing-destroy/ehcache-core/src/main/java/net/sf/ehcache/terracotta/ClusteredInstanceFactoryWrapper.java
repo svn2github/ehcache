@@ -136,4 +136,11 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     public void linkClusteredCacheManager(String cacheManagerName, Configuration configuration) {
         delegate.linkClusteredCacheManager(cacheManagerName, configuration);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void waitForOrchestrator(String cacheManagerName) {
+        delegate.waitForOrchestrator(cacheManagerName);
+    }
 }

@@ -123,6 +123,10 @@ public interface ToolkitInstanceFactory {
                                                                              String cacheName,
                                                                              CacheConfiguration ehcacheConfig);
 
+  void waitForOrchestrator(String cacheManagerName);
+
+  void markCacheWanDisabled(String cacheManagerName, String cacheName);
+
   /**
    * Links a terracotta enabled cache manager to the cluster
    *
