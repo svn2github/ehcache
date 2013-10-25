@@ -174,7 +174,7 @@ public class ToolkitInstanceFactoryImplTest {
     when(clusteredEntityManager.getRootEntity(cacheMgrName, ClusteredCacheManager.class))
         .thenReturn(new ClusteredCacheManager(cacheMgrName, new ClusteredCacheManagerConfiguration(defaultCMConfig), toolkit));
 
-    toolkitInstanceFactory.addCacheEntityInfo(cacheName, cacheConfig, cacheMgrName);
+    toolkitInstanceFactory.addCacheEntityInfo(cacheName, cacheConfig, cacheMgrName, "testTKCacheName");
   }
 
   @Test

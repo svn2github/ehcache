@@ -193,7 +193,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final String fullyQualifiedCacheName = getToolkitCacheNameFor(cacheManagerName, cacheName);
     addNonStopConfigForCache(ehcacheConfig, fullyQualifiedCacheName);
     ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateToolkitCache(fullyQualifiedCacheName, toolkitCacheConfig);
-    addCacheEntityInfo(cacheName, ehcacheConfig, cacheManagerName);
+    addCacheEntityInfo(cacheName, ehcacheConfig, cacheManagerName, fullyQualifiedCacheName);
     return toolkitCache;
   }
 
@@ -477,7 +477,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     clusteredCacheManagerEntity = clusteredCacheManager;
   }
 
-  void addCacheEntityInfo(final String cacheName, final CacheConfiguration ehcacheConfig, final String cacheManagerName) {
+  void addCacheEntityInfo(final String cacheName, final CacheConfiguration ehcacheConfig, final String cacheManagerName, String toolkitCacheName) {
     ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName,
                                                                                        ClusteredCacheManager.class);
     if (clusteredCacheManager == null) {
@@ -489,7 +489,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       net.sf.ehcache.config.Configuration configuration = parseCacheManagerConfiguration(clusteredCacheManager.getConfiguration()
           .getConfigurationAsText());
       String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(configuration, ehcacheConfig);
-      cacheEntity = new ClusteredCache(new ClusteredCacheConfiguration(xmlConfig));
+      cacheEntity = new ClusteredCache(toolkitCacheName, new ClusteredCacheConfiguration(xmlConfig));
       try {
         clusteredCacheManager.addCache(cacheName, cacheEntity);
       } catch (IllegalStateException ise) {
