@@ -486,7 +486,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       net.sf.ehcache.config.Configuration configuration = parseCacheManagerConfiguration(clusteredCacheManagerEntity.getConfiguration()
           .getConfigurationAsText());
       String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(configuration, ehcacheConfig);
-      cacheEntity = new ClusteredCache(toolkitCacheName, new ClusteredCacheConfiguration(xmlConfig));
+      cacheEntity = new ClusteredCache(cacheName, new ClusteredCacheConfiguration(xmlConfig), toolkitCacheName);
       try {
           clusteredCacheManagerEntity.addCache(cacheName, cacheEntity);
       } catch (IllegalStateException ise) {
