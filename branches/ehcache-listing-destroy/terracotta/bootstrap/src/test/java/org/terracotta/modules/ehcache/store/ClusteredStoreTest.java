@@ -8,11 +8,20 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
@@ -22,13 +31,6 @@ import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitProperties;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * Test that asserts quickSize is not called when {@link Ehcache} sizing methods are called.
  *
@@ -36,17 +38,17 @@ import static org.mockito.Mockito.when;
  */
 public class ClusteredStoreTest {
 
-  private ToolkitInstanceFactory toolkitInstanceFactory = mock(ToolkitInstanceFactory.class);
-  private Ehcache cache = mock(Ehcache.class);
-  private CacheCluster cacheCluster = mock(CacheCluster.class);
-  private CacheConfiguration cacheConfiguration = new CacheConfiguration().terracotta(new TerracottaConfiguration().clustered(true));
-  private CacheManager cacheManager = mock(CacheManager.class);
-  private ToolkitMap configMap = mock(ToolkitMap.class);
-  private ToolkitInternal toolkitInternal = mock(ToolkitInternal.class);
-  private ToolkitProperties toolkitProperties = mock(ToolkitProperties.class);
-  private ToolkitCacheInternal toolkitCacheInternal = mock(ToolkitCacheInternal.class);
-  private org.terracotta.toolkit.config.Configuration toolkitCacheConfiguration = mock(org.terracotta.toolkit.config.Configuration.class);
-  private ToolkitNotifier toolkitNotifier = mock(ToolkitNotifier.class);
+  private final ToolkitInstanceFactory toolkitInstanceFactory = mock(ToolkitInstanceFactory.class);
+  private final Ehcache cache = mock(Ehcache.class);
+  private final CacheCluster cacheCluster = mock(CacheCluster.class);
+  private final CacheConfiguration cacheConfiguration = new CacheConfiguration().terracotta(new TerracottaConfiguration().clustered(true));
+  private final CacheManager cacheManager = mock(CacheManager.class);
+  private final ToolkitMap configMap = mock(ToolkitMap.class);
+  private final ToolkitInternal toolkitInternal = mock(ToolkitInternal.class);
+  private final ToolkitProperties toolkitProperties = mock(ToolkitProperties.class);
+  private final ToolkitCacheInternal toolkitCacheInternal = mock(ToolkitCacheInternal.class);
+  private final org.terracotta.toolkit.config.Configuration toolkitCacheConfiguration = mock(org.terracotta.toolkit.config.Configuration.class);
+  private final ToolkitNotifier toolkitNotifier = mock(ToolkitNotifier.class);
   private ClusteredStore clusteredStore;
 
 
@@ -55,6 +57,8 @@ public class ClusteredStoreTest {
     when(cache.getCacheConfiguration()).thenReturn(cacheConfiguration);
     when(cache.getCacheManager()).thenReturn(cacheManager);
     when(cache.getName()).thenReturn("ClusteredStoreTest-cache");
+    when(cacheManager.getConfiguration()).thenReturn(new Configuration()
+                                                         .terracotta(new TerracottaClientConfiguration()));
     when(cacheManager.getName()).thenReturn("ClusteredStoreTest-cm");
     when(toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(eq("ClusteredStoreTest-cm"), eq("ClusteredStoreTest-cache"))).thenReturn(configMap);
     when(toolkitInstanceFactory.getToolkit()).thenReturn(toolkitInternal);
