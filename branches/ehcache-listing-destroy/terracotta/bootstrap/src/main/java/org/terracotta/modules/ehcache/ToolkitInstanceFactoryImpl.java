@@ -481,21 +481,46 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       throw new IllegalStateException(format("ClusteredCacheManger entity not configured for cache %s", cacheName));
     }
 
+    ToolkitReadWriteLock toolkitReadWriteLock = clusteredCacheManagerEntity.getCacheLock(cacheName);
     ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
     if (cacheEntity == null) {
-      net.sf.ehcache.config.Configuration configuration = parseCacheManagerConfiguration(clusteredCacheManagerEntity.getConfiguration()
-          .getConfigurationAsText());
-      String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(configuration, ehcacheConfig);
-      cacheEntity = new ClusteredCache(cacheName, new ClusteredCacheConfiguration(xmlConfig), toolkitCacheName);
-      try {
-          clusteredCacheManagerEntity.addCache(cacheName, cacheEntity);
-      } catch (IllegalStateException ise) {
-        cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
+      ToolkitLock writeLock = toolkitReadWriteLock.writeLock();
+      while (true) {
+        if (writeLock.tryLock()) {
+          try {
+            cacheEntity = createClusteredCacheEntity(cacheName, ehcacheConfig, toolkitCacheName);
+            break;
+          } finally {
+            writeLock.unlock();
+          }
+        } else {
+          cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
+          if (cacheEntity != null) {
+            break;
+          }
+        }
       }
     }
     // TODO check some config elements
-    ToolkitReadWriteLock toolkitReadWriteLock = clusteredCacheManagerEntity.getCacheLock(cacheName);
     toolkitReadWriteLock.readLock().lock();
+  }
+
+  private ClusteredCache createClusteredCacheEntity(String cacheName, CacheConfiguration ehcacheConfig, String toolkitCacheName) {
+    ClusteredCache cacheEntity;ClusteredCacheConfiguration clusteredConfiguration = createClusteredCacheConfiguration(ehcacheConfig);
+    cacheEntity = new ClusteredCache(cacheName, clusteredConfiguration, toolkitCacheName);
+    try {
+        clusteredCacheManagerEntity.addCache(cacheName, cacheEntity);
+    } catch (IllegalStateException ise) {
+      cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
+    }
+    return cacheEntity;
+  }
+
+  private ClusteredCacheConfiguration createClusteredCacheConfiguration(CacheConfiguration ehcacheConfig) {
+    net.sf.ehcache.config.Configuration configuration = parseCacheManagerConfiguration(clusteredCacheManagerEntity.getConfiguration()
+        .getConfigurationAsText());
+    String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(configuration, ehcacheConfig);
+    return new ClusteredCacheConfiguration(xmlConfig);
   }
 
   @Override

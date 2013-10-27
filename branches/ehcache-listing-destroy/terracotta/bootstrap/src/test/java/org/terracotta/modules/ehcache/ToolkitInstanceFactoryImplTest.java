@@ -76,9 +76,12 @@ public class ToolkitInstanceFactoryImplTest {
     MockitoAnnotations.initMocks(this);
     toolkit = mock(Toolkit.class);
     when(toolkit.getMap(anyString(), any(Class.class), any(Class.class))).thenReturn(mock(ToolkitMap.class));
-    ToolkitReadWriteLock lock = mock(ToolkitReadWriteLock.class);
-    when(lock.readLock()).thenReturn(mock(ToolkitLock.class));
-    when(toolkit.getReadWriteLock(any(String.class))).thenReturn(lock);
+    ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
+    ToolkitLock lock = mock(ToolkitLock.class);
+    when(lock.tryLock()).thenReturn(true);
+    when(rwLock.readLock()).thenReturn(lock);
+    when(rwLock.writeLock()).thenReturn(lock);
+    when(toolkit.getReadWriteLock(any(String.class))).thenReturn(rwLock);
     makeToolkitReturnNonStopConfigurationRegistry();
 
     wanUtil = mock(WANUtil.class);
