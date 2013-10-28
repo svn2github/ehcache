@@ -82,14 +82,6 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void enableNonStopForCurrentThread(boolean enable) {
-        delegate.enableNonStopForCurrentThread(enable);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public CacheEventListener createEventReplicator(Ehcache cache) {
         return delegate.createEventReplicator(cache);
     }
