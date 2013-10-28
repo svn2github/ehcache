@@ -63,7 +63,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
-import static com.terracotta.entity.ehcache.ClusteredCacheManager.getToolkitCacheNameFor;
 import static java.lang.String.format;
 
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
@@ -181,7 +180,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final ToolkitCacheInternal<String, Serializable> toolkitCache =
         getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
 
-    final String fullyQualifiedCacheName = getToolkitCacheNameFor(cacheManagerName, cacheName);
+    final String fullyQualifiedCacheName = ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName);
     final ToolkitMap<String, Serializable> configMap = getOrCreateConfigMap(fullyQualifiedCacheName);
     return new WanAwareToolkitCache<String, Serializable>(toolkitCache, configMap);
   }
@@ -190,7 +189,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                                                                     final String cacheName,
                                                                                     final CacheConfiguration ehcacheConfig) {
     final Configuration toolkitCacheConfig = createClusteredCacheConfig(ehcacheConfig, cacheManagerName);
-    final String fullyQualifiedCacheName = getToolkitCacheNameFor(cacheManagerName, cacheName);
+    final String fullyQualifiedCacheName = ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName);
     addNonStopConfigForCache(ehcacheConfig, fullyQualifiedCacheName);
     ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateToolkitCache(fullyQualifiedCacheName, toolkitCacheConfig);
     addCacheEntityInfo(cacheName, ehcacheConfig, fullyQualifiedCacheName);
@@ -209,7 +208,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   private ToolkitNotifier<CacheConfigChangeNotificationMsg> getOrCreateConfigChangeNotifier(String cacheManagerName, String cacheName) {
-    return toolkit.getNotifier(getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER + CONFIG_NOTIFIER_SUFFIX,
+    return toolkit.getNotifier(ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER + CONFIG_NOTIFIER_SUFFIX,
         CacheConfigChangeNotificationMsg.class);
   }
 
@@ -220,12 +219,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitNotifier<CacheDisposalNotification> getOrCreateCacheDisposalNotifier(Ehcache cache) {
-    return toolkit.getNotifier(getToolkitCacheNameFor(cache.getCacheManager().getName(), cache.getName())
+    return toolkit.getNotifier(ClusteredCacheManager.getToolkitCacheNameFor(cache.getCacheManager().getName(), cache.getName())
                                + DELIMITER + DISPOSAL_NOTIFIER_SUFFIX, CacheDisposalNotification.class);
   }
 
   private ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(String cacheManagerName, String cacheName) {
-    return toolkit.getNotifier(getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER + EVENT_NOTIFIER_SUFFIX,
+    return toolkit.getNotifier(ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER + EVENT_NOTIFIER_SUFFIX,
         CacheEventNotificationMsg.class);
   }
 
@@ -297,7 +296,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public String getFullyQualifiedCacheName(Ehcache cache) {
-    return getToolkitCacheNameFor(getCacheManagerName(cache), cache.getName());
+    return ClusteredCacheManager.getToolkitCacheNameFor(getCacheManagerName(cache), cache.getName());
   }
 
   private static String getCacheManagerName(Ehcache cache) {
@@ -338,7 +337,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     Configuration config = new ToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.STRONG).build();
     ToolkitCache<String, SerializedReadCommittedClusteredSoftLock> map = toolkit
-        .getCache(getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX,
+        .getCache(ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX,
                   config, SerializedReadCommittedClusteredSoftLock.class);
     return new SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock>(map);
 
@@ -347,7 +346,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public ToolkitMap<SerializedReadCommittedClusteredSoftLock, Integer> getOrCreateNewSoftLocksSet(String cacheManagerName,
                                                                                                   String cacheName) {
-    return toolkit.getMap(getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
+    return toolkit.getMap(ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
                           + NEW_SOFT_LOCKS_LIST_SUFFIX, SerializedReadCommittedClusteredSoftLock.class, Integer.class);
   }
 
@@ -364,7 +363,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
-    return getOrCreateConfigMap(getToolkitCacheNameFor(cacheManagerName, cacheName));
+    return getOrCreateConfigMap(ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName));
   }
 
   private ToolkitMap<String, Serializable> getOrCreateConfigMap(final String fullyQualifiedCacheName) {
@@ -387,7 +386,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public ToolkitLock getSoftLockWriteLock(String cacheManagerName, String cacheName, TransactionID transactionID,
                                           Object key) {
 
-    return toolkit.getLock(getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
+    return toolkit.getLock(ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
                            + serializeToString(transactionID) + DELIMITER + serializeToString(key) + DELIMITER
                            + EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME);
   }
@@ -411,7 +410,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public ToolkitReadWriteLock getSoftLockFreezeLock(String cacheManagerName, String cacheName,
                                                     TransactionID transactionID, Object key) {
 
-    return toolkit.getReadWriteLock(getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
+    return toolkit.getReadWriteLock(ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
                                     + serializeToString(transactionID) + DELIMITER + serializeToString(key) + DELIMITER
                                     + EHCACHE_TXNS_SOFTLOCK_FREEZE_LOCK_NAME);
   }
@@ -420,7 +419,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public ToolkitReadWriteLock getSoftLockNotifierLock(String cacheManagerName, String cacheName,
                                                       TransactionID transactionID, Object key) {
 
-    return toolkit.getReadWriteLock(getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
+    return toolkit.getReadWriteLock(ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
                                     + serializeToString(transactionID) + DELIMITER + serializeToString(key) + DELIMITER
                                     + EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME);
   }
@@ -431,7 +430,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     getOrCreateNewSoftLocksSet(cacheManagerName, cacheName).destroy();
     getOrCreateCacheEventNotifier(cacheManagerName, cacheName).destroy();
     getOrCreateConfigChangeNotifier(cacheManagerName, cacheName).destroy();
-    getOrCreateToolkitCache(getToolkitCacheNameFor(cacheManagerName, cacheName),
+    getOrCreateToolkitCache(ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName),
         new ToolkitCacheConfigBuilder().maxCountLocalHeap(1)
             .maxBytesLocalOffheap(0)
             .build()).destroy();
