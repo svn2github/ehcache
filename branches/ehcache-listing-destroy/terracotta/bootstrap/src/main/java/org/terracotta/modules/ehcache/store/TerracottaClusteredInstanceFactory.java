@@ -35,7 +35,7 @@ import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
 import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 
-import com.terracotta.entity.ehcache.ClusteredCacheManager;
+import com.terracotta.entity.ehcache.EhcacheEntitiesNaming;
 
 import java.util.concurrent.Callable;
 
@@ -174,7 +174,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   }
 
   public static String getToolkitMapNameForCache(String cacheManagerName, String cacheName) {
-    return ClusteredCacheManager.getToolkitCacheNameFor(cacheManagerName, cacheName);
+    return EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName);
   }
 
   @Override
