@@ -73,6 +73,13 @@ public interface ClusteredInstanceFactory {
     String getUUID();
 
     /**
+     * Enable or disable NonStop for the current thread only.
+     *
+     * @param enable true to enable NonStop, false otherwise.
+     */
+    void enableNonStopForCurrentThread(boolean enable);
+
+    /**
      * Cleans up any resources left behind after the shutdown of the associated CacheManager
      */
     void shutdown();

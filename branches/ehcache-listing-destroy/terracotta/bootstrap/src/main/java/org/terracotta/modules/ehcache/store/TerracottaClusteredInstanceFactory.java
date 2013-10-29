@@ -33,7 +33,9 @@ import org.terracotta.modules.ehcache.transaction.ClusteredTransactionIDFactory;
 import org.terracotta.modules.ehcache.transaction.SoftLockManagerProvider;
 import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
 import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
+import org.terracotta.toolkit.ToolkitFeatureTypeInternal;
 import org.terracotta.toolkit.internal.ToolkitInternal;
+import org.terracotta.toolkit.internal.feature.NonStopInternalFeature;
 
 import com.terracotta.entity.ehcache.EhcacheEntitiesNaming;
 
@@ -138,6 +140,14 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   @Override
   public String getUUID() {
     return ((ToolkitInternal) toolkitInstanceFactory.getToolkit()).getClientUUID();
+  }
+
+  @Override
+  public void enableNonStopForCurrentThread(boolean enable) {
+    NonStopInternalFeature nonStopInternalFeature = ((ToolkitInternal)toolkitInstanceFactory.getToolkit()).getFeature(ToolkitFeatureTypeInternal.NONSTOP);
+    if (nonStopInternalFeature != null) {
+      nonStopInternalFeature.enableForCurrentThread(enable);
+    }
   }
 
   @Override

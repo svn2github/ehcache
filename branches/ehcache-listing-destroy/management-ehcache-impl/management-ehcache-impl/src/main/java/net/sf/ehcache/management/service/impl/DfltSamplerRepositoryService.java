@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -22,6 +23,7 @@ import javax.management.ObjectName;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.ClusteredInstanceFactoryAccessor;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.event.CacheManagerEventListener;
@@ -39,6 +41,7 @@ import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.SamplerRepositoryService;
+import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +96,13 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
     this.configuration = configuration;
     if (clientUUID != null) {
       registerMBean(clientUUID);
+    }
+  }
+
+  private static void enableNonStopFor(SamplerRepoEntry samplerRepoEntry, boolean enable) {
+    ClusteredInstanceFactory clusteredInstanceFactory = ClusteredInstanceFactoryAccessor.getClusteredInstanceFactory(samplerRepoEntry.cacheManager);
+    if (clusteredInstanceFactory != null) {
+      clusteredInstanceFactory.enableNonStopForCurrentThread(enable);
     }
   }
 
@@ -288,9 +298,13 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
     cacheManagerSamplerRepoLock.readLock().lock();
 
+    List<SamplerRepoEntry> disabledSamplerRepoEntries = new ArrayList<SamplerRepoEntry>();
+
     try {
       if (cacheManagerNames == null) {
         for (Map.Entry<String, SamplerRepoEntry> entry : cacheManagerSamplerRepo.entrySet()) {
+          enableNonStopFor(entry.getValue(), false);
+          disabledSamplerRepoEntries.add(entry.getValue());
           for (CacheSampler sampler : entry.getValue().getComprehensiveCacheSamplers(cacheNames)) {
             builder = builder == null ? CacheEntityBuilder.createWith(sampler, entry.getKey()) : builder
                 .add(sampler, entry.getKey());
@@ -300,6 +314,8 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
         for (String cmName : cacheManagerNames) {
           SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cmName);
           if (entry != null) {
+            enableNonStopFor(entry, false);
+            disabledSamplerRepoEntries.add(entry);
             for (CacheSampler sampler : entry.getComprehensiveCacheSamplers(cacheNames)) {
               builder = builder == null ? CacheEntityBuilder.createWith(sampler, cmName) : builder.add(sampler, cmName);
             }
@@ -309,6 +325,9 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
       if (builder == null) entities = new HashSet<CacheEntity>(0);
       else entities = attributes == null ? builder.build() : builder.add(attributes).build();
     } finally {
+      for (SamplerRepoEntry samplerRepoEntry : disabledSamplerRepoEntries) {
+        enableNonStopFor(samplerRepoEntry, true);
+      }
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
 
@@ -361,9 +380,13 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
     cacheManagerSamplerRepoLock.readLock().lock();
 
+    List<SamplerRepoEntry> disabledSamplerRepoEntries = new ArrayList<SamplerRepoEntry>();
+
     try {
       if (cacheManagerNames == null) {
         for (Map.Entry<String, SamplerRepoEntry> entry : cacheManagerSamplerRepo.entrySet()) {
+          enableNonStopFor(entry.getValue(), false);
+          disabledSamplerRepoEntries.add(entry.getValue());
           for (CacheSampler sampler : entry.getValue().getComprehensiveCacheSamplers(cacheNames)) {
             builder.add(sampler, entry.getKey());
           }
@@ -372,6 +395,8 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
         for (String cmName : cacheManagerNames) {
           SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cmName);
           if (entry != null) {
+            enableNonStopFor(entry, false);
+            disabledSamplerRepoEntries.add(entry);
             for (CacheSampler sampler : entry.getComprehensiveCacheSamplers(cacheNames)) {
               builder.add(sampler, cmName);
             }
@@ -381,6 +406,9 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
       return builder.build();
     } finally {
+      for (SamplerRepoEntry samplerRepoEntry : disabledSamplerRepoEntries) {
+        enableNonStopFor(samplerRepoEntry, true);
+      }
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
   }
@@ -407,10 +435,12 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
                          String cacheName) {
     cacheManagerSamplerRepoLock.readLock().lock();
 
+    SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
     try {
-      SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
+      enableNonStopFor(entry, false);
       if (entry != null) entry.clearCache(cacheName);
     } finally {
+      enableNonStopFor(entry, true);
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
   }
@@ -446,14 +476,19 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
     try {
       SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
       if (entry != null) {
-        CacheManagerSampler cms = entry.getCacheManagerSampler();
-        return buildQueryResultsEntity(cacheManagerName, cms.executeQuery(queryString));
+        try {
+          enableNonStopFor(entry, false);
+          CacheManagerSampler cms = entry.getCacheManagerSampler();
+          return buildQueryResultsEntity(cacheManagerName, cms.executeQuery(queryString));
+        } catch (Exception e) {
+          Throwable t = ExceptionUtils.getRootCause(e);
+          throw new ServiceExecutionException(t.getMessage());
+        } finally {
+          enableNonStopFor(entry, true);
+        }
       } else {
         throw new ServiceExecutionException("CacheManager not found !");
       }
-    } catch (Exception e) {
-      Throwable t = ExceptionUtils.getRootCause(e);
-      throw new ServiceExecutionException(t.getMessage());
     } finally {
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
@@ -464,9 +499,9 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
     qre.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
     qre.setVersion(this.getClass().getPackage().getImplementationVersion());
-	qre.setName(cacheManagerName);
-	qre.setData(data);
-	
+    qre.setName(cacheManagerName);
+    qre.setData(data);
+
     return Collections.singleton(qre);
   }
   

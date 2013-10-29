@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -84,6 +85,7 @@ import net.sf.ehcache.event.CountingCacheEventListener;
 import net.sf.ehcache.event.CountingCacheEventListenerFactory;
 import net.sf.ehcache.event.RegisteredEventListeners;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.terracotta.TerracottaClient;
 import net.sf.ehcache.util.MemorySizeParser;
 
 import org.hamcrest.collection.IsCollectionWithSize;
@@ -1535,8 +1537,25 @@ public class CacheManagerTest {
       }
    }
 
+    @Test
+    public void testClusteredInstanceFactoryAccessor() throws Exception {
+        /*
+        This test makes sure that the ClusteredInstanceFactoryAccessor class
+        used by the management agent doesn't break since it relies on this reflection code.
+        If you break this test, make sure you also check ClusteredInstanceFactoryAccessorTest.
+         */
+        CacheManager manager = new CacheManager(new Configuration());
+        try {
+            Field field = CacheManager.class.getDeclaredField("terracottaClient");
+            field.setAccessible(true);
+            TerracottaClient terracottaClient = (TerracottaClient)field.get(manager);
+            terracottaClient.getClusteredInstanceFactory();
+        } finally {
+            manager.shutdown();
+        }
+    }
 
-   private static Set<Thread> getStatisticThreads() {
+    private static Set<Thread> getStatisticThreads() {
       Set<Thread> threads = new HashSet<Thread>();
       for (Thread thread : Thread.getAllStackTraces().keySet()) {
          if (thread.getName().startsWith(STATISTIC_THREAD_NAME)) {
