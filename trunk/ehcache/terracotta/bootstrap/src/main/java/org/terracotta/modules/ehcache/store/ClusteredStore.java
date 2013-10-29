@@ -138,9 +138,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
       keyLookupCache = null;
     }
 
-    if (!cache.getCacheManager().getConfiguration().getTerracottaConfiguration().isWanEnabledTSA()) {
-      toolkitInstanceFactory.markCacheWanDisabled(cache.getCacheManager().getName(), cache.getName());
-    }
+    setUpWanConfig();
 
     ToolkitInternal toolkitInternal = (ToolkitInternal) toolkitInstanceFactory.getToolkit();
     checkContainsKeyOnPut = toolkitInternal.getProperties().getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME);
@@ -166,6 +164,12 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
     eventualConcurrentLock = toolkitInternal.getLock("EVENTUAL-CONCURRENT-LOCK-FOR-CLUSTERED-STORE",
                                                      ToolkitLockTypeInternal.CONCURRENT);
     isEventual = (terracottaConfiguration.getConsistency() == Consistency.EVENTUAL);
+  }
+
+  void setUpWanConfig() {
+    if (!cache.getCacheManager().getConfiguration().getTerracottaConfiguration().isWanEnabledTSA()) {
+      toolkitInstanceFactory.markCacheWanDisabled(cache.getCacheManager().getName(), cache.getName());
+    }
   }
 
   public String getFullyQualifiedCacheName() {

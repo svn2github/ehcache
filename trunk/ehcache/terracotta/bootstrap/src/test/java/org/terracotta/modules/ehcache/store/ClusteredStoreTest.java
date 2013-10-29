@@ -64,7 +64,13 @@ public class ClusteredStoreTest {
     when(toolkitCacheInternal.getConfiguration()).thenReturn(toolkitCacheConfiguration);
     when(toolkitCacheConfiguration.getInt(anyString())).thenReturn(1);
     when(toolkitInstanceFactory.getOrCreateConfigChangeNotifier(eq(cache))).thenReturn(toolkitNotifier);
-    clusteredStore = new ClusteredStore(toolkitInstanceFactory, cache, cacheCluster);
+    clusteredStore = new ClusteredStore(toolkitInstanceFactory, cache, cacheCluster) {
+      @Override
+      void setUpWanConfig() {
+        // Do Nothing
+      }
+    };
+    
   }
 
   @Test
