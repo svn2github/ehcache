@@ -33,6 +33,7 @@ import org.terracotta.toolkit.nonstop.NonStopConfigurationRegistry;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
 
 import com.terracotta.entity.ClusteredEntityManager;
+import com.terracotta.entity.EntityLockHandler;
 import com.terracotta.entity.ehcache.ClusteredCache;
 import com.terracotta.entity.ehcache.ClusteredCacheManager;
 import com.terracotta.entity.ehcache.ClusteredCacheManagerConfiguration;
@@ -95,7 +96,9 @@ public class ToolkitInstanceFactoryImplTest {
     when(ehcache.getCacheConfiguration()).thenReturn(configuration);
 
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
-    ClusteredCacheManager clusteredCacheManager = new ToolkitBackedClusteredCacheManager("aName", new ClusteredCacheManagerConfiguration(defaultCMConfig), toolkit);
+    ToolkitBackedClusteredCacheManager clusteredCacheManager = new ToolkitBackedClusteredCacheManager("aName", new ClusteredCacheManagerConfiguration(defaultCMConfig));
+    clusteredCacheManager.setToolkit(toolkit);
+    clusteredCacheManager.setEntityLockHandler(mock(EntityLockHandler.class));
     when(clusteredEntityManager.getRootEntity(any(String.class), any(Class.class))).thenReturn(clusteredCacheManager);
     factory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
     factory.setWANUtil(wanUtil);
@@ -183,7 +186,7 @@ public class ToolkitInstanceFactoryImplTest {
 
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
     when(clusteredEntityManager.getRootEntity(name, ClusteredCacheManager.class))
-        .thenReturn(new ToolkitBackedClusteredCacheManager(name, new ClusteredCacheManagerConfiguration("test"), toolkit));
+        .thenReturn(new ToolkitBackedClusteredCacheManager(name, new ClusteredCacheManagerConfiguration("test")));
 
     ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
                                                                                        clusteredEntityManager);

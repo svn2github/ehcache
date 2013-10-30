@@ -468,7 +468,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     if (clusteredCacheManager == null) {
       String xmlConfig = convertConfigurationToXML(configuration, cacheManagerName);
       clusteredCacheManager = new ToolkitBackedClusteredCacheManager(cacheManagerName,
-                                                        new ClusteredCacheManagerConfiguration(xmlConfig), toolkit);
+                                                        new ClusteredCacheManagerConfiguration(xmlConfig));
       try {
         clusteredEntityManager.addRootEntity(cacheManagerName, ClusteredCacheManager.class, clusteredCacheManager);
       } catch (IllegalStateException isex) {
@@ -504,7 +504,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       }
     }
     // TODO check some config elements
-    toolkitReadWriteLock.readLock().lock();
+    clusteredCacheManagerEntity.markCacheInUse(cacheEntity);
   }
 
   private ClusteredCache createClusteredCacheEntity(String cacheName, CacheConfiguration ehcacheConfig, String toolkitCacheName) {
@@ -528,7 +528,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public void unlinkCache(String cacheName) {
     try {
-      clusteredCacheManagerEntity.getCacheLock(cacheName).readLock().unlock();
+      ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
+      clusteredCacheManagerEntity.releaseCacheUse(cacheEntity);
     } catch (Exception e) {
       // TODO handle exception
     }
