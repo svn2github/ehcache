@@ -330,6 +330,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public void shutdown() {
+    clusteredEntityManager.dispose();
     toolkit.shutdown();
   }
 
