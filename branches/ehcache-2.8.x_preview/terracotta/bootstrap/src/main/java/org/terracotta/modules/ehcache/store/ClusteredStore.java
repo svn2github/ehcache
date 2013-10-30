@@ -68,7 +68,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.swing.event.EventListenerList;
 
-public class ClusteredStore implements TerracottaStore, StoreListener  {
+public class ClusteredStore implements TerracottaStore, StoreListener {
 
   private static final Logger                                LOG                                     = LoggerFactory
                                                                                                          .getLogger(ClusteredStore.class
@@ -282,14 +282,14 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
   public void putAll(Collection<Element> elements) throws CacheException {
     Map<String, Serializable> entries = new HashMap<String, Serializable>();
     for (Element element : elements) {
-      if (!element.usesCacheDefaultLifespan()) {
-        // TODO: support custom lifespan with putAll
-        throw new UnsupportedOperationException("putAll() doesn't support custom lifespan");
-      }
       String pKey = generatePortableKeyFor(element.getObjectKey());
-      // extractSearchAttributes(element);
-      ElementData elementData = valueModeHandler.createElementData(element);
-      entries.put(pKey, elementData);
+      if (!element.usesCacheDefaultLifespan()) {
+        doPutWithCustomLifespan(pKey, element);
+      } else {
+        // extractSearchAttributes(element);
+        ElementData elementData = valueModeHandler.createElementData(element);
+        entries.put(pKey, elementData);
+      }
     }
     backend.putAll(entries);
   }
@@ -437,9 +437,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
   @Override
   public Element replace(Element element) throws NullPointerException {
     // TODO: Revisit
-    if (isEventual) {
-        throw new UnsupportedOperationException("CAS operations are not supported in eventual consistency mode, consider using a StronglyConsistentCacheAccessor");
-    }
+    if (isEventual) { throw new UnsupportedOperationException(
+                                                              "CAS operations are not supported in eventual consistency mode, consider using a StronglyConsistentCacheAccessor"); }
     String pKey = generatePortableKeyFor(element.getKey());
     ToolkitReadWriteLock lock = backend.createLockForKey(pKey);
     lock.writeLock().lock();
