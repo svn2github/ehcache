@@ -82,6 +82,8 @@ public class WANUtil {
     ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
     Boolean existingValue = (Boolean) cacheConfigMap.putIfAbsent(WAN_ENABLED_CACHE_ENTRY, Boolean.TRUE);
     if ((existingValue != null) && (existingValue.equals(Boolean.FALSE))) {
+      LOGGER.error("A Client with cache '{}' exists with non WAN configuration. "
+                   + "Please check your client's ehcache.xml and add 'wanEnabledTSA = true'", cacheName);
       throw new IllegalConfigurationException("Cache '" + cacheName + "' is already marked as disabled for WAN");
     }
     LOGGER.info("Marked the cache '{}' wan enabled for CacheManager '{}'", cacheName, cacheManagerName);
@@ -97,6 +99,8 @@ public class WANUtil {
     ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
     Boolean existingValue = (Boolean) cacheConfigMap.putIfAbsent(WAN_ENABLED_CACHE_ENTRY, Boolean.FALSE);
     if ((existingValue != null) && (existingValue.equals(Boolean.TRUE))) {
+      LOGGER.error("A WAN Orchestrator already exists for cache '{}'. This client should be wan-enabled. "
+                   + "Please check your client's ehcache.xml and add 'wanEnabledTSA = true'", cacheName);
       throw new IllegalConfigurationException("Cache '" + cacheName + "' is already marked as enabled for WAN");
     }
     LOGGER.info("Marked the cache '{}' wan disabled for CacheManager '{}'", cacheName, cacheManagerName);
