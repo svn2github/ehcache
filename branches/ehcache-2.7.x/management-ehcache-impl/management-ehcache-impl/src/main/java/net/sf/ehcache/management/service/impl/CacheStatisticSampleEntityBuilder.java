@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -109,7 +110,13 @@ final class CacheStatisticSampleEntityBuilder {
       csse.setVersion(this.getClass().getPackage().getImplementationVersion());
       csse.setStatName(AccessorPrefix.trimPrefix(sampleMethod.getName()).replace(SAMPLE_SUFFIX, ""));
 
-      TimeStampedCounterValue[] tscvs = sCntr.getAllSampleValues();
+      TimeStampedCounterValue[] tscvs;
+      if (getExcludedMethodNames(sampler).contains(sampleMethod.getName())) {
+        tscvs = new TimeStampedCounterValue[0];
+      } else {
+        tscvs = sCntr.getAllSampleValues();
+      }
+
       Map<Long, Long> statValueByTime = new TreeMap<Long, Long>();
       csse.setStatValueByTimeMillis(statValueByTime);
 
@@ -120,6 +127,13 @@ final class CacheStatisticSampleEntityBuilder {
     }
 
     return null;
+  }
+
+  private Set<String> getExcludedMethodNames(CacheSampler sampler) {
+    if (sampler.isLocalHeapCountBased()) {
+      return Collections.singleton("getLocalHeapSizeInBytesSample");
+    }
+    return Collections.emptySet();
   }
 
   private void addSampler(CacheSampler sampler,
