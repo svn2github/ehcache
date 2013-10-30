@@ -1377,6 +1377,12 @@ public class CacheManager {
                     + "use CacheManager.addDecoratedCache" + "(Ehcache decoratedCache) instead.");
         }
 
+        if (cache.getCacheConfiguration().isTerracottaClustered() && terracottaClient.getClusteredInstanceFactory() == null) {
+            throw new CacheException(String.format("Trying to add terracotta cache %s but no <terracottaConfig> element was " +
+                                                   "used to specify the Terracotta configuration on the CacheManager %s.",
+                                                    cache.getName(), getName()));
+        }
+
         Ehcache ehcache = ehcaches.get(cache.getName());
         if (ehcache != null) {
             if (strict) {
