@@ -330,6 +330,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public void shutdown() {
+    clusteredCacheManagerEntity.releaseUse();
     clusteredEntityManager.dispose();
     toolkit.shutdown();
   }
@@ -467,16 +468,38 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   public void linkClusteredCacheManager(String cacheManagerName, net.sf.ehcache.config.Configuration configuration) {
     ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
     if (clusteredCacheManager == null) {
-      String xmlConfig = convertConfigurationToXML(configuration, cacheManagerName);
-      clusteredCacheManager = new ToolkitBackedClusteredCacheManager(cacheManagerName,
-                                                        new ClusteredCacheManagerConfiguration(xmlConfig));
-      try {
-        clusteredEntityManager.addRootEntity(cacheManagerName, ClusteredCacheManager.class, clusteredCacheManager);
-      } catch (IllegalStateException isex) {
-        clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
+      ToolkitReadWriteLock cmRWLock = clusteredEntityManager.getEntityLock(EhcacheEntitiesNaming.getCacheManagerLockNameFor(cacheManagerName));
+      ToolkitLock cmWriteLock = cmRWLock.writeLock();
+      while (true) {
+        if (cmWriteLock.tryLock()) {
+          try {
+            clusteredCacheManager = createClusteredCacheManagerEntity(cacheManagerName, configuration);
+          } finally {
+            cmWriteLock.unlock();
+          }
+        } else {
+          clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
+        }
+        if (clusteredCacheManager != null) {
+          break;
+        }
       }
     }
     clusteredCacheManagerEntity = clusteredCacheManager;
+    clusteredCacheManagerEntity.markInUse();
+  }
+
+  private ClusteredCacheManager createClusteredCacheManagerEntity(String cacheManagerName, net.sf.ehcache.config.Configuration configuration) {
+    ClusteredCacheManager clusteredCacheManager;
+    String xmlConfig = convertConfigurationToXML(configuration, cacheManagerName);
+    clusteredCacheManager = new ToolkitBackedClusteredCacheManager(cacheManagerName,
+        new ClusteredCacheManagerConfiguration(xmlConfig));
+    try {
+      clusteredEntityManager.addRootEntity(cacheManagerName, ClusteredCacheManager.class, clusteredCacheManager);
+    } catch (IllegalStateException isex) {
+      clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
+    }
+    return clusteredCacheManager;
   }
 
   void addCacheEntityInfo(final String cacheName, final CacheConfiguration ehcacheConfig, String toolkitCacheName) {
@@ -484,23 +507,22 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       throw new IllegalStateException(format("ClusteredCacheManger entity not configured for cache %s", cacheName));
     }
 
-    ToolkitReadWriteLock toolkitReadWriteLock = clusteredCacheManagerEntity.getCacheLock(cacheName);
     ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
     if (cacheEntity == null) {
-      ToolkitLock writeLock = toolkitReadWriteLock.writeLock();
+      ToolkitReadWriteLock cacheRWLock = clusteredCacheManagerEntity.getCacheLock(cacheName);
+      ToolkitLock cacheWriteLock = cacheRWLock.writeLock();
       while (true) {
-        if (writeLock.tryLock()) {
+        if (cacheWriteLock.tryLock()) {
           try {
             cacheEntity = createClusteredCacheEntity(cacheName, ehcacheConfig, toolkitCacheName);
-            break;
           } finally {
-            writeLock.unlock();
+            cacheWriteLock.unlock();
           }
         } else {
           cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
-          if (cacheEntity != null) {
-            break;
-          }
+        }
+        if (cacheEntity != null) {
+          break;
         }
       }
     }

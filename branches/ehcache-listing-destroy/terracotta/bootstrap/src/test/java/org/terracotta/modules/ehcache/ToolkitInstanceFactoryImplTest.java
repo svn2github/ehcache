@@ -20,6 +20,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.terracotta.modules.ehcache.wan.WANUtil;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFeatureType;
@@ -37,6 +39,7 @@ import com.terracotta.entity.EntityLockHandler;
 import com.terracotta.entity.ehcache.ClusteredCache;
 import com.terracotta.entity.ehcache.ClusteredCacheManager;
 import com.terracotta.entity.ehcache.ClusteredCacheManagerConfiguration;
+import com.terracotta.entity.ehcache.EhcacheEntitiesNaming;
 import com.terracotta.entity.ehcache.ToolkitBackedClusteredCacheManager;
 
 import java.io.Serializable;
@@ -50,6 +53,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -185,8 +189,10 @@ public class ToolkitInstanceFactoryImplTest {
     when(toolkit.getMap(anyString(), eq(String.class), eq(ClusteredCache.class))).thenReturn(mock(ToolkitMap.class));
 
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+    ToolkitBackedClusteredCacheManager cacheManagerEntity = new ToolkitBackedClusteredCacheManager(name, new ClusteredCacheManagerConfiguration("test"));
+    cacheManagerEntity.setEntityLockHandler(mock(EntityLockHandler.class));
     when(clusteredEntityManager.getRootEntity(name, ClusteredCacheManager.class))
-        .thenReturn(new ToolkitBackedClusteredCacheManager(name, new ClusteredCacheManagerConfiguration("test")));
+        .thenReturn(cacheManagerEntity);
 
     ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
                                                                                        clusteredEntityManager);
@@ -203,12 +209,26 @@ public class ToolkitInstanceFactoryImplTest {
     net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
 
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+    doAnswer(new Answer() {
+      @Override
+      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        Object[] arguments = invocationOnMock.getArguments();
+        ((ToolkitBackedClusteredCacheManager)arguments[2]).setEntityLockHandler(mock(EntityLockHandler.class));
+        return null;
+      }
+    }).when(clusteredEntityManager).addRootEntity(eq(name), eq(ClusteredCacheManager.class), any(ClusteredCacheManager.class));
+    ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
+    ToolkitLock writeLock = mock(ToolkitLock.class);
+    when(writeLock.tryLock()).thenReturn(true);
+    when(rwLock.writeLock()).thenReturn(writeLock);
+    when(clusteredEntityManager.getEntityLock(any(String.class))).thenReturn(rwLock);
 
     ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
                                                                                        clusteredEntityManager);
 
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
     verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
+    verify(clusteredEntityManager).getEntityLock(EhcacheEntitiesNaming.getCacheManagerLockNameFor(name));
     verify(clusteredEntityManager).addRootEntity(eq(name), any(Class.class), any(ClusteredCacheManager.class));
     verifyNoMoreInteractions(clusteredEntityManager);
   }
@@ -222,6 +242,12 @@ public class ToolkitInstanceFactoryImplTest {
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
     doThrow(new IllegalStateException("exists")).when(clusteredEntityManager)
         .addRootEntity(eq(name), any(Class.class), any(ClusteredCacheManager.class));
+    when(clusteredEntityManager.getRootEntity(name, ClusteredCacheManager.class)).thenReturn(null, mock(ClusteredCacheManager.class));
+    ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
+    ToolkitLock writeLock = mock(ToolkitLock.class);
+    when(writeLock.tryLock()).thenReturn(true);
+    when(rwLock.writeLock()).thenReturn(writeLock);
+    when(clusteredEntityManager.getEntityLock(any(String.class))).thenReturn(rwLock);
 
     ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
                                                                                        clusteredEntityManager);
@@ -229,6 +255,7 @@ public class ToolkitInstanceFactoryImplTest {
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
     InOrder inOrder = inOrder(clusteredEntityManager);
     inOrder.verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
+    inOrder.verify(clusteredEntityManager).getEntityLock(EhcacheEntitiesNaming.getCacheManagerLockNameFor(name));
     inOrder.verify(clusteredEntityManager).addRootEntity(eq(name), any(Class.class), any(ClusteredCacheManager.class));
     inOrder.verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
     verifyNoMoreInteractions(clusteredEntityManager);
@@ -242,6 +269,19 @@ public class ToolkitInstanceFactoryImplTest {
     configuration.addCache(new CacheConfiguration("test", 1));
 
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+    doAnswer(new Answer() {
+      @Override
+      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        Object[] arguments = invocationOnMock.getArguments();
+        ((ToolkitBackedClusteredCacheManager)arguments[2]).setEntityLockHandler(mock(EntityLockHandler.class));
+        return null;
+      }
+    }).when(clusteredEntityManager).addRootEntity(eq(name), eq(ClusteredCacheManager.class), any(ClusteredCacheManager.class));
+    ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
+    ToolkitLock writeLock = mock(ToolkitLock.class);
+    when(writeLock.tryLock()).thenReturn(true);
+    when(rwLock.writeLock()).thenReturn(writeLock);
+    when(clusteredEntityManager.getEntityLock(any(String.class))).thenReturn(rwLock);
 
     ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
                                                                                        clusteredEntityManager);
@@ -260,9 +300,23 @@ public class ToolkitInstanceFactoryImplTest {
     net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
     configuration.addCache(new CacheConfiguration("test", 1));
 
+    Toolkit toolkit = mock(Toolkit.class);
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
+    doAnswer(new Answer() {
+      @Override
+      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+        Object[] arguments = invocationOnMock.getArguments();
+        ((ToolkitBackedClusteredCacheManager)arguments[2]).setEntityLockHandler(mock(EntityLockHandler.class));
+        return null;
+      }
+    }).when(clusteredEntityManager).addRootEntity(eq(name), eq(ClusteredCacheManager.class), any(ClusteredCacheManager.class));
+    ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
+    ToolkitLock writeLock = mock(ToolkitLock.class);
+    when(writeLock.tryLock()).thenReturn(true);
+    when(rwLock.writeLock()).thenReturn(writeLock);
+    when(clusteredEntityManager.getEntityLock(any(String.class))).thenReturn(rwLock);
 
-    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(toolkit,
                                                                                        clusteredEntityManager);
 
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
