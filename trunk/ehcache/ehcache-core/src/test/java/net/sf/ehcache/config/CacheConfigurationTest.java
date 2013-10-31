@@ -146,10 +146,10 @@ public class CacheConfigurationTest {
         CacheConfiguration configuration = new CacheConfiguration("Test", 10)
             .maxEntriesLocalDisk(10).terracotta(new TerracottaConfiguration());
         try {
-            cacheManager.addCache(new Cache(configuration));
+            configuration.setupFor(cacheManager);
             fail("This should throw InvalidConfigurationException");
         } catch (CacheException e) {
-            assertThat(e.getMessage().contains("use maxEntriesInCache instead"), is(true));
+            assertThat(e.getMessage(), containsString("use maxEntriesInCache instead"));
         }
     }
 

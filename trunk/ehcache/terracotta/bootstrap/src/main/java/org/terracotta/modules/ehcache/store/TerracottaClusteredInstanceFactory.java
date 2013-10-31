@@ -6,6 +6,7 @@ package org.terracotta.modules.ehcache.store;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.CacheWriterConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
@@ -35,6 +36,8 @@ import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
 import org.terracotta.toolkit.ToolkitFeatureTypeInternal;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.feature.NonStopInternalFeature;
+
+import com.terracotta.entity.ehcache.EhcacheEntitiesNaming;
 
 import java.util.concurrent.Callable;
 
@@ -170,8 +173,18 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     return destroyed;
   }
 
+  @Override
+  public void linkClusteredCacheManager(String cacheManagerName, Configuration configuration) {
+    toolkitInstanceFactory.linkClusteredCacheManager(cacheManagerName, configuration);
+  }
+
+  @Override
+  public void unlinkCache(String cacheName) {
+    toolkitInstanceFactory.unlinkCache(cacheName);
+  }
+
   public static String getToolkitMapNameForCache(String cacheManagerName, String cacheName) {
-    return ToolkitInstanceFactoryImpl.getFullyQualifiedCacheName(cacheManagerName, cacheName);
+    return EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName);
   }
 
   @Override

@@ -212,31 +212,4 @@ public class ManagementServerLoader {
         }
 
     }
-
-    /**
-     * Register the ManagementServer with an MBean, if not already done
-     *
-     * @param registeredMgmtSvrBind the bind identifying what to register
-     * @param clientUUID the client UUID to use
-     */
-    public static void registerMBean(String registeredMgmtSvrBind, String clientUUID) {
-        Object managementServerImpl = MGMT_SVR_BY_BIND.get(registeredMgmtSvrBind);
-        if (managementServerImpl == null) {
-            LOG.warn("No management server found for bind {}", registeredMgmtSvrBind);
-            return;
-        }
-
-        Class<?> managementServerImplClass;
-        try {
-            managementServerImplClass = RESOURCE_CLASS_LOADER.loadClass("net.sf.ehcache.management.ManagementServer");
-            Method registerMBeanMethod = managementServerImplClass.getMethod("registerMBean", new Class[] {String.class});
-
-            registerMBeanMethod.invoke(managementServerImpl, clientUUID);
-
-        } catch (Exception e) {
-            LOG.warn("Failed to register MBean");
-        }
-
-    }
-
 }

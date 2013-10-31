@@ -450,21 +450,12 @@ public class CacheManager {
             this.onDiskPool = new BoundedPool(configuration.getMaxBytesLocalDisk(), evictor, null);
         }
 
-        terracottaClient = new TerracottaClient(this, configuration.getTerracottaConfiguration());
-
         boolean clustered = false;
-        Map<String, CacheConfiguration> cacheConfigs = configuration.getCacheConfigurations();
-        if (configuration.getDefaultCacheConfiguration() != null && configuration.getDefaultCacheConfiguration().isTerracottaClustered()) {
-            terracottaClient.createClusteredInstanceFactory(cacheConfigs);
+        terracottaClient = new TerracottaClient(this, configuration.getTerracottaConfiguration());
+        if (terracottaClient.createClusteredInstanceFactory()) {
             clustered = true;
-        } else {
-            for (CacheConfiguration config : cacheConfigs.values()) {
-                if (config.isTerracottaClustered()) {
-                    terracottaClient.createClusteredInstanceFactory(cacheConfigs);
-                    clustered = true;
-                    break;
-                }
-            }
+            ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
+            clusteredInstanceFactory.linkClusteredCacheManager(getName(), configuration);
         }
 
         ConfigurationHelper configurationHelper = new ConfigurationHelper(this, configuration);
@@ -653,7 +644,7 @@ public class CacheManager {
      * @return a new (or existing) clustered store
      */
     public Store createTerracottaStore(Ehcache cache) {
-        return getClusteredInstanceFactory(cache).createStore(cache);
+        return getClusteredInstanceFactory().createStore(cache);
     }
 
     /**
@@ -663,7 +654,7 @@ public class CacheManager {
      * @return a new (or existing) write behind queue
      */
     public WriteBehind createTerracottaWriteBehind(Ehcache cache) {
-        return getClusteredInstanceFactory(cache).createWriteBehind(cache);
+        return getClusteredInstanceFactory().createWriteBehind(cache);
     }
 
     /**
@@ -673,53 +664,16 @@ public class CacheManager {
      * @return a new cache event replicator
      */
     public CacheEventListener createTerracottaEventReplicator(Ehcache cache) {
-        CacheEventListener cacheEventListener = null;
-        CacheConfiguration cacheConfig = cache.getCacheConfiguration();
-        cacheEventListener = getClusteredInstanceFactory(cache).createEventReplicator(cache);
-        return cacheEventListener;
+      return getClusteredInstanceFactory().createEventReplicator(cache);
     }
 
     /**
      * Return the clustered instance factory for a cache of this cache manager.
      *
-     * @param cache the cache the clustered instance factory has to be returned for
      * @return the clustered instance factory
      */
-    protected ClusteredInstanceFactory getClusteredInstanceFactory(Ehcache cache) {
-        ClusteredInstanceFactory clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
-        if (null == clusteredInstanceFactory) {
-            // adding a cache programmatically when there is no clustered store defined in the configuration
-            // at the time this cacheManager was created
-            Map<String, CacheConfiguration> map = new HashMap<String, CacheConfiguration>(1);
-            map.put(cache.getName(), cache.getCacheConfiguration());
-            final boolean created = terracottaClient.createClusteredInstanceFactory(map);
-            clusteredInstanceFactory = terracottaClient.getClusteredInstanceFactory();
-
-            if (created) {
-                try {
-                    mbeanRegistrationProvider.reinitialize(clusteredInstanceFactory);
-                } catch (MBeanRegistrationProviderException e) {
-                    LOG.warn("Failed to initialize the MBeanRegistrationProvider - " + mbeanRegistrationProvider.getClass().getName(), e);
-                }
-
-                initializeManagementDelayed(clusteredInstanceFactory);
-            }
-        }
-        return clusteredInstanceFactory;
-    }
-
-    private void initializeManagementDelayed(ClusteredInstanceFactory clusteredInstanceFactory) {
-        ManagementRESTServiceConfiguration managementRESTService = getConfiguration().getManagementRESTService();
-        if (managementRESTService == null && ManagementServerLoader.isManagementAvailable()) {
-            managementRESTService = getDefaultClusteredManagementRESTServiceConfiguration(getConfiguration());
-            initializeManagementService(managementRESTService);
-        } else if (managementRESTService != null && managementRESTService.isEnabled()) {
-            try {
-                ManagementServerLoader.registerMBean(registeredMgmtSvrBind, clusteredInstanceFactory.getUUID());
-            } catch (Exception e) {
-                LOG.warn("Failed to initialize the management MBean", e);
-            }
-        }
+    protected ClusteredInstanceFactory getClusteredInstanceFactory() {
+        return terracottaClient.getClusteredInstanceFactory();
     }
 
     private void checkForUpdateIfNeeded(boolean updateCheckNeeded) {
@@ -1423,6 +1377,12 @@ public class CacheManager {
                     + "use CacheManager.addDecoratedCache" + "(Ehcache decoratedCache) instead.");
         }
 
+        if (cache.getCacheConfiguration().isTerracottaClustered() && terracottaClient.getClusteredInstanceFactory() == null) {
+            throw new CacheException(String.format("Trying to add terracotta cache %s but no <terracottaConfig> element was " +
+                                                   "used to specify the Terracotta configuration on the CacheManager %s.",
+                                                    cache.getName(), getName()));
+        }
+
         Ehcache ehcache = ehcaches.get(cache.getName());
         if (ehcache != null) {
             if (strict) {
@@ -2033,7 +1993,7 @@ public class CacheManager {
     SoftLockManager createSoftLockManager(Ehcache cache) {
         SoftLockManager softLockManager;
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
-            softLockManager = getClusteredInstanceFactory(cache).getOrCreateSoftLockManager(cache);
+            softLockManager = getClusteredInstanceFactory().getOrCreateSoftLockManager(cache);
         } else {
             SoftLockFactory lockFactory = new ReadCommittedSoftLockFactory();
             softLockManager = softLockManagers.get(cache.getName());

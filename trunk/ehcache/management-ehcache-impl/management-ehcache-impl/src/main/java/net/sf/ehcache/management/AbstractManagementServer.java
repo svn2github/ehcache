@@ -72,9 +72,4 @@ public abstract class AbstractManagementServer implements ManagementServer {
   public boolean hasRegistered() {
     return samplerRepoSvc.hasRegistered();
   }
-
-  @Override
-  public void registerMBean(String clientUUID) {
-    samplerRepoSvc.registerMBean(clientUUID);
-  }
 }

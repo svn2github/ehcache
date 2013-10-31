@@ -161,7 +161,7 @@ import static net.sf.ehcache.statistics.StatisticBuilder.operation;
  *
  * @author Greg Luck
  * @author Geert Bevin
- * @version $Id: Cache.java 7824 2013-07-23 01:54:39Z vfunshte $
+ * @version $Id$
  * @version $Id$
  */
 public class Cache implements InternalEhcache, StoreListener {
@@ -1124,7 +1124,7 @@ public class Cache implements InternalEhcache, StoreListener {
                     nonstopConfig.freezeConfig();
                 }
 
-                store = cacheManager.getClusteredInstanceFactory(this).createNonStopStore(callable, this);
+                store = cacheManager.getClusteredInstanceFactory().createNonStopStore(callable, this);
                 clusterStateListener = new CacheClusterStateStatisticsListener(this);
                 getCacheCluster().addTopologyListener(clusterStateListener);
             } else {
@@ -2513,7 +2513,10 @@ public class Cache implements InternalEhcache, StoreListener {
 
         // null the lockProvider too explicitly to help gc
         lockProvider = null;
-        
+        if (cacheStatus.isAlive() && isTerracottaClustered()) {
+            getCacheManager().getClusteredInstanceFactory().unlinkCache(getName());
+        }
+
         cacheStatus.changeState(Status.STATUS_SHUTDOWN);
     }
 

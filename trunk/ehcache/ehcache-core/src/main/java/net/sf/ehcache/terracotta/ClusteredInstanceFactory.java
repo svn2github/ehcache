@@ -15,16 +15,17 @@
  */
 package net.sf.ehcache.terracotta;
 
-import java.util.concurrent.Callable;
-
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.writer.writebehind.WriteBehind;
+
+import java.util.concurrent.Callable;
 
 /**
  * Factory for creating clustered instances
@@ -122,4 +123,19 @@ public interface ClusteredInstanceFactory {
      * @param cacheManagerName name of the CacheManager
      */
     public void waitForOrchestrator(String cacheManagerName);
+
+    /**
+     * Links this cache manager to the cluster
+     *
+     * @param cacheManagerName the name of the cache manager
+     * @param configuration the cache manager configuration
+     */
+    void linkClusteredCacheManager(String cacheManagerName, Configuration configuration);
+
+    /**
+     * Un-links the cache from its cluster entity
+     *
+     * @param cacheName the cache to unlink
+     */
+    void unlinkCache(String cacheName);
 }

@@ -25,7 +25,7 @@ public class CacheManagerMockHelper {
 
     public static void mockGetClusteredInstanceFactory(CacheManager cacheManager, Cache cache) {
         ClusteredInstanceFactory clusteredInstanceFactory = Mockito.mock(ClusteredInstanceFactoryWrapper.class);
-        Mockito.when(cacheManager.getClusteredInstanceFactory(cache)).thenReturn(clusteredInstanceFactory);
+        Mockito.when(cacheManager.getClusteredInstanceFactory()).thenReturn(clusteredInstanceFactory);
     }
 
 }

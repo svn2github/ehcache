@@ -49,8 +49,4 @@ public class DummyManagementServerImpl implements ManagementServer {
   @Override
   public void initialize(String clientUUID, ManagementRESTServiceConfiguration configuration) {
   }
-
-  @Override
-  public void registerMBean(String clientUUID) {
-  }
 }

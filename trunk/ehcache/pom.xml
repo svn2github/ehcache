@@ -55,6 +55,11 @@
         <version>${management-core.version}</version>
       </dependency>
       <dependency>
+        <groupId>com.terracotta</groupId>
+        <artifactId>clustered-entity-management</artifactId>
+        <version>0.1.0</version>
+      </dependency>
+      <dependency>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-servlet</artifactId>
         <version>8.1.9.v20130131</version>

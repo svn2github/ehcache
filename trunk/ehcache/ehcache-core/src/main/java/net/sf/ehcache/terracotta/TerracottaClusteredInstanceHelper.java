@@ -16,10 +16,7 @@
 
 package net.sf.ehcache.terracotta;
 
-import java.util.Map;
-
 import net.sf.ehcache.CacheException;
-import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.util.ClassLoaderUtil;
 
@@ -148,18 +145,17 @@ class TerracottaClusteredInstanceHelper {
      * Locate and decide which terracotta ClusteredInstanceFactory should be used. If the standalone factory class is available
      * it is preferred
      *
-     * @param cacheConfigs
+     * @param terracottaConfig
      * @return the selected terracotta store factory
      */
-    ClusteredInstanceFactory newClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs,
-            TerracottaClientConfiguration terracottaConfig) {
+    ClusteredInstanceFactory newClusteredInstanceFactory(TerracottaClientConfiguration terracottaConfig) {
         lookupTerracottaRuntime();
         if (terracottaRuntimeType == null) {
             throw new CacheException("Terracotta cache classes are not available, you are missing jar(s) most likely");
         }
 
         if (terracottaRuntimeType == TerracottaRuntimeType.EnterpriseExpress || terracottaRuntimeType == TerracottaRuntimeType.Express) {
-            assertExpress(cacheConfigs, terracottaConfig);
+            assertExpress(terracottaConfig);
         } else if (terracottaRuntimeType == TerracottaRuntimeType.EnterpriseCustom || terracottaRuntimeType == TerracottaRuntimeType.Custom) {
             assertCustom(terracottaConfig);
         } else {
@@ -203,7 +199,7 @@ class TerracottaClusteredInstanceHelper {
         }
     }
 
-    private static void assertExpress(Map<String, CacheConfiguration> cacheConfigs, TerracottaClientConfiguration terracottaConfig) {
+    private static void assertExpress(TerracottaClientConfiguration terracottaConfig) {
         // This is required in standalone but in non-standalone, this stuff is picked up through
         // the normal tc-config mechanisms instead
         if (terracottaConfig == null) {
