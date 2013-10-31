@@ -1,25 +1,28 @@
 package net.sf.ehcache.constructs.scheduledrefresh;
 
-import junit.framework.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
+
 import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
 
+import junit.framework.Assert;
+
 public class ScheduledRefreshCacheExtensionTest {
 
    private static OddCacheLoader stupidCacheLoaderOdds = new OddCacheLoader();
    private static EvenCacheLoader stupidCacheLoaderEvens = new EvenCacheLoader();
 
-   // OK. we want to create an ehcache, then programmitically decorate it with
+   // OK. we want to create an ehcache, then programmatically decorate it with
    // locks.
    @Test
    public void testIllegalCronExpression() {
@@ -65,7 +68,7 @@ public class ScheduledRefreshCacheExtensionTest {
       Assert.assertEquals(cacheExtension.getStatus(), Status.STATUS_ALIVE);
 
       for (int i = 0; i < 10; i++) {
-         cache.put(new Element(new Integer(i), i + ""));
+         cache.put(new Element(i, i + ""));
       }
 
       second = Math.max(8, 60 - second + 3);
@@ -106,14 +109,14 @@ public class ScheduledRefreshCacheExtensionTest {
    @Test
    public void testSimpleCaseXML() throws InterruptedException {
 
-      CacheManager manager = CacheManager.create("src/test/resources/ehcache-scheduled-refresh.xml");
+      CacheManager manager = CacheManager.newInstance(getClass().getResourceAsStream("/ehcache-scheduled-refresh.xml"));
 
       Cache cache = manager.getCache("sr-test");
 
       int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
 
       for (int i = 0; i < 10; i++) {
-         cache.put(new Element(new Integer(i), i + ""));
+         cache.put(new Element(i, i + ""));
       }
 
       second = Math.max(8, 60 - second + 3);
@@ -139,12 +142,12 @@ public class ScheduledRefreshCacheExtensionTest {
       manager.shutdown();
    }
 
-   // OK. we want to create an ehcache, then programmitically decorate it with
+   // OK. we want to create an ehcache, then programmatically decorate it with
    // locks.
    @Test
    public void testPolling() throws InterruptedException {
 
-      CacheManager manager = new CacheManager();
+      CacheManager manager = new CacheManager(new Configuration().name("pollingCM"));
       manager.removeAllCaches();
 
       manager.addCache(new Cache(new CacheConfiguration().name("tt").eternal(true).maxEntriesLocalHeap(5000).overflowToDisk(false)));
@@ -164,7 +167,7 @@ public class ScheduledRefreshCacheExtensionTest {
       final int ELEMENT_COUNT = 50;
       long[] orig = new long[ELEMENT_COUNT];
       for (int i = 0; i < ELEMENT_COUNT; i++) {
-         Element elem = new Element(new Integer(i), i + "");
+         Element elem = new Element(i, i + "");
          orig[i] = elem.getCreationTime();
          cache.put(elem);
       }
