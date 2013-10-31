@@ -75,26 +75,18 @@ public class CacheStatisticSamplesResourceServiceImplTest extends ResourceServic
 
     cmsFilter= ";names=testCacheManagerProgrammatic";
     cachesFilter = ";names=testCache2";
-    samplesFilter = ";names=LocalHeapSize,LocalHeapSizeInBytes";
+    samplesFilter = ";names=LocalHeapSize";
     // we precise the cacheManager, cache and 2 stats we want to retrieve
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", equalTo("embedded"))
             .body("get(0).name", equalTo("testCache2"))
             .body("get(0).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
-            .body("get(0).statName", equalTo("LocalHeapSizeInBytes"))
+            .body("get(0).statName", equalTo("LocalHeapSize"))
             // we got samples
             .body("get(0).statValueByTimeMillis.size()", greaterThan(0))
             // LocalHeapSize > 0
             .body("get(0).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("get(1).agentId", equalTo("embedded"))
-            .body("get(1).name", equalTo("testCache2"))
-            .body("get(1).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
-            .body("get(1).statName", equalTo("LocalHeapSize"))
-            // we got samples
-            .body("get(1).statValueByTimeMillis.size()", greaterThan(0))
-            // LocalHeapSize > 0
-            .body("get(1).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("size()", is(2))
+            .body("size()", is(1))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter,cachesFilter,samplesFilter);
 
@@ -104,20 +96,12 @@ public class CacheStatisticSamplesResourceServiceImplTest extends ResourceServic
             .body("get(0).agentId", equalTo("embedded"))
             .body("get(0).name", equalTo("testCache2"))
             .body("get(0).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
-            .body("get(0).statName", equalTo("LocalHeapSizeInBytes"))
+            .body("get(0).statName", equalTo("LocalHeapSize"))
                     // we got samples
             .body("get(0).statValueByTimeMillis.size()", greaterThan(0))
                     // LocalHeapSize > 0
             .body("get(0).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("get(1).agentId", equalTo("embedded"))
-            .body("get(1).name", equalTo("testCache2"))
-            .body("get(1).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
-            .body("get(1).statName", equalTo("LocalHeapSize"))
-                    // we got samples
-            .body("get(1).statValueByTimeMillis.size()", greaterThan(0))
-                    // LocalHeapSize > 0
-            .body("get(1).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("size()", is(2))
+            .body("size()", is(1))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter,cachesFilter,samplesFilter);
 
@@ -128,28 +112,16 @@ public class CacheStatisticSamplesResourceServiceImplTest extends ResourceServic
             .body("get(0).agentId", equalTo("embedded"))
             .body("get(0).name", equalTo("testCache2"))
             .body("get(0).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
-            .body("get(0).statName", equalTo("LocalHeapSizeInBytes"))
+            .body("get(0).statName", equalTo("LocalHeapSize"))
             .body("get(0).statValueByTimeMillis.size()", greaterThan(0))
             .body("get(0).statValueByTimeMillis.values()[0]", greaterThan(0))
             .body("get(1).agentId", equalTo("embedded"))
-            .body("get(1).name", equalTo("testCache2"))
-            .body("get(1).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
+            .body("get(1).name", equalTo("testCache"))
+            .body("get(1).cacheManagerName", equalTo("testCacheManager"))
             .body("get(1).statName", equalTo("LocalHeapSize"))
             .body("get(1).statValueByTimeMillis.size()", greaterThan(0))
             .body("get(1).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("get(2).agentId", equalTo("embedded"))
-            .body("get(2).name", equalTo("testCache"))
-            .body("get(2).cacheManagerName", equalTo("testCacheManager"))
-            .body("get(2).statName", equalTo("LocalHeapSizeInBytes"))
-            .body("get(2).statValueByTimeMillis.size()", greaterThan(0))
-            .body("get(2).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("get(3).agentId", equalTo("embedded"))
-            .body("get(3).name", equalTo("testCache"))
-            .body("get(3).cacheManagerName", equalTo("testCacheManager"))
-            .body("get(3).statName", equalTo("LocalHeapSize"))
-            .body("get(3).statValueByTimeMillis.size()", greaterThan(0))
-            .body("get(3).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("size()", is(4))
+            .body("size()", is(2))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL,agentsFilter,cmsFilter,cachesFilter,samplesFilter);
 
@@ -180,26 +152,18 @@ public class CacheStatisticSamplesResourceServiceImplTest extends ResourceServic
 
     cmsFilter= ";names=testCacheManagerProgrammatic";
     cachesFilter = ";names=testCache2";
-    samplesFilter = ";names=LocalHeapSize,LocalHeapSizeInBytes";
+    samplesFilter = ";names=LocalHeapSize";
     // we precise the cacheManager, cache and 2 stats we want to retrieve
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", equalTo(agentId))
             .body("get(0).name", equalTo("testCache2"))
             .body("get(0).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
-            .body("get(0).statName", equalTo("LocalHeapSizeInBytes"))
+            .body("get(0).statName", equalTo("LocalHeapSize"))
                     // we got samples
             .body("get(0).statValueByTimeMillis.size()", greaterThan(0))
                     // LocalHeapSize > 0
             .body("get(0).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("get(1).agentId", equalTo(agentId))
-            .body("get(1).name", equalTo("testCache2"))
-            .body("get(1).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
-            .body("get(1).statName", equalTo("LocalHeapSize"))
-                    // we got samples
-            .body("get(1).statValueByTimeMillis.size()", greaterThan(0))
-                    // LocalHeapSize > 0
-            .body("get(1).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("size()", is(2))
+            .body("size()", is(1))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter,cmsFilter,cachesFilter,samplesFilter);
 
@@ -209,20 +173,12 @@ public class CacheStatisticSamplesResourceServiceImplTest extends ResourceServic
             .body("get(0).agentId", equalTo(agentId))
             .body("get(0).name", equalTo("testCache2"))
             .body("get(0).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
-            .body("get(0).statName", equalTo("LocalHeapSizeInBytes"))
+            .body("get(0).statName", equalTo("LocalHeapSize"))
                     // we got samples
             .body("get(0).statValueByTimeMillis.size()", greaterThan(0))
                     // LocalHeapSize > 0
             .body("get(0).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("get(1).agentId", equalTo(agentId))
-            .body("get(1).name", equalTo("testCache2"))
-            .body("get(1).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
-            .body("get(1).statName", equalTo("LocalHeapSize"))
-                    // we got samples
-            .body("get(1).statValueByTimeMillis.size()", greaterThan(0))
-                    // LocalHeapSize > 0
-            .body("get(1).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("size()", is(2))
+            .body("size()", is(1))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter,cmsFilter,cachesFilter,samplesFilter);
 
@@ -233,28 +189,16 @@ public class CacheStatisticSamplesResourceServiceImplTest extends ResourceServic
             .body("get(0).agentId", equalTo(agentId))
             .body("get(0).name", equalTo("testCache2"))
             .body("get(0).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
-            .body("get(0).statName", equalTo("LocalHeapSizeInBytes"))
+            .body("get(0).statName", equalTo("LocalHeapSize"))
             .body("get(0).statValueByTimeMillis.size()", greaterThan(0))
             .body("get(0).statValueByTimeMillis.values()[0]", greaterThan(0))
             .body("get(1).agentId", equalTo(agentId))
-            .body("get(1).name", equalTo("testCache2"))
-            .body("get(1).cacheManagerName", equalTo("testCacheManagerProgrammatic"))
+            .body("get(1).name", equalTo("testCache"))
+            .body("get(1).cacheManagerName", equalTo("testCacheManager"))
             .body("get(1).statName", equalTo("LocalHeapSize"))
             .body("get(1).statValueByTimeMillis.size()", greaterThan(0))
             .body("get(1).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("get(2).agentId", equalTo(agentId))
-            .body("get(2).name", equalTo("testCache"))
-            .body("get(2).cacheManagerName", equalTo("testCacheManager"))
-            .body("get(2).statName", equalTo("LocalHeapSizeInBytes"))
-            .body("get(2).statValueByTimeMillis.size()", greaterThan(0))
-            .body("get(2).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("get(3).agentId", equalTo(agentId))
-            .body("get(3).name", equalTo("testCache"))
-            .body("get(3).cacheManagerName", equalTo("testCacheManager"))
-            .body("get(3).statName", equalTo("LocalHeapSize"))
-            .body("get(3).statValueByTimeMillis.size()", greaterThan(0))
-            .body("get(3).statValueByTimeMillis.values()[0]", greaterThan(0))
-            .body("size()", is(4))
+            .body("size()", is(2))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL,agentsFilter,cmsFilter,cachesFilter,samplesFilter);
 
