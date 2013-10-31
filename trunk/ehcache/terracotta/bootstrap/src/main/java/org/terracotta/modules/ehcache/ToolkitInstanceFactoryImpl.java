@@ -470,7 +470,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     if (clusteredCacheManager == null) {
       ToolkitReadWriteLock cmRWLock = clusteredEntityManager.getEntityLock(EhcacheEntitiesNaming.getCacheManagerLockNameFor(cacheManagerName));
       ToolkitLock cmWriteLock = cmRWLock.writeLock();
-      while (true) {
+      while (clusteredCacheManager == null) {
         if (cmWriteLock.tryLock()) {
           try {
             clusteredCacheManager = createClusteredCacheManagerEntity(cacheManagerName, configuration);
@@ -479,9 +479,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
           }
         } else {
           clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
-        }
-        if (clusteredCacheManager != null) {
-          break;
         }
       }
     }
@@ -511,7 +508,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     if (cacheEntity == null) {
       ToolkitReadWriteLock cacheRWLock = clusteredCacheManagerEntity.getCacheLock(cacheName);
       ToolkitLock cacheWriteLock = cacheRWLock.writeLock();
-      while (true) {
+      while (cacheEntity == null) {
         if (cacheWriteLock.tryLock()) {
           try {
             cacheEntity = createClusteredCacheEntity(cacheName, ehcacheConfig, toolkitCacheName);
@@ -520,9 +517,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
           }
         } else {
           cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
-        }
-        if (cacheEntity != null) {
-          break;
         }
       }
     }
