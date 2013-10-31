@@ -30,7 +30,6 @@
     <dependency>
       <groupId>com.terracotta</groupId>
       <artifactId>clustered-entity-management</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
