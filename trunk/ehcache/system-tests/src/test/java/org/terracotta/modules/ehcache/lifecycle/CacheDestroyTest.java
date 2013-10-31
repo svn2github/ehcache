@@ -1,24 +1,11 @@
-/*
- * Copyright Terracotta, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.terracotta.modules.ehcache.lifecycle;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.config.TerracottaConfiguration;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
@@ -33,11 +20,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * CacheListingTest
+ * CacheDestroyTest
  */
-public class CacheListingTest extends AbstractCacheTestBase {
-    public CacheListingTest(TestConfig testConfig) {
-        super("lifecycle/cache-listing.xml", testConfig, CacheCreateClient.class, ClusteredEntityClient.class);
+public class CacheDestroyTest extends AbstractCacheTestBase {
+
+    private static final String CACHE_NAME = "cache1";
+
+    public CacheDestroyTest(TestConfig testConfig) {
+        super("lifecycle/cache-destroy.xml", testConfig, CacheCreateClient.class, ClusteredEntityClient.class);
     }
 
     public static class CacheCreateClient extends ClientBase {
@@ -47,12 +37,34 @@ public class CacheListingTest extends AbstractCacheTestBase {
 
         @Override
         protected void runTest(Cache cache, Toolkit myToolkit) throws Throwable {
-            // Client setup already created CacheManager and caches
-            // Signalling for other client to check it can be listed
+
+            CacheConfiguration cacheConfig = new CacheConfiguration(CACHE_NAME, 100).terracotta(new TerracottaConfiguration());
+            cacheManager.addCache(new Cache(cacheConfig));
+            cache = cacheManager.getCache(CACHE_NAME);
+
+            String key = "key";
+
+            cache.put(new Element(key, "value", true));
+
+            // Cache created with some content
+            // Signalling client to try destroy while cache in use
             getBarrierForAllClients().await(10, TimeUnit.SECONDS);
 
-            // Waiting for other client to finish listing assertions
+            // Waiting for other client to finish trying to destroy
             getBarrierForAllClients().await(1, TimeUnit.MINUTES);
+
+            cacheManager.removeCache(CACHE_NAME);
+
+            // Signalling other client to destroy
+            getBarrierForAllClients().await(10, TimeUnit.SECONDS);
+
+            // Waiting for other client to signal destroy done
+            getBarrierForAllClients().await(1, TimeUnit.MINUTES);
+
+            // Making sure adding back cache does not resurrect old data structures
+            cacheManager.addCache(new Cache(cacheConfig));
+            cache = cacheManager.getCache(CACHE_NAME);
+            assertTrue(cache.get(key) == null);
         }
     }
 
@@ -84,10 +96,22 @@ public class CacheListingTest extends AbstractCacheTestBase {
             ClusteredCacheManager clusteredCacheManager = cacheManagers.get(configuration.getName());
             Map<String,ClusteredCache> caches = clusteredCacheManager.getCaches();
 
-            assertTrue(caches.size() == 2);
-            assertNotNull(caches.get("cache1"));
-            assertNotNull(caches.get("cache2"));
+            try {
+                clusteredCacheManager.destroyCache(caches.get(CACHE_NAME));
+                fail("cache is in use, destroy must fail");
+            } catch (IllegalStateException isex) {
+                assertTrue(isex.getMessage().contains("destruction"));
+            }
 
+            // Signalling for cache disposal
+            getBarrierForAllClients().await(10, TimeUnit.SECONDS);
+
+            getBarrierForAllClients().await(1, TimeUnit.MINUTES);
+
+            clusteredCacheManager.destroyCache(caches.get(CACHE_NAME));
+            assertNull(clusteredCacheManager.getCache(CACHE_NAME));
+
+            // Signalling other client destroy performed
             getBarrierForAllClients().await(10, TimeUnit.SECONDS);
         }
     }
