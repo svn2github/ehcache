@@ -59,6 +59,7 @@ public class RestartingL1ExpressTest extends AbstractCacheTestBase {
     System.out.println("Waiting for first client to finish");
     // wait for first client to exit
     runners[0].finish();
+    System.out.println("done with first client");
 
     // restart this client in restart
     Runner runner0 = runners[0] = new Runner(RestartingL1ExpressClient.class, "restart-afterRestart-client");

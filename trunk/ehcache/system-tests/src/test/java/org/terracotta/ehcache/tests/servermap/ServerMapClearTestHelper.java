@@ -15,7 +15,7 @@ import com.tc.util.concurrent.ThreadUtil;
 import junit.framework.Assert;
 
 /**
- * This class is maintained in both tim-ehcache-2.0-ee-system-tests and ehcache-terracotta-ee-system-tests projects
+ * This class is maintained in both ehcache-terracotta-system-tests and ehcache-terracotta-ee-system-tests projects
  * (READ: any changes to this class should also be made to same class in other project)
  */
 public abstract class ServerMapClearTestHelper {
