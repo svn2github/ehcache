@@ -330,7 +330,9 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public void shutdown() {
-    clusteredCacheManagerEntity.releaseUse();
+		 if (clusteredCacheManagerEntity != null) {
+			 clusteredCacheManagerEntity.releaseUse();
+		 }
     clusteredEntityManager.dispose();
     toolkit.shutdown();
   }
