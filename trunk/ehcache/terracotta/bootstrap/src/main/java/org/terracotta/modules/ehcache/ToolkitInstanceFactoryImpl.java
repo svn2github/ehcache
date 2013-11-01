@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache;
 
+import static java.lang.String.format;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.ConfigurationFactory;
@@ -65,8 +66,6 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
-
-import static java.lang.String.format;
 
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
@@ -185,7 +184,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
     final String fullyQualifiedCacheName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName);
     final ToolkitMap<String, Serializable> configMap = getOrCreateConfigMap(fullyQualifiedCacheName);
-    return new WanAwareToolkitCache<String, Serializable>(toolkitCache, configMap);
+    return new WanAwareToolkitCache<String, Serializable>(toolkitCache, configMap,
+                                                          toolkit.getFeature(ToolkitFeatureType.NONSTOP));
   }
 
   private ToolkitCacheInternal<String, Serializable> getOrCreateRegularToolkitCache(final String cacheManagerName,
