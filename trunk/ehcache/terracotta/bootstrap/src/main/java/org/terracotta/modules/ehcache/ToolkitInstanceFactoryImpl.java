@@ -3,7 +3,6 @@
  */
 package org.terracotta.modules.ehcache;
 
-import static java.lang.String.format;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.ConfigurationFactory;
@@ -66,6 +65,8 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
+
+import static java.lang.String.format;
 
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
@@ -330,9 +331,13 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public void shutdown() {
-		 if (clusteredCacheManagerEntity != null) {
-			 clusteredCacheManagerEntity.releaseUse();
-		 }
+    if (clusteredCacheManagerEntity != null) {
+      try {
+        clusteredCacheManagerEntity.releaseUse();
+      } catch (Exception e) {
+        // TODO handle exception
+      }
+    }
     clusteredEntityManager.dispose();
     toolkit.shutdown();
   }
