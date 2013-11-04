@@ -6,6 +6,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -36,6 +37,7 @@ public class PoolableStoresTest {
     }
 
     @Test
+    @Ignore
     public void test() throws Exception {
         cacheManager = new CacheManager(PoolableStoresTest.class.getResourceAsStream("/pool/ehcache-heap-disk.xml"));
 
