@@ -204,6 +204,12 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   }
 
   @Override
+  public int quickSize() {
+    waitIfRequired();
+    return delegate.quickSize();
+  }
+
+  @Override
   public boolean isEmpty() {
     waitIfRequired();
     return delegate.isEmpty();
@@ -249,6 +255,12 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   public void clear() {
     waitIfRequired();
     delegate.clear();
+  }
+
+  @Override
+  public void quickClear() {
+    waitIfRequired();
+    delegate.quickClear();
   }
 
   @Override
@@ -324,16 +336,6 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   @Override
   public String getName() {
     return delegate.getName();
-  }
-
-  @Override
-  public void quickClear() {
-    delegate.quickClear();
-  }
-
-  @Override
-  public int quickSize() {
-    return delegate.quickSize();
   }
 
   @Override
