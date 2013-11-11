@@ -1084,6 +1084,7 @@ public class Cache implements InternalEhcache, StoreListener {
                 Callable<TerracottaStore> callable = new Callable<TerracottaStore>() {
                     @Override
                     public TerracottaStore call() throws Exception {
+                        cacheManager.getClusteredInstanceFactory().linkClusteredCacheManager(cacheManager.getName(), cacheManager.getConfiguration());
                         Store tempStore = null;
                         try {
                             tempStore = cacheManager.createTerracottaStore(Cache.this);
