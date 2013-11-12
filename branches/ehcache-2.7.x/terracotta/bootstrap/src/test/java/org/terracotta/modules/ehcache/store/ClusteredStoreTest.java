@@ -14,6 +14,8 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.cluster.ClusterNode;
+import net.sf.ehcache.cluster.ClusterTopologyListener;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
@@ -25,6 +27,7 @@ import org.junit.Test;
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.collections.ToolkitMap;
+import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitProperties;
@@ -59,6 +62,8 @@ public class ClusteredStoreTest {
   private ToolkitNotifier toolkitNotifier = mock(ToolkitNotifier.class);
   private ClusteredStore clusteredStore;
   private CacheStoreHelper cacheStoreHelper = mock(CacheStoreHelper.class);
+  private ToolkitLock toolkitLock = mock(ToolkitLock.class);
+  private ClusterNode clusterNode = mock(ClusterNode.class);
 
 
   @Before
@@ -71,12 +76,15 @@ public class ClusteredStoreTest {
     when(cacheManager.getName()).thenReturn("ClusteredStoreTest-cm");
     when(toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(eq("ClusteredStoreTest-cm"), eq("ClusteredStoreTest-cache"))).thenReturn(configMap);
     when(toolkitInstanceFactory.getToolkit()).thenReturn(toolkitInternal);
+    when(toolkitInstanceFactory.getLockForCache(any(Ehcache.class), anyString())).thenReturn(toolkitLock);
     when(toolkitInternal.getProperties()).thenReturn(toolkitProperties);
     when(toolkitProperties.getBoolean(anyString())).thenReturn(false);
     when(toolkitInstanceFactory.getOrCreateToolkitCache(eq(cache))).thenReturn(toolkitCacheInternal);
     when(toolkitCacheInternal.getConfiguration()).thenReturn(toolkitCacheConfiguration);
     when(toolkitCacheConfiguration.getInt(anyString())).thenReturn(1);
     when(toolkitInstanceFactory.getOrCreateConfigChangeNotifier(eq(cache))).thenReturn(toolkitNotifier);
+    when(clusterNode.getId()).thenReturn("abc");
+    when(cacheCluster.getCurrentNode()).thenReturn(clusterNode);
     clusteredStore = new ClusteredStore(toolkitInstanceFactory, cache, cacheCluster);
     when(cacheStoreHelper.getStore()).thenReturn(clusteredStore);
   }
@@ -102,18 +110,31 @@ public class ClusteredStoreTest {
   }
 
   @Test
+  public void testDispose() throws Exception {
+    clusteredStore.dispose();
+    verify(toolkitCacheInternal).disposeLocally();
+    verify(cacheCluster).removeTopologyListener(any(ClusterTopologyListener.class));
+    verify(toolkitCacheInternal).removeListener(any(ToolkitCacheListener.class));
+  }
+
+  @Test
   public void testRegisterToolkitCacheEventListener() throws Exception {
     verify(toolkitCacheInternal, never()).addListener(any(ToolkitCacheListener.class));
     cache.getCacheEventNotificationService().registerListener(new CacheEventListenerAdapter());
-    verify(toolkitCacheInternal).addListener(any(ToolkitCacheListener.class));
+    cache.getCacheEventNotificationService().registerListener(new CacheEventListenerAdapter());
+    verify(toolkitCacheInternal, times(1)).addListener(any(ToolkitCacheListener.class));
   }
 
   @Test
   public void testUnregisterToolkitCacheEventListener() throws Exception {
+    when(configMap.get(ClusteredStore.LEADER_NODE_ID)).thenReturn("abc"); // make this node the leader
     verify(toolkitCacheInternal, never()).addListener(any(ToolkitCacheListener.class));
     CacheEventListener listener = new CacheEventListenerAdapter();
     cache.getCacheEventNotificationService().registerListener(listener);
+    cache.getCacheEventNotificationService().registerListener(listener);
     cache.getCacheEventNotificationService().unregisterListener(listener);
-    verify(toolkitCacheInternal).removeListener(any(ToolkitCacheListener.class));
+    cache.getCacheEventNotificationService().unregisterListener(listener);
+    verify(toolkitCacheInternal, times(1)).removeListener(any(ToolkitCacheListener.class));
+    verify(configMap).remove(ClusteredStore.LEADER_NODE_ID); // make sure we drop leader status
   }
 }
