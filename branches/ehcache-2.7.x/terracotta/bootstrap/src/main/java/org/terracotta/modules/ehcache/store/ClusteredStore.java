@@ -13,6 +13,7 @@ import net.sf.ehcache.ElementData;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
+import net.sf.ehcache.cluster.ClusterTopologyListener;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
@@ -96,6 +97,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   // non-final private fields
   private EventListenerList                                  listenerList;
+  private boolean                                            cacheEventListenerRegistered = false;
   private final ToolkitLock                                  eventualConcurrentLock;
   private final ToolkitLock                                  leaderElectionLock;
   private final boolean                                      isEventual;
@@ -155,7 +157,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     // per-cache lock to ensure only one client can register a listener
     leaderElectionLock = toolkitInstanceFactory.getLockForCache(cache, LEADER_ELECTION_LOCK_NAME);
     evictionListener = new CacheEventListener();
-    backend.addListener(evictionListener);
+    topology.addTopologyListener(new EventListenersRefresher());
+    notifyCacheEventListenersChanged(); // just notify to initialize the registration state
 
     CacheLockProvider cacheLockProvider = new TCCacheLockProvider(backend, valueModeHandler);
     internalContext = new ClusteredCacheInternalContext(toolkitInstanceFactory.getToolkit(), cacheLockProvider);
@@ -806,29 +809,52 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     return true;
   }
 
-  private class CacheEventListener implements ToolkitCacheListener {
+  private class CacheEventListener implements ToolkitCacheListener<String> {
 
     @Override
-    public void onEviction(Object key) {
+    public void onEviction(String key) {
       evictionObserver.begin();
       evictionObserver.end(EvictionOutcome.SUCCESS);
-
       electLeaderIfNecessary();
       // only leader handles server events
       if (isThisNodeLeader()) {
-        Element element = new Element(valueModeHandler.getRealKeyObject((String) key), null);
+        Element element = new Element(valueModeHandler.getRealKeyObject(key), null);
         registeredEventListeners.notifyElementEvicted(element, false);
       }
     }
 
     @Override
-    public void onExpiration(Object key) {
+    public void onExpiration(String key) {
       electLeaderIfNecessary();
       // only leader handles server events
       if (isThisNodeLeader()) {
-        Element element = new Element(valueModeHandler.getRealKeyObject((String) key), null);
+        Element element = new Element(valueModeHandler.getRealKeyObject(key), null);
         registeredEventListeners.notifyElementExpiry(element, false);
       }
+    }
+  }
+
+  private class EventListenersRefresher implements ClusterTopologyListener {
+    @Override
+    public void nodeJoined(final ClusterNode node) {
+    }
+
+    @Override
+    public void nodeLeft(final ClusterNode node) {
+    }
+
+    @Override
+    public void clusterOnline(final ClusterNode node) {
+      // Need to refresh once when cluster is online again in case listener unregister failure due to cluster disconnect
+      notifyCacheEventListenersChanged();
+    }
+
+    @Override
+    public void clusterOffline(final ClusterNode node) {
+    }
+
+    @Override
+    public void clusterRejoined(final ClusterNode oldNode, final ClusterNode newNode) {
     }
   }
 
@@ -854,4 +880,14 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     return (int) System.currentTimeMillis() / 1000;
   }
 
+  @Override
+  public synchronized void notifyCacheEventListenersChanged() {
+    if (cache.getCacheEventNotificationService().hasCacheEventListeners() && !cacheEventListenerRegistered) {
+      backend.addListener(evictionListener);
+      cacheEventListenerRegistered = true;
+    } else if (!cache.getCacheEventNotificationService().hasCacheEventListeners() && cacheEventListenerRegistered) {
+      backend.removeListener(evictionListener);
+      cacheEventListenerRegistered = false;
+    }
+  }
 }

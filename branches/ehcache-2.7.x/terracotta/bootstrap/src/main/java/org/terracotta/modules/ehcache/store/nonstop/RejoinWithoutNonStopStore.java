@@ -585,4 +585,9 @@ public final class RejoinWithoutNonStopStore implements TerracottaStore {
   public WriteBehind createWriteBehind() {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public void notifyCacheEventListenersChanged() {
+    throw new RejoinCacheException("Client started rejoin during notifyCacheEventListenersChanged()");
+  }
 }

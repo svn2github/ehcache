@@ -316,4 +316,9 @@ public class LocalReadsAndExceptionOnWritesTimeoutStore implements TerracottaSto
     public WriteBehind createWriteBehind() {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void notifyCacheEventListenersChanged() {
+        writer.notifyCacheEventListenersChanged();
+    }
 }

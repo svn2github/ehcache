@@ -1799,4 +1799,29 @@ public class NonStopStoreWrapper implements TerracottaStore {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void notifyCacheEventListenersChanged() {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    // public abstract net.sf.ehcache.Status net.sf.ehcache.store.Store.getStatus()
+    nonStop.start(toolkitNonStopConfiguration);
+    try {
+      throwNonStopExceptionWhenClusterNotInit();
+      this.delegate.notifyCacheEventListenersChanged();
+      nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
+    } catch (NonStopToolkitInstantiationException e) {
+      handleNonStopToolkitInstantiationException(e);
+      getTimeoutBehavior(false).notifyCacheEventListenersChanged();
+    } catch (NonStopException e) {
+      nonstopObserver.end(NonStopOperationOutcomes.TIMEOUT);
+      getTimeoutBehavior(false).notifyCacheEventListenersChanged();
+    } catch (RejoinException e) {
+      nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
+      getTimeoutBehavior(true).notifyCacheEventListenersChanged();
+    } finally {
+      nonStop.finish();
+    }
+  }
 }
