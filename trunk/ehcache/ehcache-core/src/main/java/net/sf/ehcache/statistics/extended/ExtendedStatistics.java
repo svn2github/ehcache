@@ -16,18 +16,17 @@
 
 package net.sf.ehcache.statistics.extended;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
-
 import org.terracotta.statistics.archive.Timestamped;
+
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The ExtendedStatistics interface.
@@ -401,28 +400,28 @@ public interface ExtendedStatistics {
     }
 
     /**
-     * The Interface Latency.
+     * The Latency interface. Provides min/max/average.
      */
     public interface Latency {
 
         /**
-         * Minimum.
+         * Minimum latency observed.
          *
-         * @return the statistic
+         * @return Minimum observed latency. NULL if no operation was observed.
          */
         Statistic<Long> minimum();
 
         /**
-         * Maximum.
+         * Maximum latency observed.
          *
-         * @return the statistic
+         * @return Maximum observed latency. NULL if no operation was observed.
          */
         Statistic<Long> maximum();
 
         /**
-         * Average.
+         * Average observed latency.
          *
-         * @return the statistic
+         * @return Average observed latency. NULL if no operation was observed.
          */
         Statistic<Double> average();
     }
