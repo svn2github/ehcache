@@ -673,4 +673,11 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
         }
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public void notifyCacheEventListenersChanged() {
+        if (underlyingStore instanceof TerracottaStore) {
+            ((TerracottaStore)underlyingStore).notifyCacheEventListenersChanged();
+        }
+    }
 }

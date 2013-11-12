@@ -65,4 +65,9 @@ public interface TerracottaStore extends Store {
      */
     public WriteBehind createWriteBehind();
 
+    /**
+     * Notify the underlying store that some change has occured in the set of registered cache listeners.
+     */
+    public void notifyCacheEventListenersChanged();
+
 }

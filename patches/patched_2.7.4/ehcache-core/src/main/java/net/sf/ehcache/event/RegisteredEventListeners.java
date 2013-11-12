@@ -23,8 +23,11 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.ExpiredOutcome;
 import net.sf.ehcache.CacheStoreHelper;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.distribution.CacheReplicator;
+import net.sf.ehcache.store.TerracottaStore;
 
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.observer.OperationObserver;
@@ -54,7 +57,7 @@ public class RegisteredEventListeners {
      */
     private final Set<ListenerWrapper> cacheEventListeners = new CopyOnWriteArraySet<ListenerWrapper>();
     private final Set<InternalCacheEventListener> orderedListeners = new CopyOnWriteArraySet<InternalCacheEventListener>();
-    private final Cache cache;
+    private final Ehcache cache;
 
     private final AtomicBoolean hasReplicator = new AtomicBoolean(false);
 
@@ -69,10 +72,20 @@ public class RegisteredEventListeners {
      * @param cache
      */
     public RegisteredEventListeners(Cache cache) {
-        //XXX this isn't really very nice
-        StatisticsManager.associate(this).withParent(cache);
-        this.cache = cache;
-        helper = new CacheStoreHelper(cache);
+      this(cache, new CacheStoreHelper(cache));
+    }
+
+    /**
+     * Construct a registered event listeners service
+     *
+     * @param cache the {@link Cache}
+     * @param helper helper for getting the {@link net.sf.ehcache.store.Store} out of the {@link Cache}
+     */
+    public RegisteredEventListeners(Ehcache cache, CacheStoreHelper helper) {
+      //XXX this isn't really very nice
+      StatisticsManager.associate(this).withParent(cache);
+      this.cache = cache;
+      this.helper = helper;
     }
 
     /**
@@ -377,6 +390,9 @@ public class RegisteredEventListeners {
         if (result && cacheEventListener instanceof CacheReplicator) {
             this.hasReplicator.set(true);
         }
+        if (result) {
+            notifyEventListenersChangedIfNecessary();
+        }
         return result;
     }
 
@@ -423,7 +439,9 @@ public class RegisteredEventListeners {
         } else {
             hasReplicator.set(false);
         }
-
+        if (result) {
+            notifyEventListenersChangedIfNecessary();
+        }
         return result;
     }
 
@@ -469,6 +487,8 @@ public class RegisteredEventListeners {
             listenerWrapper.getListener().dispose();
         }
         cacheEventListeners.clear();
+
+        notifyEventListenersChangedIfNecessary();
 
         for (InternalCacheEventListener orderedListener : orderedListeners) {
             orderedListener.dispose();
@@ -592,4 +612,9 @@ public class RegisteredEventListeners {
     }
 
 
+    private void notifyEventListenersChangedIfNecessary() {
+        if (cache.getStatus() == Status.STATUS_ALIVE && helper.getStore() instanceof TerracottaStore) {
+            ((TerracottaStore)helper.getStore()).notifyCacheEventListenersChanged();
+        }
+    }
 }

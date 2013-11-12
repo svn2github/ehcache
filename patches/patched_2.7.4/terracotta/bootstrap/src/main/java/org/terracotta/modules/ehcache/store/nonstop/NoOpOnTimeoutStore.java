@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Implementation of {@link NonstopStore} which returns null for all get operations and does nothing for puts and
+ * Implementation of {@link TerracottaStore} which returns null for all get operations and does nothing for puts and
  * removes.
  * 
  * @author Abhishek Sanoujam
@@ -507,4 +507,8 @@ public final class NoOpOnTimeoutStore implements TerracottaStore {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public void notifyCacheEventListenersChanged() {
+    // no-op
+  }
 }

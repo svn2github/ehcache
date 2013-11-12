@@ -28,6 +28,7 @@ import net.sf.ehcache.event.CountingCacheEventListener.CacheEvent;
 import static net.sf.ehcache.DiskStoreTest.getDiskStore;
 import static net.sf.ehcache.event.CountingCacheEventListener.getCountingCacheEventListener;
 
+import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 
@@ -40,6 +41,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.After;
 import org.junit.Before;
@@ -796,5 +800,25 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         }
 
         runThreads(executables);
+    }
+
+    @Test
+    public void testNotifyChangeOnListenerRemove() throws Exception {
+        TerracottaStore terracottaStore = mock(TerracottaStore.class);
+        CacheStoreHelper storeHelper = when(mock(CacheStoreHelper.class).getStore()).thenReturn(terracottaStore).getMock();
+        RegisteredEventListeners registeredEventListeners = new RegisteredEventListeners(manager.getCache(cacheName), storeHelper);
+        registeredEventListeners.registerListener(new TestCacheEventListener());
+        verify(terracottaStore).notifyCacheEventListenersChanged();
+        registeredEventListeners.unregisterListener(new TestCacheEventListener());
+        verify(terracottaStore).notifyCacheEventListenersChanged();
+    }
+
+    @Test
+    public void testNotifyChangeOnDispose() throws Exception {
+        TerracottaStore terracottaStore = mock(TerracottaStore.class);
+        CacheStoreHelper storeHelper = when(mock(CacheStoreHelper.class).getStore()).thenReturn(terracottaStore).getMock();
+        RegisteredEventListeners registeredEventListeners = new RegisteredEventListeners(manager.getCache(cacheName), storeHelper);
+        registeredEventListeners.dispose();
+        verify(terracottaStore).notifyCacheEventListenersChanged();
     }
 }

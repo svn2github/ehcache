@@ -1118,4 +1118,22 @@ public class ClusteredSafeStore implements TerracottaStore {
       throw new CacheException("Uncaught exception in recalculateSize() - " + t.getMessage(), t);
     }
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void notifyCacheEventListenersChanged() throws NonStopException, RejoinException {
+    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
+    try {
+      this.delegateClusteredStore.notifyCacheEventListenersChanged();
+    } catch (NonStopException e) {
+      throw e;
+    } catch (RejoinException e) {
+      throw e;
+    } catch (Throwable t) {
+      EXCEPTION_HANDLER.handleException(t);
+      throw new CacheException("Uncaught exception in notifyCacheEventListenersChanged() - " + t.getMessage(), t);
+    }
+  }
 }
