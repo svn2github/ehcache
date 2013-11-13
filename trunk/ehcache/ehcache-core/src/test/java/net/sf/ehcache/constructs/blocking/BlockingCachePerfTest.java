@@ -117,7 +117,7 @@ public class BlockingCachePerfTest {
             manager.addCache(cache);
             BlockingCache blockingCache = new BlockingCache(cache);
             blockingCache.setTimeoutMillis((int) (400 * StopWatch.getSpeedAdjustmentFactor()));
-            long duration = thrashCache(blockingCache, 50, (long) (1000L * StopWatch.getSpeedAdjustmentFactor()));
+            long duration = thrashCache(blockingCache, Runtime.getRuntime().availableProcessors() * 10, (long) (1000L * StopWatch.getSpeedAdjustmentFactor()));
             LOG.debug("Thrash Duration:" + duration);
         } finally {
             manager.shutdown();
@@ -141,6 +141,7 @@ public class BlockingCachePerfTest {
                         Object value = cache.get(key);
                         if (value == null) {
                             cache.put(new Element(key, "value" + i));
+                            System.out.println("Put " + key);
                         }
                         //The key will be in. Now check we can get it quickly
                         checkRetrievalOnKnownKey(cache, retrievalTime, key);
