@@ -479,8 +479,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   @Override
   public Element replace(Element element) throws NullPointerException {
-    if (isEventual && !EVENTUAL_CAS_ENABLED) {
-      throw new UnsupportedOperationException("CAS operations are not supported in eventual consistency mode, consider using a StronglyConsistentCacheAccessor");
+    if (isEventual) {
+      return replaceEventual(element);
     }
 
     String pKey = generatePortableKeyFor(element.getKey());
@@ -494,6 +494,16 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
       return oldElement;
     } finally {
       lock.writeLock().unlock();
+    }
+  }
+
+  private Element replaceEventual(Element element) {
+    if (!EVENTUAL_CAS_ENABLED) {
+      throw new UnsupportedOperationException("CAS operations are not supported in eventual consistency mode, consider using a StronglyConsistentCacheAccessor");
+    } else {
+      String pKey = generatePortableKeyFor(element.getKey());
+      ElementData value = valueModeHandler.createElementData(element);
+      return valueModeHandler.createElement(element.getObjectKey(), backend.replace(pKey, value));
     }
   }
 
