@@ -139,7 +139,7 @@ public class ClusteredStoreEventualCasEnabledTest {
   @Test
   public void clusteredStore_replace_2_args_enabled_in_eventual_consistency() {
     clusteredStore.replace(new Element("key", "value"), new Element("key", "other"), new DefaultElementValueComparator(cacheConfiguration));
-    verify(toolkitCacheInternal).getQuiet("key");
+    verify(toolkitCacheInternal).replace(any(), any(), any(), any(ToolkitValueComparator.class));
   }
 
   @Test
