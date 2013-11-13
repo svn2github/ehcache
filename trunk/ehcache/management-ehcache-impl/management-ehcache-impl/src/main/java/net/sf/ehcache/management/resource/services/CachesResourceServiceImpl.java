@@ -88,16 +88,4 @@ public final class CachesResourceServiceImpl implements CachesResourceService {
       throw new ResourceRuntimeException("Failed to create or update cache", e, Response.Status.BAD_REQUEST.getStatusCode());
     }
   }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void deleteCache(final UriInfo info) {
-    LOG.debug(String.format("Invoking CachesResourceServiceImpl.deleteCache: %s", info.getRequestUri()));
-
-    //Not implemented : 501
-    throw new ResourceRuntimeException("Not yet implemented", 501);
-  }
-
 }

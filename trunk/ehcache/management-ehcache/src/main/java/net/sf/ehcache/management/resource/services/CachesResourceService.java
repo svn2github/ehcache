@@ -4,7 +4,6 @@ package net.sf.ehcache.management.resource.services;
 import java.util.Collection;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
@@ -27,11 +26,12 @@ public interface CachesResourceService {
 
   /**
    * <p>
-   * Get a {@code Collection} of {@link CacheEntity} objects representing the cache information provided by the
-   * associated monitorable entity's agent given the request path.
+   * Get a {@code Collection} of {@link CacheEntity} objects representing the cache information provided by the associated monitorable
+   * entity's agent given the request path.
    * </p>
    * 
-   * @param info {@link UriInfo} for this resource request
+   * @param info
+   *          {@link UriInfo} for this resource request
    * @return a collection of {@link CacheEntity} objects when successful.
    */
   @GET
@@ -40,28 +40,17 @@ public interface CachesResourceService {
 
   /**
    * <p>
-   * Create or update a cache with the name specified in the request path, for a specific agent and cache manager. The request
-   * path that does not identify a unique cache resource for creation or identifies a cache that already exists will
-   * constitute a bad request and will be denied, resulting in a response with a 400 and 409 respectively.
+   * Create or update a cache with the name specified in the request path, for a specific agent and cache manager. The request path that
+   * does not identify a unique cache resource for creation or identifies a cache that already exists will constitute a bad request and will
+   * be denied, resulting in a response with a 400 and 409 respectively.
    * </p>
    * 
-   * @param info {@link UriInfo} for this resource request
-   * @param resource {@code CacheEntity} resource for update or creation
+   * @param info
+   *          {@link UriInfo} for this resource request
+   * @param resource
+   *          {@code CacheEntity} resource for update or creation
    */
   @PUT
   @Consumes(MediaType.APPLICATION_JSON)
   void createOrUpdateCache(@Context UriInfo info, CacheEntity resource);
-
-  /**
-   * <p>
-   * Delete a cache with the name specified in the request path, for a specific agent and cache manager. The request
-   * path that does not identify a unique cache resource for deletion will constitute a bad request and will be denied, 
-   * resulting in a response with a 400 status.
-   * </p>
-   * 
-   * @param info {@link UriInfo} for this resource request
-   */
-  @DELETE
-  void deleteCache(@Context UriInfo info);
-
 }

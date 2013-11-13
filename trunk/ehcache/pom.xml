@@ -21,7 +21,7 @@
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <surefire.version>2.15</surefire.version>
     <terracotta-toolkit-api-internal.version>1.8</terracotta-toolkit-api-internal.version>
-    <clustered-entity-management.version>0.1.0</clustered-entity-management.version>
+    <clustered-entity-management.version>0.2.0-SNAPSHOT</clustered-entity-management.version>
     <management-core.version>1.2.4-SNAPSHOT</management-core.version>
     <statistics.version>1.0.1</statistics.version>
     <quartz.version>2.2.2-SNAPSHOT</quartz.version>
