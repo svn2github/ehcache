@@ -49,6 +49,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.cache.ToolkitValueComparator;
 import org.terracotta.toolkit.internal.concurrent.locks.ToolkitLockTypeInternal;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
 
@@ -415,8 +416,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   @Override
   public Element removeElement(Element element, ElementValueComparator comparator) throws NullPointerException {
-    if (isEventual && !EVENTUAL_CAS_ENABLED) {
-      throw new UnsupportedOperationException("CAS operations are not supported in eventual consistency mode, consider using a StronglyConsistentCacheAccessor");
+    if (isEventual) {
+      return removeElementEventual(element, comparator);
     }
 
     String pKey = generatePortableKeyFor(element.getKey());
@@ -429,6 +430,20 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
       lock.writeLock().unlock();
     }
     return null;
+  }
+
+  private Element removeElementEventual(Element element, ElementValueComparator comparator) {
+    if (!EVENTUAL_CAS_ENABLED) {
+      throw new UnsupportedOperationException("CAS operations are not supported in eventual consistency mode, consider using a StronglyConsistentCacheAccessor");
+    } else {
+      String pKey = generatePortableKeyFor(element.getKey());
+      ElementData value = valueModeHandler.createElementData(element);
+      if (backend.remove(pKey, value, new ElementValueComparatorToolkitWrapper(element.getObjectKey(), comparator))) {
+        return element;
+      } else {
+        return null;
+      }
+    }
   }
 
   @Override
@@ -886,6 +901,25 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   private static int now() {
     return (int) System.currentTimeMillis() / 1000;
+  }
+
+  private static class ElementValueComparatorToolkitWrapper implements ToolkitValueComparator<Serializable> {
+
+    private final Object key;
+    private final ElementValueComparator wrappedComparator;
+
+    private ElementValueComparatorToolkitWrapper(Object key, ElementValueComparator wrappedComparator) {
+      this.key = key;
+      this.wrappedComparator = wrappedComparator;
+    }
+    @Override
+    public boolean equals(Serializable serializable, Serializable serializable2) {
+      ElementData val1 = (ElementData)serializable;
+      ElementData val2 = (ElementData)serializable2;
+      return wrappedComparator.equals(new Element(key, val1.getValue()),
+          new Element(key, val2.getValue()));
+
+    }
   }
 
 }

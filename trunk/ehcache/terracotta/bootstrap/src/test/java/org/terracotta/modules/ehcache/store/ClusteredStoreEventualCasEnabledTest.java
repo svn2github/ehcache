@@ -37,6 +37,7 @@ import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.ToolkitInternal;
 import org.terracotta.toolkit.internal.ToolkitProperties;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.cache.ToolkitValueComparator;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -144,6 +145,6 @@ public class ClusteredStoreEventualCasEnabledTest {
   @Test
   public void clusteredStore_removeElement_enabled_in_eventual_consistency() {
     clusteredStore.removeElement(new Element("key", "value"), new DefaultElementValueComparator(cacheConfiguration));
-    verify(toolkitCacheInternal).getQuiet("key");
+    verify(toolkitCacheInternal).remove(any(), any(), any(ToolkitValueComparator.class));
   }
 }
