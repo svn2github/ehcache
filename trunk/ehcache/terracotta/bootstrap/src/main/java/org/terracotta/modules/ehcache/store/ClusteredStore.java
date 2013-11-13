@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -67,8 +68,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.event.EventListenerList;
 
-import static net.sf.ehcache.statistics.StatisticBuilder.operation;
-
 public class ClusteredStore implements TerracottaStore, StoreListener {
 
   private static final Logger                                LOG                                     = LoggerFactory
@@ -122,7 +121,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
-
+    backend = toolkitInstanceFactory.getOrCreateToolkitCache(cache, isWANEnabled());
     configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache.getCacheManager().getName(),
                                                                           cache.getName());
     CacheConfiguration.TransactionalMode transactionalModeTemp = (TransactionalMode) configMap.get(TRANSACTIONAL_MODE);
@@ -146,7 +145,6 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
     ToolkitInternal toolkitInternal = (ToolkitInternal) toolkitInstanceFactory.getToolkit();
     checkContainsKeyOnPut = toolkitInternal.getProperties().getBoolean(CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME);
-    backend = toolkitInstanceFactory.getOrCreateToolkitCache(cache);
     LOG.info(getConcurrencyValueLogMsg(cache.getName(),
                                        backend.getConfiguration().getInt(ToolkitConfigFields.CONCURRENCY_FIELD_NAME)));
     // connect configurations
@@ -171,9 +169,13 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   }
 
   void setUpWanConfig() {
-    if (!cache.getCacheManager().getConfiguration().getTerracottaConfiguration().isWanEnabledTSA()) {
+    if (!isWANEnabled()) {
       toolkitInstanceFactory.markCacheWanDisabled(cache.getCacheManager().getName(), cache.getName());
     }
+  }
+
+  boolean isWANEnabled() {
+    return cache.getCacheManager().getConfiguration().getTerracottaConfiguration().isWanEnabledTSA();
   }
 
   public String getFullyQualifiedCacheName() {

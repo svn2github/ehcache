@@ -23,6 +23,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.collections.ToolkitListInternal;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -45,7 +46,7 @@ public interface ToolkitInstanceFactory {
   /**
    * Returns the backend {@link ToolkitCacheInternal} to be used for the cache
    */
-  ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache);
+  ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache, boolean isWANEnabled);
 
   /**
    * Returns a {@link ToolkitNotifier} for the cache for notifying {@link CacheConfigChangeNotificationMsg} across the
@@ -60,7 +61,7 @@ public interface ToolkitInstanceFactory {
 
   ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap();
 
-  ToolkitMap<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName);
+  ToolkitMap<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName, String cacheName);
 
   /**
    * Returns a {@link ToolkitNotifier} for the cachse to notify {@link CacheEventNotificationMsg} across the cluster
@@ -105,6 +106,8 @@ public interface ToolkitInstanceFactory {
 
   ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName);
 
+  ToolkitMap<String, Serializable> getOrCreateCacheManagerMetaInfoMap(String cacheManagerName);
+
   ToolkitLock getSoftLockWriteLock(String cacheManagerName, String cacheName, TransactionID transactionID, Object key);
 
   ToolkitReadWriteLock getSoftLockFreezeLock(String cacheManagerName, String cacheName, TransactionID transactionID,
@@ -141,4 +144,8 @@ public interface ToolkitInstanceFactory {
    * @param cacheName the cache name
    */
   void unlinkCache(String cacheName);
+
+  ToolkitListInternal getAsyncProcessingBucket(String bucketName, String cacheName);
+
+  void clusterRejoined();
 }

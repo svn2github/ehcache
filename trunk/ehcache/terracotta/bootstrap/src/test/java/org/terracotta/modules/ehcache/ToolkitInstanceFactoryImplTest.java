@@ -9,6 +9,20 @@
 
 package org.terracotta.modules.ehcache;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -46,21 +60,6 @@ import java.io.Serializable;
 
 import junit.framework.Assert;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 /**
  * ToolkitInstanceFactoryImplTest
  */
@@ -81,8 +80,10 @@ public class ToolkitInstanceFactoryImplTest {
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     toolkit = mock(Toolkit.class);
-    when(toolkit.getMap(anyString(), any(Class.class), any(Class.class))).thenReturn(mock(ToolkitMap.class));
+    ToolkitMap toolkitMap = mock(ToolkitMap.class);
+    when(toolkit.getMap(anyString(), any(Class.class), any(Class.class))).thenReturn(toolkitMap);
     ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
+    when(toolkitMap.getReadWriteLock()).thenReturn(rwLock);
     ToolkitLock lock = mock(ToolkitLock.class);
     when(lock.tryLock()).thenReturn(true);
     when(rwLock.readLock()).thenReturn(lock);
@@ -104,6 +105,7 @@ public class ToolkitInstanceFactoryImplTest {
     clusteredCacheManager.setToolkit(toolkit);
     clusteredCacheManager.setEntityLockHandler(mock(EntityLockHandler.class));
     when(clusteredEntityManager.getRootEntity(any(String.class), any(Class.class))).thenReturn(clusteredCacheManager);
+    when(clusteredEntityManager.getEntityLock(anyString())).thenReturn(mock(ToolkitReadWriteLock.class));
     factory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
     factory.setWANUtil(wanUtil);
     factory.linkClusteredCacheManager(CACHE_MANAGER_NAME, null);
@@ -111,18 +113,18 @@ public class ToolkitInstanceFactoryImplTest {
 
   @Test
   public void testGetOrCreateToolkitCacheForWanEnabled() throws Exception {
-    whenCacheIsWanEnabled().callGetOrCreateToolkitCache().assertInstanceOfWanAwareToolkitCache(true);
+    whenCacheIsWanEnabled().callGetOrCreateToolkitCache(true).assertInstanceOfWanAwareToolkitCache(true);
   }
 
   @Test
   public void testGetOrCreateToolkitCacheForWanDisabled() throws Exception {
-    whenCacheIsWanDisabled().callGetOrCreateToolkitCache().assertInstanceOfWanAwareToolkitCache(false);
+    whenCacheIsWanDisabled().callGetOrCreateToolkitCache(false).assertInstanceOfWanAwareToolkitCache(false);
   }
 
   @Test
   public void testMaxEntriesInCacheToMaxTotalCountTransformation() {
     CacheConfiguration configuration = new CacheConfiguration().terracotta(new TerracottaConfiguration()).maxEntriesInCache(10);
-    forEhcacheConfig(configuration).callGetOrCreateToolkitCache().validateMaxTotalCountForToolkitCacheIs(10);
+    forEhcacheConfig(configuration).callGetOrCreateToolkitCache(false).validateMaxTotalCountForToolkitCacheIs(10);
   }
 
   private void validateMaxTotalCountForToolkitCacheIs(int maxTotalCount) {
@@ -160,8 +162,8 @@ public class ToolkitInstanceFactoryImplTest {
     Assert.assertEquals(expectedResult, (resultantCache instanceof WanAwareToolkitCache));
   }
 
-  private ToolkitInstanceFactoryImplTest callGetOrCreateToolkitCache() {
-    resultantCache = factory.getOrCreateToolkitCache(ehcache);
+  private ToolkitInstanceFactoryImplTest callGetOrCreateToolkitCache(boolean isWANEnabled) {
+    resultantCache = factory.getOrCreateToolkitCache(ehcache, isWANEnabled);
     return this;
   }
 
@@ -193,12 +195,13 @@ public class ToolkitInstanceFactoryImplTest {
     cacheManagerEntity.setEntityLockHandler(mock(EntityLockHandler.class));
     when(clusteredEntityManager.getRootEntity(name, ClusteredCacheManager.class))
         .thenReturn(cacheManagerEntity);
-
+    when(clusteredEntityManager.getEntityLock(anyString())).thenReturn(mock(ToolkitReadWriteLock.class));
     ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
                                                                                        clusteredEntityManager);
 
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
     verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
+    verify(clusteredEntityManager).getEntityLock(anyString());
     verifyNoMoreInteractions(clusteredEntityManager);
   }
 

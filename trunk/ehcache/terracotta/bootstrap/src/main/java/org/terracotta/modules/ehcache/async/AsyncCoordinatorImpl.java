@@ -54,6 +54,8 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private final List<ProcessingBucket<E>> localBuckets;
   private final List<ProcessingBucket<E>> deadBuckets;
   private final String                    name;
+  private final String                    cacheName;
+  private final ToolkitInstanceFactory    toolkitInstanceFactory;
   private final AsyncConfig               config;
   private ItemScatterPolicy<? super E>    scatterPolicy;
   private ItemsFilter<E>                  filter;
@@ -68,14 +70,16 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   private volatile int                    concurrency = 1;
   private final LockHolder                lockHolder;
 
-  public AsyncCoordinatorImpl(String fullAsyncName, AsyncConfig config, ToolkitInstanceFactory toolkitInstanceFactory,
-                              Callback asyncFactoryCallback) {
+  public AsyncCoordinatorImpl(String fullAsyncName, String cacheName, AsyncConfig config,
+                              ToolkitInstanceFactory toolkitInstanceFactory, Callback asyncFactoryCallback) {
     this.name = fullAsyncName; // contains CacheManager name and Cache name
+    this.cacheName = cacheName;
     if (null == config) {
-      this.config = config = DefaultAsyncConfig.getInstance();
+      this.config = DefaultAsyncConfig.getInstance();
     } else {
       this.config = config;
     }
+    this.toolkitInstanceFactory = toolkitInstanceFactory;
     this.toolkit = (ToolkitInternal) toolkitInstanceFactory.getToolkit();
     this.aliveTimeoutSec = toolkit.getProperties().getLong(NODE_ALIVE_TIMEOUT_PROPERTY_NAME, 5L);
     this.cluster = toolkit.getClusterInfo();
@@ -84,7 +88,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
     this.nodeName = getAsyncNodeName(name, currentNode); // contains CacheManager name, Cache name and nodeId
     this.localBuckets = new ArrayList<ProcessingBucket<E>>();
     this.deadBuckets = new ArrayList<ProcessingBucket<E>>();
-    this.bucketManager = new BucketManager(toolkitInstanceFactory);
+    this.bucketManager = new BucketManager();
     this.commonAsyncLock = toolkit.getLock(name);
     ReadWriteLock nodeLock = new ReentrantReadWriteLock();
     this.nodeWriteLock = nodeLock.writeLock();
@@ -183,7 +187,7 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
   }
 
   private ProcessingBucket<E> createBucket(String bucketName, AsyncConfig processingConfig, boolean workingOnDeadBucket) {
-    ToolkitListInternal<E> toolkitList = (ToolkitListInternal) toolkit.getList(bucketName, null);
+    ToolkitListInternal<E> toolkitList = toolkitInstanceFactory.getAsyncProcessingBucket(bucketName, cacheName);
     if (!workingOnDeadBucket && toolkitList.size() > 0) { throw new AssertionError(
                                                                                    "List created should not have size greater than 0"); }
 
@@ -445,8 +449,9 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
      */
     private final ToolkitMap<String, Set<String>> nodeToBucketNames;
 
-    public BucketManager(ToolkitInstanceFactory toolkitFactory) {
-      this.nodeToBucketNames = toolkitFactory.getOrCreateAsyncListNamesMap(name);
+    public BucketManager() {
+      this.nodeToBucketNames = AsyncCoordinatorImpl.this.toolkitInstanceFactory.getOrCreateAsyncListNamesMap(name,
+                                                                                                             cacheName);
       nodeToBucketNames.putIfAbsent(DEAD_NODES, new HashSet<String>());
     }
 

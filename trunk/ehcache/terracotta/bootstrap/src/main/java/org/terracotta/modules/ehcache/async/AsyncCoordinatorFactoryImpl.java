@@ -9,11 +9,12 @@ import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.async.AsyncCoordinatorImpl.Callback;
 import org.terracotta.toolkit.collections.ToolkitMap;
 
+import com.terracotta.entity.ehcache.EhcacheEntitiesNaming;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
-  private static final String DELIMITER = "|";
   private final ToolkitInstanceFactory                          toolkitInstanceFactory;
   private final Map<String, AsyncCoordinatorImpl> localMap;
 
@@ -23,7 +24,7 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
   }
 
   private static String getFullAsyncName(String cacheManagerName, String cacheName) {
-    return cacheManagerName + DELIMITER + cacheName;
+    return EhcacheEntitiesNaming.getAsyncNameFor(cacheManagerName, cacheName);
   }
 
   @Override
@@ -57,12 +58,13 @@ public class AsyncCoordinatorFactoryImpl implements AsyncCoordinatorFactory {
           }
         }
       };
-      async = new AsyncCoordinatorImpl(fullAsyncName, config, toolkitInstanceFactory, stopCallable);
+      async = new AsyncCoordinatorImpl(fullAsyncName, cacheName, config, toolkitInstanceFactory, stopCallable);
       localMap.put(fullAsyncName, async);
     }
     return async;
   }
 
+  @Override
   public boolean destroy(final String cacheManagerName, final String cacheName) {
     AsyncConfig config = toolkitInstanceFactory.getOrCreateAsyncConfigMap().get(getFullAsyncName(cacheManagerName, cacheName));
     if (config != null) {

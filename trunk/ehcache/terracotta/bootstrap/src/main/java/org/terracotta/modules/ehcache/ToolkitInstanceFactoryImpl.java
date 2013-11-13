@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache;
 
+import static java.lang.String.format;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.ConfigurationFactory;
@@ -15,6 +16,8 @@ import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializationHelper;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
@@ -39,6 +42,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.collections.ToolkitListInternal;
 import org.terracotta.toolkit.internal.store.ConfigFieldsInternal;
 import org.terracotta.toolkit.nonstop.NonStopConfigurationRegistry;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
@@ -64,46 +68,47 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-
-import static java.lang.String.format;
 
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
+  public static final Logger           LOGGER                                   = LoggerFactory
+                                                                                      .getLogger(ToolkitInstanceFactoryImpl.class);
   public static final String  DELIMITER                                = "|";
-
   private static final String EVENT_NOTIFIER_SUFFIX                    = "event-notifier";
   private static final String DISPOSAL_NOTIFIER_SUFFIX                 = "disposal-notifier";
   private static final String EHCACHE_NAME_PREFIX                      = "__tc_clustered-ehcache";
   private static final String CONFIG_NOTIFIER_SUFFIX                   = "config-notifier";
   private static final String EHCACHE_TXNS_DECISION_STATE_MAP_NAME     = EHCACHE_NAME_PREFIX + DELIMITER
-                                                                         + "txnsDecision";
+                                                                                    + "txnsDecision";
   private static final String ALL_SOFT_LOCKS_MAP_SUFFIX                = "softLocks";
   private static final String NEW_SOFT_LOCKS_LIST_SUFFIX               = "newSoftLocks";
 
-  private static final String ASYNC_CONFIG_MAP                         = "asyncConfigMap";
   static final String         CLUSTERED_STORE_CONFIG_MAP               = EHCACHE_NAME_PREFIX + DELIMITER + "configMap";
 
   private static final String EHCACHE_TXNS_SOFTLOCK_WRITE_LOCK_NAME    = EHCACHE_NAME_PREFIX + DELIMITER
-                                                                         + "softWriteLock";
+                                                                                    + "softWriteLock";
 
   private static final String EHCACHE_TXNS_SOFTLOCK_FREEZE_LOCK_NAME   = EHCACHE_NAME_PREFIX + DELIMITER
-                                                                         + "softFreezeLock";
+                                                                                    + "softFreezeLock";
 
   private static final String EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME = EHCACHE_NAME_PREFIX + DELIMITER
-                                                                         + "softNotifierLock";
+                                                                                    + "softNotifierLock";
 
   protected final Toolkit     toolkit;
   private WANUtil             wanUtil;
   private final ClusteredEntityManager clusteredEntityManager;
-  private ClusteredCacheManager clusteredCacheManagerEntity;
+  private volatile ClusteredCacheManager clusteredCacheManagerEntity;
+  private final EntityNamesHolder      entityNames;
 
   public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
     updateDefaultNonStopConfig(toolkit);
     clusteredEntityManager = new ClusteredEntityManager(toolkit);
-
     this.wanUtil = new WANUtil(this);
+    this.entityNames = new EntityNamesHolder();
   }
 
   // Constructor to enable unit testing
@@ -111,6 +116,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     this.toolkit = toolkit;
     this.clusteredEntityManager = clusteredEntityManager;
     setWANUtil(new WANUtil(this));
+    this.entityNames = new EntityNamesHolder();
   }
 
   private void updateDefaultNonStopConfig(Toolkit toolkitParam) {
@@ -161,7 +167,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(final Ehcache cache) {
+  public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(final Ehcache cache, boolean isWANEnabled) {
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final String cacheManagerName = getCacheManagerName(cache);
     final String cacheName = cache.getName();
@@ -171,7 +177,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
      * ehcacheConfig) : getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
      */
 
-    return wanUtil.isWanEnabledCache(cacheManagerName, cacheName)
+    return isWANEnabled
         ? getOrCreateWanAwareToolkitCache(cacheManagerName, cacheName, ehcacheConfig)
         : getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
   }
@@ -212,8 +218,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   private ToolkitNotifier<CacheConfigChangeNotificationMsg> getOrCreateConfigChangeNotifier(String cacheManagerName, String cacheName) {
-    return toolkit.getNotifier(EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER + CONFIG_NOTIFIER_SUFFIX,
-        CacheConfigChangeNotificationMsg.class);
+    String notifierName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
+                          + CONFIG_NOTIFIER_SUFFIX;
+    ToolkitNotifier<CacheConfigChangeNotificationMsg> notifier = toolkit
+        .getNotifier(notifierName, CacheConfigChangeNotificationMsg.class);
+    addCacheMetaInfo(cacheName, ToolkitObjectType.NOTIFIER, notifierName);
+    return notifier;
   }
 
   @Override
@@ -228,8 +238,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   private ToolkitNotifier<CacheEventNotificationMsg> getOrCreateCacheEventNotifier(String cacheManagerName, String cacheName) {
-    return toolkit.getNotifier(EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER + EVENT_NOTIFIER_SUFFIX,
-        CacheEventNotificationMsg.class);
+    String notifierName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
+                          + EVENT_NOTIFIER_SUFFIX;
+    ToolkitNotifier<CacheEventNotificationMsg> notifier = toolkit.getNotifier(notifierName,
+                                                                              CacheEventNotificationMsg.class);
+    addCacheMetaInfo(cacheName, ToolkitObjectType.NOTIFIER, notifierName);
+    return notifier;
   }
 
   private static Configuration createClusteredCacheConfig(final CacheConfiguration ehcacheConfig,
@@ -277,7 +291,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return builder.build();
   }
 
-    private static boolean isPinnedInCache(final CacheConfiguration ehcacheConfig) {
+  private static boolean isPinnedInCache(final CacheConfiguration ehcacheConfig) {
     return ehcacheConfig.getPinningConfiguration() != null
            && ehcacheConfig.getPinningConfiguration().getStore() == PinningConfiguration.Store.INCACHE;
   }
@@ -287,7 +301,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     if (maxElementOnDisk <= 0 || maxElementOnDisk >= ToolkitConfigFields.DEFAULT_CONCURRENCY) { return ToolkitConfigFields.DEFAULT_CONCURRENCY; }
     int concurrency = 1;
     while (concurrency * 2 <= maxElementOnDisk) {// this while loop is not very time consuming, maximum it will do 8
-                                                 // iterations
+      // iterations
       concurrency *= 2;
     }
     return concurrency;
@@ -348,9 +362,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     // TODO: what should be the local cache config for the map?
     Configuration config = new ToolkitStoreConfigBuilder()
         .consistency(org.terracotta.toolkit.store.ToolkitConfigFields.Consistency.STRONG).build();
+    String softLockCacheName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
+                               + ALL_SOFT_LOCKS_MAP_SUFFIX;
     ToolkitCache<String, SerializedReadCommittedClusteredSoftLock> map = toolkit
-        .getCache(EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER + ALL_SOFT_LOCKS_MAP_SUFFIX,
-                  config, SerializedReadCommittedClusteredSoftLock.class);
+        .getCache(softLockCacheName, config, SerializedReadCommittedClusteredSoftLock.class);
+    addCacheMetaInfo(cacheName, ToolkitObjectType.CACHE, softLockCacheName);
     return new SerializedToolkitCache<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock>(map);
 
   }
@@ -358,24 +374,40 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public ToolkitMap<SerializedReadCommittedClusteredSoftLock, Integer> getOrCreateNewSoftLocksSet(String cacheManagerName,
                                                                                                   String cacheName) {
-    return toolkit.getMap(EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
-                          + NEW_SOFT_LOCKS_LIST_SUFFIX, SerializedReadCommittedClusteredSoftLock.class, Integer.class);
+    String softLockMapName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName) + DELIMITER
+                             + NEW_SOFT_LOCKS_LIST_SUFFIX;
+    ToolkitMap<SerializedReadCommittedClusteredSoftLock, Integer> softLockMap = toolkit
+        .getMap(softLockMapName, SerializedReadCommittedClusteredSoftLock.class, Integer.class);
+    addCacheMetaInfo(cacheName, ToolkitObjectType.MAP, softLockMapName);
+    return softLockMap;
   }
 
   @Override
   public ToolkitMap<String, AsyncConfig> getOrCreateAsyncConfigMap() {
-    return toolkit.getMap(ASYNC_CONFIG_MAP, String.class, AsyncConfig.class);
+    return toolkit.getMap(EhcacheEntitiesNaming.getAsyncConfigMapName(), String.class, AsyncConfig.class);
   }
 
   @Override
-  public ToolkitMap<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName) {
+  public ToolkitMap<String, Set<String>> getOrCreateAsyncListNamesMap(String fullAsyncName, String cacheName) {
     ToolkitMap asyncListNames = toolkit.getMap(fullAsyncName, String.class, Set.class);
+    addCacheMetaInfo(cacheName, ToolkitObjectType.MAP, fullAsyncName);
+    addKeyRemoveInfo(cacheName, EhcacheEntitiesNaming.getAsyncConfigMapName(), fullAsyncName);
     return asyncListNames;
   }
 
   @Override
+  public ToolkitListInternal getAsyncProcessingBucket(String bucketName, String cacheName) {
+    ToolkitListInternal toolkitList = (ToolkitListInternal) toolkit.getList(bucketName, null);
+    addCacheMetaInfo(cacheName, ToolkitObjectType.LIST, bucketName);
+    return toolkitList;
+  }
+
+  @Override
   public ToolkitMap<String, Serializable> getOrCreateClusteredStoreConfigMap(String cacheManagerName, String cacheName) {
-    return getOrCreateConfigMap(EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName));
+    String configMapName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName);
+    ToolkitMap<String, Serializable> configMap = getOrCreateConfigMap(configMapName);
+    addCacheMetaInfo(cacheName, ToolkitObjectType.MAP, configMapName);
+    return configMap;
   }
 
   private ToolkitMap<String, Serializable> getOrCreateConfigMap(final String fullyQualifiedCacheName) {
@@ -443,9 +475,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     getOrCreateCacheEventNotifier(cacheManagerName, cacheName).destroy();
     getOrCreateConfigChangeNotifier(cacheManagerName, cacheName).destroy();
     getOrCreateToolkitCache(EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName),
-        new ToolkitCacheConfigBuilder().maxCountLocalHeap(1)
-            .maxBytesLocalOffheap(0)
-            .build()).destroy();
+                            new ToolkitCacheConfigBuilder().maxCountLocalHeap(1).maxBytesLocalOffheap(0).build())
+        .destroy();
 
     // We always write the transactional mode into this config map, so theoretically if the cache existed, this map
     // won't be empty.
@@ -459,7 +490,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private void addNonStopConfigForCache(final CacheConfiguration ehcacheConfig, final String fullyQualifiedCacheName) {
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     ToolkitNonStopConfiguration nonstopConfiguration = new ToolkitNonStopConfiguration(
-        terracottaConfiguration.getNonstopConfiguration());
+                                                                                       terracottaConfiguration
+                                                                                           .getNonstopConfiguration());
     toolkit.getFeature(ToolkitFeatureType.NONSTOP).getNonStopConfigurationRegistry()
         .registerForInstance(nonstopConfiguration, fullyQualifiedCacheName, ToolkitObjectType.CACHE);
   }
@@ -471,11 +503,23 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   }
 
+  protected void addCacheMetaInfo(String cacheName, ToolkitObjectType type, String dsName) {
+    ToolkitBackedClusteredCacheManager tbccm = (ToolkitBackedClusteredCacheManager) clusteredCacheManagerEntity;
+    tbccm.addCacheMetaInfo(cacheName, type, dsName);
+  }
+
+  private void addKeyRemoveInfo(String cacheName, String toolkitMapName, String keytoBeRemoved) {
+    ToolkitBackedClusteredCacheManager tbccm = (ToolkitBackedClusteredCacheManager) clusteredCacheManagerEntity;
+    tbccm.addKeyRemoveInfo(cacheName, toolkitMapName, keytoBeRemoved);
+  }
+
   @Override
   public void linkClusteredCacheManager(String cacheManagerName, net.sf.ehcache.config.Configuration configuration) {
-    ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
-    if (clusteredCacheManager == null) {
-      ToolkitReadWriteLock cmRWLock = clusteredEntityManager.getEntityLock(EhcacheEntitiesNaming.getCacheManagerLockNameFor(cacheManagerName));
+    if (clusteredCacheManagerEntity == null) {
+      ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName,
+                                                                                         ClusteredCacheManager.class);
+      ToolkitReadWriteLock cmRWLock = clusteredEntityManager.getEntityLock(EhcacheEntitiesNaming
+          .getCacheManagerLockNameFor(cacheManagerName));
       ToolkitLock cmWriteLock = cmRWLock.writeLock();
       while (clusteredCacheManager == null) {
         if (cmWriteLock.tryLock()) {
@@ -488,16 +532,16 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
           clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
         }
       }
+      clusteredCacheManagerEntity = clusteredCacheManager;
+      entityNames.setCacheManagerName(cacheManagerName);
     }
-    clusteredCacheManagerEntity = clusteredCacheManager;
-    clusteredCacheManagerEntity.markInUse();
   }
 
   private ClusteredCacheManager createClusteredCacheManagerEntity(String cacheManagerName, net.sf.ehcache.config.Configuration configuration) {
     ClusteredCacheManager clusteredCacheManager;
     String xmlConfig = convertConfigurationToXML(configuration, cacheManagerName);
     clusteredCacheManager = new ToolkitBackedClusteredCacheManager(cacheManagerName,
-        new ClusteredCacheManagerConfiguration(xmlConfig));
+                                                                   new ClusteredCacheManagerConfiguration(xmlConfig));
     try {
       clusteredEntityManager.addRootEntity(cacheManagerName, ClusteredCacheManager.class, clusteredCacheManager);
     } catch (IllegalStateException isex) {
@@ -506,11 +550,17 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return clusteredCacheManager;
   }
 
+  @Override
+  public ToolkitMap<String, Serializable> getOrCreateCacheManagerMetaInfoMap(String cacheManagerName) {
+    String configMapName = EhcacheEntitiesNaming.getCacheManagerConfigMapName(cacheManagerName);
+    ToolkitMap<String, Serializable> configMap = toolkit.getMap(configMapName, String.class, Serializable.class);
+    return configMap;
+  }
+
   void addCacheEntityInfo(final String cacheName, final CacheConfiguration ehcacheConfig, String toolkitCacheName) {
     if (clusteredCacheManagerEntity == null) {
       throw new IllegalStateException(format("ClusteredCacheManger entity not configured for cache %s", cacheName));
     }
-
     ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
     if (cacheEntity == null) {
       ToolkitReadWriteLock cacheRWLock = clusteredCacheManagerEntity.getCacheLock(cacheName);
@@ -529,13 +579,14 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     }
     // TODO check some config elements
     clusteredCacheManagerEntity.markCacheInUse(cacheEntity);
+    entityNames.addCacheName(cacheName);
   }
 
   private ClusteredCache createClusteredCacheEntity(String cacheName, CacheConfiguration ehcacheConfig, String toolkitCacheName) {
-    ClusteredCache cacheEntity;ClusteredCacheConfiguration clusteredConfiguration = createClusteredCacheConfiguration(ehcacheConfig);
-    cacheEntity = new ToolkitBackedClusteredCache(cacheName, clusteredConfiguration, toolkitCacheName);
+    ClusteredCacheConfiguration clusteredConfiguration = createClusteredCacheConfiguration(ehcacheConfig);
+    ClusteredCache cacheEntity = new ToolkitBackedClusteredCache(cacheName, clusteredConfiguration, toolkitCacheName);
     try {
-        clusteredCacheManagerEntity.addCache(cacheName, cacheEntity);
+      clusteredCacheManagerEntity.addCache(cacheName, cacheEntity);
     } catch (IllegalStateException ise) {
       cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
     }
@@ -544,7 +595,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   private ClusteredCacheConfiguration createClusteredCacheConfiguration(CacheConfiguration ehcacheConfig) {
     net.sf.ehcache.config.Configuration configuration = parseCacheManagerConfiguration(clusteredCacheManagerEntity.getConfiguration()
-        .getConfigurationAsText());
+.getConfigurationAsText());
     String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(configuration, ehcacheConfig);
     return new ClusteredCacheConfiguration(xmlConfig);
   }
@@ -559,6 +610,43 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     }
   }
 
+  @Override
+  public void clusterRejoined() {
+    String cacheManagerName = entityNames.cacheManagerName;
+    synchronized (entityNames) {
+      ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName,
+                                                                                         ClusteredCacheManager.class);
+      if (clusteredCacheManager == null) {
+        LOGGER.error("Cache Manager " + cacheManagerName + " has been destroyed by some other node");
+      } else {
+        // release Cache Manager lock after rejoin
+        clusteredCacheManager.releaseUse();
+
+        // release cache read lock after rejoin
+        for (String cacheName : entityNames.getCacheNames()) {
+          ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
+          if (cacheEntity == null) {
+            LOGGER.error("Cache " + cacheName + " has been destroyed by some other node");
+          } else {
+            clusteredCacheManagerEntity.releaseCacheUse(cacheEntity);
+          }
+        }
+
+        // grab Cache Manager read lock after rejoin
+        clusteredCacheManager.markInUse();
+
+        // grab cache read lock after rejoin
+        for (String cacheName : entityNames.getCacheNames()) {
+          ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
+          if (cacheEntity == null) {
+            LOGGER.error("Cache " + cacheName + " has been destroyed by some other node");
+          } else {
+            clusteredCacheManagerEntity.markCacheInUse(cacheEntity);
+          }
+        }
+      }
+    }
+  }
 
   private String convertConfigurationToXML(net.sf.ehcache.config.Configuration configuration, String cacheManagerName) {
     net.sf.ehcache.config.Configuration targetConfiguration = cloneConfiguration(configuration);
@@ -577,8 +665,32 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private net.sf.ehcache.config.Configuration parseCacheManagerConfiguration(String xmlCacheManagerConfig) {
     net.sf.ehcache.config.Configuration targetConfiguration;
     targetConfiguration = ConfigurationFactory.parseConfiguration(
-        new BufferedInputStream(new ByteArrayInputStream(xmlCacheManagerConfig.getBytes())));
+new BufferedInputStream(new ByteArrayInputStream(xmlCacheManagerConfig.getBytes())));
     return targetConfiguration;
+  }
+
+  private class EntityNamesHolder {
+    private String            cacheManagerName;
+    private final Set<String> cacheNames;
+
+    private EntityNamesHolder() {
+      cacheNames = new HashSet<String>();
+    }
+
+    private synchronized void setCacheManagerName(String cacheMgrName) {
+      if (cacheManagerName == null) {
+        cacheManagerName = cacheMgrName;
+        ToolkitInstanceFactoryImpl.this.clusteredCacheManagerEntity.markInUse();
+      }
+    }
+
+    private void addCacheName(String cacheName) {
+      cacheNames.add(cacheName);
+    }
+
+    private Set<String> getCacheNames() {
+      return Collections.unmodifiableSet(cacheNames);
+    }
   }
 
   private static class EhcacheTcConfig {
@@ -621,7 +733,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       File file = new File(urlOrFilePath);
       return file.exists() && file.isFile();
     }
-    
+
     private static String fetchConfigFromURL(String urlOrFilePath) {
       try {
         return fetchConfigFromStream(new URL(urlOrFilePath).openStream());
@@ -631,7 +743,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         throw new RuntimeException(e);
       }
     }
-    
+
     private static String fetchConfigFromStream(InputStream inputStream) {
       try {
         StringBuilder builder = new StringBuilder();

@@ -15,9 +15,11 @@ public class FireRejoinOperatorEventClusterListener implements ClusterTopologyLi
   private volatile boolean     clusterOnline                   = true;
   private volatile ClusterNode currentNode;
   private final Toolkit        toolkit;
+  private final ToolkitInstanceFactory toolkitInstanceFactory;
 
   public FireRejoinOperatorEventClusterListener(ToolkitInstanceFactory toolkitInstanceFactory) {
     this.toolkit = toolkitInstanceFactory.getToolkit();
+    this.toolkitInstanceFactory = toolkitInstanceFactory;
   }
 
   @Override
@@ -36,6 +38,7 @@ public class FireRejoinOperatorEventClusterListener implements ClusterTopologyLi
     if (clusterOnline) {
       toolkit.fireOperatorEvent(OperatorEventLevel.INFO, EHCACHE_OPERATOR_EVENT_APP_NAME,
                                 oldNode.getId() + " rejoined as " + newNode.getId());
+      toolkitInstanceFactory.clusterRejoined();
     }
   }
 

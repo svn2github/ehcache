@@ -15,6 +15,12 @@
  */
 package org.terracotta.modules.ehcache.store;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -42,13 +48,6 @@ import org.terracotta.toolkit.internal.cache.ToolkitValueComparator;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * Test that asserts quickSize is not called when {@link net.sf.ehcache.Ehcache} sizing methods are called.
  *
@@ -59,20 +58,20 @@ public class ClusteredStoreEventualCasEnabledTest {
   private static boolean previousValue;
   private static Field eventual_cas_enabled;
 
-  private ToolkitInstanceFactory toolkitInstanceFactory = mock(ToolkitInstanceFactory.class);
-  private Ehcache cache = mock(Ehcache.class);
-  private CacheCluster cacheCluster = mock(CacheCluster.class);
-  private CacheConfiguration cacheConfiguration = new CacheConfiguration().terracotta(new TerracottaConfiguration().clustered(true)
+  private final ToolkitInstanceFactory toolkitInstanceFactory = mock(ToolkitInstanceFactory.class);
+  private final Ehcache cache = mock(Ehcache.class);
+  private final CacheCluster cacheCluster = mock(CacheCluster.class);
+  private final CacheConfiguration cacheConfiguration = new CacheConfiguration().terracotta(new TerracottaConfiguration().clustered(true)
       .consistency(TerracottaConfiguration.Consistency.EVENTUAL));
-  private CacheManager cacheManager = mock(CacheManager.class);
-  private ToolkitMap configMap = mock(ToolkitMap.class);
-  private ToolkitInternal toolkitInternal = mock(ToolkitInternal.class);
-  private ToolkitProperties toolkitProperties = mock(ToolkitProperties.class);
-  private ToolkitCacheInternal toolkitCacheInternal = mock(ToolkitCacheInternal.class);
-  private org.terracotta.toolkit.config.Configuration toolkitCacheConfiguration = mock(org.terracotta.toolkit.config.Configuration.class);
-  private ToolkitNotifier toolkitNotifier = mock(ToolkitNotifier.class);
+  private final CacheManager cacheManager = mock(CacheManager.class);
+  private final ToolkitMap configMap = mock(ToolkitMap.class);
+  private final ToolkitInternal toolkitInternal = mock(ToolkitInternal.class);
+  private final ToolkitProperties toolkitProperties = mock(ToolkitProperties.class);
+  private final ToolkitCacheInternal toolkitCacheInternal = mock(ToolkitCacheInternal.class);
+  private final org.terracotta.toolkit.config.Configuration toolkitCacheConfiguration = mock(org.terracotta.toolkit.config.Configuration.class);
+  private final ToolkitNotifier toolkitNotifier = mock(ToolkitNotifier.class);
   private ClusteredStore clusteredStore;
-  private ToolkitReadWriteLock tkRWLock = mock(ToolkitReadWriteLock.class);
+  private final ToolkitReadWriteLock tkRWLock = mock(ToolkitReadWriteLock.class);
 
   @BeforeClass
   public static void setUpClass() {
@@ -110,7 +109,7 @@ public class ClusteredStoreEventualCasEnabledTest {
     when(toolkitInstanceFactory.getToolkit()).thenReturn(toolkitInternal);
     when(toolkitInternal.getProperties()).thenReturn(toolkitProperties);
     when(toolkitProperties.getBoolean(anyString())).thenReturn(false);
-    when(toolkitInstanceFactory.getOrCreateToolkitCache(eq(cache))).thenReturn(toolkitCacheInternal);
+    when(toolkitInstanceFactory.getOrCreateToolkitCache(eq(cache), eq(false))).thenReturn(toolkitCacheInternal);
     when(toolkitCacheInternal.getConfiguration()).thenReturn(toolkitCacheConfiguration);
     when(toolkitCacheConfiguration.getInt(anyString())).thenReturn(1);
     when(toolkitInstanceFactory.getOrCreateConfigChangeNotifier(eq(cache))).thenReturn(toolkitNotifier);
@@ -120,6 +119,11 @@ public class ClusteredStoreEventualCasEnabledTest {
       @Override
       void setUpWanConfig() {
         // Do Nothing
+      }
+
+      @Override
+      boolean isWANEnabled() {
+        return false;
       }
     };
   }
