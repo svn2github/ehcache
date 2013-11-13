@@ -10,6 +10,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.feature.NonStopFeature;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.cache.ToolkitValueComparator;
 import org.terracotta.toolkit.internal.cache.VersionUpdateListener;
 import org.terracotta.toolkit.internal.cache.VersionedValue;
 import org.terracotta.toolkit.nonstop.NonStopException;
@@ -285,6 +286,18 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   public void destroy() {
     waitIfRequired();
     delegate.destroy();
+  }
+
+  @Override
+  public boolean remove(Object key, Object value, ToolkitValueComparator<V> comparator) {
+    waitIfRequired();
+    return delegate.remove(key, value, comparator);
+  }
+
+  @Override
+  public boolean replace(K key, V oldValue, V newValue, ToolkitValueComparator<V> comparator) {
+    waitIfRequired();
+    return delegate.replace(key, oldValue, newValue, comparator);
   }
 
   @Override
