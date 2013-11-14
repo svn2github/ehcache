@@ -103,7 +103,7 @@ public class WANUtil {
                    + "Please check your client's ehcache.xml and add 'wanEnabledTSA = true'", cacheName);
       throw new IllegalConfigurationException("Cache '" + cacheName + "' is already marked as enabled for WAN");
     }
-    LOGGER.info("Marked the cache '{}' wan disabled for CacheManager '{}'", cacheName, cacheManagerName);
+    LOGGER.debug("Marked the cache '{}' wan disabled for CacheManager '{}'", cacheName, cacheManagerName);
   }
 
   /**
