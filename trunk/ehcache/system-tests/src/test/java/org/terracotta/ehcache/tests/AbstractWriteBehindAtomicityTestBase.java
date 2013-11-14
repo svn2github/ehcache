@@ -41,13 +41,13 @@ public abstract class AbstractWriteBehindAtomicityTestBase extends AbstractCache
       while ((st = reader.readLine()) != null) {
         // only check for main thread
         if (st.contains("main")) {
-          if (st.contains("beginAtomicTransaction")) {
+          if (st.contains("BEGINOPERATION")) {
             Assert.assertEquals(false, underExplicitLock);
             underExplicitLock = true;
-          } else if (st.contains("Commit Transaction") && underExplicitLock) {
+          } else if (st.contains("COMMITTRANSACTION") && underExplicitLock) {
             txnCount++;
             Assert.assertEquals(txnCount, 1);
-          } else if (st.contains("endAtomicTransaction")) {
+          } else if (st.contains("ENDOPERATION")) {
             Assert.assertEquals(true, underExplicitLock);
             underExplicitLock = false;
             Assert.assertEquals(txnCount, 1);
