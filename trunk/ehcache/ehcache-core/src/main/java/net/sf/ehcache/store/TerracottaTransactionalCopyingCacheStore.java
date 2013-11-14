@@ -69,4 +69,9 @@ public final class TerracottaTransactionalCopyingCacheStore extends AbstractCopy
     public WriteBehind createWriteBehind() {
         return getUnderlyingStore().createWriteBehind();
     }
+
+    @Override
+    public void notifyCacheEventListenersChanged() {
+        getUnderlyingStore().notifyCacheEventListenersChanged();
+    }
 }

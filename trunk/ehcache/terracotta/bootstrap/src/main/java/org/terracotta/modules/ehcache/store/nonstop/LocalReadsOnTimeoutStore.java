@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A {@link NonstopStore} implementation that returns the local value in the VM, if present, for get operations and
+ * A {@link TerracottaStore} implementation that returns the local value in the VM, if present, for get operations and
  * no-op for put, remove and other operations
  * 
  * @author Abhishek Sanoujam
@@ -44,7 +44,7 @@ public class LocalReadsOnTimeoutStore implements TerracottaStore {
   private final TerracottaStore delegate;
 
   /**
-   * Constructor accepting the {@link NonstopActiveDelegateHolder}
+   * Constructor accepting the {@link TerracottaStore}
    */
   public LocalReadsOnTimeoutStore(TerracottaStore delegate) {
     this.delegate = delegate;
@@ -628,5 +628,10 @@ public class LocalReadsOnTimeoutStore implements TerracottaStore {
   @Override
   public WriteBehind createWriteBehind() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void notifyCacheEventListenersChanged() {
+    delegate.notifyCacheEventListenersChanged();
   }
 }

@@ -396,4 +396,8 @@ public class TestRejoinStore implements TerracottaStore {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public void notifyCacheEventListenersChanged() {
+        alwaysCalledMethod();
+    }
 }

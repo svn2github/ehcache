@@ -356,4 +356,11 @@ public abstract class AbstractTransactionStore extends AbstractStore implements 
             return oldElement;
         }
     }
+
+    @Override
+    public void notifyCacheEventListenersChanged() {
+        if (underlyingStore instanceof TerracottaStore) {
+            ((TerracottaStore)underlyingStore).notifyCacheEventListenersChanged();
+        }
+    }
 }

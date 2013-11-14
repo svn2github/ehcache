@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Implementation of {@link NonstopStore} that throws {@link NonStopCacheException} for all operations.
+ * Implementation of {@link TerracottaStore} that throws {@link NonStopCacheException} for all operations.
  * 
  * @author Abhishek Sanoujam
  */
@@ -612,5 +612,10 @@ public final class ExceptionOnTimeoutStore implements TerracottaStore {
   @Override
   public WriteBehind createWriteBehind() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void notifyCacheEventListenersChanged() {
+    throw new NonStopCacheException("notifyCacheEventListenersChanged() timed out");
   }
 }

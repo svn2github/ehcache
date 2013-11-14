@@ -13,6 +13,7 @@ import net.sf.ehcache.ElementData;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.cluster.ClusterNode;
+import net.sf.ehcache.cluster.ClusterTopologyListener;
 import net.sf.ehcache.concurrent.CacheLockProvider;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfiguration.TransactionalMode;
@@ -77,7 +78,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   private static final String                                CHECK_CONTAINS_KEY_ON_PUT_PROPERTY_NAME = "ehcache.clusteredStore.checkContainsKeyOnPut";
   private static final String                                TRANSACTIONAL_MODE                      = "trasactionalMode";
   private static final String                                LEADER_ELECTION_LOCK_NAME               = "SERVER-EVENT-SUBSCRIPTION-LOCK";
-  private static final String                                LEADER_NODE_ID                          = "LEADER-NODE-ID";
+  protected static final String                              LEADER_NODE_ID                          = "LEADER-NODE-ID";
   private static final boolean                               EVENTUAL_CAS_ENABLED                    = Boolean.getBoolean(ENABLE_EVENTUAL_CAS_OPERATIONS_PROPERTY);
 
   // final protected fields
@@ -99,6 +100,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   // non-final private fields
   private EventListenerList                                  listenerList;
+  private boolean                                            cacheEventListenerRegistered = false;
   private final ToolkitLock                                  eventualConcurrentLock;
   private final ToolkitLock                                  leaderElectionLock;
   private final boolean                                      isEventual;
@@ -110,6 +112,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
                                                                                                          .build();
   private final CacheCluster                                 topology;
   private final ToolkitMap<String, Serializable>             configMap;
+  private final EventListenersRefresher                      eventListenersRefresher;
 
   public ClusteredStore(ToolkitInstanceFactory toolkitInstanceFactory, Ehcache cache, CacheCluster topology) {
     validateConfig(cache);
@@ -159,7 +162,9 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     // per-cache lock to ensure only one client can register a listener
     leaderElectionLock = toolkitInstanceFactory.getLockForCache(cache, LEADER_ELECTION_LOCK_NAME);
     evictionListener = new CacheEventListener();
-    backend.addListener(evictionListener);
+    eventListenersRefresher = new EventListenersRefresher();
+    topology.addTopologyListener(eventListenersRefresher);
+    notifyCacheEventListenersChanged(); // just notify to initialize the registration state
 
     CacheLockProvider cacheLockProvider = new TCCacheLockProvider(backend, valueModeHandler);
     internalContext = new ClusteredCacheInternalContext(toolkitInstanceFactory.getToolkit(), cacheLockProvider);
@@ -511,19 +516,12 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   @Override
   public void dispose() {
+    dropLeaderStatus();
+    topology.removeTopologyListener(eventListenersRefresher);
     backend.removeListener(evictionListener);
     backend.disposeLocally();
     cacheConfigChangeBridge.disconnectConfigs();
     toolkitInstanceFactory.removeNonStopConfigforCache(cache);
-
-    leaderElectionLock.lock();
-    try {
-      if (isThisNodeLeader()) {
-        configMap.remove(LEADER_NODE_ID);
-      }
-    } finally {
-      leaderElectionLock.unlock();
-    }
   }
 
   @Override
@@ -850,8 +848,19 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     return (String) configMap.get(LEADER_NODE_ID);
   }
 
-  public boolean isThisNodeLeader() {
+  private boolean isThisNodeLeader() {
     return topology.getCurrentNode().getId().equals(getLeader());
+  }
+
+  private void dropLeaderStatus() {
+    leaderElectionLock.lock();
+    try {
+      if (isThisNodeLeader()) {
+        configMap.remove(LEADER_NODE_ID);
+      }
+    } finally {
+      leaderElectionLock.unlock();
+    }
   }
 
   private void electLeaderIfNecessary() {
@@ -878,29 +887,52 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
     return true;
   }
 
-  private class CacheEventListener implements ToolkitCacheListener {
+  private class CacheEventListener implements ToolkitCacheListener<String> {
 
     @Override
-    public void onEviction(Object key) {
+    public void onEviction(String key) {
       evictionObserver.begin();
       evictionObserver.end(EvictionOutcome.SUCCESS);
-
       electLeaderIfNecessary();
       // only leader handles server events
       if (isThisNodeLeader()) {
-        Element element = new Element(valueModeHandler.getRealKeyObject((String) key), null);
+        Element element = new Element(valueModeHandler.getRealKeyObject(key), null);
         registeredEventListeners.notifyElementEvicted(element, false);
       }
     }
 
     @Override
-    public void onExpiration(Object key) {
+    public void onExpiration(String key) {
       electLeaderIfNecessary();
       // only leader handles server events
       if (isThisNodeLeader()) {
-        Element element = new Element(valueModeHandler.getRealKeyObject((String) key), null);
+        Element element = new Element(valueModeHandler.getRealKeyObject(key), null);
         registeredEventListeners.notifyElementExpiry(element, false);
       }
+    }
+  }
+
+  private class EventListenersRefresher implements ClusterTopologyListener {
+    @Override
+    public void nodeJoined(final ClusterNode node) {
+    }
+
+    @Override
+    public void nodeLeft(final ClusterNode node) {
+    }
+
+    @Override
+    public void clusterOnline(final ClusterNode node) {
+      // Need to refresh once when cluster is online again in case listener unregister failure due to cluster disconnect
+      notifyCacheEventListenersChanged();
+    }
+
+    @Override
+    public void clusterOffline(final ClusterNode node) {
+    }
+
+    @Override
+    public void clusterRejoined(final ClusterNode oldNode, final ClusterNode newNode) {
     }
   }
 
@@ -924,6 +956,18 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
   private static int now() {
     return (int) System.currentTimeMillis() / 1000;
+  }
+
+  @Override
+  public synchronized void notifyCacheEventListenersChanged() {
+    if (cache.getCacheEventNotificationService().hasCacheEventListeners() && !cacheEventListenerRegistered) {
+      backend.addListener(evictionListener);
+      cacheEventListenerRegistered = true;
+    } else if (!cache.getCacheEventNotificationService().hasCacheEventListeners() && cacheEventListenerRegistered) {
+      dropLeaderStatus();
+      backend.removeListener(evictionListener);
+      cacheEventListenerRegistered = false;
+    }
   }
 
   private static class ElementValueComparatorToolkitWrapper implements ToolkitValueComparator<Serializable> {

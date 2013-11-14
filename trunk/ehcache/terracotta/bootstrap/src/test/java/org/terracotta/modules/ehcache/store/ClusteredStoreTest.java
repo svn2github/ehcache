@@ -8,77 +8,27 @@
  */
 package org.terracotta.modules.ehcache.store;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.cluster.ClusterTopologyListener;
+import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.event.CacheEventListenerAdapter;
+import net.sf.ehcache.store.DefaultElementValueComparator;
+import org.junit.Test;
+import org.terracotta.toolkit.cache.ToolkitCacheListener;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.cluster.CacheCluster;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.TerracottaConfiguration;
-import net.sf.ehcache.store.DefaultElementValueComparator;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
-import org.terracotta.toolkit.collections.ToolkitMap;
-import org.terracotta.toolkit.events.ToolkitNotifier;
-import org.terracotta.toolkit.internal.ToolkitInternal;
-import org.terracotta.toolkit.internal.ToolkitProperties;
-import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 
 /**
  * Test that asserts quickSize is not called when {@link Ehcache} sizing methods are called.
  *
  * @author Ludovic Orban
  */
-public class ClusteredStoreTest {
-
-  private final ToolkitInstanceFactory toolkitInstanceFactory = mock(ToolkitInstanceFactory.class);
-  private final Ehcache cache = mock(Ehcache.class);
-  private final CacheCluster cacheCluster = mock(CacheCluster.class);
-  private final CacheConfiguration cacheConfiguration = new CacheConfiguration().terracotta(new TerracottaConfiguration().clustered(true).consistency(TerracottaConfiguration.Consistency.EVENTUAL));
-  private final CacheManager cacheManager = mock(CacheManager.class);
-  private final ToolkitMap configMap = mock(ToolkitMap.class);
-  private final ToolkitInternal toolkitInternal = mock(ToolkitInternal.class);
-  private final ToolkitProperties toolkitProperties = mock(ToolkitProperties.class);
-  private final ToolkitCacheInternal toolkitCacheInternal = mock(ToolkitCacheInternal.class);
-  private final org.terracotta.toolkit.config.Configuration toolkitCacheConfiguration = mock(org.terracotta.toolkit.config.Configuration.class);
-  private final ToolkitNotifier toolkitNotifier = mock(ToolkitNotifier.class);
-  private ClusteredStore clusteredStore;
-
-
-  @Before
-  public void setUpClusteredStore() {
-    when(cache.getCacheConfiguration()).thenReturn(cacheConfiguration);
-    when(cache.getCacheManager()).thenReturn(cacheManager);
-    when(cache.getName()).thenReturn("ClusteredStoreTest-cache");
-    when(cacheManager.getName()).thenReturn("ClusteredStoreTest-cm");
-    when(toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(eq("ClusteredStoreTest-cm"), eq("ClusteredStoreTest-cache"))).thenReturn(configMap);
-    when(toolkitInstanceFactory.getToolkit()).thenReturn(toolkitInternal);
-    when(toolkitInternal.getProperties()).thenReturn(toolkitProperties);
-    when(toolkitProperties.getBoolean(anyString())).thenReturn(false);
-    when(toolkitInstanceFactory.getOrCreateToolkitCache(eq(cache), eq(false))).thenReturn(toolkitCacheInternal);
-    when(toolkitCacheInternal.getConfiguration()).thenReturn(toolkitCacheConfiguration);
-    when(toolkitCacheConfiguration.getInt(anyString())).thenReturn(1);
-    when(toolkitInstanceFactory.getOrCreateConfigChangeNotifier(eq(cache))).thenReturn(toolkitNotifier);
-    clusteredStore = new ClusteredStore(toolkitInstanceFactory, cache, cacheCluster) {
-      @Override
-      void setUpWanConfig() {
-        // Do Nothing
-      }
-
-      @Override
-      boolean isWANEnabled() {
-        return false;
-      }
-    };
-  }
-
+public class ClusteredStoreTest extends AbstractClusteredStoreTest {
   @Test
   public void clusteredStore_getSize_calls_size_not_quickSize() throws Exception {
     clusteredStore.getSize();
@@ -111,5 +61,35 @@ public class ClusteredStoreTest {
   @Test(expected = UnsupportedOperationException.class)
   public void clusteredStore_removeElement_throw_in_eventual_consistency() {
     clusteredStore.removeElement(new Element("key", "value"), new DefaultElementValueComparator(cacheConfiguration));
+  }
+
+  @Test
+  public void testDispose() throws Exception {
+    clusteredStore.dispose();
+    verify(toolkitCacheInternal).disposeLocally();
+    verify(cacheCluster).removeTopologyListener(any(ClusterTopologyListener.class));
+    verify(toolkitCacheInternal).removeListener(any(ToolkitCacheListener.class));
+  }
+
+  @Test
+  public void testRegisterToolkitCacheEventListener() throws Exception {
+    verify(toolkitCacheInternal, never()).addListener(any(ToolkitCacheListener.class));
+    cache.getCacheEventNotificationService().registerListener(new CacheEventListenerAdapter());
+    cache.getCacheEventNotificationService().registerListener(new CacheEventListenerAdapter());
+    verify(toolkitCacheInternal, times(1)).addListener(any(ToolkitCacheListener.class));
+  }
+
+  @Test
+  public void testUnregisterToolkitCacheEventListener() throws Exception {
+    String thisNodeId = cacheCluster.getCurrentNode().getId();
+    when(configMap.get(ClusteredStore.LEADER_NODE_ID)).thenReturn(thisNodeId); // make this node the leader
+    verify(toolkitCacheInternal, never()).addListener(any(ToolkitCacheListener.class));
+    CacheEventListener listener = new CacheEventListenerAdapter();
+    cache.getCacheEventNotificationService().registerListener(listener);
+    cache.getCacheEventNotificationService().registerListener(listener);
+    cache.getCacheEventNotificationService().unregisterListener(listener);
+    cache.getCacheEventNotificationService().unregisterListener(listener);
+    verify(toolkitCacheInternal, times(1)).removeListener(any(ToolkitCacheListener.class));
+    verify(configMap).remove(ClusteredStore.LEADER_NODE_ID); // make sure we drop leader status
   }
 }

@@ -53,25 +53,10 @@ import java.lang.reflect.Modifier;
  *
  * @author Ludovic Orban
  */
-public class ClusteredStoreEventualCasEnabledTest {
+public class ClusteredStoreEventualCasEnabledTest extends AbstractClusteredStoreTest {
 
   private static boolean previousValue;
   private static Field eventual_cas_enabled;
-
-  private final ToolkitInstanceFactory toolkitInstanceFactory = mock(ToolkitInstanceFactory.class);
-  private final Ehcache cache = mock(Ehcache.class);
-  private final CacheCluster cacheCluster = mock(CacheCluster.class);
-  private final CacheConfiguration cacheConfiguration = new CacheConfiguration().terracotta(new TerracottaConfiguration().clustered(true)
-      .consistency(TerracottaConfiguration.Consistency.EVENTUAL));
-  private final CacheManager cacheManager = mock(CacheManager.class);
-  private final ToolkitMap configMap = mock(ToolkitMap.class);
-  private final ToolkitInternal toolkitInternal = mock(ToolkitInternal.class);
-  private final ToolkitProperties toolkitProperties = mock(ToolkitProperties.class);
-  private final ToolkitCacheInternal toolkitCacheInternal = mock(ToolkitCacheInternal.class);
-  private final org.terracotta.toolkit.config.Configuration toolkitCacheConfiguration = mock(org.terracotta.toolkit.config.Configuration.class);
-  private final ToolkitNotifier toolkitNotifier = mock(ToolkitNotifier.class);
-  private ClusteredStore clusteredStore;
-  private final ToolkitReadWriteLock tkRWLock = mock(ToolkitReadWriteLock.class);
 
   @BeforeClass
   public static void setUpClass() {
@@ -97,35 +82,6 @@ public class ClusteredStoreEventualCasEnabledTest {
     } catch (Exception e) {
       // Ignore
     }
-  }
-
-  @Before
-  public void setUpClusteredStore() {
-    when(cache.getCacheConfiguration()).thenReturn(cacheConfiguration);
-    when(cache.getCacheManager()).thenReturn(cacheManager);
-    when(cache.getName()).thenReturn("ClusteredStoreTest-cache");
-    when(cacheManager.getName()).thenReturn("ClusteredStoreTest-cm");
-    when(toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(eq("ClusteredStoreTest-cm"), eq("ClusteredStoreTest-cache"))).thenReturn(configMap);
-    when(toolkitInstanceFactory.getToolkit()).thenReturn(toolkitInternal);
-    when(toolkitInternal.getProperties()).thenReturn(toolkitProperties);
-    when(toolkitProperties.getBoolean(anyString())).thenReturn(false);
-    when(toolkitInstanceFactory.getOrCreateToolkitCache(eq(cache), eq(false))).thenReturn(toolkitCacheInternal);
-    when(toolkitCacheInternal.getConfiguration()).thenReturn(toolkitCacheConfiguration);
-    when(toolkitCacheConfiguration.getInt(anyString())).thenReturn(1);
-    when(toolkitInstanceFactory.getOrCreateConfigChangeNotifier(eq(cache))).thenReturn(toolkitNotifier);
-    when(toolkitCacheInternal.createLockForKey(any())).thenReturn(tkRWLock);
-    when(tkRWLock.writeLock()).thenReturn(mock(ToolkitLock.class));
-    clusteredStore = new ClusteredStore(toolkitInstanceFactory, cache, cacheCluster) {
-      @Override
-      void setUpWanConfig() {
-        // Do Nothing
-      }
-
-      @Override
-      boolean isWANEnabled() {
-        return false;
-      }
-    };
   }
 
   @Test

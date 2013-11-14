@@ -75,19 +75,15 @@ public class ToolkitInstanceFactoryImplTest {
 
   private ToolkitInstanceFactoryImpl                 factory;
   private ToolkitCacheInternal<String, Serializable> resultantCache;
+  private ToolkitMap toolkitMap;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     toolkit = mock(Toolkit.class);
-    ToolkitMap toolkitMap = mock(ToolkitMap.class);
+    toolkitMap = mockMap();
     when(toolkit.getMap(anyString(), any(Class.class), any(Class.class))).thenReturn(toolkitMap);
-    ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
-    when(toolkitMap.getReadWriteLock()).thenReturn(rwLock);
-    ToolkitLock lock = mock(ToolkitLock.class);
-    when(lock.tryLock()).thenReturn(true);
-    when(rwLock.readLock()).thenReturn(lock);
-    when(rwLock.writeLock()).thenReturn(lock);
+    ToolkitReadWriteLock rwLock = mockReadWriteLock();
     when(toolkit.getReadWriteLock(any(String.class))).thenReturn(rwLock);
     makeToolkitReturnNonStopConfigurationRegistry();
 
@@ -109,6 +105,25 @@ public class ToolkitInstanceFactoryImplTest {
     factory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
     factory.setWANUtil(wanUtil);
     factory.linkClusteredCacheManager(CACHE_MANAGER_NAME, null);
+  }
+
+  private ToolkitMap mockMap() {
+    ToolkitMap map = mock(ToolkitMap.class);
+    ToolkitReadWriteLock readWriteLock = mockReadWriteLock();
+    when(map.getReadWriteLock()).thenReturn(readWriteLock);
+    return map;
+  }
+
+  private ToolkitReadWriteLock mockReadWriteLock() {
+    ToolkitReadWriteLock readWriteLock = mock(ToolkitReadWriteLock.class);
+    ToolkitLock lock = mockLock();
+    when(readWriteLock.readLock()).thenReturn(lock);
+    when(readWriteLock.writeLock()).thenReturn(lock);
+    return readWriteLock;
+  }
+
+  private ToolkitLock mockLock() {
+    return when(mock(ToolkitLock.class).tryLock()).thenReturn(true).getMock();
   }
 
   @Test
