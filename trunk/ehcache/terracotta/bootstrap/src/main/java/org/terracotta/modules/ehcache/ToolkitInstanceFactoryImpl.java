@@ -103,12 +103,16 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private volatile ClusteredCacheManager clusteredCacheManagerEntity;
   private final EntityNamesHolder      entityNames;
 
-  public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
-    this.toolkit = createTerracottaToolkit(terracottaClientConfiguration);
+  public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration, String productId) {
+    this.toolkit = createTerracottaToolkit(terracottaClientConfiguration, productId);
     updateDefaultNonStopConfig(toolkit);
     clusteredEntityManager = new ClusteredEntityManager(toolkit);
     this.wanUtil = new WANUtil(this);
     this.entityNames = new EntityNamesHolder();
+  }
+
+  public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
+    this(terracottaClientConfiguration, null);
   }
 
   // Constructor to enable unit testing
@@ -133,7 +137,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     }
   }
 
-  private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration) {
+  private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration,
+                                                 String productId) {
     TerracottaToolkitBuilder terracottaClientBuilder = new TerracottaToolkitBuilder();
     EhcacheTcConfig ehcacheTcConfig = EhcacheTcConfig.create(terracottaClientConfiguration);
     switch (ehcacheTcConfig.type) {
@@ -148,6 +153,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache");
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache.hibernate");
     terracottaClientBuilder.setRejoinEnabled(terracottaClientConfiguration.isRejoin());
+    terracottaClientBuilder.setProductId(productId);
     return terracottaClientBuilder.buildToolkit();
   }
 
