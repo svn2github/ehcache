@@ -1,19 +1,27 @@
 package net.sf.ehcache.management.resource.services;
 
-import com.jayway.restassured.http.ContentType;
+import static com.jayway.restassured.RestAssured.expect;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.config.*;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import net.sf.ehcache.config.TerracottaClientConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.management.resource.CacheEntity;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.jayway.restassured.http.ContentType;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.jayway.restassured.RestAssured.expect;
-import static org.hamcrest.Matchers.*;
 
 /**
  * @author: Anthony Dahanne
@@ -590,28 +598,6 @@ public class CacheResourceServiceImplTest extends ResourceServiceImplITHelper {
             .contentType(ContentType.JSON)
             .body(cacheEntity)
             .when().put(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter, cachesFilter);
-  }
-
-  @Test
-  /**
-   * - DELETE a CacheEntity
-   *
-   * @throws Exception
-   */
-  public void deleteCachesTest__NotYetImplemented() throws Exception {
-
-    String agentsFilter = "";
-    String cmsFilter = ";names=testCacheManager";
-    String cachesFilter = ";names=testCache";
-
-    CacheEntity cacheEntity = new CacheEntity();
-    expect().statusCode(501)
-            .body("details", equalTo(""))
-            .body("error", equalTo("Not yet implemented"))
-            .given()
-            .contentType(ContentType.JSON)
-            .body(cacheEntity)
-            .when().delete(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter, cachesFilter);
   }
 
   private CacheManager getCacheManagerNew() {
