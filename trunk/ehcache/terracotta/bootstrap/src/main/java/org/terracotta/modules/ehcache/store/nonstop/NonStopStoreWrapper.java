@@ -658,6 +658,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public void quickClear() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     // public abstract void net.sf.ehcache.store.TerracottaStore.quickClear()
@@ -683,6 +684,7 @@ public class NonStopStoreWrapper implements TerracottaStore {
   /**
    * {@inheritDoc}
    */
+  @Override
   public int quickSize() {
     // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
     // public abstract int net.sf.ehcache.store.TerracottaStore.quickSize()
@@ -1794,14 +1796,9 @@ public class NonStopStoreWrapper implements TerracottaStore {
    */
   @Override
   public Results executeQuery(StoreQuery arg0) throws SearchException {
-    // THIS IS GENERATED CODE -- DO NOT HAND MODIFY!
-    // public abstract net.sf.ehcache.search.Results
-    // net.sf.ehcache.store.Store.executeQuery(net.sf.ehcache.store.StoreQuery) throws
-    // net.sf.ehcache.search.SearchException
-    nonStop.start(toolkitNonStopConfiguration);
     try {
       throwNonStopExceptionWhenClusterNotInit();
-      Results _ret = this.delegate.executeQuery(arg0);
+      Results _ret = NonStopSubTypeProxyUtil.newNonStopSubTypeProxy(Results.class, this.delegate.executeQuery(arg0));
       nonstopObserver.end(NonStopOperationOutcomes.SUCCESS);
       return _ret;
     } catch (NonStopToolkitInstantiationException e) {
@@ -1813,8 +1810,6 @@ public class NonStopStoreWrapper implements TerracottaStore {
     } catch (RejoinException e) {
       nonstopObserver.end(NonStopOperationOutcomes.REJOIN_TIMEOUT);
       return getTimeoutBehavior(true).executeQuery(arg0);
-    } finally {
-      nonStop.finish();
     }
   }
 

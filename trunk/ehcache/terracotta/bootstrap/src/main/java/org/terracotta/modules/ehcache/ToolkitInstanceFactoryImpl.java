@@ -488,7 +488,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     return existed;
   }
 
-  private void addNonStopConfigForCache(final CacheConfiguration ehcacheConfig, final String fullyQualifiedCacheName) {
+  protected void addNonStopConfigForCache(final CacheConfiguration ehcacheConfig, final String fullyQualifiedCacheName) {
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
     ToolkitNonStopConfiguration nonstopConfiguration = new ToolkitNonStopConfiguration(
                                                                                        terracottaConfiguration
