@@ -96,7 +96,7 @@ public class BruteForceSearchManager implements SearchManager {
     }
     
     @Override
-    public Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> extractors, DynamicAttributesExtractor
+    public Results executeQuery(StoreQuery query, Map<String, AttributeExtractor> extractors, DynamicAttributesExtractor
             dynIndexer) {
         Criteria c = query.getCriteria();
 

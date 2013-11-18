@@ -24,6 +24,7 @@ import java.util.Set;
 
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
+import net.sf.ehcache.search.ExecutionHints;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
@@ -54,6 +55,7 @@ class CacheQuery implements Query, StoreQuery {
     private final Set<Attribute<?>> groupByAttributes = Collections.synchronizedSet(new HashSet<Attribute<?>>());
 
     private final Cache cache;
+    private volatile ExecutionHints hints;
 
     /**
      * Create a new builder instance
@@ -187,6 +189,15 @@ class CacheQuery implements Query, StoreQuery {
     public Results execute() throws SearchException {
         return cache.executeQuery(snapshot());
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Results execute(ExecutionHints params) throws SearchException {
+        this.hints = params;
+        return cache.executeQuery(snapshot());
+    }
+    
 
     /**
      * {@inheritDoc}
@@ -258,6 +269,16 @@ class CacheQuery implements Query, StoreQuery {
     public int maxResults() {
         assertFrozen();
         return maxResults;
+    }
+
+    
+    /** 
+     * {@inheritDoc}
+     */
+    @Override
+    public ExecutionHints getExecutionHints() {
+        assertFrozen();
+        return hints;
     }
 
     /**
@@ -340,6 +361,7 @@ class CacheQuery implements Query, StoreQuery {
         private final List<Aggregator> copiedAggregators = Collections.unmodifiableList(aggregators);
         private final List<AggregatorInstance<?>> copiedAggregatorInstances = Collections.unmodifiableList(createAggregatorInstances(aggregators));
         private final Set<Attribute<?>> copiedGroupByAttributes = Collections.unmodifiableSet(new HashSet<Attribute<?>>(groupByAttributes));
+        private final ExecutionHints execHints = hints;
 
         public Criteria getCriteria() {
             return copiedCriteria;
@@ -383,6 +405,10 @@ class CacheQuery implements Query, StoreQuery {
         
         public String[] getTargets() {
             return targets;
+        }
+        
+        public ExecutionHints getExecutionHints() {
+            return execHints;
         }
     }
 

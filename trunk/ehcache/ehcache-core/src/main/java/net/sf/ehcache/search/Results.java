@@ -38,8 +38,7 @@ public interface Results {
     void discard();
 
     /**
-     * Retrieve all of the cache results in one shot. For large result sets this
-     * might consume large amount of memory
+     * List containing all of the search results.
      *
      * @return a List of all the matching cache entries
      * @throws SearchException
@@ -48,7 +47,7 @@ public interface Results {
 
     /**
      * Retrieve a subset of the cache results. This method is useful when
-     * showing "paged" results in a user interface or simply to keep memory overhead fixed
+     * showing "paged" results in a user interface.
      *
      * @param start starting index to access
      * @param count the number of results to return

@@ -22,6 +22,7 @@ import java.util.Set;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
+import net.sf.ehcache.search.ExecutionHints;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.Criteria;
@@ -101,6 +102,12 @@ public interface StoreQuery {
      * @return the include aggregators (if any)
      */
     List<Aggregator> getAggregators();
+    
+    /**
+     * Get execution hints for this query
+     * @return null if no hints were provided
+     */
+    ExecutionHints getExecutionHints();
     
     /**
      * Get the requested aggregator instances

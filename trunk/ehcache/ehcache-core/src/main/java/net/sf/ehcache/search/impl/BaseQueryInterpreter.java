@@ -21,6 +21,7 @@ import java.util.Set;
 
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
+import net.sf.ehcache.search.ExecutionHints;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.aggregator.Average;
@@ -69,6 +70,7 @@ public abstract class BaseQueryInterpreter {
         processOrdering(query.getOrdering());
         processGroupBy(query.groupByAttributes());
         processAggregators(query.getAggregatorInstances());
+        processHints(query.getExecutionHints());
     }
 
     private void processAggregators(List<AggregatorInstance<?>> aggregatorInstances) {
@@ -157,6 +159,12 @@ public abstract class BaseQueryInterpreter {
         Criteria negated = not.getCriteria();
 
         processCriteria(notOf(negated));
+    }
+    
+    private void processHints(ExecutionHints hints) {
+        if (hints != null) {
+            setHints(hints);
+        }
     }
 
     private static Criteria notOf(Criteria c) {
@@ -389,4 +397,8 @@ public abstract class BaseQueryInterpreter {
      */
     protected abstract void lessThan(LessThan lt);
 
+    /**
+     * hook
+     */
+    protected abstract void setHints(ExecutionHints hints);
 }

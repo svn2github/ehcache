@@ -36,13 +36,12 @@ public interface SearchManager {
     /**
      * Execute a query against the given cache
      *
-     * @param cacheName cache name
      * @param query query to execute
      * @param attributeExtractors defined attribute extractors for the cache
      * @param dynamicIndexer dynamic attribute extractor (if any)
      * @return search results
      */
-    Results executeQuery(String cacheName, StoreQuery query, Map<String, AttributeExtractor> attributeExtractors, DynamicAttributesExtractor 
+    Results executeQuery(StoreQuery query, Map<String, AttributeExtractor> attributeExtractors, DynamicAttributesExtractor 
             dynamicIndexer);
 
     /**

@@ -173,7 +173,7 @@ public abstract class AbstractStore implements Store {
         }
         DynamicAttributesExtractor dynExtractor = query.getCache().getCacheConfiguration().getDynamicExtractor();
 
-        return searchManager.executeQuery(query.getCache().getName(), query, attributeExtractors, dynExtractor);
+        return searchManager.executeQuery(query, attributeExtractors, dynExtractor);
     }
 
     /**

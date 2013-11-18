@@ -151,6 +151,14 @@ public interface Query {
      * @throws SearchException
      */
     public Results execute() throws SearchException;
+    
+    /**
+     * Like {@link #execute()}, but with specified execution parameters.
+     * @param hints
+     * @return
+     * @throws SearchException
+     */
+    public Results execute(ExecutionHints hints) throws SearchException;
 
     /**
      * Optional method for terminating query creation. If called the query becomes
