@@ -128,18 +128,18 @@ public class ToolkitInstanceFactoryImplTest {
 
   @Test
   public void testGetOrCreateToolkitCacheForWanEnabled() throws Exception {
-    whenCacheIsWanEnabled().callGetOrCreateToolkitCache(true).assertInstanceOfWanAwareToolkitCache(true);
+    whenCacheIsWanEnabled().callGetOrCreateToolkitCache().assertInstanceOfWanAwareToolkitCache(true);
   }
 
   @Test
   public void testGetOrCreateToolkitCacheForWanDisabled() throws Exception {
-    whenCacheIsWanDisabled().callGetOrCreateToolkitCache(false).assertInstanceOfWanAwareToolkitCache(false);
+    whenCacheIsWanDisabled().callGetOrCreateToolkitCache().assertInstanceOfWanAwareToolkitCache(false);
   }
 
   @Test
   public void testMaxEntriesInCacheToMaxTotalCountTransformation() {
     CacheConfiguration configuration = new CacheConfiguration().terracotta(new TerracottaConfiguration()).maxEntriesInCache(10);
-    forEhcacheConfig(configuration).callGetOrCreateToolkitCache(false).validateMaxTotalCountForToolkitCacheIs(10);
+    forEhcacheConfig(configuration).callGetOrCreateToolkitCache().validateMaxTotalCountForToolkitCacheIs(10);
   }
 
   private void validateMaxTotalCountForToolkitCacheIs(int maxTotalCount) {
@@ -177,8 +177,8 @@ public class ToolkitInstanceFactoryImplTest {
     Assert.assertEquals(expectedResult, (resultantCache instanceof WanAwareToolkitCache));
   }
 
-  private ToolkitInstanceFactoryImplTest callGetOrCreateToolkitCache(boolean isWANEnabled) {
-    resultantCache = factory.getOrCreateToolkitCache(ehcache, isWANEnabled);
+  private ToolkitInstanceFactoryImplTest callGetOrCreateToolkitCache() {
+    resultantCache = factory.getOrCreateToolkitCache(ehcache);
     return this;
   }
 

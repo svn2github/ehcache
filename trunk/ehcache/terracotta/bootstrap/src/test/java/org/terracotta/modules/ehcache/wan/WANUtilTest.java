@@ -17,13 +17,13 @@ public class WANUtilTest {
 
   private WANUtil                             wanUtil;
   private ConcurrentMap<String, Serializable> cacheConfigMap;
-  private ConcurrentMap<String, Boolean>      wanConfigMap;
+  private ConcurrentMap<String, Serializable> cacheManagerConfigMap;
   private boolean                             testResult;
 
   @Before
   public void setUp() {
     cacheConfigMap = new ConcurrentHashMap<String, Serializable>();
-    wanConfigMap = new ConcurrentHashMap<String, Boolean>();
+    cacheManagerConfigMap = new ConcurrentHashMap<String, Serializable>();
 
     wanUtil = getTestableWANUtil();
   }
@@ -82,13 +82,13 @@ public class WANUtilTest {
   private WANUtil getTestableWANUtil() {
     return new WANUtil(null) {
       @Override
-      ConcurrentMap<String, Serializable> getCacheConfigMap(String cacheManagerName, String cacheName) {
+      ConcurrentMap<String, Serializable> getCacheConfigMap() {
         return cacheConfigMap;
       }
 
       @Override
-      ConcurrentMap<String, Boolean> getWanConfigMap() {
-        return wanConfigMap;
+      ConcurrentMap<String, Serializable> getCacheManagerConfigMap(String cacheManagerName) {
+        return cacheManagerConfigMap;
       }
 
       @Override

@@ -17,6 +17,7 @@ public class WANUtil {
   private static final String          LOCK_PREFIX             = WAN_PREFIX + "LOCK";
   private static final String          WAN_CONFIG_MAP_NAME     = WAN_PREFIX + "CONFIG_MAP";
   private static final String          WAN_ENABLED_CACHE_ENTRY = WAN_PREFIX + "ENABLED_CACHE";
+  private static final String          ORCHESTRATOR_RUNNING_FLAG = "ORCHESTRATOR_RUNNING";
 
   private final ToolkitInstanceFactory factory;
 
@@ -30,7 +31,7 @@ public class WANUtil {
    * @param cacheManagerName name of the CacheManager
    */
   public void markOrchestratorRunning(String cacheManagerName) {
-    getWanConfigMap().put(cacheManagerName, Boolean.TRUE);
+    getCacheManagerConfigMap(cacheManagerName).put(ORCHESTRATOR_RUNNING_FLAG, Boolean.TRUE);
     notifyClients(cacheManagerName);
   }
 
@@ -41,7 +42,7 @@ public class WANUtil {
    * @return <code>true</code> if Orchestrator has started else <code>false</code>.
    */
   public boolean isOrchestratorRunning(String cacheManagerName) {
-    Boolean value = getWanConfigMap().get(cacheManagerName);
+    Boolean value = (Boolean) getCacheManagerConfigMap(cacheManagerName).get(ORCHESTRATOR_RUNNING_FLAG);
     return (value == null) ? false : value;
   }
 
@@ -79,8 +80,8 @@ public class WANUtil {
    * @throws IllegalConfigurationException if the cache is already marked as wan disabled
    */
   public void markCacheWanEnabled(String cacheManagerName, String cacheName) {
-    ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
-    Boolean existingValue = (Boolean) cacheConfigMap.putIfAbsent(WAN_ENABLED_CACHE_ENTRY, Boolean.TRUE);
+    String cacheStatusKey = getCacheStatusKey(cacheManagerName, cacheName);
+    Boolean existingValue = (Boolean) getCacheConfigMap().putIfAbsent(cacheStatusKey, Boolean.TRUE);
     if ((existingValue != null) && (existingValue.equals(Boolean.FALSE))) {
       LOGGER.error("A Client with cache '{}' exists with non WAN configuration. "
                    + "Please check your client's ehcache.xml and add 'wanEnabledTSA = true'", cacheName);
@@ -96,8 +97,8 @@ public class WANUtil {
    * @throws IllegalConfigurationException if the cache is already marked as wan enabled
    */
   public void markCacheWanDisabled(String cacheManagerName, String cacheName) {
-    ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
-    Boolean existingValue = (Boolean) cacheConfigMap.putIfAbsent(WAN_ENABLED_CACHE_ENTRY, Boolean.FALSE);
+    String cacheStatusKey = getCacheStatusKey(cacheManagerName, cacheName);
+    Boolean existingValue = (Boolean) getCacheConfigMap().putIfAbsent(cacheStatusKey, Boolean.FALSE);
     if ((existingValue != null) && (existingValue.equals(Boolean.TRUE))) {
       LOGGER.error("A WAN Orchestrator already exists for cache '{}'. This client should be wan-enabled. "
                    + "Please check your client's ehcache.xml and add 'wanEnabledTSA = true'", cacheName);
@@ -119,8 +120,12 @@ public class WANUtil {
                                          + " and CacheName- " + cacheName);
     }
 
-    Boolean value = (Boolean) getCacheConfigMap(cacheManagerName, cacheName).get(WAN_ENABLED_CACHE_ENTRY);
+    Boolean value = (Boolean) getCacheConfigMap().get(getCacheStatusKey(cacheManagerName, cacheName));
     return (value == null) ? false : value;
+  }
+
+  private String getCacheStatusKey(String cacheManagerName, String cacheName) {
+    return WAN_ENABLED_CACHE_ENTRY + "_" + cacheManagerName + "_" + cacheName;
   }
 
   void notifyClients(String cacheManagerName) {
@@ -133,12 +138,12 @@ public class WANUtil {
     }
   }
 
-  ConcurrentMap<String, Serializable> getCacheConfigMap(String cacheManagerName, String cacheName) {
-    return factory.getOrCreateClusteredStoreConfigMap(cacheManagerName, cacheName);
+  ConcurrentMap<String, Serializable> getCacheConfigMap() {
+    return factory.getToolkit().getMap(WAN_CONFIG_MAP_NAME, String.class, Serializable.class);
   }
 
-  ConcurrentMap<String, Boolean> getWanConfigMap() {
-    return factory.getToolkit().getMap(WAN_CONFIG_MAP_NAME, String.class, Boolean.class);
+  ConcurrentMap<String, Serializable> getCacheManagerConfigMap(String cacheManagerName) {
+    return factory.getOrCreateCacheManagerMetaInfoMap(cacheManagerName);
   }
 
 }

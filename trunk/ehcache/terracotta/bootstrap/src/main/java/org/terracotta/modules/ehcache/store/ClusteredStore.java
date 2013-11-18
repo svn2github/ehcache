@@ -130,7 +130,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
-    backend = toolkitInstanceFactory.getOrCreateToolkitCache(cache, isWANEnabled());
+    backend = toolkitInstanceFactory.getOrCreateToolkitCache(cache);
     configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache.getCacheManager().getName(),
                                                                           cache.getName());
     CacheConfiguration.TransactionalMode transactionalModeTemp = (TransactionalMode) configMap.get(TRANSACTIONAL_MODE);
@@ -183,13 +183,9 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
   }
 
   void setUpWanConfig() {
-    if (!isWANEnabled()) {
+    if (!cache.getCacheManager().getConfiguration().getTerracottaConfiguration().isWanEnabledTSA()) {
       toolkitInstanceFactory.markCacheWanDisabled(cache.getCacheManager().getName(), cache.getName());
     }
-  }
-
-  boolean isWANEnabled() {
-    return cache.getCacheManager().getConfiguration().getTerracottaConfiguration().isWanEnabledTSA();
   }
 
   public String getFullyQualifiedCacheName() {
