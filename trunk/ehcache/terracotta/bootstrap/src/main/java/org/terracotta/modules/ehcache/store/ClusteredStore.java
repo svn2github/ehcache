@@ -130,7 +130,7 @@ public class ClusteredStore implements TerracottaStore, StoreListener {
 
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final TerracottaConfiguration terracottaConfiguration = ehcacheConfig.getTerracottaConfiguration();
-    backend = toolkitInstanceFactory.getOrCreateToolkitCache(cache);
+    backend = toolkitInstanceFactory.getOrCreateToolkitCache(cache, isWANEnabled());
     configMap = toolkitInstanceFactory.getOrCreateClusteredStoreConfigMap(cache.getCacheManager().getName(),
                                                                           cache.getName());
     CacheConfiguration.TransactionalMode transactionalModeTemp = (TransactionalMode) configMap.get(TRANSACTIONAL_MODE);

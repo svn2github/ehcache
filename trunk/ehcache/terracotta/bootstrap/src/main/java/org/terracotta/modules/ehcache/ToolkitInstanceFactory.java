@@ -46,7 +46,7 @@ public interface ToolkitInstanceFactory {
   /**
    * Returns the backend {@link ToolkitCacheInternal} to be used for the cache
    */
-  ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache);
+  ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(Ehcache cache, boolean isWANEnabled);
 
   /**
    * Returns a {@link ToolkitNotifier} for the cache for notifying {@link CacheConfigChangeNotificationMsg} across the
