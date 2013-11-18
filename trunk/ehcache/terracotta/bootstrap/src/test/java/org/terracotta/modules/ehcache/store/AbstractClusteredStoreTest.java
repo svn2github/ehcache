@@ -59,7 +59,7 @@ public abstract class AbstractClusteredStoreTest {
     when(toolkitInstanceFactory.getLockForCache(any(Ehcache.class), anyString())).thenReturn(toolkitLock);
     when(toolkitInternal.getProperties()).thenReturn(toolkitProperties);
     when(toolkitProperties.getBoolean(anyString())).thenReturn(false);
-    when(toolkitInstanceFactory.getOrCreateToolkitCache(cache, false)).thenReturn(toolkitCacheInternal);
+    when(toolkitInstanceFactory.getOrCreateToolkitCache(cache)).thenReturn(toolkitCacheInternal);
     when(toolkitCacheInternal.getConfiguration()).thenReturn(toolkitCacheConfiguration);
     when(toolkitCacheConfiguration.getInt(anyString())).thenReturn(1);
     when(toolkitInstanceFactory.getOrCreateConfigChangeNotifier(eq(cache))).thenReturn(toolkitNotifier);

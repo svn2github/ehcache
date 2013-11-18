@@ -173,7 +173,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(final Ehcache cache, boolean isWANEnabled) {
+  public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(final Ehcache cache) {
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final String cacheManagerName = getCacheManagerName(cache);
     final String cacheName = cache.getName();
@@ -183,7 +183,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
      * ehcacheConfig) : getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
      */
 
-    return isWANEnabled
+    return wanUtil.isWanEnabledCache(cacheManagerName, cacheName)
         ? getOrCreateWanAwareToolkitCache(cacheManagerName, cacheName, ehcacheConfig)
         : getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
   }
