@@ -18,7 +18,6 @@ package net.sf.ehcache.search.impl;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import net.sf.ehcache.search.Result;
 import net.sf.ehcache.search.Results;
@@ -37,7 +36,7 @@ public class ResultsImpl implements Results {
     private final boolean hasAggregators;
     private final boolean hasValues;
     private final boolean empty;
-    private final Callable<Void> discardHook;
+    private final Runnable discardHook;
 
     /**
      * Constructor
@@ -60,7 +59,7 @@ public class ResultsImpl implements Results {
      * @param hasAggregators
      */
     public ResultsImpl(List<? extends Result> results, boolean hasKeys, boolean hasValues, boolean hasAttributes, boolean hasAggregators, 
-            Callable<Void> discardCallback) {
+            Runnable discardCallback) {
         this.hasKeys = hasKeys;
         this.hasValues = hasValues;
         this.hasAttributes = hasAttributes;
@@ -81,11 +80,7 @@ public class ResultsImpl implements Results {
      */
     public void discard() {
         if (discardHook != null) {
-            try {
-                discardHook.call();
-            } catch (Exception e) {
-                throw new SearchException(e);
-            }
+            discardHook.run();
         }
     }
 
