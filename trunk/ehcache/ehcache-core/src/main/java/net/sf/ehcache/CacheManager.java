@@ -478,6 +478,13 @@ public class CacheManager {
         checkForUpdateIfNeeded(configuration.getUpdateCheck());
 
         mbeanRegistrationProvider = MBEAN_REGISTRATION_PROVIDER_FACTORY.createMBeanRegistrationProvider(configuration);
+        
+        //Wait for the Orchestrator if required. This should be done before creating the caches
+        if (configuration.getTerracottaConfiguration() != null) {
+            if (configuration.getTerracottaConfiguration().isWanEnabledTSA()) {
+                terracottaClient.waitForOrchestrator(getName());
+            }
+        }
 
         // do this last
         INITIALIZING_CACHE_MANAGERS_MAP.put(runtimeCfg.getCacheManagerName(), this);
@@ -525,13 +532,6 @@ public class CacheManager {
         localTransactionsRecoveryThread.setName("ehcache local transactions recovery");
         localTransactionsRecoveryThread.setDaemon(true);
         localTransactionsRecoveryThread.start();
-
-        //Wait for the Orchestrator if required
-        if (configuration.getTerracottaConfiguration() != null) {
-            if (configuration.getTerracottaConfiguration().isWanEnabledTSA()) {
-                terracottaClient.waitForOrchestrator(getName());
-            }
-        }
     }
 
     private void initializeManagementService(ManagementRESTServiceConfiguration managementRESTService) {

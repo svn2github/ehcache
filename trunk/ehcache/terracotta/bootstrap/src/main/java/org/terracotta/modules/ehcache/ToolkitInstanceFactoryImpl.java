@@ -177,19 +177,27 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final String cacheManagerName = getCacheManagerName(cache);
     final String cacheName = cache.getName();
-
-    return wanUtil.isWanEnabledCache(cacheManagerName, cacheName)
-        ? getOrCreateWanAwareToolkitCache(cacheManagerName, cacheName, ehcacheConfig)
-        : getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
+    
+    ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
+    if(wanUtil.isWanEnabledCache(cacheManagerName, cacheName)) {
+      toolkitCache = createWanAwareToolkitCache(cacheManagerName, cacheName, toolkitCache);
+    }
+    
+    return toolkitCache;
   }
 
   @Override
-  public ToolkitCacheInternal<String, Serializable> getOrCreateWanAwareToolkitCache(final String cacheManagerName,
+  public WanAwareToolkitCache<String, Serializable> getOrCreateWanAwareToolkitCache(final String cacheManagerName,
                                                                                     final String cacheName,
                                                                                     final CacheConfiguration ehcacheConfig) {
     final ToolkitCacheInternal<String, Serializable> toolkitCache =
         getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
+    return createWanAwareToolkitCache(cacheManagerName, cacheName, toolkitCache);
+  }
 
+  private WanAwareToolkitCache<String, Serializable> createWanAwareToolkitCache(final String cacheManagerName,
+                                                                                final String cacheName,
+                                                                                final ToolkitCacheInternal<String, Serializable> toolkitCache) {
     final String fullyQualifiedCacheName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName);
     final ToolkitMap<String, Serializable> configMap = getOrCreateConfigMap(fullyQualifiedCacheName);
     return new WanAwareToolkitCache<String, Serializable>(toolkitCache, configMap,

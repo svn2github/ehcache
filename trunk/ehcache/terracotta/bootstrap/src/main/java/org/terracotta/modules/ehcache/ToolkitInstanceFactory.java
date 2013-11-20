@@ -122,7 +122,10 @@ public interface ToolkitInstanceFactory {
 
   ToolkitNotifier<CacheDisposalNotification> getOrCreateCacheDisposalNotifier(Ehcache cache);
 
-  ToolkitCacheInternal<String, Serializable> getOrCreateWanAwareToolkitCache(String cacheManagerName,
+  /**
+   * This method should only be used by the Orchestrator for fetching a {@link WanAwareToolkitCache}
+   */
+  WanAwareToolkitCache<String, Serializable> getOrCreateWanAwareToolkitCache(String cacheManagerName,
                                                                              String cacheName,
                                                                              CacheConfiguration ehcacheConfig);
 

@@ -82,7 +82,7 @@ public class WANUtilTest {
   private WANUtil getTestableWANUtil() {
     return new WANUtil(null) {
       @Override
-      ConcurrentMap<String, Serializable> getCacheConfigMap() {
+      ConcurrentMap<String, Serializable> getCacheConfigMap(String cacheManagerName, String cacheName) {
         return cacheConfigMap;
       }
 
