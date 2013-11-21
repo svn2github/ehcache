@@ -3,7 +3,6 @@
  */
 package org.terracotta.modules.ehcache;
 
-import static java.lang.String.format;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.ConfigurationFactory;
@@ -71,6 +70,8 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import static java.lang.String.format;
 
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
@@ -359,6 +360,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         clusteredCacheManagerEntity.releaseUse();
       } catch (Exception e) {
         // TODO handle exception
+        LOGGER.debug("Exception occurred while releasing clustered cache manager entity use", e);
       }
     }
     clusteredEntityManager.dispose();
@@ -604,7 +606,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   private ClusteredCacheConfiguration createClusteredCacheConfiguration(CacheConfiguration ehcacheConfig) {
     net.sf.ehcache.config.Configuration configuration = parseCacheManagerConfiguration(clusteredCacheManagerEntity.getConfiguration()
-.getConfigurationAsText());
+                                                                                        .getConfigurationAsText());
     String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(configuration, ehcacheConfig);
     return new ClusteredCacheConfiguration(xmlConfig);
   }
@@ -612,10 +614,12 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public void unlinkCache(String cacheName) {
     try {
+      entityNames.removeCacheName(cacheName);
       ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
       clusteredCacheManagerEntity.releaseCacheUse(cacheEntity);
     } catch (Exception e) {
       // TODO handle exception
+      LOGGER.debug("Exception occurred while releasing clustered cache entity use", e);
     }
   }
 
@@ -673,8 +677,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   private net.sf.ehcache.config.Configuration parseCacheManagerConfiguration(String xmlCacheManagerConfig) {
     net.sf.ehcache.config.Configuration targetConfiguration;
-    targetConfiguration = ConfigurationFactory.parseConfiguration(
-new BufferedInputStream(new ByteArrayInputStream(xmlCacheManagerConfig.getBytes())));
+    targetConfiguration = ConfigurationFactory.parseConfiguration(new BufferedInputStream(new ByteArrayInputStream(xmlCacheManagerConfig.getBytes())));
     return targetConfiguration;
   }
 
@@ -693,8 +696,12 @@ new BufferedInputStream(new ByteArrayInputStream(xmlCacheManagerConfig.getBytes(
       }
     }
 
-    private void addCacheName(String cacheName) {
+    private synchronized void addCacheName(String cacheName) {
       cacheNames.add(cacheName);
+    }
+
+    private synchronized void removeCacheName(String cacheName) {
+      cacheNames.remove(cacheName);
     }
 
     private Set<String> getCacheNames() {
