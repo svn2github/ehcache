@@ -22,12 +22,14 @@ import net.sf.ehcache.Element;
 import org.apache.openjpa.datacache.AbstractDataCache;
 import org.apache.openjpa.datacache.DataCache;
 import org.apache.openjpa.datacache.DataCachePCData;
+import org.apache.openjpa.event.RemoteCommitEvent;
 import org.apache.openjpa.lib.util.Localizer;
 import org.apache.openjpa.meta.ClassMetaData;
 import org.apache.openjpa.util.OpenJPAId;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -72,6 +74,8 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
      */
     protected ReentrantLock writeLock = new ReentrantLock();
 
+    private final AtomicBoolean closed = new AtomicBoolean(false);
+
     /**
      * Asserts if default name will be used for the Ehcache for classes
      * which do not specify explicitly a name in its @DataCache annotation.
@@ -113,8 +117,14 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
      */
     @Override
     protected void clearInternal() {
+        clearInternal(false);
+    }
+
+    private void clearInternal(boolean becauseOfClose) {
         for (Ehcache cache : caches.values()) {
-            cache.removeAll();
+            if (!becauseOfClose || !cache.getCacheConfiguration().isTerracottaClustered()) {
+                cache.removeAll();
+            }
         }
     }
 
@@ -299,5 +309,35 @@ public class EhCacheDataCache extends AbstractDataCache implements DataCache {
     @Override
     protected boolean unpinInternal(Object o) {
         throw new UnsupportedOperationException("Ehcache does not support pinning");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close(boolean clear) {
+        if (closed.compareAndSet(false, true)) {
+            if (clear) {
+                clearInternal(true);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isClosed() {
+        return closed.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterCommit(final RemoteCommitEvent event) {
+        if (!isClosed()) {
+            super.afterCommit(event);
+        }
     }
 }

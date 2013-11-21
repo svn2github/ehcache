@@ -23,8 +23,10 @@ import org.apache.openjpa.datacache.AbstractQueryCache;
 import org.apache.openjpa.datacache.QueryCache;
 import org.apache.openjpa.datacache.QueryKey;
 import org.apache.openjpa.datacache.QueryResult;
+import org.apache.openjpa.event.RemoteCommitEvent;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -48,12 +50,21 @@ public class EhCacheQueryCache extends AbstractQueryCache implements QueryCache 
      */
     protected ReentrantLock writeLock = new ReentrantLock();
 
+    private final AtomicBoolean closed = new AtomicBoolean(false);
+
     /**
      *
      */
     @Override
     protected void clearInternal() {
-        getOrCreateCache(cacheName).removeAll();
+        clearInternal(false);
+    }
+
+    private void clearInternal(boolean becauseOfClose) {
+        final Ehcache cache = getOrCreateCache(cacheName);
+        if (!becauseOfClose || !cache.getCacheConfiguration().isTerracottaClustered()) {
+            cache.removeAll();
+        }
     }
 
     /**
@@ -156,5 +167,35 @@ public class EhCacheQueryCache extends AbstractQueryCache implements QueryCache 
     @Override
     protected boolean unpinInternal(QueryKey qk) {
         throw new UnsupportedOperationException("Ehcache does not support pinning");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close(boolean clear) {
+        if (closed.compareAndSet(false, true)) {
+            if (clear) {
+                clearInternal(true);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isClosed() {
+        return closed.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void afterCommit(final RemoteCommitEvent event) {
+        if (!isClosed()) {
+            super.afterCommit(event);
+        }
     }
 }
