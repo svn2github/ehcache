@@ -630,18 +630,27 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName,
                                                                                          ClusteredCacheManager.class);
       if (clusteredCacheManager == null) {
+        // TODO handle destroy while disconnected
         LOGGER.error("Cache Manager " + cacheManagerName + " has been destroyed by some other node");
       } else {
         // release Cache Manager lock after rejoin
-        clusteredCacheManager.releaseUse();
+        try {
+          clusteredCacheManager.releaseUse();
+        } catch (Exception e) {
+          // Ignore - just trying to clean up
+          LOGGER.trace("Exception trying to release cache manager {} after rejoin", entityNames.cacheManagerName);
+        }
 
         // release cache read lock after rejoin
         for (String cacheName : entityNames.getCacheNames()) {
           ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
-          if (cacheEntity == null) {
-            LOGGER.error("Cache " + cacheName + " has been destroyed by some other node");
-          } else {
-            clusteredCacheManagerEntity.releaseCacheUse(cacheEntity);
+          if (cacheEntity != null) {
+            try {
+              clusteredCacheManagerEntity.releaseCacheUse(cacheEntity);
+            } catch (Exception e) {
+              // Ignore - just trying to clean up
+              LOGGER.trace("Exception trying to release cache {} after rejoin", cacheName);
+            }
           }
         }
 
@@ -652,6 +661,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         for (String cacheName : entityNames.getCacheNames()) {
           ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
           if (cacheEntity == null) {
+            // TODO handle destroy while disconnected
             LOGGER.error("Cache " + cacheName + " has been destroyed by some other node");
           } else {
             clusteredCacheManagerEntity.markCacheInUse(cacheEntity);
