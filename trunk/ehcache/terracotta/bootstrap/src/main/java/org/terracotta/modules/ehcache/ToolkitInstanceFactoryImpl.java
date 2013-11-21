@@ -625,7 +625,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName,
                                                                                          ClusteredCacheManager.class);
       if (clusteredCacheManager == null) {
-        LOGGER.error("Cache Manager " + cacheManagerName + " has been destroyed by some other node - shutting down to prevent any further use of clustered features");
+        LOGGER.error("Cache Manager {} has been destroyed by some other node - shutting down to prevent any further use of clustered features", cacheManagerName);
         shutdown();
       } else {
         // release Cache Manager lock after rejoin
@@ -649,17 +649,30 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
           }
         }
 
-        // grab Cache Manager read lock after rejoin
-        clusteredCacheManager.markInUse();
-
-        // grab cache read lock after rejoin
-        for (String cacheName : entityNames.getCacheNames()) {
-          ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
-          if (cacheEntity == null) {
-            // TODO handle destroy while disconnected
-            LOGGER.error("Cache " + cacheName + " has been destroyed by some other node");
-          } else {
-            clusteredCacheManagerEntity.markCacheInUse(cacheEntity);
+        int retryCount = 0;
+        boolean success = false;
+        while (!success && retryCount < 5) {
+          // grab Cache Manager read lock after rejoin
+          try {
+            clusteredCacheManager.markInUse();
+            success = true;
+          } catch (Exception e) {
+            retryCount++;
+          }
+        }
+        if (!success) {
+          LOGGER.error("Unable to mark cache manager {} in use - shutting down to prevent any further use of clustered features", cacheManagerName);
+          shutdown();
+        } else {
+          // grab cache read lock after rejoin
+          for (String cacheName : entityNames.getCacheNames()) {
+            ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
+            if (cacheEntity == null) {
+              // TODO handle destroy while disconnected
+              LOGGER.error("Cache " + cacheName + " has been destroyed by some other node");
+            } else {
+              clusteredCacheManagerEntity.markCacheInUse(cacheEntity);
+            }
           }
         }
       }
