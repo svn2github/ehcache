@@ -15,7 +15,7 @@
         <cacheLoaderFactory class="net.sf.ehcache.constructs.refreshahead.StringifyCacheLoaderFactory" />
         <cacheDecoratorFactory
                 class="net.sf.ehcache.constructs.refreshahead.RefreshAheadCacheFactory"
-                properties=" timeToRefreshSeconds=7, maximumBacklogItems=1000" />
+                properties=" timeToRefreshSeconds=3, maximumBacklogItems=1000" />
     </cache>
 
     <cache name="testRefreshAhead2" eternal="false"
@@ -23,7 +23,7 @@
         <cacheLoaderFactory class="net.sf.ehcache.constructs.refreshahead.NullLoaderFactory" />
         <cacheDecoratorFactory
                 class="net.sf.ehcache.constructs.refreshahead.RefreshAheadCacheFactory"
-                properties=" timeToRefreshSeconds=7, maximumBacklogItems=1000, evictOnLoadMiss=true" />
+                properties=" timeToRefreshSeconds=3, maximumBacklogItems=1000, evictOnLoadMiss=true" />
     </cache>
 
 </ehcache>
