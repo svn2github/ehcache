@@ -26,5 +26,6 @@
     <!-- Suppress duplicate checking of copyright notice -->
     <suppress checks="StrictDuplicateCode" files=".java" lines="1-53"/>
     <suppress checks="StrictDuplicateCode" files="EhCacheQueryCache.java" lines="169-200"/>
+    <suppress checks="StrictDuplicateCode" files="EhCacheDataCache.java" lines="311-342"/>
 
 </suppressions>
