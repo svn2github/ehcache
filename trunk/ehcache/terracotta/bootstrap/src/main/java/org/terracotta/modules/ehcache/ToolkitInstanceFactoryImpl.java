@@ -359,7 +359,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       try {
         clusteredCacheManagerEntity.releaseUse();
       } catch (Exception e) {
-        // TODO handle exception
+        // Ignore - will be shutting down toolkit anyway
         LOGGER.debug("Exception occurred while releasing clustered cache manager entity use", e);
       }
     }
@@ -613,14 +613,9 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public void unlinkCache(String cacheName) {
-    try {
-      entityNames.removeCacheName(cacheName);
-      ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
-      clusteredCacheManagerEntity.releaseCacheUse(cacheEntity);
-    } catch (Exception e) {
-      // TODO handle exception
-      LOGGER.debug("Exception occurred while releasing clustered cache entity use", e);
-    }
+    entityNames.removeCacheName(cacheName);
+    ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
+    clusteredCacheManagerEntity.releaseCacheUse(cacheEntity);
   }
 
   @Override
@@ -630,8 +625,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName,
                                                                                          ClusteredCacheManager.class);
       if (clusteredCacheManager == null) {
-        // TODO handle destroy while disconnected
-        LOGGER.error("Cache Manager " + cacheManagerName + " has been destroyed by some other node");
+        LOGGER.error("Cache Manager " + cacheManagerName + " has been destroyed by some other node - shutting down to prevent any further use of clustered features");
+        shutdown();
       } else {
         // release Cache Manager lock after rejoin
         try {
