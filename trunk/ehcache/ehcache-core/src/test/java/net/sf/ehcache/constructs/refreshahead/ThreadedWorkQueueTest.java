@@ -74,7 +74,7 @@ public class ThreadedWorkQueueTest {
     ThreadedWorkQueue<Integer> queue = new ThreadedWorkQueue<Integer>(counterWorker, 1, daemonFactory, 1000, 1);
     final int TESTSIZE = 10000;
     for (int i = 0; i < TESTSIZE; i++) {
-      if(i==100) {
+      if(i==2000) {
         // let the queue process now. Things have fallen off.
         pause.set(false);
       }
