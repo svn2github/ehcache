@@ -1,3 +1,14 @@
+RULE introduce delay in ToolkitCacheImpl put
+CLASS ToolkitCacheImpl
+METHOD put
+AT ENTRY
+IF true
+DO traceln("======== waiting 10 millisecond at following code location ========= ");
+java.lang.Thread.dumpStack();
+com.tc.util.concurrent.ThreadUtil.reallySleep(10);
+ENDRULE
+
+
 RULE introduce delay in ToolkitCacheImpl disposeLocally
 CLASS ToolkitCacheImpl
 METHOD disposeLocally
@@ -5,5 +16,5 @@ AT ENTRY
 IF true
 DO traceln("======== waiting 1 second at following code location ========= ");
 java.lang.Thread.dumpStack();
-com.tc.util.concurrent.ThreadUtil.reallySleep(100);
+com.tc.util.concurrent.ThreadUtil.reallySleep(1000);
 ENDRULE
