@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 import javax.transaction.TransactionManager;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class SimpleTx1 extends AbstractTxClient {
 
@@ -34,6 +34,9 @@ public class SimpleTx1 extends AbstractTxClient {
     SomeClass instance = new SomeClass(1);
     instance.someOtherInstance = new SomeClass(2);
 
+    Assert.assertTrue(cache.getCacheConfiguration().isCopyOnRead());
+    Assert.assertTrue(cache.getCacheConfiguration().isCopyOnWrite());
+
     try {
       txnManager.begin();
       cache.put(new Element("key1", "value1"));
@@ -52,11 +55,14 @@ public class SimpleTx1 extends AbstractTxClient {
       rollbackCount++;
     }
 
+    instance.someValue = 3;
+
     try {
       txnManager.begin();
       cache.put(new Element("key1", "value2"));
 
       Assert.assertTrue("Should NOT be the same instance", instance != cache.get("someInstance").getValue());
+      Assert.assertTrue("Should NOT reflect the post commit change!", instance.someValue != ((SomeClass)cache.get("someInstance").getValue()).someValue);
 
       Element element = cache.get("key1");
       System.out.println("key1:" + element.getValue());
