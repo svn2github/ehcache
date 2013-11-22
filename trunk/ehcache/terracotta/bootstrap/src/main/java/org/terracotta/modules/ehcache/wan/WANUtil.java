@@ -10,8 +10,10 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 public class WANUtil {
+  private static final int             WAIT_INTERVAL_FOR_ORCHESTRATOR_IN_SECONDS = 60;
   private static final Logger          LOGGER                  = LoggerFactory.getLogger(WANUtil.class);
   private static final String          WAN_PREFIX              = "__WAN__";
   private static final String          LOCK_PREFIX             = WAN_PREFIX + "LOCK";
@@ -52,13 +54,17 @@ public class WANUtil {
    */
   public void waitForOrchestrator(String cacheManagerName) {
     if (!isOrchestratorRunning(cacheManagerName)) {
+      LOGGER.info("Waiting for the Orchestrator...");
       ToolkitLock toolkitLock = factory.getToolkit().getLock(LOCK_PREFIX + cacheManagerName);
       toolkitLock.lock();
       try {
         while (!isOrchestratorRunning(cacheManagerName)) {
-          LOGGER.info("Waiting for the Orchestrator...");
           try {
-            toolkitLock.getCondition().await();
+            boolean orchRunning = toolkitLock.getCondition().await(WAIT_INTERVAL_FOR_ORCHESTRATOR_IN_SECONDS,
+                                                                 TimeUnit.SECONDS);
+            if (!orchRunning) {
+              LOGGER.error("No Orchestrator Running. We can not proceed further without an Orchestrator.");
+            }
           } catch (InterruptedException e) {
             LOGGER.warn("Interrupted while waiting for the Orchestrator to be running.", e);
           }
