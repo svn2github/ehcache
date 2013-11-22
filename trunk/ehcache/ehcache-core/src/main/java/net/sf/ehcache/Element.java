@@ -361,6 +361,11 @@ public class Element implements Serializable, Cloneable {
 
     /**
      * Sets time to Live
+     * <P/>
+     * Value must be a positive integer, 0 means infinite time to live.
+     * <P/>
+     * If calling this method with 0 as the parameter, consider using {@link #setEternal(boolean)}
+     * or make sure you also explicitly call {@link #setTimeToIdle(int)}.
      *
      * @param timeToLiveSeconds the number of seconds to live
      */
@@ -374,6 +379,11 @@ public class Element implements Serializable, Cloneable {
 
     /**
      * Sets time to idle
+     * <P/>
+     * Value must be a positive integer, 0 means infinite time to idle.
+     * <P/>
+     * If calling this method with 0 as the parameter, consider using {@link #setEternal(boolean)}
+     * or make sure you also explicitly call {@link #setTimeToLive(int)}.
      *
      * @param timeToIdleSeconds the number of seconds to idle
      */
