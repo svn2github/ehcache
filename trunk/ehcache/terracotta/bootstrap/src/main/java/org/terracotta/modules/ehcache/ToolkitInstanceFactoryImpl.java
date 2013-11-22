@@ -344,13 +344,13 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   @Override
-  public ToolkitMap<String, AttributeExtractor> getOrCreateExtractorsMap(Ehcache cache) {
+  public ToolkitMap<String, AttributeExtractor> getOrCreateExtractorsMap(final String cacheManagerName, String cacheName) {
     // implemented in ee version
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public ToolkitMap<String, String> getOrCreateAttributeMap(Ehcache cache) {
+  public ToolkitMap<String, String> getOrCreateAttributeMap(final String cacheManagerName, String cacheName) {
     throw new UnsupportedOperationException();
   }
 

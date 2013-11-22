@@ -72,13 +72,17 @@ public interface ToolkitInstanceFactory {
    * Returns a {@link ToolkitMap} for storing serialized extractors for the cache
    * 
    * @throws UnsupportedOperationException if search is not supported
+   * @param cacheManagerName
+   * @param cacheName
    */
-  ToolkitMap<String, AttributeExtractor> getOrCreateExtractorsMap(Ehcache cache);
+  ToolkitMap<String, AttributeExtractor> getOrCreateExtractorsMap(final String cacheManagerName, String cacheName);
 
   /**
    * Returns a {@link ToolkitMap} that will be used internally by Toolkit to store attribute schema.
+   * @param cacheName
+   *
    */
-  ToolkitMap<String, String> getOrCreateAttributeMap(Ehcache cache);
+  ToolkitMap<String, String> getOrCreateAttributeMap(final String cacheManagerName, String cacheName);
 
   /**
    * Destorys any clustered state associated with the given cache.
