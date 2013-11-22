@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -136,10 +137,19 @@ public class ToolkitInstanceFactoryImplTest {
     whenCacheIsWanDisabled().callGetOrCreateToolkitCache().assertInstanceOfWanAwareToolkitCache(false);
   }
 
+  @Test(expected = CacheException.class)
+  public void testWanAwareToolkitCacheDoesNotSupportDynamicConfigChange() throws Exception {
+    whenCacheIsWanEnabled().callGetOrCreateToolkitCache().assertInstanceOfWanAwareToolkitCache(true).updateTimeToLive();
+  }
+
   @Test
   public void testMaxEntriesInCacheToMaxTotalCountTransformation() {
     CacheConfiguration configuration = new CacheConfiguration().terracotta(new TerracottaConfiguration()).maxEntriesInCache(10);
     forEhcacheConfig(configuration).callGetOrCreateToolkitCache().validateMaxTotalCountForToolkitCacheIs(10);
+  }
+
+  private void updateTimeToLive() {
+    ehcache.getCacheConfiguration().setTimeToLiveSeconds(10);
   }
 
   private void validateMaxTotalCountForToolkitCacheIs(int maxTotalCount) {
@@ -173,8 +183,9 @@ public class ToolkitInstanceFactoryImplTest {
   }
 
 
-  private void assertInstanceOfWanAwareToolkitCache(boolean expectedResult) {
+  private ToolkitInstanceFactoryImplTest assertInstanceOfWanAwareToolkitCache(boolean expectedResult) {
     Assert.assertEquals(expectedResult, (resultantCache instanceof WanAwareToolkitCache));
+    return this;
   }
 
   private ToolkitInstanceFactoryImplTest callGetOrCreateToolkitCache() {

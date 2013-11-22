@@ -182,6 +182,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
     if(wanUtil.isWanEnabledCache(cacheManagerName, cacheName)) {
       toolkitCache = createWanAwareToolkitCache(cacheManagerName, cacheName, toolkitCache);
+      cache.getCacheConfiguration().freezeConfiguration();
     }
     
     return toolkitCache;
