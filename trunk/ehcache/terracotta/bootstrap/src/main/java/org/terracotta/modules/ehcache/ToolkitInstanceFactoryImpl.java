@@ -70,6 +70,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
@@ -97,6 +98,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   private static final String EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME = EHCACHE_NAME_PREFIX + DELIMITER
                                                                                     + "softNotifierLock";
+  public static final int RETRY_MARK_IN_USE_AFTER_REJOIN = 5;
 
   protected final Toolkit     toolkit;
   private WANUtil             wanUtil;
@@ -652,12 +654,18 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
         int retryCount = 0;
         boolean success = false;
-        while (!success && retryCount < 5) {
+        while (retryCount < RETRY_MARK_IN_USE_AFTER_REJOIN) {
           // grab Cache Manager read lock after rejoin
           try {
             clusteredCacheManager.markInUse();
-            success = true;
+            success = (clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class) != null);
+            break;
           } catch (Exception e) {
+            try {
+              TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e1) {
+              // Do nothing
+            }
             retryCount++;
           }
         }
@@ -667,12 +675,26 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         } else {
           // grab cache read lock after rejoin
           for (String cacheName : entityNames.getCacheNames()) {
-            ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
-            if (cacheEntity == null) {
-              // TODO handle destroy while disconnected
-              LOGGER.error("Cache " + cacheName + " has been destroyed by some other node");
-            } else {
-              clusteredCacheManagerEntity.markCacheInUse(cacheEntity);
+            boolean successCache = false;
+            int retryCountCache = 0;
+            while (!successCache && retryCountCache < RETRY_MARK_IN_USE_AFTER_REJOIN) {
+              ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
+              if (cacheEntity == null) {
+                LOGGER.error("Cache " + cacheName + " has been destroyed by some other node");
+                successCache = true;
+              } else {
+                try {
+                  clusteredCacheManagerEntity.markCacheInUse(cacheEntity);
+                  successCache = true;
+                } catch (Exception e) {
+                  try {
+                    TimeUnit.SECONDS.sleep(1);
+                  } catch (InterruptedException e1) {
+                    // Do nothing
+                  }
+                  retryCountCache++;
+                }
+              }
             }
           }
         }
