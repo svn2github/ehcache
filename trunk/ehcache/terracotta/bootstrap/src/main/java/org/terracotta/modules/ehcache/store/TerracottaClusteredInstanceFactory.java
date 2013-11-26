@@ -5,6 +5,7 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
@@ -125,7 +126,7 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
                                                                config.getWriteBehindMaxQueueSize());
 
     final AsyncCoordinator asyncCoordinator = asyncCoordinatorFactory.getOrCreateAsyncCoordinator(cache, asyncConfig);
-    return new AsyncWriteBehind(asyncCoordinator, cache);
+    return new AsyncWriteBehind(asyncCoordinator, config.getWriteBehindConcurrency());
   }
 
   @Override

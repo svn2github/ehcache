@@ -18,24 +18,32 @@ import org.terracotta.modules.ehcache.writebehind.operations.SingleAsyncOperatio
 import org.terracotta.modules.ehcache.writebehind.operations.WriteAsyncOperation;
 
 public class AsyncWriteBehind implements WriteBehind {
+  public static final ItemScatterPolicy<SingleAsyncOperation> POLICY = new SingleAsyncOperationItemScatterPolicy();
+
   private final AsyncCoordinator<SingleAsyncOperation> async;
   private final int                                    concurrency;
 
   /**
    * Instantiate a new instance of {@code AsyncWriteBehind} by providing the async coordinator instance that will be
    * used for the underlying behavior.
-   * 
+   *
    * @param async the async coordinator instance that will be used by the write behind queue
-   * @param cache the cache this write behind is bound to
+   * @param writeBehindConcurrency the amount of buckets and threads to use
    */
-  public AsyncWriteBehind(AsyncCoordinator async, Ehcache cache) {
+  public AsyncWriteBehind(final AsyncCoordinator async, final int writeBehindConcurrency) {
+    if(async == null) {
+      throw new IllegalArgumentException("AsyncCoordinator can't be null");
+    }
+    if(writeBehindConcurrency < 1) {
+      throw new IllegalArgumentException("writeBehindConcurrency has to be at least one");
+    }
     this.async = async;
-    this.concurrency = cache.getCacheConfiguration().getCacheWriterConfiguration().getWriteBehindConcurrency();
+    this.concurrency = writeBehindConcurrency;
   }
 
   @Override
   public void start(CacheWriter writer) throws CacheException {
-    async.start(new CacheWriterProcessor(writer), concurrency, new SingleAsyncOperationItemScatterPolicy());
+    async.start(new CacheWriterProcessor(writer), concurrency, POLICY);
   }
 
   // This method is to be called from within a clustered Lock as it does not take any clustered lock inside.

@@ -56,6 +56,10 @@ public class CacheWriterProcessor implements ItemProcessor<SingleAsyncOperation>
 
   }
 
+  CacheWriter getCacheWriter() {
+    return cacheWriter;
+  }
+
   @Override
   public void process(Collection<SingleAsyncOperation> items) {
     final List<SingleAsyncOperation> itemsPerType = new ArrayList<SingleAsyncOperation>();

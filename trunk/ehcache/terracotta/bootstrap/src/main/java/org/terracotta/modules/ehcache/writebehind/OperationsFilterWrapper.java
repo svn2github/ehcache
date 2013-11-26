@@ -33,4 +33,8 @@ public class OperationsFilterWrapper implements ItemsFilter<SingleAsyncOperation
       }
     });
   }
+
+  OperationsFilter<KeyBasedOperation> getDelegate() {
+    return delegate;
+  }
 }
