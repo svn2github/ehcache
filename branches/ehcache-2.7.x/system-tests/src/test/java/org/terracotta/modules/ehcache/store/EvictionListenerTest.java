@@ -17,9 +17,9 @@ import org.terracotta.toolkit.concurrent.atomic.ToolkitAtomicLong;
 import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
 
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.Callable;
 
-import junit.framework.Assert;
+import static org.terracotta.test.util.WaitUtil.waitUntilCallableReturnsTrue;
 
 public class EvictionListenerTest extends AbstractCacheTestBase {
 
@@ -36,12 +36,11 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
   public static class App extends ClientBase implements CacheEventListener {
 
     private final ToolkitBarrier barrier;
-    private final ToolkitAtomicLong evictedCount;
-    private final AtomicLong localEvictedCount = new AtomicLong();
+    private final ToolkitAtomicLong actualEvictionsCount;
 
     public App(String[] args) {
       super("test2", args);
-      this.evictedCount = getClusteringToolkit().getAtomicLong("testLong");
+      this.actualEvictionsCount = getClusteringToolkit().getAtomicLong("testLong");
       this.barrier = getClusteringToolkit().getBarrier("testBarrier", NODE_COUNT);
     }
 
@@ -50,16 +49,19 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
     }
 
     @Override
-    protected void runTest(Cache cache, Toolkit clusteringToolkit) throws Throwable {
+    protected void runTest(final Cache cache, final Toolkit clusteringToolkit) throws Throwable {
+      final int numOfElements = 1000;
+      final long maxEntriesInCache = cache.getCacheConfiguration().getMaxEntriesInCache();
+      final long expectedEvictionsCount = numOfElements - maxEntriesInCache;
       final int index = barrier.await();
 
       cache.getCacheEventNotificationService().registerListener(this);
       // XXX: assert that the cache is clustered via methods on cache config (when methods exist)
       System.err.println(cache);
-      Assert.assertEquals(0, cache.getSize());
+      assertEquals(0, cache.getSize());
+      assertEquals(1, cache.getCacheConfiguration().getTerracottaConfiguration().getConcurrency());
       barrier.await();
 
-      int numOfElements = 1000;
       if (index == 0) {
         for (int i = 0; i < numOfElements; i++) {
           cache.put(new Element(i, "value"));
@@ -67,22 +69,27 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
       }
       barrier.await();
 
-      Thread.sleep(30 * 1000);
-      while (cache.getSize() >= 600) {
-        Thread.sleep(1000);
-        System.out.println("XXXX client" + index + " size: " + cache.getSize());
-      }
-
-      System.out.println("XXXX client" + index + " final size: " + cache.getSize());
-      long evictedElements = numOfElements - cache.getSize();
+      waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+        @Override
+        public Boolean call() throws Exception {
+          System.out.println("Client " + index + ", cache size so far: " + cache.getSize());
+          return cache.getSize() == maxEntriesInCache; // it must evict exactly 600 elements, because concurrency = 1
+        }
+      });
+      System.out.println("Client " + index + ", final cache size: " + cache.getSize());
       barrier.await();
 
-      Thread.sleep(30 * 1000);
-      System.out.println("XXXX client" + index + ": " + localEvictedCount.get());
-      this.evictedCount.addAndGet(localEvictedCount.get());
+      waitUntilCallableReturnsTrue(new Callable<Boolean>() {
+        @Override
+        public Boolean call() throws Exception {
+          System.out.println("Client " + index + ", evicted count so far: " + actualEvictionsCount.get());
+          // NOTE! Only one client should ever receive eviction events, and we actually don't know which one
+          return actualEvictionsCount.get() == expectedEvictionsCount;
+        }
+      });
       barrier.await();
 
-      Assert.assertEquals("XXXX client " + index + " failed.", evictedElements, this.evictedCount.get());
+      assertEquals(expectedEvictionsCount, this.actualEvictionsCount.get());
     }
 
     @Override
@@ -93,7 +100,7 @@ public class EvictionListenerTest extends AbstractCacheTestBase {
     @Override
     public void notifyElementEvicted(Ehcache cache, Element element) {
       System.out.println("Element [" + element + "] evicted");
-      localEvictedCount.incrementAndGet();
+      actualEvictionsCount.incrementAndGet();
     }
 
     @Override
