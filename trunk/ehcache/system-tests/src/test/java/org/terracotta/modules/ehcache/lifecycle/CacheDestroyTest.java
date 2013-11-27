@@ -5,6 +5,7 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
@@ -24,8 +25,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class CacheDestroyTest extends AbstractCacheTestBase {
 
-    private static final String CACHE_NAME = "cache1";
-
+    private static final String CACHE_1_NAME = "cache1";
+    private static final String CACHE_2_NAME = "cache2";
     public CacheDestroyTest(TestConfig testConfig) {
         super("lifecycle/cache-destroy.xml", testConfig, CacheCreateClient.class, ClusteredEntityClient.class);
     }
@@ -38,9 +39,17 @@ public class CacheDestroyTest extends AbstractCacheTestBase {
         @Override
         protected void runTest(Cache cache, Toolkit myToolkit) throws Throwable {
 
-            CacheConfiguration cacheConfig = new CacheConfiguration(CACHE_NAME, 100).terracotta(new TerracottaConfiguration());
+
+            CacheConfiguration cacheConfig = new CacheConfiguration(CACHE_1_NAME, 100).terracotta(new TerracottaConfiguration());
             cacheManager.addCache(new Cache(cacheConfig));
-            cache = cacheManager.getCache(CACHE_NAME);
+
+            // Create different cache config to ensure all can be deleted
+            CacheConfiguration arcHeapCacheConfig = new CacheConfiguration().name(CACHE_2_NAME)
+                    .maxBytesLocalHeap(100, MemoryUnit.MEGABYTES)
+                    .terracotta(new TerracottaConfiguration());
+            cacheManager.addCache(new Cache(arcHeapCacheConfig));
+
+            cache = cacheManager.getCache(CACHE_1_NAME);
 
             String key = "key";
 
@@ -53,7 +62,7 @@ public class CacheDestroyTest extends AbstractCacheTestBase {
             // Waiting for other client to finish trying to destroy
             getBarrierForAllClients().await(1, TimeUnit.MINUTES);
 
-            cacheManager.removeCache(CACHE_NAME);
+            cacheManager.removeAllCaches();
 
             // Signalling other client to destroy
             getBarrierForAllClients().await(10, TimeUnit.SECONDS);
@@ -63,7 +72,7 @@ public class CacheDestroyTest extends AbstractCacheTestBase {
 
             // Making sure adding back cache does not resurrect old data structures
             cacheManager.addCache(new Cache(cacheConfig));
-            cache = cacheManager.getCache(CACHE_NAME);
+            cache = cacheManager.getCache(CACHE_1_NAME);
             assertTrue(cache.get(key) == null);
         }
     }
@@ -97,7 +106,7 @@ public class CacheDestroyTest extends AbstractCacheTestBase {
             Map<String,ClusteredCache> caches = clusteredCacheManager.getCaches();
 
             try {
-                clusteredCacheManager.destroyCache(caches.get(CACHE_NAME));
+                clusteredCacheManager.destroyCache(caches.get(CACHE_1_NAME));
                 fail("cache is in use, destroy must fail");
             } catch (IllegalStateException isex) {
                 assertTrue(isex.getMessage().contains("destruction"));
@@ -108,11 +117,17 @@ public class CacheDestroyTest extends AbstractCacheTestBase {
 
             getBarrierForAllClients().await(1, TimeUnit.MINUTES);
 
-            clusteredCacheManager.destroyCache(caches.get(CACHE_NAME));
-            assertNull(clusteredCacheManager.getCache(CACHE_NAME));
+            destroyCache(CACHE_1_NAME, clusteredCacheManager, caches);
+
+            destroyCache(CACHE_2_NAME, clusteredCacheManager, caches);
 
             // Signalling other client destroy performed
             getBarrierForAllClients().await(10, TimeUnit.SECONDS);
+        }
+
+        private void destroyCache(String cacheName, ClusteredCacheManager clusteredCacheManager, Map<String, ClusteredCache> caches) {
+            clusteredCacheManager.destroyCache(caches.get(cacheName));
+            assertNull(clusteredCacheManager.getCache(cacheName));
         }
     }
 }
