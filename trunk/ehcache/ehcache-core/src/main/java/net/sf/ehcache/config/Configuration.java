@@ -21,6 +21,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.FeaturesManager;
 import net.sf.ehcache.ObjectExistsException;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.config.generator.ConfigurationSource;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
@@ -229,7 +230,11 @@ public final class Configuration {
      */
     public RuntimeCfg setupFor(final CacheManager cacheManager, final String fallbackName) throws InvalidConfigurationException {
         if (cfg != null) {
-            return cfg;
+            if (cfg.cacheManager == cacheManager) {
+                return cfg;
+            } else if (cfg.cacheManager.getStatus() != Status.STATUS_SHUTDOWN) {
+                throw new IllegalStateException("You cannot share a Configuration instance across multiple running CacheManager instances");
+            }
         }
         final Collection<ConfigError> errors = validate();
         if (!errors.isEmpty()) {
