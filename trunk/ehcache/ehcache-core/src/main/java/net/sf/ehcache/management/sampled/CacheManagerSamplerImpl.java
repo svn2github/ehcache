@@ -600,19 +600,17 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
     @Override
     public Object[][] executeQuery(String queryString) throws SearchException {
         QueryManagerBuilder qmb = QueryManagerBuilder.newQueryManagerBuilder();
-        Map<String, Attribute> availableAttrs = new HashMap<String, Attribute>();
 
-        for (String cacheName : getCacheNames()) {
+      boolean searchable = false;
+      for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
             if (cache != null && cache.getCacheConfiguration().getSearchable() != null) {
                 qmb.addCache(cache);
-                for (Attribute attr : cache.getSearchAttributes()) {
-                    availableAttrs.put(attr.getAttributeName(), attr);
-                }
+                searchable = true;
             }
         }
         
-        if (availableAttrs.size() == 0) {
+        if (!searchable) {
             throw new SearchException("There are no searchable caches");
         }
 
@@ -631,9 +629,6 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         Map<String, Attribute<?>> attrMap = new HashMap<String, Attribute<?>>();
         for (Attribute<?> attr : attrs) {
             String attrName = attr.getAttributeName();
-            if (!availableAttrs.containsKey(attrName)) {
-                throw new SearchException("Unknown request attribute: " + attrName);
-            }
             attrMap.put(attrName, attr);
         }
         
