@@ -19,14 +19,7 @@
  */
 package net.sf.ehcache.store.disk;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
-
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
@@ -41,6 +34,13 @@ import net.sf.ehcache.util.FindBugsSuppressWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.statistics.observer.OperationObserver;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Segment implementation used in LocalStore.
@@ -427,6 +427,8 @@ public class Segment extends ReentrantReadWriteLock {
         final long incomingHeapSize = onHeapPoolAccessor.add(key, encoded, NULL_HASH_ENTRY, cachePinned || faulted);
         if (incomingHeapSize < 0) {
             LOG.debug("put failed to add on heap");
+            evictionObserver.end(EvictionOutcome.SUCCESS);
+            cacheEventNotificationService.notifyElementEvicted(element, false);
             return null;
         } else {
             LOG.debug("put added {} on heap", incomingHeapSize);
