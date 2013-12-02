@@ -1,6 +1,8 @@
 package net.sf.ehcache.pool.sizeof;
 
 import static net.sf.ehcache.pool.sizeof.JvmInformation.CURRENT_JVM_INFORMATION;
+import static net.sf.ehcache.pool.sizeof.JvmInformation.UNKNOWN_32_BIT;
+import static net.sf.ehcache.pool.sizeof.JvmInformation.UNKNOWN_64_BIT;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
@@ -42,9 +44,14 @@ public class SizeOfTest extends AbstractSizeOfTest {
 
   @BeforeClass
   public static void setup() {
+    System.err.println("java.vm.name:\t" + System.getProperty("java.vm.name", ""));
+    System.err.println("java.vm.vendor:\t" + System.getProperty("java.vm.vendor", ""));
     assumeThat(System.getProperty("os.name"), not(containsString("AIX")));
-    deepSizeOf(new CrossCheckingSizeOf(), new EvilPair(new Object(), new SomeClass(true)));
+    deepSizeOf(new CrossCheckingSizeOf(), null);
     System.err.println("JVM identified as: " + JvmInformation.CURRENT_JVM_INFORMATION);
+    if (JvmInformation.CURRENT_JVM_INFORMATION == UNKNOWN_64_BIT || JvmInformation.CURRENT_JVM_INFORMATION == UNKNOWN_32_BIT) {
+      System.getProperties().list(System.err);
+    }
   }
 
   private final Collection<AssertionError> sizeOfFailures = new LinkedList<AssertionError>();
