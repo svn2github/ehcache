@@ -379,6 +379,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
         };
         try {
+            t.setDaemon(true);
             t.start();
             t.join(transactionTimeout * MILLISECOND_PER_SECOND);
         } catch (InterruptedException e) {
