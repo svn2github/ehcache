@@ -118,6 +118,7 @@ public class ReadWriteSerializationCopyStrategy implements ReadWriteCopyStrategy
         if (ElementIdHelper.hasId(element)) {
             ElementIdHelper.setId(newElement, ElementIdHelper.getId(element));
         }
+        element.updateAccessStatistics();
         return newElement;
     }
 
