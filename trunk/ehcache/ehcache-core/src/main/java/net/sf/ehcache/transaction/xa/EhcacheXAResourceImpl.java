@@ -378,12 +378,16 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
         };
         try {
+            t.setDaemon(true);
             t.start();
             t.join(transactionTimeout * MILLISECOND_PER_SECOND);
         } catch (InterruptedException e) {
             // ignore
         }
         if (t.isAlive()) {
+            Exception exception = new Exception("thread dump");
+            exception.setStackTrace(t.getStackTrace());
+            LOG.debug("XA recovery thread was interrupted after timeout", exception);
             t.interrupt();
         }
 
