@@ -123,6 +123,7 @@ public class DfltSamplerRepositoryService
         }
       });
       precalculationThread.setName("Ehcache Agent Precalculation Thread");
+      precalculationThread.setDaemon(true);
       precalculationThread.start();
     } else {
       precalculationThread = null;
