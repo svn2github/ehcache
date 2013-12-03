@@ -27,8 +27,11 @@ import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+// test for EHC-967
+@Ignore
 public class CopyOnReadAndTTITest {
     private CacheManager cacheManager;
 
