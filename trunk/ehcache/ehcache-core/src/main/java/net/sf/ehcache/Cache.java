@@ -275,9 +275,9 @@ public class Cache implements InternalEhcache, StoreListener {
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
      * <p/>
-     * Each cache has its own one of these, if required. Because the Core Thread Pool is zero, no threads
-     * are used until actually needed. Threads are added to the pool up to a maximum of 10. The keep alive
-     * time is 60 seconds, after which, if they are not required they will be stopped and collected.
+     * Each cache can have its own executor service, if required. Because the Core Thread Pool is 1, no threads
+     * are used until actually needed. Only one thread will ever be added to the pool. The keep alive
+     * time is 60 seconds, after which, if the thread is not required it will be stopped and collected, as core threads are allowed to time out.
      * <p/>
      * The executorService is only used for cache loading, and is created lazily on demand to avoid unnecessary resource
      * usage.
@@ -3393,7 +3393,7 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     /**
-     * @return Gets the executor service. This is not publically accessible.
+     * @return Gets the executor service. This is not publicly accessible.
      */
     ExecutorService getExecutorService() {
         if (executorService == null) {
@@ -3432,8 +3432,10 @@ public class Cache implements InternalEhcache, StoreListener {
                     };
                 } else {
                     // we can create Threads
-                    executorService = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE, EXECUTOR_KEEP_ALIVE_TIME,
-                            TimeUnit.MILLISECONDS, new LinkedBlockingQueue(), new NamedThreadFactory("Cache Executor Service"));
+                    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE, EXECUTOR_KEEP_ALIVE_TIME,
+                            TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("Cache Executor Service", true));
+                    threadPoolExecutor.allowCoreThreadTimeOut(true);
+                    executorService = threadPoolExecutor;
                 }
             }
         }

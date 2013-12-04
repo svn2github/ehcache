@@ -31,6 +31,7 @@ public class NamedThreadFactory implements ThreadFactory {
 
     private static AtomicInteger threadNumber = new AtomicInteger(1);
     private final String namePrefix;
+    private final boolean daemon;
 
     /**
      * Constructor accepting the prefix of the threads that will be created by this {@link ThreadFactory}
@@ -38,15 +39,28 @@ public class NamedThreadFactory implements ThreadFactory {
      * @param namePrefix
      *            Prefix for names of threads
      */
-    public NamedThreadFactory(String namePrefix) {
+    public NamedThreadFactory(String namePrefix, boolean daemon) {
         this.namePrefix = namePrefix;
+        this.daemon = daemon;
+
+    }
+    /**
+     * Constructor accepting the prefix of the threads that will be created by this {@link ThreadFactory}
+     *
+     * @param namePrefix
+     *            Prefix for names of threads
+     */
+    public NamedThreadFactory(String namePrefix) {
+        this(namePrefix, false);
     }
 
     /**
      * Returns a new thread using a name as specified by this factory {@inheritDoc}
      */
     public Thread newThread(Runnable runnable) {
-        return new Thread(runnable, namePrefix + " thread-" + threadNumber.getAndIncrement());
+        final Thread thread = new Thread(runnable, namePrefix + " thread-" + threadNumber.getAndIncrement());
+        thread.setDaemon(daemon);
+        return thread;
     }
 
 }
