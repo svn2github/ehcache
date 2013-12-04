@@ -22,7 +22,7 @@
     <surefire.version>2.15</surefire.version>
     <terracotta-toolkit-api-internal.version>1.11</terracotta-toolkit-api-internal.version>
     <management-core.version>1.2.4-SNAPSHOT</management-core.version>
-    <clustered-entity-management.version>0.6.0</clustered-entity-management.version>
+    <clustered-entity-management.version>0.7.0</clustered-entity-management.version>
     <statistics.version>1.0.1</statistics.version>
     <quartz.version>2.2.2-SNAPSHOT</quartz.version>
   </properties>
