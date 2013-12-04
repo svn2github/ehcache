@@ -16,34 +16,6 @@
 
 package net.sf.ehcache.management;
 
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.IsNull.nullValue;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.BindException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.server.ExportException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
-import javax.management.JMException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerConnection;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorServer;
-import javax.management.remote.JMXConnectorServerFactory;
-import javax.management.remote.JMXServiceURL;
-
 import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -59,6 +31,42 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.BindException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.server.ExportException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+
+import javax.management.JMException;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanInfo;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MBeanServerConnection;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
+
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * These tests use the JDK1.5 platform mbean server
@@ -379,6 +387,51 @@ public class ManagementServiceTest extends AbstractCacheTest {
         BlockingCache blockingCache = new BlockingCache(cache);
 
         manager.addCacheIfAbsent(blockingCache);
+    }
+
+    @Test
+    public void testNotifyCacheRemovedCallsUnregisterForAll() throws Exception {
+        MBeanServer server = mock(MBeanServer.class);
+        when(server.isRegistered(any(ObjectName.class))).thenReturn(true);
+
+        net.sf.ehcache.CacheManager cm = mock(net.sf.ehcache.CacheManager.class);
+        when(cm.toString()).thenReturn("cmName");
+
+        ManagementService managementService = new ManagementService(cm, server, false, true, true, true, true);
+
+        managementService.notifyCacheRemoved("testName");
+        verify(server, times(4)).isRegistered(any(ObjectName.class));
+        verify(server, times(4)).unregisterMBean(any(ObjectName.class));
+    }
+
+    @Test
+    public void testNotifyCacheRemovedDoesNotCallWhenNotRegistered() {
+        MBeanServer server = mock(MBeanServer.class);
+        when(server.isRegistered(any(ObjectName.class))).thenReturn(true);
+
+        net.sf.ehcache.CacheManager cm = mock(net.sf.ehcache.CacheManager.class);
+        when(cm.toString()).thenReturn("cmName");
+
+        ManagementService managementService = new ManagementService(cm, server, false, false, false, false, false);
+
+        managementService.notifyCacheRemoved("testName");
+        verifyZeroInteractions(server);
+    }
+
+    @Test
+    public void testNotifyCacheRemovedCallsUnregisterForAllEvenWithException() throws Exception {
+        MBeanServer server = mock(MBeanServer.class);
+        when(server.isRegistered(any(ObjectName.class))).thenReturn(true);
+        doThrow(new MBeanRegistrationException(new IllegalStateException())).when(server).unregisterMBean(any(ObjectName.class));
+
+        net.sf.ehcache.CacheManager cm = mock(net.sf.ehcache.CacheManager.class);
+        when(cm.toString()).thenReturn("cmName");
+
+        ManagementService managementService = new ManagementService(cm, server, false, true, true, true, true);
+
+        managementService.notifyCacheRemoved("testName");
+        verify(server, times(4)).isRegistered(any(ObjectName.class));
+        verify(server, times(4)).unregisterMBean(any(ObjectName.class));
     }
 
     private void traverseMBeanAttributes(MBeanServerConnection connection, String type) throws JMException, IOException {

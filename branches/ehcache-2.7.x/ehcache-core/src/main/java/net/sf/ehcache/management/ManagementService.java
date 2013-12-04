@@ -22,19 +22,20 @@ import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.hibernate.management.impl.EhcacheHibernateMbeanNames;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Ehcache CacheManagers and Caches have lifecycles. Often normal use of a CacheManager
@@ -388,31 +389,30 @@ public class ManagementService implements CacheManagerEventListener {
      */
     public void notifyCacheRemoved(String cacheName) {
 
-        ObjectName objectName = null;
+        if (registerCaches) {
+            unregisterMBean(Cache.createObjectName(backingCacheManager.toString(), cacheName));
+        }
+        if (registerCacheConfigurations) {
+            unregisterMBean(CacheConfiguration.createObjectName(backingCacheManager.toString(), cacheName));
+        }
+        if (registerCacheStatistics) {
+            unregisterMBean(CacheStatistics.createObjectName(backingCacheManager.toString(), cacheName));
+        }
+        if (registerCacheStores) {
+            unregisterMBean(Store.createObjectName(backingCacheManager.toString(), cacheName));
+        }
+
+    }
+
+    private void unregisterMBean(ObjectName objectName) {
         try {
-            if (registerCaches) {
-                objectName = Cache.createObjectName(backingCacheManager.toString(), cacheName);
+            if (mBeanServer.isRegistered(objectName)) {
                 mBeanServer.unregisterMBean(objectName);
-            }
-            if (registerCacheConfigurations) {
-                objectName = CacheConfiguration.createObjectName(backingCacheManager.toString(), cacheName);
-                mBeanServer.unregisterMBean(objectName);
-            }
-            if (registerCacheStatistics) {
-                objectName = CacheStatistics.createObjectName(backingCacheManager.toString(), cacheName);
-                mBeanServer.unregisterMBean(objectName);
-            }
-            if (registerCacheStores) {
-                objectName = Store.createObjectName(backingCacheManager.toString(), cacheName);
-                if (mBeanServer.isRegistered(objectName)) {
-                    mBeanServer.unregisterMBean(objectName);
-                }
             }
         } catch (Exception e) {
             LOG.error("Error unregistering cache for management for " + objectName
-                    + " . Error was " + e.getMessage(), e);
+                      + " . Error was " + e.getMessage(), e);
         }
-
     }
 
 }
