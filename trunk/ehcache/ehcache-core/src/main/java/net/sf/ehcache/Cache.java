@@ -3432,8 +3432,9 @@ public class Cache implements InternalEhcache, StoreListener {
                     };
                 } else {
                     // we can create Threads
-                    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE, EXECUTOR_KEEP_ALIVE_TIME,
-                            TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory("Cache Executor Service", true));
+                    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(EXECUTOR_CORE_POOL_SIZE, EXECUTOR_MAXIMUM_POOL_SIZE,
+                            EXECUTOR_KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(),
+                            new NamedThreadFactory("Cache Executor Service", true));
                     threadPoolExecutor.allowCoreThreadTimeOut(true);
                     executorService = threadPoolExecutor;
                 }
