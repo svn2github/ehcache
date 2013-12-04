@@ -81,6 +81,23 @@ public class MemoryLimitedCacheLoaderTest {
         assertThat(loader.isInMemoryLimitReached(cache, 4), is(true));
     }
 
+    @Test
+    public void testPooledOffHeapSizeBased() {
+        // Sizing info is in CacheManager, never consulted by MemoryLimitedCacheLoader
+        configuration.setOverflowToOffHeap(true);
+
+        assertThat(loader.isInMemoryLimitReached(cache, 0), is(false));
+        assertThat(loader.isInMemoryLimitReached(cache, Integer.MAX_VALUE), is(true));
+    }
+
+    @Test
+    public void testPooledHeapSizeBased() {
+        // Sizing info is in CacheManager, never consulted by MemoryLimitedCacheLoader
+
+        assertThat(loader.isInMemoryLimitReached(cache, 0), is(false));
+        assertThat(loader.isInMemoryLimitReached(cache, Integer.MAX_VALUE), is(true));
+    }
+
     private static class TestCacheLoader extends MemoryLimitedCacheLoader {
 
         @Override
