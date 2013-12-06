@@ -40,6 +40,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotifier;
+import org.terracotta.toolkit.internal.cache.BufferingToolkitCache;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.collections.ToolkitListInternal;
 import org.terracotta.toolkit.internal.store.ConfigFieldsInternal;
@@ -204,7 +205,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                                                                 final ToolkitCacheInternal<String, Serializable> toolkitCache) {
     final String fullyQualifiedCacheName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName);
     final ToolkitMap<String, Serializable> configMap = getOrCreateConfigMap(fullyQualifiedCacheName);
-    return new WanAwareToolkitCache<String, Serializable>(toolkitCache, configMap,
+    return new WanAwareToolkitCache<String, Serializable>((BufferingToolkitCache<String,Serializable>)toolkitCache, configMap,
                                                           toolkit.getFeature(ToolkitFeatureType.NONSTOP));
   }
 

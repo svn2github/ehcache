@@ -9,6 +9,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.feature.NonStopFeature;
+import org.terracotta.toolkit.internal.cache.BufferingToolkitCache;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.internal.cache.ToolkitValueComparator;
 import org.terracotta.toolkit.internal.cache.VersionUpdateListener;
@@ -29,17 +30,17 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @author Eugene Shelestovich
  */
-public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
+public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V> {
 
   private static final Logger                       LOGGER           = LoggerFactory.getLogger(WanAwareToolkitCache.class);
   private static final String                       CACHE_ACTIVE_KEY = "WAN-CACHE-ACTIVE";
 
-  private final ToolkitCacheInternal<K, V>          delegate;
+  private final BufferingToolkitCache<K, V>         delegate;
   private final ConcurrentMap<String, Serializable> configMap;
   private final NonStopFeature                      nonStop;
   private final ToolkitLock                         configMapLock;
 
-  public WanAwareToolkitCache(final ToolkitCacheInternal<K, V> delegate,
+  public WanAwareToolkitCache(final BufferingToolkitCache<K, V> delegate,
                               final ToolkitMap<String, Serializable> configMap, final NonStopFeature nonStop) {
     this(delegate, configMap, nonStop, configMap.getReadWriteLock().writeLock());
   }
@@ -47,7 +48,7 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   /**
    * Constructor for Unit Tests only
    */
-  WanAwareToolkitCache(final ToolkitCacheInternal<K, V> delegate, final ConcurrentMap<String, Serializable> configMap,
+  WanAwareToolkitCache(final BufferingToolkitCache<K, V> delegate, final ConcurrentMap<String, Serializable> configMap,
                        final NonStopFeature nonStop, final ToolkitLock configMapLock) {
     this.delegate = delegate;
     this.configMap = configMap;
@@ -492,6 +493,26 @@ public class WanAwareToolkitCache<K, V> implements ToolkitCacheInternal<K, V> {
   @Override
   public void unlockedRemoveNoReturnVersioned(final Object key, final long version) {
     delegate.unlockedRemoveNoReturnVersioned(key, version);
+  }
+
+  @Override
+  public void startBuffering() {
+    delegate.startBuffering();
+  }
+
+  @Override
+  public boolean isBuffering() {
+    return delegate.isBuffering();
+  }
+
+  @Override
+  public void stopBuffering() {
+    delegate.stopBuffering();
+  }
+
+  @Override
+  public void flushBuffer() {
+    delegate.flushBuffer();
   }
 
   /**

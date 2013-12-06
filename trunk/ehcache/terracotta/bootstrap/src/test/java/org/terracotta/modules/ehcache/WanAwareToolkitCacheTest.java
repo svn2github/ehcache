@@ -6,7 +6,7 @@ import static org.mockito.Mockito.verify;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
+import org.terracotta.toolkit.internal.cache.BufferingToolkitCache;
 
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +19,7 @@ public class WanAwareToolkitCacheTest {
 
   private static final String                  VALUE = "v1";
   private static final String                  KEY   = "k1";
-  private ToolkitCacheInternal<String, String> delegate;
+  private BufferingToolkitCache<String, String> delegate;
   private ConcurrentMap<String, Serializable>  configMap;
   private WanAwareToolkitCache<String, String> wanAwareCache;
   private boolean                              waitHappened;
@@ -27,7 +27,7 @@ public class WanAwareToolkitCacheTest {
   @Before
   public void setUp() {
     this.waitHappened = false;
-    delegate = mock(ToolkitCacheInternal.class);
+    delegate = mock(BufferingToolkitCache.class);
     configMap = new ConcurrentHashMap<String, Serializable>();
 
     wanAwareCache = getTestableWanAwareToolkitCache();
