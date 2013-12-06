@@ -21,11 +21,13 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
+import net.sf.ehcache.config.PinningConfiguration.Store;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import net.sf.ehcache.event.NotificationScope;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import net.sf.ehcache.config.PinningConfiguration.Store;
 import static net.sf.ehcache.config.Configuration.getAllActiveCaches;
 
 /**
@@ -2068,12 +2069,12 @@ public class CacheConfiguration implements Cloneable {
 
         if (configuration.isMaxBytesLocalHeapSet()
             && getMaxEntriesLocalHeap() > 0) {
-            errors.add(new CacheConfigError("MaxElementsInMemory is not compatible with " +
-                                            "MaxBytesLocalHeap set on cache manager", getName()));
+            errors.add(new CacheConfigError("maxEntriesLocalHeap is not compatible with " +
+                                            "maxBytesLocalHeap set on cache manager", getName()));
         }
         if (getMaxBytesLocalHeap() > 0 && getMaxEntriesLocalHeap() > 0) {
-            errors.add(new CacheConfigError("MaxElementsInMemory is not compatible with " +
-                                            "MaxBytesLocalHeap set on cache", getName()));
+            errors.add(new CacheConfigError("maxEntriesLocalHeap is not compatible with " +
+                                            "maxBytesLocalHeap set on cache", getName()));
         }
         if (isMaxBytesLocalHeapPercentageSet() && !configuration.isMaxBytesLocalHeapSet()) {
             errors.add(new CacheConfigError("Defines a percentage maxBytesOnHeap value but no CacheManager " +
