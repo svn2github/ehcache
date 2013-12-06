@@ -1062,7 +1062,7 @@ public class CacheConfiguration implements Cloneable {
      * This property can be modified dynamically while the cache is operating.
      *
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
-     * @deprecated use {@link #setMaxEntriesLocalDisk(long)} for unclustered caches and {@link #setMaxEntriesInCache(int)} for clustered caches.
+     * @deprecated use {@link #setMaxEntriesLocalDisk(long)} for unclustered caches and {@link #setMaxEntriesInCache(long)} for clustered caches.
      */
     public void setMaxElementsOnDisk(int maxElementsOnDisk) {
         if (onDiskPoolUsage != null && onDiskPoolUsage != PoolUsage.None) {
@@ -1137,7 +1137,7 @@ public class CacheConfiguration implements Cloneable {
      * @param maxElementsOnDisk the maximum number of Elements to allow on the disk. 0 means unlimited.
      * @return this configuration instance
      * @see #setMaxElementsOnDisk(int)
-     * @deprecated use {@link #maxEntriesLocalDisk(int)} for unclustered caches and {@link #maxEntriesInCache(int)} for clustered caches.
+     * @deprecated use {@link #maxEntriesLocalDisk(int)} for unclustered caches and {@link #maxEntriesInCache(long)} for clustered caches.
      */
     public final CacheConfiguration maxElementsOnDisk(int maxElementsOnDisk) {
         setMaxElementsOnDisk(maxElementsOnDisk);
@@ -1151,7 +1151,7 @@ public class CacheConfiguration implements Cloneable {
      *
      * @param maxEntriesInCache the maximum number of entries to allow in the cache.
      * @return this configuration instance
-     * @see #setMaxEntriesInCache(int)
+     * @see #setMaxEntriesInCache(long)
      */
     public final CacheConfiguration maxEntriesInCache(long maxEntriesInCache) {
         setMaxEntriesInCache(maxEntriesInCache);
