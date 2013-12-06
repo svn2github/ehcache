@@ -275,9 +275,8 @@ public class Cache implements InternalEhcache, StoreListener {
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
      * <p/>
-     * Each cache can have its own executor service, if required. Because the Core Thread Pool is 1, no threads
-     * are used until actually needed. Only one thread will ever be added to the pool. The keep alive
-     * time is 60 seconds, after which, if the thread is not required it will be stopped and collected, as core threads are allowed to time out.
+     * Each cache can have its own executor service, if required. The keep alive time is 60 seconds, after which,
+     * if the thread is not required it will be stopped and collected, as core threads are allowed to time out.
      * <p/>
      * The executorService is only used for cache loading, and is created lazily on demand to avoid unnecessary resource
      * usage.
