@@ -23,7 +23,8 @@ import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.Size;
-import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
+import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.pool.SizeOfEngineLoader;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.store.CachingTier;
 import net.sf.ehcache.store.FifoPolicy;
@@ -243,8 +244,8 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
         if (backEnd instanceof PooledBasedBackEnd<?, ?>) {
             sizeInBytes = ((PooledBasedBackEnd)backEnd).getSizeInBytes();
         } else {
-            DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(
-                net.sf.ehcache.config.SizeOfPolicyConfiguration.DEFAULT_MAX_SIZEOF_DEPTH,
+            SizeOfEngine defaultSizeOfEngine = SizeOfEngineLoader.newSizeOfEngine(
+                SizeOfPolicyConfiguration.DEFAULT_MAX_SIZEOF_DEPTH,
                 SizeOfPolicyConfiguration.DEFAULT_MAX_DEPTH_EXCEEDED_BEHAVIOR == SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT,
                 true
             );

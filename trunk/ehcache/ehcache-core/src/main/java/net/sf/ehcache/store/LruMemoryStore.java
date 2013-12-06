@@ -25,7 +25,8 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.pool.Size;
-import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
+import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.pool.SizeOfEngineLoader;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -385,9 +386,10 @@ public class LruMemoryStore extends AbstractStore {
      * @return the size, in bytes
      */
     public final synchronized long getSizeInBytes() throws CacheException {
-        DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(
+        SizeOfEngine defaultSizeOfEngine = SizeOfEngineLoader.newSizeOfEngine(
             SizeOfPolicyConfiguration.resolveMaxDepth(cache),
-            SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT),
+            SizeOfPolicyConfiguration.resolveBehavior(cache)
+                .equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT),
             true
         );
         long sizeInBytes = 0;

@@ -42,9 +42,9 @@ import net.sf.ehcache.management.provider.MBeanRegistrationProviderFactoryImpl;
 import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolEvictor;
 import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.pool.SizeOfEngineLoader;
 import net.sf.ehcache.pool.impl.BalancedAccessEvictor;
 import net.sf.ehcache.pool.impl.BoundedPool;
-import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
@@ -2051,8 +2051,8 @@ public class CacheManager {
             if (sizeOfPolicyConfiguration == null) {
                 sizeOfPolicyConfiguration = getConfiguration().getSizeOfPolicyConfiguration();
             }
-            return new DefaultSizeOfEngine(sizeOfPolicyConfiguration.getMaxDepth(), sizeOfPolicyConfiguration.getMaxDepthExceededBehavior()
-                    .isAbort());
+            return SizeOfEngineLoader.newSizeOfEngine(sizeOfPolicyConfiguration.getMaxDepth(),
+                sizeOfPolicyConfiguration.getMaxDepthExceededBehavior().isAbort(), false);
         }
     }
 

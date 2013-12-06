@@ -34,7 +34,8 @@ import net.sf.ehcache.pool.Pool;
 import net.sf.ehcache.pool.PoolAccessor;
 import net.sf.ehcache.pool.PoolParticipant;
 import net.sf.ehcache.pool.Size;
-import net.sf.ehcache.pool.impl.DefaultSizeOfEngine;
+import net.sf.ehcache.pool.SizeOfEngine;
+import net.sf.ehcache.pool.SizeOfEngineLoader;
 import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
@@ -771,9 +772,10 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
     @Statistic(name = "size-in-bytes", tags = "local-heap")
     public long getInMemorySizeInBytes() {
         if (poolAccessor.getSize() < 0) {
-            DefaultSizeOfEngine defaultSizeOfEngine = new DefaultSizeOfEngine(SizeOfPolicyConfiguration.resolveMaxDepth(cache),
-                    SizeOfPolicyConfiguration.resolveBehavior(cache).equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT),
-                    true);
+            SizeOfEngine defaultSizeOfEngine = SizeOfEngineLoader.newSizeOfEngine(SizeOfPolicyConfiguration.resolveMaxDepth(cache),
+                SizeOfPolicyConfiguration.resolveBehavior(cache)
+                    .equals(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT),
+                true);
             long sizeInBytes = 0;
             for (Object o : map.values()) {
                 Element element = (Element) o;
