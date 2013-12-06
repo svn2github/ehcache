@@ -491,9 +491,15 @@ public class Element implements Serializable, Cloneable {
     }
 
     /**
-     * Gets the last access time.
-     * Access means a get. So a newly created {@link Element}
-     * will have a last access time equal to its create time.
+     * Gets the last access time of this element.
+     * <p/>
+     * Access means the element was written into a cache or read from it.
+     * When first instantiated an {@link Element} has a lastAccessTime of 0, unless passed into the constructor.
+     *
+     * @see #Element(Object, Object, long, long, long, long, boolean, int, int, long)
+     * @see #Element(Object, Object, long, long, long, long, long)
+     * @see #resetAccessStatistics()
+     * @see #updateAccessStatistics()
      */
     public final long getLastAccessTime() {
         return lastAccessTime;
