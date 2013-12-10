@@ -22,7 +22,6 @@ public class AbstractTerracottaActivePassiveTestBase extends AbstractCacheTestBa
     testConfig.setRestartable(false);
 
     testConfig.getGroupConfig().setMemberCount(2);
-    testConfig.getGroupConfig().setElectionTime(5);
 
     testConfig.getCrashConfig().setCrashMode(ServerCrashMode.NO_CRASH);
   }
