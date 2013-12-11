@@ -55,7 +55,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -247,7 +246,7 @@ public class ToolkitInstanceFactoryImplTest {
         ((ToolkitBackedClusteredCacheManager)arguments[2]).setEntityLockHandler(mock(EntityLockHandler.class));
         return null;
       }
-    }).when(clusteredEntityManager).addRootEntity(eq(name), eq(ClusteredCacheManager.class), any(ClusteredCacheManager.class));
+    }).when(clusteredEntityManager).addRootEntityIfAbsent(eq(name), eq(ClusteredCacheManager.class), any(ClusteredCacheManager.class));
     ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
     ToolkitLock writeLock = mock(ToolkitLock.class);
     when(writeLock.tryLock()).thenReturn(true);
@@ -260,7 +259,7 @@ public class ToolkitInstanceFactoryImplTest {
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
     verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
     verify(clusteredEntityManager).getEntityLock(EhcacheEntitiesNaming.getCacheManagerLockNameFor(name));
-    verify(clusteredEntityManager).addRootEntity(eq(name), any(Class.class), any(ClusteredCacheManager.class));
+    verify(clusteredEntityManager).addRootEntityIfAbsent(eq(name), any(Class.class), any(ClusteredCacheManager.class));
     verifyNoMoreInteractions(clusteredEntityManager);
   }
 
@@ -271,8 +270,7 @@ public class ToolkitInstanceFactoryImplTest {
     net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
 
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
-    doThrow(new IllegalStateException("exists")).when(clusteredEntityManager)
-        .addRootEntity(eq(name), any(Class.class), any(ClusteredCacheManager.class));
+    when(clusteredEntityManager.addRootEntityIfAbsent(eq(name), any(Class.class), any(ClusteredCacheManager.class))).thenReturn(mock(ClusteredCacheManager.class));
     when(clusteredEntityManager.getRootEntity(name, ClusteredCacheManager.class)).thenReturn(null, mock(ClusteredCacheManager.class));
     ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
     ToolkitLock writeLock = mock(ToolkitLock.class);
@@ -287,8 +285,7 @@ public class ToolkitInstanceFactoryImplTest {
     InOrder inOrder = inOrder(clusteredEntityManager);
     inOrder.verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
     inOrder.verify(clusteredEntityManager).getEntityLock(EhcacheEntitiesNaming.getCacheManagerLockNameFor(name));
-    inOrder.verify(clusteredEntityManager).addRootEntity(eq(name), any(Class.class), any(ClusteredCacheManager.class));
-    inOrder.verify(clusteredEntityManager).getRootEntity(name, ClusteredCacheManager.class);
+    inOrder.verify(clusteredEntityManager).addRootEntityIfAbsent(eq(name), any(Class.class), any(ClusteredCacheManager.class));
     verifyNoMoreInteractions(clusteredEntityManager);
   }
 
@@ -307,7 +304,7 @@ public class ToolkitInstanceFactoryImplTest {
         ((ToolkitBackedClusteredCacheManager)arguments[2]).setEntityLockHandler(mock(EntityLockHandler.class));
         return null;
       }
-    }).when(clusteredEntityManager).addRootEntity(eq(name), eq(ClusteredCacheManager.class), any(ClusteredCacheManager.class));
+    }).when(clusteredEntityManager).addRootEntityIfAbsent(eq(name), eq(ClusteredCacheManager.class), any(ClusteredCacheManager.class));
     ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
     ToolkitLock writeLock = mock(ToolkitLock.class);
     when(writeLock.tryLock()).thenReturn(true);
@@ -319,7 +316,7 @@ public class ToolkitInstanceFactoryImplTest {
 
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
     ArgumentCaptor<ClusteredCacheManager> captor = ArgumentCaptor.forClass(ClusteredCacheManager.class);
-    verify(clusteredEntityManager).addRootEntity(eq(name), any(Class.class), captor.capture());
+    verify(clusteredEntityManager).addRootEntityIfAbsent(eq(name), any(Class.class), captor.capture());
 
     assertThat(captor.getValue().getConfiguration().getConfigurationAsText(), not(containsString("<cache")));
   }
@@ -340,7 +337,7 @@ public class ToolkitInstanceFactoryImplTest {
         ((ToolkitBackedClusteredCacheManager)arguments[2]).setEntityLockHandler(mock(EntityLockHandler.class));
         return null;
       }
-    }).when(clusteredEntityManager).addRootEntity(eq(name), eq(ClusteredCacheManager.class), any(ClusteredCacheManager.class));
+    }).when(clusteredEntityManager).addRootEntityIfAbsent(eq(name), eq(ClusteredCacheManager.class), any(ClusteredCacheManager.class));
     ToolkitReadWriteLock rwLock = mock(ToolkitReadWriteLock.class);
     ToolkitLock writeLock = mock(ToolkitLock.class);
     when(writeLock.tryLock()).thenReturn(true);
@@ -352,7 +349,7 @@ public class ToolkitInstanceFactoryImplTest {
 
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
     ArgumentCaptor<ClusteredCacheManager> captor = ArgumentCaptor.forClass(ClusteredCacheManager.class);
-    verify(clusteredEntityManager).addRootEntity(eq(name), any(Class.class), captor.capture());
+    verify(clusteredEntityManager).addRootEntityIfAbsent(eq(name), any(Class.class), captor.capture());
 
     assertThat(captor.getValue().getConfiguration().getConfigurationAsText(), containsString("name=\"" + name));
   }

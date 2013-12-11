@@ -557,10 +557,9 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     String xmlConfig = convertConfigurationToXML(configuration, cacheManagerName);
     clusteredCacheManager = new ToolkitBackedClusteredCacheManager(cacheManagerName,
                                                                    new ClusteredCacheManagerConfiguration(xmlConfig));
-    try {
-      clusteredEntityManager.addRootEntity(cacheManagerName, ClusteredCacheManager.class, clusteredCacheManager);
-    } catch (IllegalStateException isex) {
-      clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName, ClusteredCacheManager.class);
+    ClusteredCacheManager existing = clusteredEntityManager.addRootEntityIfAbsent(cacheManagerName, ClusteredCacheManager.class, clusteredCacheManager);
+    if (existing != null) {
+      clusteredCacheManager = existing;
     }
     return clusteredCacheManager;
   }
@@ -600,10 +599,10 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private ClusteredCache createClusteredCacheEntity(String cacheName, CacheConfiguration ehcacheConfig, String toolkitCacheName) {
     ClusteredCacheConfiguration clusteredConfiguration = createClusteredCacheConfiguration(ehcacheConfig);
     ClusteredCache cacheEntity = new ToolkitBackedClusteredCache(cacheName, clusteredConfiguration, toolkitCacheName);
-    try {
-      clusteredCacheManagerEntity.addCache(cacheName, cacheEntity);
-    } catch (IllegalStateException ise) {
-      cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
+
+    ClusteredCache existing = clusteredCacheManagerEntity.addCacheIfAbsent(cacheName, cacheEntity);
+    if (existing != null) {
+      cacheEntity = existing;
     }
     return cacheEntity;
   }
