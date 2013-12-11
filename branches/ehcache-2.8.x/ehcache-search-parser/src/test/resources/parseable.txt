@@ -40,6 +40,10 @@ select key ,value from foo where name >= 'foo'
 select key,a,b from foo where bar is not null
 select key,a,b from foo where value is null
 
+// negative numbers
+select foo, bar from data where num != -99
+select * from foo where age = (double)'-11.1'
+
 // aggregates
 select count(*) from foo where bar > 'baz'
 select count(bar) from foo where bar > 'baz'
