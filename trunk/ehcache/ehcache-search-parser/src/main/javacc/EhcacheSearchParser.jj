@@ -319,7 +319,7 @@ TOKEN [ IGNORE_CASE ] :
 
 TOKEN :
 {
-  < FIXEDINT : ([ "0"-"9" ])+ >
+  < FIXEDINT : ("-")?([ "0"-"9" ])+ >
 }
 
 
