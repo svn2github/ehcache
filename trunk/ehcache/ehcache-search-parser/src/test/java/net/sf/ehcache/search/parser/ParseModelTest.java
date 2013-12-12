@@ -311,7 +311,6 @@ public class ParseModelTest {
         InputStream is = this.getClass().getResourceAsStream("/unparseable.txt");
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            int success = 0;
             Set<Class<?>> errs = new HashSet<Class<?>>();
             List<String> succeeds = new ArrayList<String>();
 
@@ -323,8 +322,10 @@ public class ParseModelTest {
                     try {
                         parser.QueryStatement();
                         succeeds.add(cnt + ": " + line);
-                    } catch (Throwable r) {
+                    } catch (ParseException r) {
                         errs.add(r.getClass());
+                    } catch (TokenMgrError e) {
+                        errs.add(e.getClass());                        
                     }
                 }
                 cnt++;

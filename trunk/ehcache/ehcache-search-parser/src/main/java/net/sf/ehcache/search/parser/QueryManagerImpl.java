@@ -76,6 +76,8 @@ public class QueryManagerImpl implements QueryManager {
             model = parser.QueryStatement();
         } catch (ParseException p) {
             throw new SearchException(p);
+        } catch (TokenMgrError e) {
+            throw new SearchException(e);   
         }
         Map<String, String> retMap = new HashMap<String, String>();
         String cacheName = model.getCacheName();
@@ -91,7 +93,10 @@ public class QueryManagerImpl implements QueryManager {
             model = parser.QueryStatement();
         } catch (ParseException p) {
             throw new SearchException(p);
+        } catch (TokenMgrError e) {
+            throw new SearchException(e);   
         }
+        
         return model.getQuery(cache);
     }
 
