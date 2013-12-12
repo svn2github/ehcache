@@ -48,8 +48,6 @@ import net.sf.ehcache.writer.writebehind.WriteBehindManager;
  */
 public class CacheManagerSamplerImpl implements CacheManagerSampler {
 
-    private static final int DEFAULT_QUERY_RESULT_LIMIT = 100;
-    
     private static final int MAX_QUERY_RESULT_LIMIT = 1000;
 
     private final CacheManager cacheManager;
@@ -528,7 +526,6 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
     }
     
     /*
-     * If there's no limit, set it to 100.
      * Ensure limit is not greater than 1000 to avoid OOME's.
      * 
      * Have to manually clone a new query due to weird lifecycle of querys wherein they can be frozen
@@ -539,8 +536,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         int maxResults = sq.maxResults();
         
         if (maxResults == -1 || maxResults > MAX_QUERY_RESULT_LIMIT) {
-            Query newQuery = sq.getCache().createQuery()
-              .maxResults(maxResults == -1 ? DEFAULT_QUERY_RESULT_LIMIT : MAX_QUERY_RESULT_LIMIT);
+            Query newQuery = sq.getCache().createQuery().maxResults(MAX_QUERY_RESULT_LIMIT);
             
             if (sq.requestsKeys()) {
                 newQuery.includeKeys();
