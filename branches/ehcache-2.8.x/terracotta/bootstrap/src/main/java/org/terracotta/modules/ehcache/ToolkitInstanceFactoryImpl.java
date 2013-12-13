@@ -185,9 +185,21 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
     if(wanUtil.isWanEnabledCache(cacheManagerName, cacheName)) {
       toolkitCache = createWanAwareToolkitCache(cacheManagerName, cacheName, toolkitCache);
+
+      if (wanUtil.isCacheReplica(cacheManagerName, cacheName)) {
+        LOGGER.info("Pinning the Cache '{}' belonging to Cache Manager '{}' and setting its TTI and TTL values to zero as it is a WAN Replica Cache. " +
+                    "This cache's capacity will be controlled by its Master cache.",
+              cacheName, cacheManagerName);
+        PinningConfiguration pinningConfiguration = new PinningConfiguration();
+        pinningConfiguration.setStore(PinningConfiguration.Store.INCACHE.toString());
+        cache.getCacheConfiguration().addPinning(pinningConfiguration);
+        cache.getCacheConfiguration().setTimeToLiveSeconds(0);
+        cache.getCacheConfiguration().setTimeToIdleSeconds(0);
+      }
+
       cache.getCacheConfiguration().freezeConfiguration();
     }
-    
+
     return toolkitCache;
   }
 
