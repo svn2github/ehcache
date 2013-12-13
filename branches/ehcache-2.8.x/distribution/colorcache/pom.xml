@@ -26,7 +26,7 @@
 
   <properties>
     <tc-maven-plugin.version>1.3.1-SNAPSHOT</tc-maven-plugin.version>
-    <toolkit-runtime.version>4.2.1-SNAPSHOT</toolkit-runtime.version>
+    <toolkit-runtime.version>4.1.1-SNAPSHOT</toolkit-runtime.version>
     <skipDeploy>true</skipDeploy>
   </properties>
 
