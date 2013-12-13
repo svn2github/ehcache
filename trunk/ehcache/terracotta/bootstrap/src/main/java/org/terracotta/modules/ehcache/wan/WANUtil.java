@@ -18,6 +18,7 @@ public class WANUtil {
   private static final String          WAN_PREFIX              = "__WAN__";
   private static final String          LOCK_PREFIX             = WAN_PREFIX + "LOCK";
   private static final String          WAN_ENABLED_CACHE_ENTRY = WAN_PREFIX + "ENABLED_CACHE";
+  private static final String          REPLICA_CACHE_FLAG = "IS_REPLICA";
   private static final String          ORCHESTRATOR_RUNNING_FLAG = "ORCHESTRATOR_RUNNING";
 
   private final ToolkitInstanceFactory factory;
@@ -94,6 +95,27 @@ public class WANUtil {
     }
     LOGGER.info("Marked the cache '{}' wan enabled for CacheManager '{}'", cacheName, cacheManagerName);
   }
+
+  public void markCacheAsReplica(String cacheManagerName, String cacheName) {
+    final ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
+    final Boolean existingValue = (Boolean) cacheConfigMap.putIfAbsent(REPLICA_CACHE_FLAG, Boolean.TRUE);
+    if (existingValue != null && existingValue.equals(true)) {
+      LOGGER.info("Cache '{}' in CacheManager '{}' was found marked as a Replica", cacheName, cacheManagerName);
+    }
+    LOGGER.info("Cache '{}' in CacheManager '{}' has been marked as a Replica", cacheName, cacheManagerName);
+  }
+
+  public boolean isCacheReplica(String cacheManagerName, String cacheName) {
+    if (cacheName == null || cacheManagerName == null) {
+      throw new IllegalArgumentException("Invalid arguments: CacheManagerName- " + cacheManagerName
+                                         + " and CacheName- " + cacheName);
+    }
+
+    Boolean value = (Boolean) getCacheConfigMap(cacheManagerName, cacheName).get(REPLICA_CACHE_FLAG);
+    return (value == null) ? false : value;
+  }
+
+
 
   /**
    * This method is used by Client to mark the cache as wan-disabled.

@@ -17,6 +17,7 @@ import org.terracotta.toolkit.internal.cache.VersionedValue;
 import org.terracotta.toolkit.nonstop.NonStopException;
 import org.terracotta.toolkit.search.QueryBuilder;
 import org.terracotta.toolkit.search.attribute.ToolkitAttributeExtractor;
+import org.terracotta.toolkit.store.ToolkitConfigFields;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -569,6 +570,16 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V> {
     } finally {
       configMapLock.unlock();
     }
+  }
+
+  /**
+   * This method is called ony for replica caches by the Orchestrator
+   */
+  public void setUnlimitedCapacity() {
+    LOGGER.info("Setting cache '{}' to be unlimited as it is a Replica.", delegate.getName());
+    setConfigField(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME, -1);
+    setConfigField(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME, 0);
+    setConfigField(ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME, 0);
   }
 
 }
