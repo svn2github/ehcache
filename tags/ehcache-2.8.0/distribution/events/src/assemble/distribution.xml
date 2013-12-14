@@ -1,0 +1,45 @@
+<assembly>
+  <id>distribution</id>
+  <formats>
+    <format>tar.gz</format>
+  </formats>
+  
+  <fileSets>
+    <fileSet>
+      <directory>${basedir}</directory>
+      <includes>
+        <include>pom.xml</include>
+      </includes>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>  
+    <fileSet>
+      <directory>${basedir}/src</directory>
+      <outputDirectory>/src</outputDirectory>
+    </fileSet>     
+    <fileSet>
+      <directory>${project.build.directory}/${project.name}</directory>
+      <excludes>
+        <exclude>**/ehcache*.jar</exclude>
+        <exclude>**/terracotta-toolkit*-runtime*.jar</exclude>
+      </excludes>
+      <outputDirectory>/webapps/${project.name}</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/src/assemble</directory>
+      <includes>
+        <include>README.*</include>
+      </includes>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/src/assemble/jetty6.1</directory>
+      <outputDirectory>/jetty6.1</outputDirectory>
+    </fileSet>   
+    <fileSet>
+      <directory>${basedir}/src/assemble/bin</directory>
+      <outputDirectory>/bin</outputDirectory>
+      <fileMode>0755</fileMode>
+    </fileSet>     
+  </fileSets>
+
+</assembly>    
