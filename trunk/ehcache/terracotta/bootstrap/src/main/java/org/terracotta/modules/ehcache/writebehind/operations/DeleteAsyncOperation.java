@@ -15,9 +15,13 @@ public class DeleteAsyncOperation implements SingleAsyncOperation {
   private final long    creationTime;
 
   public DeleteAsyncOperation(Object keySnapshot, Element elementSnapshot) {
+    this(keySnapshot, elementSnapshot, System.currentTimeMillis());
+  }
+  
+  public DeleteAsyncOperation(Object keySnapshot, Element elementSnapshot, long creationTime) {
     this.keySnapshot = keySnapshot;
     this.elementSnapshot = elementSnapshot;
-    this.creationTime = System.currentTimeMillis();
+    this.creationTime = creationTime;
   }
 
   @Override
