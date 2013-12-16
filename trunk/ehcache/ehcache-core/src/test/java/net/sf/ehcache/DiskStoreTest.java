@@ -16,18 +16,31 @@
 
 package net.sf.ehcache;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static net.sf.ehcache.util.RetryAssert.assertBy;
-import static net.sf.ehcache.util.RetryAssert.sizeOnDiskOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
+import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.config.PersistenceConfiguration;
+import net.sf.ehcache.store.CacheStore;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import net.sf.ehcache.store.Primitive;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.disk.DiskStorageFactory;
+import net.sf.ehcache.store.disk.DiskStore;
+import net.sf.ehcache.store.disk.DiskStoreHelper;
+import net.sf.ehcache.util.RetryAssert;
+
+import org.hamcrest.core.Is;
+import org.hamcrest.number.OrderingComparison;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -45,29 +58,18 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.Configuration;
-import net.sf.ehcache.config.ConfigurationFactory;
-import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.config.MemoryUnit;
-import net.sf.ehcache.config.PersistenceConfiguration;
-import net.sf.ehcache.store.CacheStore;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
-import net.sf.ehcache.store.Primitive;
-import net.sf.ehcache.store.Store;
-import net.sf.ehcache.store.disk.DiskStorageFactory;
-import net.sf.ehcache.store.disk.DiskStore;
-import net.sf.ehcache.store.disk.DiskStoreHelper;
-import net.sf.ehcache.util.PropertyUtil;
-import net.sf.ehcache.util.RetryAssert;
-
-import org.hamcrest.core.Is;
-import org.hamcrest.number.OrderingComparison;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static net.sf.ehcache.util.RetryAssert.assertBy;
+import static net.sf.ehcache.util.RetryAssert.sizeOnDiskOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for the DiskStore.
@@ -79,32 +81,41 @@ import org.slf4j.LoggerFactory;
  *          total time 149 old i/o
  *          total time 133, 131, 130 nio
  */
-public class DiskStoreTest extends AbstractCacheTest {
+public class DiskStoreTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(DiskStoreTest.class.getName());
     private static final int ELEMENT_ON_DISK_SIZE = 1283;
+    private CacheManager manager;
     private CacheManager manager2;
+
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @BeforeClass
     public static void enableHeapDump() {
-        setHeapDumpOnOutOfMemoryError(true);
+        AbstractCacheTest.setHeapDumpOnOutOfMemoryError(true);
     }
 
-    /**
-     * teardown
-     */
-    @Override
+    @Before
+    public void setUp() throws Exception {
+        String diskPath = tempFolder.newFolder().getAbsolutePath();
+        createCacheManager(diskPath);
+    }
+
+    private void createCacheManager(String diskPath) {
+        manager = new CacheManager(
+                new Configuration().name("DiskStoreTestCM")
+                        .diskStore(new DiskStoreConfiguration().path(diskPath)));
+    }
+
     @After
     public void tearDown() throws Exception {
-        super.tearDown();
+        if (manager != null) {
+            manager.shutdown();
+        }
         if (manager2 != null) {
             manager2.shutdown();
         }
-        deleteFile("persistentLongExpiryIntervalCache");
-        deleteFile("fileTest");
-        deleteFile("testPersistent");
-        deleteFile("testLoadPersistent");
-        deleteFile("testPersistentWithDelete");
     }
 
     /**
@@ -135,16 +146,16 @@ public class DiskStoreTest extends AbstractCacheTest {
         return cache.getStore();
     }
 
-    private Store createAutoPersistentDiskStore(String cacheName) {
-        Cache cache = new Cache(cacheName, 10000, true, false, 5, 1, true, 600);
-        Configuration config = ConfigurationFactory.parseConfiguration().name("cm2");
-        config.getDiskStoreConfiguration().setPath("java.io.tmpdir");
-        manager2 = new CacheManager(config);
-        manager2.addCache(cache);
-        return cache.getStore();
-    }
-
     private Store createPersistentDiskStoreFromCacheManager() {
+        CacheConfiguration cacheConfig = new CacheConfiguration().name("persistentLongExpiryIntervalCache")
+                .maxEntriesLocalHeap(500)
+                .eternal(false)
+                .timeToIdleSeconds(300)
+                .timeToLiveSeconds(600)
+                .overflowToDisk(true).diskPersistent(true)
+                .diskExpiryThreadIntervalSeconds(600)
+                .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU);
+        manager.addCache(new Cache(cacheConfig));
         Cache cache = manager.getCache("persistentLongExpiryIntervalCache");
         return cache.getStore();
     }
@@ -163,14 +174,6 @@ public class DiskStoreTest extends AbstractCacheTest {
         Cache cache = new Cache(config);
         manager.addCache(cache);
         return cache;
-    }
-
-    /**
-     * Test to help debug DiskStore test
-     */
-    @Test
-    public void testNothing() {
-        //just tests setup and teardown
     }
 
     /**
@@ -203,15 +206,25 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testDeleteAutoGenerated() throws Exception {
-        Configuration config = ConfigurationFactory.parseConfiguration().name("cm2");
+        Configuration config = new Configuration().name("cm2");
         manager2 = new CacheManager(config);
-        File dataDirectory = DiskStorePathManagerTest.getDiskStorePath(manager2.getDiskStorePathManager());
-        assertTrue(dataDirectory.exists());
-        assertTrue(dataDirectory.isDirectory());
-        manager2.shutdown();
-        //should now be deleted
-        assertTrue(!dataDirectory.exists());
-        assertTrue(!dataDirectory.isDirectory());
+
+        CacheConfiguration cacheConfig = new CacheConfiguration().name("test").maxEntriesLocalHeap(10).overflowToDisk(true);
+        manager2.addCache(new Cache(cacheConfig.clone()));
+
+        CacheManager manager3 = new CacheManager(new Configuration().name("autoGeneratedDiskPath"));
+        try {
+            manager3.addCache(new Cache(cacheConfig.clone()));
+
+            File dataDirectory = DiskStorePathManagerTest.getDiskStorePath(manager3.getDiskStorePathManager());
+            assertTrue(dataDirectory.exists());
+            assertTrue(dataDirectory.isDirectory());
+            manager3.shutdown();
+            //should now be deleted
+            assertTrue(!dataDirectory.exists());
+        } finally {
+            manager3.shutdown();
+        }
     }
 
     /**
@@ -233,9 +246,6 @@ public class DiskStoreTest extends AbstractCacheTest {
     /**
      * Tests that a file is created with the right size after puts, and that the file is not
      * deleted on disposal
-     * <p/>
-     * This test uses a preconfigured cache from the test cache.xml. Note that teardown causes
-     * an exception because the disk store is being shut down twice.
      */
     @Test
     public void testPersistentStore() throws Exception {
@@ -263,27 +273,39 @@ public class DiskStoreTest extends AbstractCacheTest {
     @Test
     public void testPersistentStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
         //initialise with an instance CacheManager so that the following line actually does something
-        Configuration config = ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml"))
-                .name("cm2");
+        Configuration config = new Configuration().name("cm2")
+                .diskStore(new DiskStoreConfiguration().path(tempFolder.newFolder().getAbsolutePath()));
+
         CacheManager manager = new CacheManager(config);
-        Ehcache cache = manager.getCache("persistentLongExpiryIntervalCache");
 
-        LOG.info("DiskStore path: {}", manager.getDiskStorePathManager());
+        try {
+            CacheConfiguration cacheConfig = new CacheConfiguration().name("persistentLongExpiryIntervalCache")
+                    .maxEntriesLocalHeap(500)
+                    .maxEntriesLocalDisk(1000)
+                    .eternal(false)
+                    .timeToIdleSeconds(300)
+                    .timeToLiveSeconds(600)
+                    .overflowToDisk(true).diskPersistent(true)
+                    .diskExpiryThreadIntervalSeconds(0);
+            manager.addCache(new Cache(cacheConfig));
+            Ehcache cache = manager.getCache("persistentLongExpiryIntervalCache");
 
-        for (int i = 0; i < 100; i++) {
-            byte[] data = new byte[1024];
-            cache.put(new Element("key" + (i + 100), data));
+            LOG.info("DiskStore path: {}", manager.getDiskStorePathManager());
+
+            for (int i = 0; i < 100; i++) {
+                byte[] data = new byte[1024];
+                cache.put(new Element("key" + (i + 100), data));
+            }
+            assertEquals(100, cache.getSize());
+
+            manager.shutdown();
+
+            manager = new CacheManager(config);
+            cache = manager.getCache("persistentLongExpiryIntervalCache");
+            assertEquals(100, cache.getSize());
+        } finally {
+            manager.shutdown();
         }
-        assertEquals(100, cache.getSize());
-
-        manager.shutdown();
-
-        manager = new CacheManager(config);
-        cache = manager.getCache("persistentLongExpiryIntervalCache");
-        assertEquals(100, cache.getSize());
-
-        manager.shutdown();
-
     }
 
     /**
@@ -294,52 +316,49 @@ public class DiskStoreTest extends AbstractCacheTest {
      */
     @Test
     public void testPersistentNonOverflowToDiskStoreFromCacheManager() throws IOException, InterruptedException, CacheException {
-        //initialise with an instance CacheManager so that the following line actually does something
-        {
-            Configuration config = ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml"))
-            .name("cm2");
-            CacheManager manager = new CacheManager(config);
-            final Ehcache cache = manager.getCache("persistentLongExpiryIntervalNonOverflowCache");
+        String cacheName = "persistentLongExpiryIntervalNonOverflowCache";
+        CacheConfiguration cacheConfig = new CacheConfiguration().name(cacheName)
+                .maxEntriesLocalHeap(500).maxEntriesLocalDisk(1000)
+                .eternal(false).timeToIdleSeconds(300).timeToLiveSeconds(600)
+                .overflowToDisk(false).diskPersistent(true).diskExpiryThreadIntervalSeconds(0);
 
-            for (int i = 0; i < 100; i++) {
-                byte[] data = new byte[1024];
-                cache.put(new Element("key" + (i + 100), data));
+        manager.addCache(new Cache(cacheConfig.clone()));
+        final Ehcache cacheWrittenTo = manager.getCache(cacheName);
+
+        for (int i = 0; i < 100; i++) {
+            byte[] data = new byte[1024];
+            cacheWrittenTo.put(new Element("key" + (i + 100), data));
+        }
+        assertEquals(100, cacheWrittenTo.getSize());
+
+        manager.shutdown();
+
+        createCacheManager(manager.getConfiguration().getDiskStoreConfiguration().getPath());
+        manager.addCache(new Cache(cacheConfig.clone()));
+
+        final Ehcache cacheReadFrom = manager.getCache(cacheName);
+
+        //Now check that the DiskStore is involved in Cache methods it needs to be involved in.
+        RetryAssert.assertBy(500, MILLISECONDS, new Callable<Integer>() {
+            public Integer call() throws Exception {
+                return cacheReadFrom.getSize();
             }
-            assertEquals(100, cache.getSize());
+        }, Is.is(100));
 
-            manager.shutdown();
-        }
+        assertEquals(100, cacheReadFrom.getStatistics().getLocalDiskSize());
+        assertEquals(100, cacheReadFrom.getKeysNoDuplicateCheck().size());
+        assertEquals(100, cacheReadFrom.getKeys().size());
+        assertEquals(100, cacheReadFrom.getKeysWithExpiryCheck().size());
 
-        {
-            Configuration config = ConfigurationFactory.parseConfiguration(new File(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-disk.xml"))
-            .name("cm2");
-            CacheManager manager = new CacheManager(config);
-            final Ehcache cache = manager.getCache("persistentLongExpiryIntervalNonOverflowCache");
-
-            //Now check that the DiskStore is involved in Cache methods it needs to be involved in.
-            RetryAssert.assertBy(500, MILLISECONDS, new Callable<Integer>() {
-                public Integer call() throws Exception {
-                    return cache.getSize();
-                }
-            }, Is.is(100));
-
-            assertEquals(100, cache.getStatistics().getLocalDiskSize());
-            assertEquals(100, cache.getKeysNoDuplicateCheck().size());
-            assertEquals(100, cache.getKeys().size());
-            assertEquals(100, cache.getKeysWithExpiryCheck().size());
-
-            //now check some of the Cache methods work
-            assertNotNull(cache.get("key100"));
-            assertNotNull(cache.getQuiet("key100"));
-            cache.remove("key100");
-            assertNull(cache.get("key100"));
-            assertNull(cache.getQuiet("key100"));
-            cache.removeAll();
-            assertEquals(0, cache.getSize());
-            assertEquals(0, cache.getStatistics().getLocalDiskSize());
-
-            manager.shutdown();
-        }
+        //now check some of the Cache methods work
+        assertNotNull(cacheReadFrom.get("key100"));
+        assertNotNull(cacheReadFrom.getQuiet("key100"));
+        cacheReadFrom.remove("key100");
+        assertNull(cacheReadFrom.get("key100"));
+        assertNull(cacheReadFrom.getQuiet("key100"));
+        cacheReadFrom.removeAll();
+        assertEquals(0, cacheReadFrom.getSize());
+        assertEquals(0, cacheReadFrom.getStatistics().getLocalDiskSize());
     }
 
     /**
@@ -385,30 +404,44 @@ public class DiskStoreTest extends AbstractCacheTest {
     public void testCannotLoadPersistentStoreWithAutoDir() throws Exception {
         //initialise
         String cacheName = "testPersistent";
-        Store diskStore = createAutoPersistentDiskStore(cacheName);
-        diskStore.removeAll();
+        File file = tempFolder.newFolder();
+        CacheManager lockDefaultDiskPath = new CacheManager(new Configuration().name("lockDefaultDiskPath")
+                                            .diskStore(new DiskStoreConfiguration().path(file.getAbsolutePath())));
+
+        try {
+            lockDefaultDiskPath.addCache(new Cache(new CacheConfiguration(cacheName, 10).overflowToDisk(true)));
+            Cache cache = new Cache(cacheName, 10000, true, false, 5, 1, true, 600);
+            Configuration config = new Configuration().name("cm2")
+                                    .diskStore(new DiskStoreConfiguration().path(file.getAbsolutePath()));
+            manager2 = new CacheManager(config);
+            manager2.addCache(cache);
+            Store diskStore = cache.getStore();
+            diskStore.removeAll();
 
 
-        for (int i = 0; i < 100; i++) {
-            byte[] data = new byte[1024];
-            diskStore.put(new Element("key" + (i + 100), data));
+            for (int i = 0; i < 100; i++) {
+                byte[] data = new byte[1024];
+                diskStore.put(new Element("key" + (i + 100), data));
+            }
+
+            DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
+            assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getOnDiskSizeInBytes());
+            assertEquals(100, diskStore.getSize());
+            manager2.removeCache(cacheName);
+
+            cache = new Cache(cacheName, 10000, true, false, 5, 1, true, 600);
+            manager2.addCache(cache);
+
+            File dataFile = getDiskStore(diskStore).getDataFile();
+            assertTrue("File exists", dataFile.exists());
+            assertEquals(0, dataFile.length());
+            assertEquals(0, cache.getSize());
+            manager.removeCache(cacheName);
+            assertTrue("File exists", dataFile.exists());
+            assertEquals(0, dataFile.length());
+        } finally {
+            lockDefaultDiskPath.shutdown();
         }
-
-        DiskStoreHelper.flushAllEntriesToDisk(diskStore).get();
-        assertEquals(ELEMENT_ON_DISK_SIZE * 100, diskStore.getOnDiskSizeInBytes());
-        assertEquals(100, diskStore.getSize());
-        manager2.removeCache(cacheName);
-
-        Cache cache = new Cache(cacheName, 10000, true, false, 5, 1, true, 600);
-        manager2.addCache(cache);
-
-        File dataFile = getDiskStore(diskStore).getDataFile();
-        assertTrue("File exists", dataFile.exists());
-        assertEquals(0, dataFile.length());
-        assertEquals(0, cache.getSize());
-        manager.removeCache(cacheName);
-        assertTrue("File exists", dataFile.exists());
-        assertEquals(0, dataFile.length());
     }
 
     /**
@@ -757,7 +790,9 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     @Test
     public void testPersistentChangingPoolSizeBetweenRestarts() throws Exception {
-        String diskStorePath = System.getProperty("java.io.tmpdir") + File.separatorChar + "testPersistentChangingPoolSizeBetweenRestarts";
+        manager.shutdown();
+
+        String diskStorePath = tempFolder.newFolder().getAbsolutePath() + File.separatorChar + "testPersistentChangingPoolSizeBetweenRestarts";
         manager = new CacheManager(
                 new Configuration()
                         .diskStore(new DiskStoreConfiguration().path(diskStorePath)).name("cm2")
@@ -797,7 +832,6 @@ public class DiskStoreTest extends AbstractCacheTest {
 
         assertTrue(cache.getSize() <= 100);
 
-        manager.shutdown();
     }
 
 
@@ -950,7 +984,7 @@ public class DiskStoreTest extends AbstractCacheTest {
 
     /**
      * Checks that the expiry thread runs and expires elements which has the effect
-     * of preventing the disk store from continously growing.
+     * of preventing the disk store from continuously growing.
      * Ran for 6 hours through 10000 outer loops. No memory use increase.
      * Using a key of "key" + i * outer) you get early slots that cannot be reused. The DiskStore
      * actual size therefore starts at 133890 and ends at 616830. There is quite a lot of space
@@ -985,15 +1019,6 @@ public class DiskStoreTest extends AbstractCacheTest {
         }
     }
 
-    private static float getSpeedAdjustmentFactor() {
-        final String speedAdjustmentFactorString = PropertyUtil.extractAndLogProperty("net.sf.ehcache.speedAdjustmentFactor", System.getProperties());
-        if (speedAdjustmentFactorString != null) {
-            return Float.parseFloat(speedAdjustmentFactorString);
-        } else {
-            return 1;
-        }
-    }
-
     /**
      * Multi-thread read-only test. Will fail on memory constrained VMs
      */
@@ -1014,7 +1039,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         final List executables = new ArrayList();
         for (int i = 0; i < 20; i++) {
             final String key = "key" + (i % 4);
-            final Executable executable = new Executable() {
+            final AbstractCacheTest.Executable executable = new AbstractCacheTest.Executable() {
                 public void execute() throws Exception {
                     final Element element = diskStore.get(key);
                     assertNotNull(element);
@@ -1023,7 +1048,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             };
             executables.add(executable);
         }
-        runThreads(executables);
+        AbstractCacheTest.runThreads(executables);
     }
 
     /**
@@ -1039,7 +1064,7 @@ public class DiskStoreTest extends AbstractCacheTest {
         // Run a set of threads that get, put and remove an entry
         final List executables = new ArrayList();
         for (int i = 0; i < 5; i++) {
-            final Executable executable = new Executable() {
+            final AbstractCacheTest.Executable executable = new AbstractCacheTest.Executable() {
                 public void execute() throws Exception {
                     for (int i = 0; i < 100; i++) {
                         diskCache.put(new Element("key" + random.nextInt(100), "value"));
@@ -1049,7 +1074,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             executables.add(executable);
         }
         for (int i = 0; i < 5; i++) {
-            final Executable executable = new Executable() {
+            final AbstractCacheTest.Executable executable = new AbstractCacheTest.Executable() {
                 public void execute() throws Exception {
                     for (int i = 0; i < 100; i++) {
                         diskCache.remove("key" + random.nextInt(100));
@@ -1059,7 +1084,7 @@ public class DiskStoreTest extends AbstractCacheTest {
             executables.add(executable);
         }
 
-        runThreads(executables);
+        AbstractCacheTest.runThreads(executables);
     }
 
     @Test
@@ -1073,7 +1098,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                 // Run a set of threads that get, put and remove an entry
                 final List executables = new ArrayList();
                 for (int i = 0; i < 5; i++) {
-                    final Executable executable = new Executable() {
+                    final AbstractCacheTest.Executable executable = new AbstractCacheTest.Executable() {
                         public void execute() throws Exception {
                             for (int i = 0; i < 100; i++) {
                                 cache.put(new Element("key" + random.nextInt(100), "value"));
@@ -1083,7 +1108,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                     executables.add(executable);
                 }
                 for (int i = 0; i < 5; i++) {
-                    final Executable executable = new Executable() {
+                    final AbstractCacheTest.Executable executable = new AbstractCacheTest.Executable() {
                         public void execute() throws Exception {
                             for (int i = 0; i < 100; i++) {
                                 cache.remove("key" + random.nextInt(100));
@@ -1093,7 +1118,7 @@ public class DiskStoreTest extends AbstractCacheTest {
                     executables.add(executable);
                 }
 
-                runThreads(executables);
+                AbstractCacheTest.runThreads(executables);
             } finally {
                 manager.removeCache(cache.getName());
             }

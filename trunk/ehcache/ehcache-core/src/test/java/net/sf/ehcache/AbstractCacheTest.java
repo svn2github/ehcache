@@ -17,29 +17,26 @@
 package net.sf.ehcache;
 
 
+import net.sf.ehcache.distribution.AbstractRMITest;
+
 import org.junit.After;
 import org.junit.Assert;
-
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import net.sf.ehcache.distribution.AbstractRMITest;
-import org.junit.BeforeClass;
-
-import org.junit.Ignore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -124,23 +121,6 @@ public abstract class AbstractCacheTest {
         Object[] arrays = new Object[50];
         for (int i = 0; i < arrays.length; i++) {
             arrays[i] = new byte[1024 * 1024];
-        }
-    }
-
-    /**
-     * @param name
-     * @throws IOException
-     */
-    protected void deleteFile(String name) throws IOException {
-        String diskPath = System.getProperty("java.io.tmpdir");
-        final File diskDir = new File(diskPath);
-        File dataFile = new File(diskDir, name + ".data");
-        if (dataFile.exists()) {
-            dataFile.delete();
-        }
-        File indexFile = new File(diskDir, name + ".index");
-        if (indexFile.exists()) {
-            indexFile.delete();
         }
     }
 
