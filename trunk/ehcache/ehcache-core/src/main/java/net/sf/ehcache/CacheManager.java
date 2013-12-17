@@ -1764,23 +1764,6 @@ public class CacheManager {
     }
 
     /**
-     * Sets the name of the CacheManager. This is useful for distinguishing multiple CacheManagers
-     * in a monitoring situation.
-     *
-     * @param name
-     *            a name with characters legal in a JMX ObjectName
-     */
-    public void setName(String name) {
-        runtimeCfg.getConfiguration().setName(name);
-        try {
-            mbeanRegistrationProvider.reinitialize(terracottaClient.getClusteredInstanceFactory());
-        } catch (MBeanRegistrationProviderException e) {
-            throw new CacheException("Problem in reinitializing MBeanRegistrationProvider - "
-                    + mbeanRegistrationProvider.getClass().getName(), e);
-        }
-    }
-
-    /**
      * @return either the name of this CacheManager, or if unset, Object.toString()
      */
     @Override

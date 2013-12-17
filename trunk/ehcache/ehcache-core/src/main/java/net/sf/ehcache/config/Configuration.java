@@ -118,12 +118,6 @@ public final class Configuration {
      */
     private static enum DynamicProperty {
 
-        cacheManagerName {
-            @Override
-            void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
-                config.cacheManagerName = (String) evt.getNewValue();
-            }
-        },
         defaultCacheConfiguration {
             @Override
             void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {

@@ -146,6 +146,22 @@ public class CacheManagerTest {
         }
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testNameIsNotDynamicallyChangeable() {
+        Configuration configuration = new Configuration().name("ChangeMe");
+        try {
+            configuration.setName("cantChangeThis!");
+        } catch (IllegalStateException e) {
+            fail();
+        }
+        CacheManager cm = new CacheManager(configuration);
+        try {
+            configuration.setName("Nope!");
+        } finally {
+            cm.shutdown();
+        }
+    }
+
     @Test
     public void testReduceCacheManagerPoolBelowReservedUsage() {
         Configuration configuration = new Configuration()
@@ -303,25 +319,6 @@ public class CacheManagerTest {
             } catch (IllegalStateException e) {
                 assertThat(manager.getCache("after"), nullValue());
             }
-        } finally {
-            manager.shutdown();
-        }
-    }
-
-    @Test
-    public void testSupportsNameChanges() {
-        Configuration configuration = new Configuration().name("firstName");
-        CacheManager manager = new CacheManager(configuration);
-        try {
-            assertThat(manager.getName(), equalTo("firstName"));
-
-            manager.setName("newerName");
-            assertThat(configuration.getName(), equalTo("newerName"));
-            assertThat(manager.getName(), equalTo("newerName"));
-
-            configuration.setName("evenNewerName");
-            assertThat(configuration.getName(), equalTo("evenNewerName"));
-            assertThat(manager.getName(), equalTo("evenNewerName"));
         } finally {
             manager.shutdown();
         }
