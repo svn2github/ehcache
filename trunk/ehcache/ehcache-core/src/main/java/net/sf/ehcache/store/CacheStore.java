@@ -40,6 +40,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terracotta.context.annotations.ContextChild;
 
 /**
@@ -48,6 +50,8 @@ import org.terracotta.context.annotations.ContextChild;
  * @author Alex Snaps
  */
 public class CacheStore implements Store {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CacheStore.class);
 
     private static final int DEFAULT_LOCK_STRIPE_COUNT = 128;
 
@@ -83,7 +87,7 @@ public class CacheStore implements Store {
      * @param cacheConfiguration OMFG! NOOOOOooooo.....
      */
     @Deprecated
-    public CacheStore(final CachingTier<Object, Element> cache, final AuthoritativeTier authority, CacheConfiguration cacheConfiguration) {
+    public CacheStore(final CachingTier<Object, Element> cache, final AuthoritativeTier authority, final CacheConfiguration cacheConfiguration) {
         if (cache == null || authority == null) {
             throw new NullPointerException();
         }
@@ -102,6 +106,17 @@ public class CacheStore implements Store {
             masterLocks = new StripedReadWriteLockSync(DEFAULT_LOCK_STRIPE_COUNT);
         }
         this.status = Status.STATUS_ALIVE;
+        if (authority instanceof PressuredStore) {
+            ((PressuredStore)authority).registerEmergencyValve(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    LOG.warn("Having to clear CachingTier to free space in the Authority for Cache '"
+                             + (cacheConfiguration != null ? cacheConfiguration.getName() : "<null>") + "'");
+                    cachingTier.clearAndNotify();
+                    return null;
+                }
+            });
+        }
     }
 
     @Override

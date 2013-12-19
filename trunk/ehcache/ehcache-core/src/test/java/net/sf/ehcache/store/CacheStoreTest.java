@@ -16,6 +16,7 @@ import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * @author Alex Snaps
@@ -163,6 +165,17 @@ public class CacheStoreTest {
                 return null;
             }
         }, false), nullValue());
+    }
+
+    @Test
+    public void testRegistersValveWithAuthority() throws Exception {
+        ArgumentCaptor<Callable> captor = ArgumentCaptor.forClass(Callable.class);
+        final CachingTier<Object, Element> cachingTier = mock(CachingTier.class);
+        final PressuredStore store = mock(PressuredStore.class, withSettings().extraInterfaces(AuthoritativeTier.class));
+        new CacheStore(cachingTier, (AuthoritativeTier)store);
+        verify(store).registerEmergencyValve(captor.capture());
+        captor.getValue().call();
+        verify(cachingTier).clearAndNotify();
     }
 
     private Store createMemStore(final int maxElements) {

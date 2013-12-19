@@ -94,8 +94,9 @@ public interface HeapCacheBackEnd<K, V> {
 
     /**
      * Basically {@link java.util.Map#clear() CHM.clear()}
+     * @param notify whether to notify listeners or not
      */
-    void clear();
+    void clear(final boolean notify);
 
     /**
      * This should go away with the new stats I believe

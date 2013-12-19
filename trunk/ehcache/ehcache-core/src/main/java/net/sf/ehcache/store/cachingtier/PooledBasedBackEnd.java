@@ -129,8 +129,14 @@ public class PooledBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements
     }
 
     @Override
-    public void clear() {
-        super.clear();
+    public void clear(final boolean notify) {
+        if (notify) {
+            for (K k : keySet()) {
+                removeAndNotify(k, callback);
+            }
+        } else {
+            super.clear();
+        }
     }
 
     @Override

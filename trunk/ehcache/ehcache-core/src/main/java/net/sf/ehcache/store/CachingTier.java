@@ -62,6 +62,11 @@ public interface CachingTier<K, V> {
     void clear();
 
     /**
+     * Clears the cache notifying listeners
+     */
+    void clearAndNotify();
+
+    /**
      * Adds a {@link Listener} to the cache
      *
      * @param listener the listener to add

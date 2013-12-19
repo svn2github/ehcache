@@ -210,7 +210,12 @@ public class OnHeapCachingTier<K, V> implements CachingTier<K, V> {
 
     @Override
     public void clear() {
-        backEnd.clear();
+        backEnd.clear(false);
+    }
+
+    @Override
+    public void clearAndNotify() {
+        backEnd.clear(true);
     }
 
     @Override

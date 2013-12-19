@@ -120,6 +120,17 @@ public class CountBasedBackEnd<K, V> extends ConcurrentHashMap<K, V> implements 
     }
 
     @Override
+    public void clear(final boolean notify) {
+        if (notify) {
+            for (K k : keySet()) {
+                removeAndNotify(k, callback);
+            }
+        } else {
+            super.clear();
+        }
+    }
+
+    @Override
     public boolean hasSpace() {
         return maxEntriesLocalHeap == 0 || maxEntriesLocalHeap > mappingCount();
     }

@@ -240,7 +240,7 @@ public class OnHeapCachingTierTest {
         }
 
         @Override
-        public void clear() {
+        public void clear(final boolean notify) {
             // nothing to clear when you hold nothing!
         }
 
