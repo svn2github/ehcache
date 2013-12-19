@@ -785,11 +785,15 @@ public interface Ehcache extends Cloneable {
      */
     void setBootstrapCacheLoader(BootstrapCacheLoader bootstrapCacheLoader) throws CacheException;
 
-
     /**
-     * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or a {@link net.sf.ehcache.store.disk.DiskStore}.
+     * Newly created caches do not have a {@link net.sf.ehcache.store.MemoryStore} or
+     * a {@link net.sf.ehcache.store.disk.DiskStore}.
      * <p/>
      * This method creates those and makes the cache ready to accept elements
+     * <p/>
+     * This method is not intended to be called explicitly, but rather is called implicitly
+     * by the cache's {@link net.sf.ehcache.CacheManager} instance during the cache
+     * initialization. Invoking this method directly will likely lead to breaking.
      */
     void initialise();
 
@@ -797,6 +801,10 @@ public interface Ehcache extends Cloneable {
      * Bootstrap command. This must be called after the Cache is intialised, during
      * CacheManager initialisation. If loads are synchronous, they will complete before the CacheManager
      * initialise completes, otherwise they will happen in the background.
+     * <p/>
+     * This method is not intended to be called explicitly, but rather is called implicitly
+     * by the cache's {@link net.sf.ehcache.CacheManager} instance during the cache
+     * initialization. Invoking this method directly will likely lead to breaking.
      */
     void bootstrap();
 
