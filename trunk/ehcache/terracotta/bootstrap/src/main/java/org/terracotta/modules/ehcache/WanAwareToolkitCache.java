@@ -477,6 +477,11 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V> {
   }
 
   @Override
+  public void unregisterVersionUpdateListener(final VersionUpdateListener listener) {
+    delegate.unregisterVersionUpdateListener(listener);
+  }
+
+  @Override
   public Set<K> keySetForSegment(final int segmentIndex) {
     return delegate.keySetForSegment(segmentIndex);
   }
