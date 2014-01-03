@@ -30,13 +30,13 @@
     <checkstyle-config-file>checkstyle.xml</checkstyle-config-file>
     <checkstyle-header-file>header.txt</checkstyle-header-file>
 
-    <terracotta-os-snapshots-url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-os-snapshots</terracotta-os-snapshots-url>
-    <terracotta-snapshots-url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-snapshots</terracotta-snapshots-url>
-    <terracotta-ee-snapshots-url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-ee-snapshots</terracotta-ee-snapshots-url>
-    <terracotta-staging-url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-staging</terracotta-staging-url>
-    <terracotta-os-releases-url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-os-releases</terracotta-os-releases-url>
-    <terracotta-releases-url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-releases</terracotta-releases-url>
-    <terracotta-ee-releases-url>http://nexus.terracotta.lan:8080/content/repositories/terracotta-ee-releases</terracotta-ee-releases-url>
+    <terracotta-os-snapshots-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-os-snapshots</terracotta-os-snapshots-url>
+    <terracotta-snapshots-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-snapshots</terracotta-snapshots-url>
+    <terracotta-ee-snapshots-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-ee-snapshots</terracotta-ee-snapshots-url>
+    <terracotta-staging-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-staging</terracotta-staging-url>
+    <terracotta-os-releases-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-os-releases</terracotta-os-releases-url>
+    <terracotta-releases-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-releases</terracotta-releases-url>
+    <terracotta-ee-releases-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-ee-releases</terracotta-ee-releases-url>
 
     <stagingProfile.openSource>6b2d2a23c465b</stagingProfile.openSource>
     <stagingProfile.public>6b2f08b6e4907</stagingProfile.public>
@@ -53,7 +53,7 @@
           <extensions>true</extensions>
           <configuration>
             <serverId>terracotta-staging</serverId>
-            <nexusUrl>http://nexus.terracotta.lan:8080/</nexusUrl>
+            <nexusUrl>http://nexus.terracotta.eur.ad.sag/</nexusUrl>
             <stagingProfileId>${stagingProfile.openSource}</stagingProfileId>
             <skipNexusStagingDeployMojo>${skipDeploy}</skipNexusStagingDeployMojo>
           </configuration>
