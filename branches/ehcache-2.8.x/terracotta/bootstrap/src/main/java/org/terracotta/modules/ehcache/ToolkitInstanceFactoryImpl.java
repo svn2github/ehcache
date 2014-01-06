@@ -193,6 +193,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
         PinningConfiguration pinningConfiguration = new PinningConfiguration();
         pinningConfiguration.setStore(PinningConfiguration.Store.INCACHE.toString());
         cache.getCacheConfiguration().addPinning(pinningConfiguration);
+        cache.getCacheConfiguration().setMaxEntriesInCache(0);
         cache.getCacheConfiguration().setTimeToLiveSeconds(0);
         cache.getCacheConfiguration().setTimeToIdleSeconds(0);
       }
