@@ -19,12 +19,11 @@ package net.sf.ehcache.constructs.blocking;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Iterator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -60,6 +59,15 @@ public class SelfPopulatingCache extends BlockingCache {
     }
 
     /**
+     * Create a SelfPopulatingCache, with a specific number of stripes passed to the
+     * underlying {@link net.sf.ehcache.constructs.blocking.BlockingCache}.
+     */
+    public SelfPopulatingCache(Ehcache cache, int numberOfStripes, CacheEntryFactory factory) throws CacheException {
+       super(cache, numberOfStripes);
+       this.factory = factory;
+    }
+
+  /**
      * Looks up an entry.  creating it if not found.
      */
     @Override
