@@ -21,20 +21,21 @@ public class ClusteredTransactionID implements TransactionID, ClusteredID {
   private final long                 creationTime;
   private final int                  id;
 
-  ClusteredTransactionID(String ownerId, String clusterUUID, String cacheManagerName) {
+  public ClusteredTransactionID(String ownerId, String clusterUUID, String cacheManagerName) {
+    this(ownerId, clusterUUID, cacheManagerName, System.currentTimeMillis(), idGenerator.getAndIncrement());
+  }
+
+  public ClusteredTransactionID(TransactionIDSerializedForm serializedForm) {
+    this(serializedForm.getOwnerID(), serializedForm.getClusterUUID(), serializedForm.getCacheManagerName(),
+            serializedForm.getCreationTime(), serializedForm.getId());
+  }
+
+  public ClusteredTransactionID(String ownerId, String clusterUUID, String cacheManagerName, long creationTime, int id) {
     this.clusterUUID = clusterUUID;
     this.ownerID = ownerId;
     this.cacheManagerName = cacheManagerName;
-    this.creationTime = System.currentTimeMillis();
-    this.id = idGenerator.getAndIncrement();
-  }
-
-  ClusteredTransactionID(TransactionIDSerializedForm serializedForm) {
-    this.clusterUUID = serializedForm.getClusterUUID();
-    this.ownerID = serializedForm.getOwnerID();
-    this.cacheManagerName = serializedForm.getCacheManagerName();
-    this.creationTime = serializedForm.getCreationTime();
-    this.id = serializedForm.getId();
+    this.creationTime = creationTime;
+    this.id = id;
   }
 
   @Override

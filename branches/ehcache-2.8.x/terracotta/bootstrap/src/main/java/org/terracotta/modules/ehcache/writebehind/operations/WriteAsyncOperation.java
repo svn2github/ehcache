@@ -12,8 +12,12 @@ public class WriteAsyncOperation implements SingleAsyncOperation {
   private final long    creationTime;
 
   public WriteAsyncOperation(Element snapshot) {
+    this(snapshot, System.currentTimeMillis());
+  }
+
+  public WriteAsyncOperation(Element snapshot, long creationTime) {
     this.snapshot = snapshot;
-    this.creationTime = System.currentTimeMillis();
+    this.creationTime = creationTime;
   }
 
   @Override
