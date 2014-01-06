@@ -582,7 +582,6 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V> {
    */
   public void setUnlimitedCapacity() {
     LOGGER.info("Setting cache '{}' to be unlimited as it is a Replica.", delegate.getName());
-    setConfigField(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME, -1);
     setConfigField(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME, 0);
     setConfigField(ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME, 0);
   }
