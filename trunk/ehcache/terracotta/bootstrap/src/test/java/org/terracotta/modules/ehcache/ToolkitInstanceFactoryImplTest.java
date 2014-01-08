@@ -14,7 +14,6 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -24,6 +23,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.terracotta.modules.ehcache.wan.WANUtil;
+import org.terracotta.modules.ehcache.wan.Watchdog;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFeatureType;
 import org.terracotta.toolkit.collections.ToolkitMap;
@@ -75,21 +75,21 @@ public class ToolkitInstanceFactoryImplTest {
   @Mock private Ehcache                                    ehcache;
   @Mock private CacheManager                               cacheManager;
 
-  private ToolkitInstanceFactoryImpl                 factory;
-  private ToolkitCacheInternal<String, Serializable> resultantCache;
-  private ToolkitMap toolkitMap;
+  private ToolkitInstanceFactoryImpl                       factory;
+  private ToolkitCacheInternal<String, Serializable>       resultantCache;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
     toolkit = mock(Toolkit.class);
-    toolkitMap = mockMap();
+    final ToolkitMap toolkitMap = mockMap();
     when(toolkit.getMap(anyString(), any(Class.class), any(Class.class))).thenReturn(toolkitMap);
     ToolkitReadWriteLock rwLock = mockReadWriteLock();
     when(toolkit.getReadWriteLock(any(String.class))).thenReturn(rwLock);
     makeToolkitReturnNonStopConfigurationRegistry();
 
     wanUtil = mock(WANUtil.class);
+    final Watchdog wanWatchdog = mock(Watchdog.class);
     ehcache = mock(Ehcache.class);
     when(cacheManager.isNamed()).thenReturn(true);
     when(cacheManager.getName()).thenReturn(CACHE_MANAGER_NAME);
@@ -104,8 +104,7 @@ public class ToolkitInstanceFactoryImplTest {
     clusteredCacheManager.setEntityLockHandler(mock(EntityLockHandler.class));
     when(clusteredEntityManager.getRootEntity(any(String.class), any(Class.class))).thenReturn(clusteredCacheManager);
     when(clusteredEntityManager.getEntityLock(anyString())).thenReturn(mock(ToolkitReadWriteLock.class));
-    factory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager);
-    factory.setWANUtil(wanUtil);
+    factory = new ToolkitInstanceFactoryImpl(toolkit, clusteredEntityManager, wanUtil, wanWatchdog);
     factory.linkClusteredCacheManager(CACHE_MANAGER_NAME, null);
   }
 

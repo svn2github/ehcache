@@ -70,21 +70,26 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V> {
 
   /**
    * Activates WAN-enabled cache, so it can start handling user actions.
+   *
+   * @return {@code true} if the cache's state was updated, otherwise {@code false}
    */
-  public void activate() {
-    setState(true);
+  public boolean activate() {
+    boolean updated = setState(true);
     notifyClients();
+    return updated;
   }
 
   /**
    * Deactivates WAN-enabled cache, so it rejects all user actions.
+   *
+   * @return {@code true} if the cache's state was updated, otherwise {@code false}
    */
-  public void deactivate() {
-    setState(false);
+  public boolean deactivate() {
+    return setState(false);
   }
 
-  private void setState(boolean active) {
-    configMap.replace(CACHE_ACTIVE_KEY, !active, active);
+  private boolean setState(boolean active) {
+    return configMap.replace(CACHE_ACTIVE_KEY, !active, active);
   }
 
   @Override
