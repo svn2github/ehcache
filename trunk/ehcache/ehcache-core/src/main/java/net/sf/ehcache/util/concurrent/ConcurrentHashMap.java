@@ -2649,6 +2649,10 @@ public class ConcurrentHashMap<K, V>
         return (V)internalReplace(key, null, null, hook);
     }
 
+    protected V removeAndNotify(Object key, Object value, RemovalCallback hook) {
+        return (V)internalReplace(key, null, value, hook);
+    }
+
     /**
      * {@inheritDoc}
      *
