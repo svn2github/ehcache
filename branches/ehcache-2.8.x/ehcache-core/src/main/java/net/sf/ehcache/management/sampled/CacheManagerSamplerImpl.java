@@ -599,6 +599,14 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         return executeQuery(queryString, qmb);
     }
 
+    /**
+    * Execute a BMSQL query against the CacheManager and return result grid.
+    *
+    * @param queryString
+    * @param qmb the QueryManagerBuilder to use for this query
+    * @return
+    * @throws SearchException
+    */
     Object[][] executeQuery(String queryString, QueryManagerBuilder qmb) throws SearchException {
       boolean searchable = false;
       for (String cacheName : getCacheNames()) {
