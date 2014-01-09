@@ -52,7 +52,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
 
     private final CacheManager cacheManager;
 
-    
+
     /**
      * Constructor taking the backing {@link CacheManager}
      *
@@ -524,63 +524,63 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         }
         return false;
     }
-    
+
     /*
      * Ensure limit is not greater than 1000 to avoid OOME's.
-     * 
+     *
      * Have to manually clone a new query due to weird lifecycle of querys wherein they can be frozen
      * yet you can't invoke getters if it's NOT frozen.
      */
     private Query limitResults(Query q) {
         StoreQuery sq = (StoreQuery)q;
         int maxResults = sq.maxResults();
-        
+
         if (maxResults == -1 || maxResults > MAX_QUERY_RESULT_LIMIT) {
             Query newQuery = sq.getCache().createQuery().maxResults(MAX_QUERY_RESULT_LIMIT);
-            
+
             if (sq.requestsKeys()) {
                 newQuery.includeKeys();
             }
-            
+
             if (sq.requestsValues()) {
                 newQuery.includeValues();
             }
-            
+
             Set<Attribute<?>> attrs = sq.requestedAttributes();
             if (attrs != null) {
                 newQuery.includeAttribute(new ArrayList<Attribute<?>>(attrs).toArray(new Attribute<?>[0]));
             }
-            
+
             Criteria criteria = sq.getCriteria();
             if (criteria != null) {
                 newQuery.addCriteria(criteria);
             }
-            
+
             Set<Attribute<?>> groupByAttrs = sq.groupByAttributes();
             if (groupByAttrs != null) {
                 newQuery.addGroupBy(new ArrayList<Attribute<?>>(groupByAttrs).toArray(new Attribute<?>[0]));
             }
-            
+
             List<Ordering> orderings = sq.getOrdering();
             if (orderings != null) {
                 for (Ordering ordering : orderings) {
                     newQuery.addOrderBy(ordering.getAttribute(), ordering.getDirection());
                 }
             }
-            
+
             List<Aggregator> aggregators = sq.getAggregators();
             if (aggregators != null) {
                 newQuery.includeAggregator(aggregators.toArray(new Aggregator[0]));
             }
-            
+
             newQuery.targets(sq.getTargets());
-            
+
             q = newQuery.end();
         }
-        
+
         return q;
     }
-    
+
     /**
      * If the value is a primitive, return it, else return string form.
      */
@@ -592,11 +592,14 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         }
         return value;
     }
-    
+
     @Override
     public Object[][] executeQuery(String queryString) throws SearchException {
         QueryManagerBuilder qmb = QueryManagerBuilder.newQueryManagerBuilder();
+        return executeQuery(queryString, qmb);
+    }
 
+    Object[][] executeQuery(String queryString, QueryManagerBuilder qmb) throws SearchException {
       boolean searchable = false;
       for (String cacheName : getCacheNames()) {
             Ehcache cache = cacheManager.getEhcache(cacheName);
@@ -605,16 +608,16 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
                 searchable = true;
             }
         }
-        
+
         if (!searchable) {
             throw new SearchException("There are no searchable caches");
         }
 
         Query q = limitResults(qmb.build().createQuery(queryString).end());
         StoreQuery sq = (StoreQuery)q;
-        
+
         Set<Attribute<?>> attrs = new HashSet<Attribute<?>>(sq.requestedAttributes());
-        
+
         if (sq.requestsKeys()) {
             attrs.add(Query.KEY);
         }
@@ -627,21 +630,21 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
             String attrName = attr.getAttributeName();
             attrMap.put(attrName, attr);
         }
-        
+
         String[] selectTargets = sq.getTargets();
         Results results = q.execute();
         List<Result> all = results.all();
         List<Object[]> result = new ArrayList<Object[]>(results.size());
         List<Object> row = new ArrayList<Object>();
         Map<String, String> typeMap = new HashMap<String, String>();
-        
+
         for (Result r: all) {
             int aggregateIndex = 0;
-            
+
             for (String target : selectTargets) {
                 Attribute<?> attr = attrMap.get(target);
                 Object value;
-                
+
                 if (attr != null) {
                     if (attr == Query.KEY) {
                         value = primitiveOrString(r.getKey());
@@ -662,7 +665,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
                     typeMap.put(target, value.getClass().getSimpleName());
                 }
             }
-            
+
             if (row.size() > 0) {
                 result.add(row.toArray(new Object[0]));
                 row.clear();
@@ -683,9 +686,9 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
             row.add(target + ":" + (typeName != null ? typeName : ""));
         }
         result.add(0, row.toArray(new String[0]));
-        
+
         results.discard();
-        
+
         return result.toArray(new Object[all.size()][]);
     }
 
