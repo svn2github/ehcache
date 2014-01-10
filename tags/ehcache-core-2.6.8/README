@@ -1,8 +1,0 @@
-1. To build/compile
-
-mvn install -DskipTests 
-
-2. To build distribution kit
-
-mvn assembly:single 
-
