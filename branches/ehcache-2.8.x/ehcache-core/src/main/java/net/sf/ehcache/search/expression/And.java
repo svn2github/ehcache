@@ -16,9 +16,12 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
@@ -72,5 +75,16 @@ public class And extends BaseCriteria {
         }
 
         return true;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Set<Attribute<?>> getAttributes() {
+        Set<Attribute<?>> attrs = new HashSet<Attribute<?>>();
+        for (Criteria c: criterion) {
+            attrs.addAll(((BaseCriteria)c).getAttributes());
+        }
+        return attrs;
     }
 }

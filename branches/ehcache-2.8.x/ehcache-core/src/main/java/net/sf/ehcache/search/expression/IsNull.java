@@ -16,9 +16,12 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
@@ -49,6 +52,11 @@ public class IsNull extends BaseCriteria {
     @Override
     public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
         return getExtractor(getAttributeName(), attributeExtractors).attributeFor(e, getAttributeName()) == null;
+    }
+
+    @Override
+    public Set<Attribute<?>> getAttributes() {
+        return Collections.<Attribute<?>>singleton(new Attribute(attributeName));
     }
 
 }

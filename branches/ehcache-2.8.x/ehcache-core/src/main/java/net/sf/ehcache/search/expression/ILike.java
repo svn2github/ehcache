@@ -16,10 +16,13 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 
@@ -150,6 +153,11 @@ public class ILike extends BaseCriteria {
         String asString = value.toString().toLowerCase();
 
         return pattern.matcher(asString).matches();
+    }
+
+    @Override
+    public Set<Attribute<?>> getAttributes() {
+        return Collections.<Attribute<?>>singleton(new Attribute(attributeName));
     }
 
 }

@@ -17,7 +17,9 @@
 package net.sf.ehcache.search.expression;
 
 import java.util.Map;
+import java.util.Set;
 
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 
@@ -66,4 +68,8 @@ public abstract class BaseCriteria implements Criteria {
         throw new SearchException("Unknown search attribute " + attrName);
     }
 
+    /**
+     * Returns all search attributes referenced by this instance
+     */
+    public abstract Set<Attribute<?>> getAttributes(); 
 }
