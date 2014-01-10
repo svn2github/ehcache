@@ -62,8 +62,11 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
+import net.sf.ehcache.search.attribute.UnknownAttributeException;
+import net.sf.ehcache.search.expression.BaseCriteria;
 import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.store.CopyingCacheStore;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -3823,6 +3826,7 @@ public class Cache implements InternalEhcache, StoreListener {
      *
      * @param query query to execute
      * @return query results
+     * @throws SearchException 
      */
     Results executeQuery(StoreQuery query) throws SearchException {
         searchObserver.begin();
@@ -4092,5 +4096,49 @@ public class Cache implements InternalEhcache, StoreListener {
                 throw new SearchException("It is not possible to include keys or values with group by queries.");
             }
         }
+
+        Set<Attribute> supportedAttributes = getSearchAttributes();
+        
+        checkSearchAttributes(groupBy, supportedAttributes, "Query.addGroupBy");
+        
+        Set<Attribute<?>> requestedAttributes = new HashSet<Attribute<?>>(query.requestedAttributes());
+        // key and value are always requestable 
+        requestedAttributes.remove(Query.KEY);
+        requestedAttributes.remove(Query.VALUE);
+        checkSearchAttributes(requestedAttributes, supportedAttributes, "Query.includeAttributes");
+        
+        BaseCriteria bc = (BaseCriteria)query.getCriteria();
+        checkSearchAttributes(bc.getAttributes(), supportedAttributes, "Query.addCriteria");
+        
+        Set<Attribute<?>> sortAttributes = new HashSet<Attribute<?>>();
+        for (Ordering order: query.getOrdering()) {
+            sortAttributes.add(order.getAttribute());
+        }
+        checkSearchAttributes(sortAttributes, supportedAttributes, "Query.addOrderBy");
+
+        Set<Attribute<?>> aggrAttributes = new HashSet<Attribute<?>>();
+        for (AggregatorInstance<?> a: query.getAggregatorInstances()) {
+            Attribute<?> attr = a.getAttribute();
+            // needed b/c of count aggregator which returns null above
+            if (attr != null) {
+                aggrAttributes.add(attr);
+            }
+        }
+        checkSearchAttributes(aggrAttributes, supportedAttributes, "Query.includeAggregator");
+
+    }
+    
+    private static void checkSearchAttributes(Set<Attribute<?>> requestedAttrs, Set<Attribute> supportedAttrs, String src) {
+
+        for (Attribute<?> attribute : requestedAttrs) {
+            if (attribute == null) {
+                throw new NullPointerException("null attribute");
+            }
+
+            if (!supportedAttrs.contains(attribute)) {
+                throw new UnknownAttributeException("Search attribute referenced in " + src + " unknown: " + attribute);
+            }
+        }
+        
     }
 }

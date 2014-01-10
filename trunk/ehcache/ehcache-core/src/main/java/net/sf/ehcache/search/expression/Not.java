@@ -17,8 +17,10 @@
 package net.sf.ehcache.search.expression;
 
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
@@ -51,6 +53,13 @@ public class Not extends BaseCriteria {
      */
     public boolean execute(Element e, Map<String, AttributeExtractor> attributeExtractors) {
         return !c.execute(e, attributeExtractors);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public Set<Attribute<?>> getAttributes() {
+        return ((BaseCriteria)c).getAttributes();
     }
 
 }

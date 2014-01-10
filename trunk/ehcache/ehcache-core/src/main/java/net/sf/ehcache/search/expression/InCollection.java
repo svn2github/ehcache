@@ -19,8 +19,10 @@ package net.sf.ehcache.search.expression;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.AttributeType;
@@ -126,4 +128,10 @@ public class InCollection extends BaseCriteria {
         }
     }
 
+    @Override
+    public Set<Attribute<?>> getAttributes() {
+        return Collections.<Attribute<?>>singleton(new Attribute(attributeName));
+    }
+
+    
 }

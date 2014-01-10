@@ -16,9 +16,12 @@
 
 package net.sf.ehcache.search.expression;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
@@ -50,4 +53,10 @@ public class AlwaysMatch extends BaseCriteria {
     public Criteria or(Criteria other) {
         return this;
     }
+    
+    @Override
+    public Set<Attribute<?>> getAttributes() {
+        return Collections.emptySet();
+    }
+
 }
