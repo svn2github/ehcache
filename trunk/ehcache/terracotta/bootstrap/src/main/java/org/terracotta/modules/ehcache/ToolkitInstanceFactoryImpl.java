@@ -28,6 +28,7 @@ import org.terracotta.modules.ehcache.store.nonstop.ToolkitNonstopDisableConfig;
 import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.modules.ehcache.wan.WANUtil;
+import org.terracotta.modules.ehcache.wan.Watchable;
 import org.terracotta.modules.ehcache.wan.Watchdog;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFeatureType;
@@ -88,6 +89,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                                                                     + "txnsDecision";
   private static final String ALL_SOFT_LOCKS_MAP_SUFFIX                = "softLocks";
   private static final String NEW_SOFT_LOCKS_LIST_SUFFIX               = "newSoftLocks";
+  private static final String LOCK_TAG                                 = "::LOCK";
 
   static final String         CLUSTERED_STORE_CONFIG_MAP               = EHCACHE_NAME_PREFIX + DELIMITER + "configMap";
 
@@ -114,7 +116,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     this.clusteredEntityManager = new ClusteredEntityManager(toolkit);
     this.entityNames = new EntityNamesHolder();
     this.wanUtil = new WANUtil(this);
-    this.wanWatchdog = Watchdog.create(toolkit);
+    this.wanWatchdog = Watchdog.create();
   }
 
   public ToolkitInstanceFactoryImpl(final TerracottaClientConfiguration terracottaClientConfiguration) {
@@ -127,7 +129,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     this.clusteredEntityManager = clusteredEntityManager;
     this.entityNames = new EntityNamesHolder();
     this.wanUtil = new WANUtil(this);
-    this.wanWatchdog = Watchdog.create(toolkit);
+    this.wanWatchdog = Watchdog.create();
   }
 
   ToolkitInstanceFactoryImpl(final Toolkit toolkit, final ClusteredEntityManager clusteredEntityManager,
@@ -213,7 +215,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
       cache.getCacheConfiguration().freezeConfiguration();
 
-      wanWatchdog.watchFor((WanAwareToolkitCache)toolkitCache);
+      wanWatchdog.watch((Watchable) toolkitCache);
     }
 
     return toolkitCache;
@@ -234,7 +236,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final String fullyQualifiedCacheName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName);
     final ToolkitMap<String, Serializable> configMap = getOrCreateConfigMap(fullyQualifiedCacheName);
     return new WanAwareToolkitCache<String, Serializable>((BufferingToolkitCache<String,Serializable>)toolkitCache, configMap,
-                                                          toolkit.getFeature(ToolkitFeatureType.NONSTOP));
+                                                          toolkit.getFeature(ToolkitFeatureType.NONSTOP),
+                                                          toolkit.getLock(toolkitCache.getName() + LOCK_TAG));
   }
 
   private ToolkitCacheInternal<String, Serializable> getOrCreateRegularToolkitCache(final String cacheManagerName,
