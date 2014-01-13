@@ -14,6 +14,8 @@ import net.sf.ehcache.transaction.TransactionTimeoutException;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.toolkit.Toolkit;
 
+import com.tc.util.concurrent.ThreadUtil;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
@@ -295,7 +297,7 @@ public class LocalTxClient extends ClientBase {
       }
     };
     tx1.start();
-    tx1.join(WAIT_TIME);
+    ThreadUtil.reallySleep(WAIT_TIME);
 
     // TX 0
     transactionController.commit();
