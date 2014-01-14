@@ -14,7 +14,6 @@ import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.async.AsyncConfig;
@@ -29,6 +28,8 @@ import org.terracotta.modules.ehcache.store.nonstop.ToolkitNonstopDisableConfig;
 import org.terracotta.modules.ehcache.transaction.ClusteredSoftLockIDKey;
 import org.terracotta.modules.ehcache.transaction.SerializedReadCommittedClusteredSoftLock;
 import org.terracotta.modules.ehcache.wan.WANUtil;
+import org.terracotta.modules.ehcache.wan.Watchable;
+import org.terracotta.modules.ehcache.wan.Watchdog;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFeatureType;
 import org.terracotta.toolkit.ToolkitObjectType;
@@ -88,6 +89,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                                                                     + "txnsDecision";
   private static final String ALL_SOFT_LOCKS_MAP_SUFFIX                = "softLocks";
   private static final String NEW_SOFT_LOCKS_LIST_SUFFIX               = "newSoftLocks";
+  private static final String LOCK_TAG                                 = "::LOCK";
 
   static final String         CLUSTERED_STORE_CONFIG_MAP               = EHCACHE_NAME_PREFIX + DELIMITER + "configMap";
 
@@ -101,30 +103,42 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                                                                     + "softNotifierLock";
   public static final int RETRY_MARK_IN_USE_AFTER_REJOIN = 5;
 
-  protected final Toolkit     toolkit;
-  private WANUtil             wanUtil;
-  private final ClusteredEntityManager clusteredEntityManager;
-  private volatile ClusteredCacheManager clusteredCacheManagerEntity;
-  private final EntityNamesHolder      entityNames;
+  protected final Toolkit                 toolkit;
+  private final WANUtil                   wanUtil;
+  private final ClusteredEntityManager    clusteredEntityManager;
+  private volatile ClusteredCacheManager  clusteredCacheManagerEntity;
+  private final EntityNamesHolder         entityNames;
+  private final Watchdog                  wanWatchdog;
 
-  public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration, String productId) {
+  public ToolkitInstanceFactoryImpl(final TerracottaClientConfiguration terracottaClientConfiguration, final String productId) {
     this.toolkit = createTerracottaToolkit(terracottaClientConfiguration, productId);
     updateDefaultNonStopConfig(toolkit);
-    clusteredEntityManager = new ClusteredEntityManager(toolkit);
-    this.wanUtil = new WANUtil(this);
+    this.clusteredEntityManager = new ClusteredEntityManager(toolkit);
     this.entityNames = new EntityNamesHolder();
+    this.wanUtil = new WANUtil(this);
+    this.wanWatchdog = Watchdog.create();
   }
 
-  public ToolkitInstanceFactoryImpl(TerracottaClientConfiguration terracottaClientConfiguration) {
+  public ToolkitInstanceFactoryImpl(final TerracottaClientConfiguration terracottaClientConfiguration) {
     this(terracottaClientConfiguration, null);
   }
 
   // Constructor to enable unit testing
-  ToolkitInstanceFactoryImpl(Toolkit toolkit, ClusteredEntityManager clusteredEntityManager) {
+  ToolkitInstanceFactoryImpl(final Toolkit toolkit, final ClusteredEntityManager clusteredEntityManager) {
     this.toolkit = toolkit;
     this.clusteredEntityManager = clusteredEntityManager;
-    setWANUtil(new WANUtil(this));
     this.entityNames = new EntityNamesHolder();
+    this.wanUtil = new WANUtil(this);
+    this.wanWatchdog = Watchdog.create();
+  }
+
+  ToolkitInstanceFactoryImpl(final Toolkit toolkit, final ClusteredEntityManager clusteredEntityManager,
+                             final WANUtil util, final Watchdog wanWatchdog) {
+    this.toolkit = toolkit;
+    this.clusteredEntityManager = clusteredEntityManager;
+    this.entityNames = new EntityNamesHolder();
+    this.wanUtil = util;
+    this.wanWatchdog = wanWatchdog;
   }
 
   private void updateDefaultNonStopConfig(Toolkit toolkitParam) {
@@ -178,18 +192,19 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   @Override
   public ToolkitCacheInternal<String, Serializable> getOrCreateToolkitCache(final Ehcache cache) {
-    final CacheConfiguration ehcacheConfig = cache.getCacheConfiguration();
     final String cacheManagerName = getCacheManagerName(cache);
     final String cacheName = cache.getName();
     
-    ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
+    ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateRegularToolkitCache(
+        cacheManagerName, cacheName, cache.getCacheConfiguration());
     if(wanUtil.isWanEnabledCache(cacheManagerName, cacheName)) {
       toolkitCache = createWanAwareToolkitCache(cacheManagerName, cacheName, toolkitCache);
 
       if (wanUtil.isCacheReplica(cacheManagerName, cacheName)) {
-        LOGGER.info("Pinning the Cache '{}' belonging to Cache Manager '{}' and setting its TTI and TTL values to zero as it is a WAN Replica Cache. " +
+        LOGGER.info("Pinning the Cache '{}' belonging to Cache Manager '{}' " +
+                    "and setting its TTI and TTL values to zero as it is a WAN Replica Cache. " +
                     "This cache's capacity will be controlled by its Master cache.",
-              cacheName, cacheManagerName);
+            cacheName, cacheManagerName);
         PinningConfiguration pinningConfiguration = new PinningConfiguration();
         pinningConfiguration.setStore(PinningConfiguration.Store.INCACHE.toString());
         cache.getCacheConfiguration().addPinning(pinningConfiguration);
@@ -199,6 +214,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
       }
 
       cache.getCacheConfiguration().freezeConfiguration();
+
+      wanWatchdog.watch((Watchable) toolkitCache);
     }
 
     return toolkitCache;
@@ -219,7 +236,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     final String fullyQualifiedCacheName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName);
     final ToolkitMap<String, Serializable> configMap = getOrCreateConfigMap(fullyQualifiedCacheName);
     return new WanAwareToolkitCache<String, Serializable>((BufferingToolkitCache<String,Serializable>)toolkitCache, configMap,
-                                                          toolkit.getFeature(ToolkitFeatureType.NONSTOP));
+                                                          toolkit.getFeature(ToolkitFeatureType.NONSTOP),
+                                                          toolkit.getLock(toolkitCache.getName() + LOCK_TAG));
   }
 
   private ToolkitCacheInternal<String, Serializable> getOrCreateRegularToolkitCache(final String cacheManagerName,
@@ -838,12 +856,4 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     }
 
   }
-
-  /**
-   * Method to be used for Unit Test only
-   */
-  void setWANUtil(WANUtil wanUtil) {
-    this.wanUtil = wanUtil;
-  }
-
 }

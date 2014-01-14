@@ -1,8 +1,5 @@
 package org.terracotta.modules.ehcache;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +8,9 @@ import org.terracotta.toolkit.internal.cache.BufferingToolkitCache;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Eugene Shelestovich
@@ -34,7 +34,7 @@ public class WanAwareToolkitCacheTest {
   }
 
   private WanAwareToolkitCache<String, String> getTestableWanAwareToolkitCache() {
-    return new WanAwareToolkitCache<String, String>(delegate, configMap, null, null) {
+    return new WanAwareToolkitCache<String, String>(delegate, configMap, null, null, null) {
       @Override
       void waitUntilActive() {
         waitHappened = true;

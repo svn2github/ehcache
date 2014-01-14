@@ -30,13 +30,13 @@ public class WANUtilTest {
 
 
   @Test
-  public void testIsOrchestratorRunningWhenOrchestratorWasUp() throws Exception {
-    whenOrchestratorRunning().callIsOrchestratorRunning().assertResultIs(true);
+  public void testIsWANReadyWhenOrchestratorWasUp() throws Exception {
+    whenWANReady().callIsWANReady().assertResultIs(true);
   }
 
   @Test
-  public void testIsOrchestratorRunningWhenOrchestratorWasDown() throws Exception {
-    callIsOrchestratorRunning().assertResultIs(false);
+  public void testIsWANReadyWhenOrchestratorWasDown() throws Exception {
+    callIsWANReady().assertResultIs(false);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -65,13 +65,13 @@ public class WANUtilTest {
     return this;
   }
 
-  private WANUtilTest callIsOrchestratorRunning() {
-    testResult = wanUtil.isOrchestratorRunning(CACHE_MANAGER_NAME);
+  private WANUtilTest callIsWANReady() {
+    testResult = wanUtil.isWANReady(CACHE_MANAGER_NAME);
     return this;
   }
 
-  private WANUtilTest whenOrchestratorRunning() {
-    wanUtil.markOrchestratorRunning(CACHE_MANAGER_NAME);
+  private WANUtilTest whenWANReady() {
+    wanUtil.markWANReady(CACHE_MANAGER_NAME);
     return this;
   }
 

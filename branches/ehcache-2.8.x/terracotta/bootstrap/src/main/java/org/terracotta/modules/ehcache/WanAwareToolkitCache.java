@@ -2,6 +2,7 @@ package org.terracotta.modules.ehcache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terracotta.modules.ehcache.wan.Watchable;
 import org.terracotta.toolkit.cache.ToolkitCacheListener;
 import org.terracotta.toolkit.cluster.ClusterNode;
 import org.terracotta.toolkit.collections.ToolkitMap;
@@ -24,6 +25,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A wrapper around {@link ToolkitCacheInternal}
@@ -31,30 +33,37 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @author Eugene Shelestovich
  */
-public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V> {
+public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, Watchable {
 
-  private static final Logger                       LOGGER           = LoggerFactory.getLogger(WanAwareToolkitCache.class);
-  private static final String                       CACHE_ACTIVE_KEY = "WAN-CACHE-ACTIVE";
+  private static final Logger LOGGER = LoggerFactory.getLogger(WanAwareToolkitCache.class);
+  private static final String CACHE_ACTIVE_KEY = "WAN-CACHE-ACTIVE";
 
-  private final BufferingToolkitCache<K, V>         delegate;
+  private final BufferingToolkitCache<K, V> delegate;
   private final ConcurrentMap<String, Serializable> configMap;
-  private final NonStopFeature                      nonStop;
-  private final ToolkitLock                         configMapLock;
+  private final NonStopFeature nonStop;
+  private final ToolkitLock configMapLock;
+  private final ToolkitLock activeLock;
 
   public WanAwareToolkitCache(final BufferingToolkitCache<K, V> delegate,
-                              final ToolkitMap<String, Serializable> configMap, final NonStopFeature nonStop) {
-    this(delegate, configMap, nonStop, configMap.getReadWriteLock().writeLock());
+                              final ToolkitMap<String, Serializable> configMap,
+                              final NonStopFeature nonStop,
+                              final ToolkitLock activeLock) {
+    this(delegate, configMap, nonStop, configMap.getReadWriteLock().writeLock(), activeLock);
   }
 
   /**
    * Constructor for Unit Tests only
    */
-  WanAwareToolkitCache(final BufferingToolkitCache<K, V> delegate, final ConcurrentMap<String, Serializable> configMap,
-                       final NonStopFeature nonStop, final ToolkitLock configMapLock) {
+  WanAwareToolkitCache(final BufferingToolkitCache<K, V> delegate,
+                       final ConcurrentMap<String, Serializable> configMap,
+                       final NonStopFeature nonStop,
+                       final ToolkitLock configMapLock,
+                       final ToolkitLock activeLock) {
     this.delegate = delegate;
     this.configMap = configMap;
     this.nonStop = nonStop;
     this.configMapLock = configMapLock;
+    this.activeLock = activeLock;
     configMap.putIfAbsent(CACHE_ACTIVE_KEY, false);
   }
 
@@ -65,26 +74,31 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V> {
    */
   public boolean isActive() {
     final Serializable active = configMap.get(CACHE_ACTIVE_KEY);
-    return (active == null) ? false : (Boolean)active;
+    return (active == null) ? false : (Boolean) active;
   }
 
   /**
    * Activates WAN-enabled cache, so it can start handling user actions.
+   *
+   * @return {@code true} if the cache's state was updated, otherwise {@code false}
    */
-  public void activate() {
-    setState(true);
+  public boolean activate() {
+    boolean updated = setState(true);
     notifyClients();
+    return updated;
   }
 
   /**
    * Deactivates WAN-enabled cache, so it rejects all user actions.
+   *
+   * @return {@code true} if the cache's state was updated, otherwise {@code false}
    */
-  public void deactivate() {
-    setState(false);
+  public boolean deactivate() {
+    return setState(false);
   }
 
-  private void setState(boolean active) {
-    configMap.replace(CACHE_ACTIVE_KEY, !active, active);
+  private boolean setState(boolean active) {
+    return configMap.replace(CACHE_ACTIVE_KEY, !active, active);
   }
 
   @Override
@@ -550,7 +564,7 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V> {
         } catch (InterruptedException e) {
           if (nonStop.isTimedOut()) {
             LOGGER.error("Operation timed-out while waitng for the cache '{}' to become active",
-                         delegate.getName());
+                delegate.getName());
             throw new NonStopException("Cache '" + delegate.getName() + "' not active currently.");
           }
         }
@@ -581,4 +595,41 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V> {
     setConfigField(ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME, 0);
   }
 
+  @Override
+  public void goLive() {
+    final int sleepTime = 1 + (int) (Math.random() * 3);
+    while (!activeLock.isHeldByCurrentThread()) {
+      try {
+        TimeUnit.SECONDS.sleep(sleepTime); // just a favorable condition for load distribution
+        activeLock.lock();
+      } catch (Exception e) {
+        LOGGER.error("Exception occured while waiting for active lock for cache '{}'", getName(), e);
+      }
+    }
+  }
+
+  @Override
+  public void die() {
+    // no-op for the time being
+  }
+
+  @Override
+  public boolean probeLiveness() {
+    if (activeLock.tryLock()) {
+      try {
+        if (deactivate()) {
+          LOGGER.error("Master orchestrator is not running. Cache '{}' is deactivated", getName());
+        }
+        return false;
+      } finally {
+        activeLock.unlock();
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public String name() {
+    return getName();
+  }
 }

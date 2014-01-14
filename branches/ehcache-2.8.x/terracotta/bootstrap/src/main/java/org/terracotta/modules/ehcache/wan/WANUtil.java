@@ -14,12 +14,12 @@ import java.util.concurrent.TimeUnit;
 
 public class WANUtil {
   private static final int             WAIT_INTERVAL_FOR_ORCHESTRATOR_IN_SECONDS = 60;
-  private static final Logger          LOGGER                  = LoggerFactory.getLogger(WANUtil.class);
-  private static final String          WAN_PREFIX              = "__WAN__";
-  private static final String          LOCK_PREFIX             = WAN_PREFIX + "LOCK";
-  private static final String          WAN_ENABLED_CACHE_ENTRY = WAN_PREFIX + "ENABLED_CACHE";
-  private static final String          REPLICA_CACHE_FLAG = "IS_REPLICA";
-  private static final String          ORCHESTRATOR_RUNNING_FLAG = "ORCHESTRATOR_RUNNING";
+  private static final Logger          LOGGER                                    = LoggerFactory.getLogger(WANUtil.class);
+  private static final String          WAN_PREFIX                                = "__WAN__";
+  private static final String          LOCK_PREFIX                               = WAN_PREFIX + "LOCK";
+  private static final String          WAN_ENABLED_CACHE_ENTRY                   = WAN_PREFIX + "ENABLED_CACHE";
+  private static final String          REPLICA_CACHE_FLAG                        = "IS_REPLICA";
+  private static final String          META_DATA_AVAILABLE_FLAG                  = "WAN_META_DATA_AVAILABLE";
 
   private final ToolkitInstanceFactory factory;
 
@@ -28,23 +28,32 @@ public class WANUtil {
   }
 
   /**
-   * This method marks the Orchestrator running for the given cacheManager
+   * This method marks that WAN meta-data is available for the given cacheManager
    * 
    * @param cacheManagerName name of the CacheManager
    */
-  public void markOrchestratorRunning(String cacheManagerName) {
-    getCacheManagerConfigMap(cacheManagerName).put(ORCHESTRATOR_RUNNING_FLAG, Boolean.TRUE);
+  public void markWANReady(String cacheManagerName) {
+    getCacheManagerConfigMap(cacheManagerName).put(META_DATA_AVAILABLE_FLAG, Boolean.TRUE);
     notifyClients(cacheManagerName);
   }
 
   /**
-   * This method is used to check whether the Orchestrator has started or not.
+   * This method clears the WAN meta-data available status for the given cacheManager
+   * 
+   * @param cacheManagerName name of the CacheManager
+   */
+  public void clearWANReady(String cacheManagerName) {
+    getCacheManagerConfigMap(cacheManagerName).put(META_DATA_AVAILABLE_FLAG, Boolean.FALSE);
+  }
+
+  /**
+   * This method is used to check whether the WAN meta-data is available or not.
    * 
    * @param cacheManagerName
-   * @return <code>true</code> if Orchestrator has started else <code>false</code>.
+   * @return <code>true</code> if meta-data is available else <code>false</code>.
    */
-  public boolean isOrchestratorRunning(String cacheManagerName) {
-    Boolean value = (Boolean) getCacheManagerConfigMap(cacheManagerName).get(ORCHESTRATOR_RUNNING_FLAG);
+  public boolean isWANReady(String cacheManagerName) {
+    Boolean value = (Boolean) getCacheManagerConfigMap(cacheManagerName).get(META_DATA_AVAILABLE_FLAG);
     return (value == null) ? false : value;
   }
 
@@ -54,12 +63,12 @@ public class WANUtil {
    * @param cacheManagerName
    */
   public void waitForOrchestrator(String cacheManagerName) {
-    if (!isOrchestratorRunning(cacheManagerName)) {
+    if (!isWANReady(cacheManagerName)) {
       LOGGER.info("Waiting for the Orchestrator...");
       ToolkitLock toolkitLock = factory.getToolkit().getLock(LOCK_PREFIX + cacheManagerName);
       toolkitLock.lock();
       try {
-        while (!isOrchestratorRunning(cacheManagerName)) {
+        while (!isWANReady(cacheManagerName)) {
           try {
             boolean orchRunning = toolkitLock.getCondition().await(WAIT_INTERVAL_FOR_ORCHESTRATOR_IN_SECONDS,
                                                                  TimeUnit.SECONDS);
@@ -149,6 +158,20 @@ public class WANUtil {
 
     Boolean value = (Boolean) getCacheConfigMap(cacheManagerName, cacheName).get(WAN_ENABLED_CACHE_ENTRY);
     return (value == null) ? false : value;
+  }
+
+  /**
+   * This method is used by clean-up scripts to clean the Cache status for WAN.
+   * 
+   * @param cacheManagerName name of the CacheManager
+   * @param cacheName name of the Cache
+   */
+  public void cleanUpCacheMetaData(String cacheManagerName, String cacheName) {
+    final ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
+    cacheConfigMap.remove(WAN_ENABLED_CACHE_ENTRY);
+    cacheConfigMap.remove(REPLICA_CACHE_FLAG);
+
+    LOGGER.info("Cleaned up the metadata for cache '{}' for CacheManager '{}'", cacheName, cacheManagerName);
   }
 
 
