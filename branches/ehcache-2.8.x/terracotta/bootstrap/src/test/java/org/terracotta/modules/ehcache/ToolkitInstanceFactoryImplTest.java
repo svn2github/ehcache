@@ -9,11 +9,26 @@
 
 package org.terracotta.modules.ehcache;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -31,6 +46,7 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.feature.NonStopFeature;
+import org.terracotta.toolkit.internal.cache.BufferingToolkitCache;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.nonstop.NonStopConfigurationRegistry;
 import org.terracotta.toolkit.store.ToolkitConfigFields;
@@ -46,21 +62,6 @@ import com.terracotta.entity.ehcache.ToolkitBackedClusteredCacheManager;
 import java.io.Serializable;
 
 import junit.framework.Assert;
-
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * ToolkitInstanceFactoryImplTest
@@ -84,6 +85,8 @@ public class ToolkitInstanceFactoryImplTest {
     toolkit = mock(Toolkit.class);
     final ToolkitMap toolkitMap = mockMap();
     when(toolkit.getMap(anyString(), any(Class.class), any(Class.class))).thenReturn(toolkitMap);
+    when(toolkit.getCache(anyString(), any(Configuration.class), any(Class.class)))
+        .thenReturn(mock(BufferingToolkitCache.class));
     ToolkitReadWriteLock rwLock = mockReadWriteLock();
     when(toolkit.getReadWriteLock(any(String.class))).thenReturn(rwLock);
     makeToolkitReturnNonStopConfigurationRegistry();
