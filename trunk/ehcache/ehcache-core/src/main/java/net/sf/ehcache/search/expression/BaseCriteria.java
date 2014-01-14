@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.search.Attribute;
-import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 
 /**
@@ -56,16 +55,14 @@ public abstract class BaseCriteria implements Criteria {
      * @param attrName
      * @param knownExtractors
      * @return
-     * @throws SearchException
      */
     public static AttributeExtractor getExtractor(String attrName,
-            Map<String, AttributeExtractor> knownExtractors) throws SearchException
-    {
+            Map<String, AttributeExtractor> knownExtractors) {
         AttributeExtractor extr = knownExtractors.get(attrName);
         if (extr != null) {
             return extr;
         }
-        throw new SearchException("Unknown search attribute " + attrName);
+        throw new AssertionError("Unknown search attribute " + attrName);
     }
 
     /**
