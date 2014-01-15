@@ -34,9 +34,9 @@ import net.sf.ehcache.search.Results;
 import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.expression.Criteria;
+import net.sf.ehcache.search.impl.CacheQuery;
 import net.sf.ehcache.search.query.QueryManagerBuilder;
 import net.sf.ehcache.statistics.FlatStatistics;
-import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.store.StoreQuery.Ordering;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
 
@@ -531,54 +531,55 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
      * Have to manually clone a new query due to weird lifecycle of querys wherein they can be frozen
      * yet you can't invoke getters if it's NOT frozen.
      */
-    private Query limitResults(Query q) {
-        StoreQuery sq = (StoreQuery)q;
-        int maxResults = sq.maxResults();
+    private CacheQuery limitResults(Query q) {
+        CacheQuery srcQuery = (CacheQuery)q;
+        int maxResults = srcQuery.maxResults();
+        CacheQuery ret = srcQuery;
 
         if (maxResults == -1 || maxResults > MAX_QUERY_RESULT_LIMIT) {
-            Query newQuery = sq.getCache().createQuery().maxResults(MAX_QUERY_RESULT_LIMIT);
+            CacheQuery newQuery = (CacheQuery)srcQuery.getCache().createQuery();
+            newQuery.maxResults(MAX_QUERY_RESULT_LIMIT);
 
-            if (sq.requestsKeys()) {
+            if (srcQuery.requestsKeys()) {
                 newQuery.includeKeys();
             }
 
-            if (sq.requestsValues()) {
+            if (srcQuery.requestsValues()) {
                 newQuery.includeValues();
             }
 
-            Set<Attribute<?>> attrs = sq.requestedAttributes();
+            Set<Attribute<?>> attrs = srcQuery.requestedAttributes();
             if (attrs != null) {
                 newQuery.includeAttribute(new ArrayList<Attribute<?>>(attrs).toArray(new Attribute<?>[0]));
             }
 
-            Criteria criteria = sq.getCriteria();
+            Criteria criteria = srcQuery.getCriteria();
             if (criteria != null) {
                 newQuery.addCriteria(criteria);
             }
 
-            Set<Attribute<?>> groupByAttrs = sq.groupByAttributes();
+            Set<Attribute<?>> groupByAttrs = srcQuery.groupByAttributes();
             if (groupByAttrs != null) {
                 newQuery.addGroupBy(new ArrayList<Attribute<?>>(groupByAttrs).toArray(new Attribute<?>[0]));
             }
 
-            List<Ordering> orderings = sq.getOrdering();
+            List<Ordering> orderings = srcQuery.getOrdering();
             if (orderings != null) {
                 for (Ordering ordering : orderings) {
                     newQuery.addOrderBy(ordering.getAttribute(), ordering.getDirection());
                 }
             }
 
-            List<Aggregator> aggregators = sq.getAggregators();
+            List<Aggregator> aggregators = srcQuery.getAggregators();
             if (aggregators != null) {
                 newQuery.includeAggregator(aggregators.toArray(new Aggregator[0]));
             }
 
-            newQuery.targets(sq.getTargets());
-
-            q = newQuery.end();
+            newQuery.targets(srcQuery.getTargets()).end();
+            ret = newQuery;
         }
 
-        return q;
+        return ret;
     }
 
     /**
@@ -621,8 +622,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
             throw new SearchException("There are no searchable caches");
         }
 
-        Query q = limitResults(qmb.build().createQuery(queryString).end());
-        StoreQuery sq = (StoreQuery)q;
+        CacheQuery sq = limitResults(qmb.build().createQuery(queryString).end());
 
         Set<Attribute<?>> attrs = new HashSet<Attribute<?>>(sq.requestedAttributes());
 
@@ -640,7 +640,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
         }
 
         String[] selectTargets = sq.getTargets();
-        Results results = q.execute();
+        Results results = sq.execute();
         List<Result> all = results.all();
         List<Object[]> result = new ArrayList<Object[]>(results.size());
         List<Object> row = new ArrayList<Object>();

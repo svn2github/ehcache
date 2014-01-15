@@ -18,6 +18,9 @@ package net.sf.ehcache.terracotta;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.search.Results;
+import net.sf.ehcache.search.SearchException;
+import net.sf.ehcache.store.StoreQuery;
 
 /**
  * This is an extension of the Ehcache interface to allow addition of new methods to Cache without breaking the public contract.
@@ -44,4 +47,12 @@ public interface InternalEhcache extends Ehcache {
      */
     void recalculateSize(Object key);
 
+    /**
+     * Execute the given query
+     *
+     * @param query query to execute
+     * @return query results
+     * @throws SearchException 
+     */
+    Results executeQuery(StoreQuery query) throws SearchException;
 }

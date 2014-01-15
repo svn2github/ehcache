@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache;
+package net.sf.ehcache.search.impl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
 import net.sf.ehcache.search.ExecutionHints;
@@ -40,7 +41,7 @@ import net.sf.ehcache.store.StoreQuery;
  *
  * @author teck
  */
-class CacheQuery implements Query, StoreQuery {
+public class CacheQuery implements Query, StoreQuery {
 
     private volatile boolean frozen;
     private volatile boolean includeKeys;
@@ -275,7 +276,7 @@ class CacheQuery implements Query, StoreQuery {
     }
 
     /**
-     * {@inheritDoc}
+     * Get the requested aggregators
      */
     public List<Aggregator> getAggregators() {
         return Collections.unmodifiableList(this.aggregators);

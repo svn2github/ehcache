@@ -23,7 +23,6 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
 import net.sf.ehcache.search.ExecutionHints;
-import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.Criteria;
 
@@ -61,13 +60,7 @@ public interface StoreQuery {
      * @return cache
      */
     Cache getCache();
-
-    /**
-     * 
-     * @return select target names, searchAttribute or aggregator
-     */
-    String[] getTargets();
-    
+   
     /**
      * Get the set of attributes requested by this query
      *
@@ -95,13 +88,6 @@ public interface StoreQuery {
      * @return max results. A negative number means unlimited results
      */
     int maxResults();
-
-    /**
-     * Get the requested aggregators
-     * 
-     * @return the include aggregators (if any)
-     */
-    List<Aggregator> getAggregators();
     
     /**
      * Get execution hints for this query

@@ -67,6 +67,7 @@ import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.search.attribute.UnknownAttributeException;
 import net.sf.ehcache.search.expression.BaseCriteria;
+import net.sf.ehcache.search.impl.CacheQuery;
 import net.sf.ehcache.statistics.StatisticsGateway;
 import net.sf.ehcache.store.CopyingCacheStore;
 import net.sf.ehcache.store.ElementValueComparator;
@@ -3828,7 +3829,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @return query results
      * @throws SearchException 
      */
-    Results executeQuery(StoreQuery query) throws SearchException {
+    public Results executeQuery(StoreQuery query) throws SearchException {
         searchObserver.begin();
         try {
             validateSearchQuery(query);
