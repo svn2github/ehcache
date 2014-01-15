@@ -90,11 +90,25 @@ public class XidTransactionIDSerializedForm implements Serializable {
     }
 
     private Object readResolve() {
-        CacheManager cacheManager = CacheManager.getCacheManager(cacheManagerName);
+        // do NOT call CacheManager.getCache() as that method synchronizes around the CacheManager class monitor
+        // which can cause some nasty initialization deadlock, see: MNK-5824
+        CacheManager cacheManager = getCacheManager(cacheManagerName);
         if (cacheManager == null) {
             throw new TransactionException("unable to restore XID transaction ID from " + cacheManagerName);
         }
         return cacheManager.getOrCreateTransactionIDFactory().restoreXidTransactionID(this);
+    }
+
+    /**
+     * Basically does the same as CacheManager.getCache() except that this method is lock free.
+     */
+    private static CacheManager getCacheManager(String cacheManagerName) {
+        for (CacheManager cacheManager : CacheManager.ALL_CACHE_MANAGERS) {
+            if (cacheManager.getName().equals(cacheManagerName)) {
+                return cacheManager;
+            }
+        }
+        return null;
     }
 
 }
