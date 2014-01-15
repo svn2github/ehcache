@@ -166,7 +166,6 @@ import static net.sf.ehcache.statistics.StatisticBuilder.operation;
  * @author Greg Luck
  * @author Geert Bevin
  * @version $Id$
- * @version $Id$
  */
 public class Cache implements InternalEhcache, StoreListener {
 
