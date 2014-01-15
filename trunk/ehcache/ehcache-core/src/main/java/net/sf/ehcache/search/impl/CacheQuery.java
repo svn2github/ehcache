@@ -328,7 +328,10 @@ public class CacheQuery implements Query, StoreQuery {
     }
     
     /**
-     * {@inheritDoc}
+     * Set the names of the select targets. These will either be searchAttribute names or
+     * aggregator display names, eg. 'avg(salary)'
+     * 
+     * This is used by BMQL to form the return results.
      */
     public Query targets(String[] targets) {
         this.targets = targets;
@@ -336,7 +339,7 @@ public class CacheQuery implements Query, StoreQuery {
     }
 
     /**
-     * {@inheritDoc}
+     * @return select target names, searchAttribute or aggregator
      */
     public String[] getTargets() {
         return this.targets;
