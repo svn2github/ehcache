@@ -51,7 +51,7 @@ public abstract class BaseCriteria implements Criteria {
     }
 
     /**
-     * For given attribute name, return its corresponding extractors from supplied map, if it exists. Otherwise, throw an exception.
+     * For given attribute name, return its corresponding extractors from supplied map.
      * @param attrName
      * @param knownExtractors
      * @return
