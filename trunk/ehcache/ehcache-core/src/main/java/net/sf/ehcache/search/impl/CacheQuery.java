@@ -392,16 +392,8 @@ public class CacheQuery implements Query, StoreQuery {
             return copiedOrdering;
         }
 
-        public List<Aggregator> getAggregators() {
-            return copiedAggregators;
-        }
-
         public List<AggregatorInstance<?>> getAggregatorInstances() {
             return copiedAggregatorInstances;
-        }
-        
-        public String[] getTargets() {
-            return targets;
         }
         
         public ExecutionHints getExecutionHints() {
