@@ -294,7 +294,7 @@ public class ParseModel {
                 }
         	}
         }
-        q.targets(targetList.toArray(new String[0]));
+        ((StoreQuery)q).targets(targetList.toArray(new String[0]));
         
         // targets. what to retrieve
         for (MAttribute ma : getIncludedTargetAttributes()) {

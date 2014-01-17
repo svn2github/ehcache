@@ -329,16 +329,16 @@ class CacheQuery implements Query, StoreQuery {
     /**
      * {@inheritDoc}
      */
-    public Query targets(String[] targets) {
-        this.targets = targets;
-        return this;
+    public String[] getTargets() {
+        return this.targets;
     }
 
     /**
      * {@inheritDoc}
      */
-    public String[] getTargets() {
-        return this.targets;
+    @Override
+    public void targets(final String[] targets) {
+        this.targets = targets;
     }
 
     /**
@@ -399,7 +399,14 @@ class CacheQuery implements Query, StoreQuery {
         public String[] getTargets() {
             return targets;
         }
-        
+
+        /**
+         * {@inheritDoc}
+         */
+        public void targets(String[] targets) {
+            CacheQuery.this.targets = targets;
+        }
+
         public ExecutionHints getExecutionHints() {
             return execHints;
         }
