@@ -14,7 +14,7 @@
  *  limitations under the License.
  */
 
-package net.sf.ehcache.search.impl;
+package net.sf.ehcache;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
 import net.sf.ehcache.search.ExecutionHints;
@@ -41,7 +40,7 @@ import net.sf.ehcache.store.StoreQuery;
  *
  * @author teck
  */
-public class CacheQuery implements Query, StoreQuery {
+class CacheQuery implements Query, StoreQuery {
 
     private volatile boolean frozen;
     private volatile boolean includeKeys;
@@ -276,7 +275,7 @@ public class CacheQuery implements Query, StoreQuery {
     }
 
     /**
-     * Get the requested aggregators
+     * {@inheritDoc}
      */
     public List<Aggregator> getAggregators() {
         return Collections.unmodifiableList(this.aggregators);
@@ -328,21 +327,18 @@ public class CacheQuery implements Query, StoreQuery {
     }
     
     /**
-     * Set the names of the select targets. These will either be searchAttribute names or
-     * aggregator display names, eg. 'avg(salary)'
-     * 
-     * This is used by BMQL to form the return results.
-     */
-    public Query targets(String[] targets) {
-        this.targets = targets;
-        return this;
-    }
-
-    /**
-     * @return select target names, searchAttribute or aggregator
+     * {@inheritDoc}
      */
     public String[] getTargets() {
         return this.targets;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void targets(final String[] targets) {
+        this.targets = targets;
     }
 
     /**
@@ -392,10 +388,25 @@ public class CacheQuery implements Query, StoreQuery {
             return copiedOrdering;
         }
 
+        public List<Aggregator> getAggregators() {
+            return copiedAggregators;
+        }
+
         public List<AggregatorInstance<?>> getAggregatorInstances() {
             return copiedAggregatorInstances;
         }
         
+        public String[] getTargets() {
+            return targets;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void targets(String[] targets) {
+            CacheQuery.this.targets = targets;
+        }
+
         public ExecutionHints getExecutionHints() {
             return execHints;
         }

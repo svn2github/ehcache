@@ -23,6 +23,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
 import net.sf.ehcache.search.ExecutionHints;
+import net.sf.ehcache.search.aggregator.Aggregator;
 import net.sf.ehcache.search.aggregator.AggregatorInstance;
 import net.sf.ehcache.search.expression.Criteria;
 
@@ -60,7 +61,34 @@ public interface StoreQuery {
      * @return cache
      */
     Cache getCache();
-   
+
+    /**
+     * This needs to be cleaned up. We don't want to introduce any kind of ordering here, as there simply is none.
+     * <p>
+     * Meanwhile, this is used to keep the ordering on BMQL created Queries. Yet, {@link net.sf.ehcache.search.query.QueryManagerBuilder
+     * QueryManagerBuilder}, which creates the {@link net.sf.ehcache.search.query.QueryManager QueryManager}, doesn't let us qualify the
+     * {@link net.sf.ehcache.search.Query Query} type further to add this "ordering" concept of "targets" to it.<br />
+     * And this "ordering" shouldn't become part of the QueryManager API neither as each implementation might require something different.
+     *
+     * @return select target names, searchAttribute or aggregator
+     * @see <a href="https://jira.terracotta.org/jira/browse/API-43">API-43</a>
+     * @deprecated
+     */
+    @Deprecated
+    String[] getTargets();
+
+    /**
+     * Set the names of the select targets. These will either be searchAttribute names or
+     * aggregator display names, eg. 'ave(salary)'
+     *
+     * This is used by BMQL to form the return results.
+     * @deprecated
+     * @see StoreQuery#getTargets()
+     */
+    @Deprecated
+    void targets(String[] targets);
+
+
     /**
      * Get the set of attributes requested by this query
      *
@@ -88,6 +116,13 @@ public interface StoreQuery {
      * @return max results. A negative number means unlimited results
      */
     int maxResults();
+
+    /**
+     * Get the requested aggregators
+     * 
+     * @return the include aggregators (if any)
+     */
+    List<Aggregator> getAggregators();
     
     /**
      * Get execution hints for this query

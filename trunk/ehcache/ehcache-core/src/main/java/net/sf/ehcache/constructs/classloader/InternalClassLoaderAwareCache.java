@@ -17,9 +17,6 @@
 package net.sf.ehcache.constructs.classloader;
 
 import net.sf.ehcache.Element;
-import net.sf.ehcache.search.Results;
-import net.sf.ehcache.search.SearchException;
-import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.terracotta.InternalEhcache;
 
 /**
@@ -68,20 +65,4 @@ public class InternalClassLoaderAwareCache extends ClassLoaderAwareCache impleme
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Results executeQuery(StoreQuery query) throws SearchException {
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        t.setContextClassLoader(this.classLoader);
-        try {
-            return ((InternalEhcache) this.cache).executeQuery(query);
-        } finally {
-            t.setContextClassLoader(prev);
-        }
-    }
-
-    
 }

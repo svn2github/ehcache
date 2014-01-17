@@ -36,11 +36,8 @@ import net.sf.ehcache.extension.CacheExtension;
 import net.sf.ehcache.loader.CacheLoader;
 import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Query;
-import net.sf.ehcache.search.Results;
-import net.sf.ehcache.search.SearchException;
 import net.sf.ehcache.search.attribute.DynamicAttributesExtractor;
 import net.sf.ehcache.statistics.StatisticsGateway;
-import net.sf.ehcache.store.StoreQuery;
 import net.sf.ehcache.terracotta.InternalEhcache;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
@@ -845,18 +842,6 @@ public class EhcacheDecoratorAdapter implements InternalEhcache {
     public void recalculateSize(Object key) {
         if (underlyingCache instanceof InternalEhcache) {
             asInternalEhcache().recalculateSize(key);
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Results executeQuery(StoreQuery query) throws SearchException {
-        if (underlyingCache instanceof InternalEhcache) {
-            return asInternalEhcache().executeQuery(query);
         } else {
             throw new UnsupportedOperationException();
         }

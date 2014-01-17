@@ -19,8 +19,8 @@ import net.sf.ehcache.search.Attribute;
 import net.sf.ehcache.search.Direction;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.SearchException;
-import net.sf.ehcache.search.impl.CacheQuery;
 import net.sf.ehcache.search.parser.MAggregate.AggOp;
+import net.sf.ehcache.store.StoreQuery;
 
 /**
  * The Class ParseModel.
@@ -265,7 +265,7 @@ public class ParseModel {
      */
     @SuppressWarnings("rawtypes")
     public Query getQuery(Ehcache ehcache) {
-        CacheQuery q = (CacheQuery)ehcache.createQuery();
+        Query q = ehcache.createQuery();
 
         // single criteria
         if (criteria != null) {
@@ -294,7 +294,7 @@ public class ParseModel {
                 }
         	}
         }
-        q.targets(targetList.toArray(new String[0]));
+        ((StoreQuery)q).targets(targetList.toArray(new String[0]));
         
         // targets. what to retrieve
         for (MAttribute ma : getIncludedTargetAttributes()) {
