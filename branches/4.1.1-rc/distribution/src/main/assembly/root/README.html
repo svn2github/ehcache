@@ -94,22 +94,13 @@
 
          All Ehcache releases are placed in the central Maven repository.
          
-         The Maven snippet for Ehcache core is:
-
-         &lt;dependency&gt;
-            &lt;groupid&gt;net.sf.ehcache&lt;/groupid&gt;
-            &lt;artifactid&gt;ehcache-core&lt;/artifactid&gt;
-            &lt;version&gt;${project.version}&lt;/version&gt;
-         &lt;/dependency&gt;
-         
-         The Maven snippet for Ehcache and Terracotta is (pulling both core and Terracotta dependencies):
+         The Maven snippet for Ehcache is:
 
          &lt;dependency&gt;
             &lt;groupid&gt;net.sf.ehcache&lt;/groupid&gt;
             &lt;artifactid&gt;ehcache&lt;/artifactid&gt;
             &lt;version&gt;${project.version}&lt;/version&gt;
-            &lt;type&gt;pom&lt;/type&gt;
-         &lt;/dependency&gt;    
+         &lt;/dependency&gt;
 
     Installation
     ============
@@ -143,7 +134,6 @@
     Licenses
     ========
     This kit contains ehcache code which is governed by the Apache License, version 2.0. The license is in the licenses folder.
-    It also contains the Terracotta server which is governed by the Terracotta Public License, version 1.0.
 
     Ehcache 1.7.1 and higher uses SLF4J for logging. The SLF4J license is included in the licenses folder.
 
