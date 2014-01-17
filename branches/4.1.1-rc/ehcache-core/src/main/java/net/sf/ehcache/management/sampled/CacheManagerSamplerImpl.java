@@ -573,7 +573,7 @@ public class CacheManagerSamplerImpl implements CacheManagerSampler {
                 newQuery.includeAggregator(aggregators.toArray(new Aggregator[0]));
             }
 
-            newQuery.targets(sq.getTargets());
+            ((StoreQuery)newQuery).targets(sq.getTargets());
 
             q = newQuery.end();
         }
