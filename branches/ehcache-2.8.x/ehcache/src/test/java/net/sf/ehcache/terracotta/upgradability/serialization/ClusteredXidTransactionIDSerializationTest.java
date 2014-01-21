@@ -49,10 +49,9 @@ public class ClusteredXidTransactionIDSerializationTest {
 
   @Test
   public void testBasic() throws Exception {
-    Field MANAGERS_MAP = CacheManager.class.getDeclaredField("CACHE_MANAGERS_MAP");
-    MANAGERS_MAP.setAccessible(true);
     CacheManager manager = mock(CacheManager.class);
-    ((Map) MANAGERS_MAP.get(null)).put("manager", manager);
+    when(manager.getName()).thenReturn("manager");
+    CacheManager.ALL_CACHE_MANAGERS.add(manager);
     Xid xid = mock(Xid.class);
     ClusteredXidTransactionID clusteredTxnId = new ClusteredXidTransactionID(xid, "manager", "cache", "owner");
     TransactionIDFactory txnIdFactory = mock(TransactionIDFactory.class);
