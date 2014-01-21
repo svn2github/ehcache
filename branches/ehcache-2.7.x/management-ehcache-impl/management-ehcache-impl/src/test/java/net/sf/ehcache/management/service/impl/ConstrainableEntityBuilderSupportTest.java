@@ -28,7 +28,7 @@ public class ConstrainableEntityBuilderSupportTest {
     when(sampler.getSizeSample()).thenReturn(sizeSampleCounter);
     when(sampler.getRemoteSizeSample()).thenReturn(remoteSizeSampleCounter);
 
-    CacheEntity cacheEntity = CacheEntityBuilder.createWith(sampler, "cache").build().iterator().next();
+    CacheEntity cacheEntity = CacheEntityBuilder.createWith(null, sampler, "cache").build().iterator().next();
 
     assertThat((Long)cacheEntity.getAttributes().get("Size"), is(1001L));
     assertThat((Long)cacheEntity.getAttributes().get("SizeSample"), is(1002L));
@@ -47,7 +47,7 @@ public class ConstrainableEntityBuilderSupportTest {
     when(sampler.getSizeSample()).thenReturn(sizeSampleCounter);
     when(sampler.getRemoteSizeSample()).thenReturn(remoteSizeSampleCounter);
 
-    CacheEntity cacheEntity = CacheEntityBuilder.createWith(sampler, "cache").build().iterator().next();
+    CacheEntity cacheEntity = CacheEntityBuilder.createWith(null, sampler, "cache").build().iterator().next();
 
     assertThat((Long)cacheEntity.getAttributes().get("Size"), is(2147483648L));
     assertThat((Long)cacheEntity.getAttributes().get("SizeSample"), is(2147483649L));
