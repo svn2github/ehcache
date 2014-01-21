@@ -9,7 +9,9 @@ import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
 public class DeleteAsyncOperation implements SingleAsyncOperation {
-
+  
+  private static final long serialVersionUID = -5780204454577869853L;
+  
   private final Object  keySnapshot;
   private final Element elementSnapshot;
   private final long    creationTime;

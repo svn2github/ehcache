@@ -8,6 +8,9 @@ import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
 public class WriteAsyncOperation implements SingleAsyncOperation {
+
+  private static final long serialVersionUID = 1631728715404189659L;
+
   private final Element snapshot;
   private final long    creationTime;
 
