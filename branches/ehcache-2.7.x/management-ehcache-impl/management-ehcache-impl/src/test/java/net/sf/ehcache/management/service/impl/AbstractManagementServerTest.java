@@ -90,7 +90,6 @@ public class AbstractManagementServerTest {
 
     serverMock.stop();
     PowerMock.expectLastCall().andAnswer(new NullAnswer<Object>());
-    expect(sampleRepositoryServiceMock.hasRegistered()).andReturn(true);
     sampleRepositoryServiceMock.dispose();
     expectLastCall().andAnswer(new NullAnswer<Object>());
 
