@@ -98,6 +98,7 @@
             </resource>
             <!-- javadoc -->
             <resource>
+              <failIfNotFound>false</failIfNotFound>
               <targetPath>${root.dir}/javadoc</targetPath>
               <dependencies>
                 <dependency>
