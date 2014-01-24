@@ -1735,8 +1735,10 @@ public class CacheConfiguration implements Cloneable {
         if (overflowToDisk == null && cacheManager.getConfiguration().isMaxBytesLocalDiskSet() || getMaxBytesLocalDisk() > 0) {
             if (persistenceConfiguration != null && Strategy.LOCALRESTARTABLE.equals(persistenceConfiguration.getStrategy())) {
                 throw new InvalidConfigurationException("Cannot use localRestartable persistence and disk overflow in the same cache");
+            } else if (!isTerracottaClustered()) {
+              overflowToDisk = true;
             } else {
-                overflowToDisk = true;
+              LOG.warn("Clustered cache " + getName() + " will not use the local disk pool defined at cache manager level.");
             }
         }
         warnMaxEntriesLocalHeap(register, cacheManager);
