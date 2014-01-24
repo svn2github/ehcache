@@ -17,13 +17,9 @@
 package net.sf.ehcache.event;
 
 
-import junit.framework.Assert;
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
-import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.terracotta.test.categories.CheckShorts;
 
@@ -45,53 +41,11 @@ public class ProgrammaticallyCreatedCacheEventListenerTest extends CacheEventLis
     @Override
     @Before
     public void setUp() throws Exception {
-        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-nolisteners.xml");
+        manager = CacheManager.create(getClass().getResourceAsStream("/ehcache-nolisteners.xml"));
         cache = manager.getCache(cacheName);
         cache.removeAll();
         //this call can be repeated. Attempts to further register the listener are ignored.
         cache.getCacheEventNotificationService().registerListener(new CountingCacheEventListener());
     }
-
-    /**
-     * An instance that <code>equals</code> one already registered is ignored
-     * <p/>
-     * Since ehcache-1.7, there is a defaut CacheUsageStatisticsData listener
-     */
-    @Test
-    public void testAttemptDoubleRegistrationOfSameInstance() {
-//        cache.getCacheEventNotificationService().registerListener(CountingCacheEventListener.getCountingCacheEventListener(cache));
-//        // should just be the one from setUp
-//        assertEquals(2, cache.getCacheEventNotificationService()
-//                .getCacheEventListeners().size());
-//        for (CacheEventListener next : cache
-//                .getCacheEventNotificationService().getCacheEventListeners()) {
-//         Assert.assertTrue(next instanceof LiveCacheStatisticsData
-//            || next instanceof CountingCacheEventListener);
-//      }
-    }
-
-    /**
-     * An new instance of the same class will be registered
-     * <p/>
-     * Since ehcache-1.7, there is a defaut CacheUsageStatisticsData listener
-     */
-    @Test
-    public void testAttemptDoubleRegistrationOfSeparateInstance() {
-//        cache.getCacheEventNotificationService().registerListener(new CountingCacheEventListener());
-//        // should just be the one from setUp
-//        assertEquals(3, cache.getCacheEventNotificationService()
-//                .getCacheEventListeners().size());
-//        int count = 0;
-//        for (CacheEventListener next : cache
-//                .getCacheEventNotificationService().getCacheEventListeners()) {
-//         Assert.assertTrue(next instanceof LiveCacheStatisticsData
-//            || next instanceof CountingCacheEventListener);
-//         if (next instanceof CountingCacheEventListener) {
-//        count++;
-//         }
-//      }
-//        assertEquals(2, count);
-    }
-
 
 }

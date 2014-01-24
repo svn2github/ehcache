@@ -16,7 +16,6 @@
 
 package net.sf.ehcache.writer;
 
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheEntry;
 import net.sf.ehcache.CacheException;
@@ -106,7 +105,7 @@ public class CacheWriterTest {
     }
 
     private CacheManager createCacheManager() {
-        return new CacheManager(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-writer.xml");
+        return new CacheManager(getClass().getResourceAsStream("/ehcache-writer.xml"));
     }
 
     @Test

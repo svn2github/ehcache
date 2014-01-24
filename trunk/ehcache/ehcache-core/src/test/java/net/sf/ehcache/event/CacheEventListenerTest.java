@@ -95,7 +95,7 @@ public class CacheEventListenerTest extends AbstractCacheTest {
     public void setUp() throws Exception {
         super.setUp();
         manager.shutdown();
-        manager = CacheManager.create(AbstractCacheTest.TEST_CONFIG_DIR + "ehcache-countinglisteners.xml");
+        manager = CacheManager.create(getClass().getResourceAsStream("/ehcache-countinglisteners.xml"));
         cache = manager.getCache(cacheName);
         cache.removeAll();
     }
@@ -752,27 +752,6 @@ public class CacheEventListenerTest extends AbstractCacheTest {
                 return getCountingCacheEventListener(cache).getCacheElementsExpired();
             }
         }, hasSize(20));
-    }
-
-
-    /**
-     * Tests that elements evicted from disk are notified to any listeners.
-     * fails from full ant builds?
-     */
-    public void xTestEvictionFromDiskStoreWithExpiry() throws IOException, CacheException, InterruptedException {
-
-        cache.removeAll();
-        //Overflow 10 elements to disk store which is maximum
-        for (int i = 0; i < 20; i++) {
-            Element element = new Element("" + i, new Date());
-            cache.put(element);
-        }
-        cache.put(new Element(21 + "", new Date()));
-        Thread.sleep(2999);
-
-        CountingCacheEventListener listener = getCountingCacheEventListener(cache);
-        assertThat(listener.getCacheElementsEvicted(), hasSize(1));
-        assertThat(listener.getCacheElementsExpired(), hasSize(10));
     }
 
 
