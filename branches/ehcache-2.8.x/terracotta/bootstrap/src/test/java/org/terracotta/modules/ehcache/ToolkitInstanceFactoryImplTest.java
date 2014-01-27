@@ -31,6 +31,7 @@ import net.sf.ehcache.config.TerracottaConfiguration;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
@@ -39,6 +40,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.terracotta.modules.ehcache.wan.WANUtil;
 import org.terracotta.modules.ehcache.wan.Watchdog;
+import org.terracotta.test.categories.CheckShorts;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFeatureType;
 import org.terracotta.toolkit.collections.ToolkitMap;
@@ -46,6 +48,8 @@ import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.concurrent.locks.ToolkitReadWriteLock;
 import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.feature.NonStopFeature;
+import org.terracotta.toolkit.internal.ToolkitInternal;
+import org.terracotta.toolkit.internal.ToolkitLogger;
 import org.terracotta.toolkit.internal.cache.BufferingToolkitCache;
 import org.terracotta.toolkit.internal.cache.ToolkitCacheInternal;
 import org.terracotta.toolkit.nonstop.NonStopConfigurationRegistry;
@@ -66,6 +70,7 @@ import junit.framework.Assert;
 /**
  * ToolkitInstanceFactoryImplTest
  */
+@Category(CheckShorts.class)
 public class ToolkitInstanceFactoryImplTest {
 
   private static final String                        CACHE_MANAGER_NAME = "CACHE_MANAGER_NAME";
@@ -82,7 +87,7 @@ public class ToolkitInstanceFactoryImplTest {
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    toolkit = mock(Toolkit.class);
+    toolkit = getMockToolkit();
     final ToolkitMap toolkitMap = mockMap();
     when(toolkit.getMap(anyString(), any(Class.class), any(Class.class))).thenReturn(toolkitMap);
     when(toolkit.getCache(anyString(), any(Configuration.class), any(Class.class)))
@@ -216,7 +221,7 @@ public class ToolkitInstanceFactoryImplTest {
     String name = "existing";
     net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
 
-    Toolkit toolkit = mock(Toolkit.class);
+    Toolkit toolkit = getMockToolkit();
     when(toolkit.getMap(anyString(), eq(String.class), eq(ClusteredCache.class))).thenReturn(mock(ToolkitMap.class));
 
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
@@ -225,7 +230,7 @@ public class ToolkitInstanceFactoryImplTest {
     when(clusteredEntityManager.getRootEntity(name, ClusteredCacheManager.class))
         .thenReturn(cacheManagerEntity);
     when(clusteredEntityManager.getEntityLock(anyString())).thenReturn(mock(ToolkitReadWriteLock.class));
-    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(getMockToolkit(),
                                                                                        clusteredEntityManager);
 
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
@@ -255,7 +260,7 @@ public class ToolkitInstanceFactoryImplTest {
     when(rwLock.writeLock()).thenReturn(writeLock);
     when(clusteredEntityManager.getEntityLock(any(String.class))).thenReturn(rwLock);
 
-    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(getMockToolkit(),
                                                                                        clusteredEntityManager);
 
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
@@ -280,7 +285,7 @@ public class ToolkitInstanceFactoryImplTest {
     when(rwLock.writeLock()).thenReturn(writeLock);
     when(clusteredEntityManager.getEntityLock(any(String.class))).thenReturn(rwLock);
 
-    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(getMockToolkit(),
                                                                                        clusteredEntityManager);
 
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
@@ -313,7 +318,7 @@ public class ToolkitInstanceFactoryImplTest {
     when(rwLock.writeLock()).thenReturn(writeLock);
     when(clusteredEntityManager.getEntityLock(any(String.class))).thenReturn(rwLock);
 
-    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(mock(Toolkit.class),
+    ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(getMockToolkit(),
                                                                                        clusteredEntityManager);
 
     toolkitInstanceFactory.linkClusteredCacheManager(name, configuration);
@@ -330,7 +335,7 @@ public class ToolkitInstanceFactoryImplTest {
     net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration();
     configuration.addCache(new CacheConfiguration("test", 1));
 
-    Toolkit toolkit = mock(Toolkit.class);
+    Toolkit toolkit = getMockToolkit();
     ClusteredEntityManager clusteredEntityManager = mock(ClusteredEntityManager.class);
     doAnswer(new Answer() {
       @Override
@@ -358,7 +363,7 @@ public class ToolkitInstanceFactoryImplTest {
 
   @Test
   public void testClusterRejoinedCacheManagerDestroyed() {
-    Toolkit toolkit = mock(Toolkit.class);
+    Toolkit toolkit = getMockToolkit();
     ClusteredEntityManager entityManager = mock(ClusteredEntityManager.class);
     ToolkitInstanceFactoryImpl toolkitInstanceFactory = new ToolkitInstanceFactoryImpl(toolkit, entityManager);
 
@@ -370,7 +375,7 @@ public class ToolkitInstanceFactoryImplTest {
 
   @Test
   public void testClusterRejoinedCMDestroyedBetweenGetAndLock() {
-    Toolkit toolkit = mock(Toolkit.class);
+    Toolkit toolkit = getMockToolkit();
     ClusteredEntityManager entityManager = mock(ClusteredEntityManager.class);
     ClusteredCacheManager cmEntity = mock(ClusteredCacheManager.class);
     ClusteredCache cEntity = mock(ClusteredCache.class);
@@ -390,9 +395,16 @@ public class ToolkitInstanceFactoryImplTest {
     verify(toolkit).shutdown();
   }
 
+  private Toolkit getMockToolkit() {
+    ToolkitInternal toolkitInternal = mock(ToolkitInternal.class);
+    when(toolkitInternal.getLogger(anyString())).thenReturn(mock(ToolkitLogger.class));
+
+    return toolkitInternal;
+  }
+
   @Test
   public void testClusterRejoined() {
-    Toolkit toolkit = mock(Toolkit.class);
+    Toolkit toolkit = getMockToolkit();
     ClusteredEntityManager entityManager = mock(ClusteredEntityManager.class);
     ClusteredCacheManager cmEntity = mock(ClusteredCacheManager.class);
     ClusteredCache cEntity = mock(ClusteredCache.class);
