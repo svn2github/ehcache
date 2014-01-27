@@ -16,9 +16,7 @@
 
 package net.sf.ehcache.terracotta.upgradability.serialization;
 
-import java.lang.reflect.Field;
 import java.util.Comparator;
-import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.transaction.TransactionIDFactory;
