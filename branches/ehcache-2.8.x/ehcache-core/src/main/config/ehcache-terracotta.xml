@@ -570,6 +570,19 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
       original operation.
     * retryAttemptDelaySeconds: Sets the number of seconds to wait before retrying an failed operation.
 
+    Pinning
+    +++++++
+
+    Use this element when data should remain in the cache regardless of resource constraints.
+    Unexpired entries can never be flushed to a lower tier or be evicted.
+
+    This element has a required attribute (store) to specify which data tiers the cache should be pinned to:
+    * localMemory: Cache data is pinned to the local heap (or off-heap for BigMemory Go and BigMemory Max).
+    * inCache: Cache data is pinned in the cache, which can be in any tier cache data is stored.
+
+    Example:
+        <pinning store="inCache"/>
+
     Cache Extension
     +++++++++++++++
 
