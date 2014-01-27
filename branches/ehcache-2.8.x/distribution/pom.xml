@@ -263,64 +263,6 @@
     </plugins>
   </build>
 
-  <profiles>
-    <profile>
-      <id>with-tc</id>
-      <activation>
-        <property>
-          <name>tc-kit-url</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.gmaven</groupId>
-            <artifactId>gmaven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>unjar-tc-kit</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>execute</goal>
-                </goals>
-                <configuration>
-                  <source>
-                    if (new File(project.properties['terracotta.kit.path']).exists()) {
-                      return
-                    }
-                    tc_kit_url = project.properties['tc-kit-url']
-                    if (tc_kit_url == null) {
-                      println "-Dtc-kit-url option is missing. Building the kit without Terracotta"
-                    } else {
-                      ant.mkdir(dir:project.build.directory)
-                      dest_file = project.build.directory + "/tc.tar.gz"
-                      if (tc_kit_url.startsWith("http")) {
-                        ant.get(src:tc_kit_url, dest:dest_file, usetimestamp:true)
-                      } else {
-                        ant.copy(file:tc_kit_url, tofile:dest_file)
-                      }
-                      tmp_dir = project.build.directory + "/tmp"
-                      ant.delete(dir:tmp_dir, quiet:true)
-                      ant.mkdir(dir:tmp_dir)
-                      ant.untar(src:dest_file, dest:tmp_dir, compression:"gzip")
-                      // assume only one folder inside tmp
-                      kit_path = null
-                      new File(tmp_dir).eachFile {
-                        kit_path = it
-                      }
-                      kit_path.renameTo(new File(project.properties['terracotta.kit.path']))
-                    }
-                  </source>
-                </configuration>                
-              </execution>             
-            </executions>
-          </plugin>     
-        </plugins>
-      </build>
-    </profile>
-  </profiles>  
-
-  
   <repositories>
     <repository>
       <id>terracotta-snapshots</id>
