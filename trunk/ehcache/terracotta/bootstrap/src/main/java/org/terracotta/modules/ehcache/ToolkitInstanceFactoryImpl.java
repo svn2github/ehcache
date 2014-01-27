@@ -82,6 +82,8 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   public static final Logger           LOGGER                                   = LoggerFactory
                                                                                       .getLogger(ToolkitInstanceFactoryImpl.class);
+  private static final String CONFIG_LOGGER_NAME = "com.terracotta.ehcache.config";
+
   public static final String  DELIMITER                                = "|";
   private static final String EVENT_NOTIFIER_SUFFIX                    = "event-notifier";
   private static final String DISPOSAL_NOTIFIER_SUFFIX                 = "disposal-notifier";
@@ -91,6 +93,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
                                                                                     + "txnsDecision";
   private static final String ALL_SOFT_LOCKS_MAP_SUFFIX                = "softLocks";
   private static final String NEW_SOFT_LOCKS_LIST_SUFFIX               = "newSoftLocks";
+
   private static final String LOCK_TAG                                 = "::LOCK";
 
   static final String         CLUSTERED_STORE_CONFIG_MAP               = EHCACHE_NAME_PREFIX + DELIMITER + "configMap";
@@ -100,7 +103,6 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   private static final String EHCACHE_TXNS_SOFTLOCK_FREEZE_LOCK_NAME   = EHCACHE_NAME_PREFIX + DELIMITER
                                                                                     + "softFreezeLock";
-
   private static final String EHCACHE_TXNS_SOFTLOCK_NOTIFIER_LOCK_NAME = EHCACHE_NAME_PREFIX + DELIMITER
                                                                                     + "softNotifierLock";
   public static final int RETRY_MARK_IN_USE_AFTER_REJOIN = 5;
@@ -564,7 +566,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public void linkClusteredCacheManager(String cacheManagerName, net.sf.ehcache.config.Configuration configuration) {
     if (clusteredCacheManagerEntity == null) {
-      logEhcacheConfigInTerracottaClientLogs(cacheManagerName, configuration);
+      logCacheManagerConfigInTerracottaClientLogs(cacheManagerName, configuration);
 
       ClusteredCacheManager clusteredCacheManager = clusteredEntityManager.getRootEntity(cacheManagerName,
           ClusteredCacheManager.class);
@@ -587,14 +589,14 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     }
   }
 
-  private void logEhcacheConfigInTerracottaClientLogs(String cacheManagerName, net.sf.ehcache.config.Configuration configuration) {
-    ToolkitLogger logger = ((ToolkitInternal)toolkit).getLogger("com.terracotta.ehcache.config");
+  private void logCacheManagerConfigInTerracottaClientLogs(String cacheManagerName, net.sf.ehcache.config.Configuration configuration) {
+    ToolkitLogger logger = ((ToolkitInternal)toolkit).getLogger(CONFIG_LOGGER_NAME);
     if (logger.isInfoEnabled()) {
       try {
-        logger.info("Ehcache configuration used to start this clustered cache manager: \n" +
+        logger.info("Configuration for clustered cache manager " + cacheManagerName + ":\n" +
                     convertConfigurationToXMLString(configuration, cacheManagerName, false));
       } catch (Exception e) {
-        logger.warn("Exception while trying to log ehcache configuration", e);
+        logger.warn("Exception while trying to log configuration for clustered cache manager " + cacheManagerName, e);
       }
     }
   }
@@ -622,6 +624,9 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     if (clusteredCacheManagerEntity == null) {
       throw new IllegalStateException(format("ClusteredCacheManger entity not configured for cache %s", cacheName));
     }
+
+    logCacheConfigInTerracottaClientLogs(cacheName, ehcacheConfig);
+
     ClusteredCache cacheEntity = clusteredCacheManagerEntity.getCache(cacheName);
     if (cacheEntity == null) {
       ToolkitReadWriteLock cacheRWLock = clusteredCacheManagerEntity.getCacheLock(cacheName);
@@ -643,6 +648,18 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     entityNames.addCacheName(cacheName);
   }
 
+  private void logCacheConfigInTerracottaClientLogs(String cacheName, CacheConfiguration ehcacheConfig) {
+    ToolkitLogger logger = ((ToolkitInternal)toolkit).getLogger(CONFIG_LOGGER_NAME);
+    if (logger.isInfoEnabled()) {
+      try {
+        logger.info("Client configuration for clustered cache named " + cacheName + ":\n(clustered properties may differ in runtime cache depending on configuration used at creation time)\n" +
+                    convertCacheConfigurationToXMLString(ehcacheConfig));
+      } catch (Exception e) {
+        logger.warn("Exception while trying to log configuration for clustered cache " + cacheName, e);
+      }
+    }
+  }
+
   private ClusteredCache createClusteredCacheEntity(String cacheName, CacheConfiguration ehcacheConfig, String toolkitCacheName) {
     ClusteredCacheConfiguration clusteredConfiguration = createClusteredCacheConfiguration(ehcacheConfig);
     ClusteredCache cacheEntity = new ToolkitBackedClusteredCache(cacheName, clusteredConfiguration, toolkitCacheName);
@@ -655,10 +672,14 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   private ClusteredCacheConfiguration createClusteredCacheConfiguration(CacheConfiguration ehcacheConfig) {
+    String xmlConfig = convertCacheConfigurationToXMLString(ehcacheConfig);
+    return new ClusteredCacheConfiguration(xmlConfig);
+  }
+
+  private String convertCacheConfigurationToXMLString(CacheConfiguration ehcacheConfig) {
     net.sf.ehcache.config.Configuration configuration = parseCacheManagerConfiguration(clusteredCacheManagerEntity.getConfiguration()
         .getConfigurationAsText());
-    String xmlConfig = ConfigurationUtil.generateCacheConfigurationText(configuration, ehcacheConfig);
-    return new ClusteredCacheConfiguration(xmlConfig);
+    return ConfigurationUtil.generateCacheConfigurationText(configuration, ehcacheConfig);
   }
 
   @Override
