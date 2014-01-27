@@ -33,14 +33,7 @@
       <artifactId>ehcache</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
-    </dependency> 
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>${project.version}</version>
-      <classifier>javadoc</classifier>
-      <scope>provided</scope>
-    </dependency>    
+    </dependency>   
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -52,6 +45,26 @@
       <scope>provided</scope>
     </dependency>   
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>includeJavadoc</id>
+      <activation>
+        <property>
+          <name>!skipJavadoc</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache</artifactId>
+          <version>${project.version}</version>
+          <classifier>javadoc</classifier>
+          <scope>provided</scope>
+        </dependency>  
+      </dependencies>
+    </profile>
+  </profiles>
   
   <build>
     <plugins>
@@ -98,6 +111,7 @@
             </resource>
             <!-- javadoc -->
             <resource>
+              <failIfNotFound>false</failIfNotFound>
               <targetPath>${root.dir}/javadoc</targetPath>
               <dependencies>
                 <dependency>
