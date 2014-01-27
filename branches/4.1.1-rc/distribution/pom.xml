@@ -76,6 +76,7 @@
             <resource>
               <targetPath>${root.dir}</targetPath>
               <directory>${basedir}/src/main/assembly/root</directory>
+              <filtering>true</filtering>
               <preservePath>true</preservePath>
             </resource>
             <!-- ehcache.(xsd|xml) -->
