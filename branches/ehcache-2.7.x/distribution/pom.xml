@@ -46,26 +46,6 @@
     </dependency>   
   </dependencies>
   
-  <profiles>
-    <profile>
-      <id>includeJavadoc</id>
-      <activation>
-        <property>
-          <name>!skipJavadoc</name>
-        </property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>net.sf.ehcache</groupId>
-          <artifactId>ehcache</artifactId>
-          <version>${project.version}</version>
-          <classifier>javadoc</classifier>
-          <scope>provided</scope>
-        </dependency>  
-      </dependencies>
-    </profile>
-  </profiles>
-    
   <build>
     <plugins>
       <plugin>
@@ -311,6 +291,23 @@
           </plugin>     
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>includeJavadoc</id>
+      <activation>
+        <property>
+          <name>!skipJavadoc</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>net.sf.ehcache</groupId>
+          <artifactId>ehcache</artifactId>
+          <version>${project.version}</version>
+          <classifier>javadoc</classifier>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
     </profile>
   </profiles>  
 
