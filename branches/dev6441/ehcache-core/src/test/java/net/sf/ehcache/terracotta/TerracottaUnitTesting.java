@@ -65,7 +65,7 @@ public class TerracottaUnitTesting {
                 terracottaStore);
 
         TerracottaClusteredInstanceHelper mockHelper = Mockito.mock(TerracottaClusteredInstanceHelper.class);
-        when(mockHelper.newClusteredInstanceFactory((TerracottaClientConfiguration) any()))
+        when(mockHelper.newClusteredInstanceFactory((TerracottaClientConfiguration) any(), null))
                 .thenAnswer(new Answer<ClusteredInstanceFactory>() {
                     public ClusteredInstanceFactory answer(InvocationOnMock invocation) throws Throwable {
                         if (onNewClusteredInstanceFactory != null) {

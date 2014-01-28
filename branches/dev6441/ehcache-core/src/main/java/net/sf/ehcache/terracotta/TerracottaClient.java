@@ -174,7 +174,7 @@ public class TerracottaClient {
         }
         info("Creating new ClusteredInstanceFactory");
         ClusteredInstanceFactory factory;
-        factory = TerracottaClusteredInstanceHelper.getInstance().newClusteredInstanceFactory(terracottaClientConfiguration);
+        factory = TerracottaClusteredInstanceHelper.getInstance().newClusteredInstanceFactory(terracottaClientConfiguration, cacheManager.getClassLoader());
         CacheCluster underlyingCacheCluster = factory.getTopology();
 
         cacheCluster.setUnderlyingCacheCluster(underlyingCacheCluster);
