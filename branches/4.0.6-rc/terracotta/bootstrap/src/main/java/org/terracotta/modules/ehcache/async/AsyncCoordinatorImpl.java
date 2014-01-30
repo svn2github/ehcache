@@ -463,10 +463,12 @@ public class AsyncCoordinatorImpl<E extends Serializable> implements AsyncCoordi
       commonAsyncLock.lock();
       try {
         Set<String> buckets = nodeToBucketNames.get(nodeName);
-        boolean removed = buckets.remove(bucketName);
-        nodeToBucketNames.put(nodeName, buckets);
-        debug("removeBucket " + bucketName + " " + removed + " remaining deadNodes "
-              + nodeToBucketNames.get(DEAD_NODES));
+        if (buckets != null) {
+          boolean removed = buckets.remove(bucketName);
+          nodeToBucketNames.put(nodeName, buckets);
+          debug("removeBucket " + bucketName + " " + removed + " remaining deadNodes "
+                + nodeToBucketNames.get(DEAD_NODES));
+        }
       } finally {
         commonAsyncLock.unlock();
       }
