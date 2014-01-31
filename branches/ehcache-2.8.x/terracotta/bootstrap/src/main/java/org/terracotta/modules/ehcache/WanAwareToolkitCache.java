@@ -1,5 +1,7 @@
 package org.terracotta.modules.ehcache;
 
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.NonstopConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.wan.Watchable;
@@ -37,18 +39,20 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WanAwareToolkitCache.class);
   private static final String CACHE_ACTIVE_KEY = "WAN-CACHE-ACTIVE";
+  private static final String ORCHESTRATOR_ALIVE_KEY = "ORCHESTRATOR-ALIVE";
 
   private final BufferingToolkitCache<K, V> delegate;
   private final ConcurrentMap<String, Serializable> configMap;
   private final NonStopFeature nonStop;
   private final ToolkitLock configMapLock;
   private final ToolkitLock activeLock;
+  private final CacheConfiguration cacheConfiguration;
 
   public WanAwareToolkitCache(final BufferingToolkitCache<K, V> delegate,
                               final ToolkitMap<String, Serializable> configMap,
                               final NonStopFeature nonStop,
-                              final ToolkitLock activeLock) {
-    this(delegate, configMap, nonStop, configMap.getReadWriteLock().writeLock(), activeLock);
+                              final ToolkitLock activeLock, final CacheConfiguration cacheConfiguration) {
+    this(delegate, configMap, nonStop, configMap.getReadWriteLock().writeLock(), activeLock, cacheConfiguration);
   }
 
   /**
@@ -58,13 +62,15 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
                        final ConcurrentMap<String, Serializable> configMap,
                        final NonStopFeature nonStop,
                        final ToolkitLock configMapLock,
-                       final ToolkitLock activeLock) {
+                       final ToolkitLock activeLock, final CacheConfiguration cacheConfiguration) {
     this.delegate = delegate;
     this.configMap = configMap;
     this.nonStop = nonStop;
     this.configMapLock = configMapLock;
     this.activeLock = activeLock;
+    this.cacheConfiguration = cacheConfiguration;
     configMap.putIfAbsent(CACHE_ACTIVE_KEY, false);
+    configMap.putIfAbsent(ORCHESTRATOR_ALIVE_KEY, false);
   }
 
   /**
@@ -72,9 +78,9 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
    *
    * @return {@code true} if the cache is active, {@code false} otherwise
    */
-  public boolean isActive() {
-    final Serializable active = configMap.get(CACHE_ACTIVE_KEY);
-    return (active == null) ? false : (Boolean) active;
+  public boolean isReady() {
+    Boolean active = (Boolean) configMap.get(CACHE_ACTIVE_KEY);
+    return active != null && active && isOrchestratorAlive();
   }
 
   /**
@@ -532,7 +538,7 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
 
   /**
    * Same as {@link #clear()}, except that it does not generate any server events and completely ignores
-   * {@link #isActive()} flag.
+   * {@link #isReady()} flag.
    */
   @Override
   public void clearVersioned() {
@@ -548,7 +554,8 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
    * This method makes the current thread wait until the Cache becomes active or the NonStop timeout breaches.
    */
   private void waitIfRequired() {
-    if (!isActive()) {
+    checkImmediateTimeout();
+    if (!isReady()) {
       LOGGER.info("Cache '{}' not active. Waiting for the Orchestrator to mark it active", delegate.getName());
       waitUntilActive();
       LOGGER.info("Cache '{}' is now active", delegate.getName());
@@ -556,22 +563,40 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   }
 
   void waitUntilActive() {
+    boolean interrupted = false;
     configMapLock.lock();
     try {
-      while (!isActive()) {
+      while (!isReady()) {
+        checkImmediateTimeout();
         try {
           configMapLock.getCondition().await();
         } catch (InterruptedException e) {
           if (nonStop.isTimedOut()) {
-            LOGGER.error("Operation timed-out while waitng for the cache '{}' to become active",
+            LOGGER.error("Operation timed-out while waiting for the cache '{}' to become active",
                 delegate.getName());
             throw new NonStopException("Cache '" + delegate.getName() + "' not active currently.");
+          } else {
+            interrupted = true;
           }
         }
       }
     } finally {
       configMapLock.unlock();
+      if (interrupted) {
+        Thread.currentThread().interrupt();
+      }
     }
+  }
+
+  private void checkImmediateTimeout() {
+    if (isImmediateNonStopTimeout() && !isOrchestratorAlive()) {
+      throw new NonStopException("Orchestrator for cache '" + name() + "' is not alive.");
+    }
+  }
+
+  boolean isOrchestratorAlive() {
+    Boolean orchestratorLive = (Boolean)configMap.get(ORCHESTRATOR_ALIVE_KEY);
+    return orchestratorLive != null && orchestratorLive;
   }
 
   /**
@@ -602,8 +627,9 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
       try {
         TimeUnit.SECONDS.sleep(sleepTime); // just a favorable condition for load distribution
         activeLock.lock();
+        markOrchestratorAlive();
       } catch (Exception e) {
-        LOGGER.error("Exception occured while waiting for active lock for cache '{}'", getName(), e);
+        LOGGER.error("Exception occurred while waiting for active lock for cache '{}'", getName(), e);
       }
     }
   }
@@ -613,12 +639,26 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
     // no-op for the time being
   }
 
+  private boolean markOrchestratorDead() {
+    if (configMap.replace(ORCHESTRATOR_ALIVE_KEY, true, false)) {
+      notifyClients();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private void markOrchestratorAlive() {
+    configMap.put(ORCHESTRATOR_ALIVE_KEY, true);
+    notifyClients();
+  }
+
   @Override
   public boolean probeLiveness() {
     if (activeLock.tryLock()) {
       try {
-        if (deactivate()) {
-          LOGGER.error("Master orchestrator is not running. Cache '{}' is deactivated", getName());
+        if (markOrchestratorDead()) {
+          LOGGER.error("Orchestrator is not running for cache '{}'. Marking it as dead.", getName());
         }
         return false;
       } finally {
@@ -631,5 +671,13 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   @Override
   public String name() {
     return getName();
+  }
+
+  private boolean isImmediateNonStopTimeout() {
+    if (cacheConfiguration.getTerracottaConfiguration() == null) {
+      return false;
+    }
+    NonstopConfiguration nonstopConfig = cacheConfiguration.getTerracottaConfiguration().getNonstopConfiguration();
+    return nonstopConfig != null && nonstopConfig.isImmediateTimeout();
   }
 }

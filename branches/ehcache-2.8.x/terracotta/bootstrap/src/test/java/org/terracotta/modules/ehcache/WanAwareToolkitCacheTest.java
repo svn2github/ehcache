@@ -1,8 +1,10 @@
 package org.terracotta.modules.ehcache;
 
+import net.sf.ehcache.config.CacheConfiguration;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.terracotta.toolkit.concurrent.locks.ToolkitLock;
 import org.terracotta.toolkit.internal.cache.BufferingToolkitCache;
 
 import java.io.Serializable;
@@ -11,6 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Eugene Shelestovich
@@ -22,19 +25,22 @@ public class WanAwareToolkitCacheTest {
   private BufferingToolkitCache<String, String> delegate;
   private ConcurrentMap<String, Serializable>  configMap;
   private WanAwareToolkitCache<String, String> wanAwareCache;
+  private ToolkitLock activeLock;
   private boolean                              waitHappened;
 
   @Before
   public void setUp() {
     this.waitHappened = false;
     delegate = mock(BufferingToolkitCache.class);
+    activeLock = mock(ToolkitLock.class);
+    when(activeLock.isHeldByCurrentThread()).thenReturn(false, true);
     configMap = new ConcurrentHashMap<String, Serializable>();
 
     wanAwareCache = getTestableWanAwareToolkitCache();
   }
 
   private WanAwareToolkitCache<String, String> getTestableWanAwareToolkitCache() {
-    return new WanAwareToolkitCache<String, String>(delegate, configMap, null, null, null) {
+    return new WanAwareToolkitCache<String, String>(delegate, configMap, null, null, activeLock, new CacheConfiguration()) {
       @Override
       void waitUntilActive() {
         waitHappened = true;
@@ -51,11 +57,11 @@ public class WanAwareToolkitCacheTest {
   @Test
   public void testCacheMustBeInactiveByDefault() {
     // After setup, a new wan-aware cache is inactive by default
-    Assert.assertFalse(wanAwareCache.isActive());
+    Assert.assertFalse(wanAwareCache.isReady());
   }
 
   @Test
-  public void testClientShouldNotWaitWhenCacheInactive() {
+  public void testClientShouldNotWaitWhenCacheActive() {
     whenCacheIsActive().andClientPerformsPutOperation().assertWaitHappened(false).andAssertPutCallDelegatedToCache();
   }
 
@@ -92,6 +98,7 @@ public class WanAwareToolkitCacheTest {
 
   private WanAwareToolkitCacheTest whenCacheIsActive() {
     wanAwareCache.activate();
+    wanAwareCache.goLive();
     return this;
   }
 
