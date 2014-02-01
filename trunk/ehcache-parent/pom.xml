@@ -18,7 +18,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven-forge-plugin.version>1.0.9</maven-forge-plugin.version>
+    <maven-forge-plugin.version>1.1.9</maven-forge-plugin.version>
     
     <skipDeploy>false</skipDeploy>
     <skipJavadoc>false</skipJavadoc>
@@ -224,7 +224,33 @@
               </pluginExecutions>
             </lifecycleMappingMetadata>
           </configuration>
-        </plugin>        
+        </plugin>
+        <plugin>
+          <groupId>org.terracotta</groupId>
+          <artifactId>maven-forge-plugin</artifactId>
+          <version>${maven-forge-plugin.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>com.sag</groupId>
+              <artifactId>finder</artifactId>
+              <version>1.0.0</version>
+            </dependency>
+          </dependencies>
+          <executions>
+            <execution>
+              <id>run-sag-finder</id>
+              <phase>compile</phase>
+              <goals>
+                <goal>sag-finder</goal>
+              </goals>
+              <configuration>
+                <onlyRunWhenSagDepsIsTrue>true</onlyRunWhenSagDepsIsTrue>
+                <excludeGroupIds>gf-3122</excludeGroupIds>
+                <excludeArtifactIds>jackson-xc</excludeArtifactIds>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -253,32 +279,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
-      </plugin>      
-      <plugin>
-        <groupId>org.terracotta</groupId>
-        <artifactId>maven-forge-plugin</artifactId>
-        <version>${maven-forge-plugin.version}</version>
-        <dependencies>
-          <dependency>
-            <groupId>com.sag</groupId>
-            <artifactId>finder</artifactId>
-            <version>1.0.0</version>
-          </dependency>
-        </dependencies>
-        <executions>
-          <execution>
-            <id>run-sag-finder</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>sag-finder</goal>
-            </goals>
-            <configuration>
-              <onlyRunWhenSagDepsIsTrue>true</onlyRunWhenSagDepsIsTrue>
-              <excludeGroupIds>gf-3122</excludeGroupIds>
-              <excludeArtifactIds>jackson-xc</excludeArtifactIds>
-            </configuration>            
-          </execution>
-        </executions>
       </plugin>      
     </plugins>
   </build>
@@ -336,22 +336,7 @@
     </snapshotRepository>
   </distributionManagement>
 
-  <repositories>
-    <repository>
-      <id>terracotta-snapshots</id>
-      <url>http://www.terracotta.org/download/reflector/snapshots</url>
-    </repository>
-    <repository>
-      <id>terracotta-releases</id>
-      <url>http://www.terracotta.org/download/reflector/releases</url>
-    </repository>
-  </repositories>
-
   <pluginRepositories>
-    <pluginRepository>
-      <id>terracotta-snapshots</id>
-      <url>http://www.terracotta.org/download/reflector/snapshots</url>
-    </pluginRepository>
     <pluginRepository>
       <id>terracotta-releases</id>
       <url>http://www.terracotta.org/download/reflector/releases</url>
