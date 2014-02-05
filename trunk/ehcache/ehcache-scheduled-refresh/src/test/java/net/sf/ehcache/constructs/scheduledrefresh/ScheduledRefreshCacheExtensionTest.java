@@ -92,7 +92,7 @@ public class ScheduledRefreshCacheExtensionTest {
            }
 
            ExtendedStatistics.Statistic<Number> refreshStat=ScheduledRefreshCacheExtension.findRefreshStatistic(cache);
-           if(refreshStat!=null) {
+           if(refreshStat != null) {
              Assert.assertTrue(refreshStat.value().intValue()>1);
 
              ExtendedStatistics.Statistic<Number> jobStat=ScheduledRefreshCacheExtension.findJobStatistic(cache);
