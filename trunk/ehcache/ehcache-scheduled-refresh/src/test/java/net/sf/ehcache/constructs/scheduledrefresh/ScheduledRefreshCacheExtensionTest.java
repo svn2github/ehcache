@@ -72,7 +72,7 @@ public class ScheduledRefreshCacheExtensionTest {
               cache.put(new Element(i, i + ""));
            }
 
-           second = Math.max(15, 60 - second + 3);
+           second = Math.max(8, 60 - second + 3)+7;
            System.out.println("Scheduled delay is :: " + second);
 
            TimeUnit.SECONDS.sleep(second);
