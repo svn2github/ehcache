@@ -1,5 +1,6 @@
 package net.sf.ehcache.constructs.scheduledrefresh;
 
+import junit.framework.Assert;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -8,19 +9,19 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
-
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Assert;
-
 public class ScheduledRefreshCacheExtensionTest {
 
    private static OddCacheLoader stupidCacheLoaderOdds = new OddCacheLoader();
    private static EvenCacheLoader stupidCacheLoaderEvens = new EvenCacheLoader();
+   private static Logger logger = LoggerFactory.getLogger(ScheduledRefreshCacheExtensionTest.class);
 
    // OK. we want to create an ehcache, then programmatically decorate it with
    // locks.
@@ -71,7 +72,7 @@ public class ScheduledRefreshCacheExtensionTest {
               cache.put(new Element(i, i + ""));
            }
 
-           second = Math.max(8, 60 - second + 3);
+           second = Math.max(15, 60 - second + 3);
            System.out.println("Scheduled delay is :: " + second);
 
            TimeUnit.SECONDS.sleep(second);
@@ -91,13 +92,17 @@ public class ScheduledRefreshCacheExtensionTest {
            }
 
            ExtendedStatistics.Statistic<Number> refreshStat=ScheduledRefreshCacheExtension.findRefreshStatistic(cache);
-           Assert.assertTrue(refreshStat.value().intValue()>1);
+           if(refreshStat!=null) {
+             Assert.assertTrue(refreshStat.value().intValue()>1);
 
-           ExtendedStatistics.Statistic<Number> jobStat=ScheduledRefreshCacheExtension.findJobStatistic(cache);
-           Assert.assertTrue(refreshStat.value().intValue()>1);
+             ExtendedStatistics.Statistic<Number> jobStat=ScheduledRefreshCacheExtension.findJobStatistic(cache);
+             Assert.assertTrue(refreshStat.value().intValue()>1);
 
-           ExtendedStatistics.Statistic<Number> procStat=ScheduledRefreshCacheExtension.findKeysProcessedStatistic(cache);
-           Assert.assertTrue(procStat.value().intValue()>10);
+             ExtendedStatistics.Statistic<Number> procStat=ScheduledRefreshCacheExtension.findKeysProcessedStatistic(cache);
+             Assert.assertTrue(procStat.value().intValue()>10);
+           } else {
+             org.junit.Assert.assertNotNull("Unable to find statistic",refreshStat);
+           }
        } finally {
            manager.shutdown();
        }
