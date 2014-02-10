@@ -381,9 +381,6 @@
         <checkshort>true</checkshort>
         <skipJavadoc>true</skipJavadoc>
       </properties>
-      <modules>
-        <module>system-tests</module>
-      </modules>     
       <build>
         <plugins>
           <plugin>
