@@ -23,7 +23,7 @@
     <terracotta-toolkit-api-internal.version>1.13</terracotta-toolkit-api-internal.version>
     <management-core.version>1.2.3</management-core.version>
     <clustered-entity-management.version>0.8.0</clustered-entity-management.version>
-    <statistics.version>1.0.1</statistics.version>
+    <statistics.version>1.0.2</statistics.version>
     <quartz.version>2.2.2-SNAPSHOT</quartz.version>
   </properties>
 
