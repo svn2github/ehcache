@@ -16,8 +16,6 @@ import net.sf.ehcache.store.cachingtier.OnHeapCachingTier;
 import net.sf.ehcache.terracotta.TerracottaNotRunningException;
 import net.sf.ehcache.writer.CacheWriterManager;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -34,6 +32,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -138,25 +137,25 @@ public class CacheStoreTest {
 
     @Test
     public void testFlushesOnFallBackPutThrowing() {
-        final CachingTier<Object, Element> cachingTier = new OnHeapCachingTier<Object, Element>(new CountBasedBackEnd<Object, Object>(1));
+        final CachingTier<Object, Element> cachingTier = new OnHeapCachingTier<Object, Element>(new CountBasedBackEnd<Object, Object>(1)) {
+            @Override
+            public boolean loadOnPut() {
+                // We don't want to try and populate on put, we rather want to fall through to the fallback put and have that throw
+                return false;
+            }
+        };
         final AuthoritativeTier authoritativeTier = mock(AuthoritativeTier.class);
         CacheStore cacheStore = new CacheStore(cachingTier, authoritativeTier);
         final Element element = new Element(KEY, NAME);
         final RuntimeException excepted = new RuntimeException("AHA!");
-        when(authoritativeTier.putFaulted(element)).then(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(final InvocationOnMock invocationOnMock) throws Throwable {
-                cachingTier.remove(element.getObjectKey());
-                return true;
-            }
-        });
         when(authoritativeTier.put(element)).thenThrow(excepted);
         try {
             cacheStore.put(element);
+            fail("This CacheStore.put should have thrown 'expected'");
         } catch (RuntimeException e) {
             assertThat(e, sameInstance(excepted));
         }
-        verify(authoritativeTier, times(2)).flush(element);
+        verify(authoritativeTier, times(1)).flush(element);
         assertThat(cachingTier.get(element.getObjectKey(), new Callable<Element>() {
             @Override
             public Element call() throws Exception {
