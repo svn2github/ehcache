@@ -179,6 +179,149 @@ public enum JvmInformation {
     },
 
     /**
+     * Represents HotSpot 32-bit
+     */
+    OPENJDK_32_BIT  {
+
+        /* default values are for this vm */
+
+        @Override
+        public String getJvmDescription() {
+            return "32-Bit OpenJDK JVM";
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+    },
+
+    /**
+     * Represents 32-Bit HotSpot JVM with Concurrent Mark-and-Sweep GC
+     */
+    OPENJDK_32_BIT_WITH_CONCURRENT_MARK_AND_SWEEP {
+
+        @Override
+        public int getMinimumObjectSize() {
+            return 16;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "32-Bit OpenJDK JVM with Concurrent Mark-and-Sweep GC";
+        }
+
+        @Override
+        public int getPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+    },
+
+    /**
+     * Represents 64-Bit HotSpot JVM
+     */
+    OPENJDK_64_BIT {
+
+        @Override
+        public int getPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit OpenJDK JVM";
+        }
+    },
+
+    /**
+     * Represents 64-Bit HotSpot JVM with Concurrent Mark-and-Sweep GC
+     */
+    OPENJDK_64_BIT_WITH_CONCURRENT_MARK_AND_SWEEP {
+
+        @Override
+        public int getPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getMinimumObjectSize() {
+            return 24;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit OpenJDK JVM with Concurrent Mark-and-Sweep GC";
+        }
+    },
+
+    /**
+     * Represents 64-Bit HotSpot JVM with Compressed OOPs
+     */
+    OPENJDK_64_BIT_WITH_COMPRESSED_OOPS {
+
+        @Override
+        public int getPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit OpenJDK JVM with Compressed OOPs";
+        }
+    },
+
+    /**
+     * Represents 64-Bit HotSpot JVM with Compressed OOPs and Concurrent Mark-and-Sweep GC
+     */
+    OPENJDK_64_BIT_WITH_COMPRESSED_OOPS_AND_CONCURRENT_MARK_AND_SWEEP {
+
+        @Override
+        public int getPointerSize() {
+            return 8;
+        }
+
+        @Override
+        public int getJavaPointerSize() {
+            return 4;
+        }
+
+        @Override
+        public int getMinimumObjectSize() {
+            return 24;
+        }
+
+        @Override
+        public String getJvmDescription() {
+            return "64-Bit OpenJDK JVM with Compressed OOPs and Concurrent Mark-and-Sweep GC";
+        }
+    },
+
+    /**
      * Represents 32-Bit JRockit JVM"
      */
     JROCKIT_32_BIT {
@@ -625,6 +768,10 @@ public enum JvmInformation {
         jif = detectHotSpot();
 
         if (jif == null) {
+            jif = detectOpenJDK();
+        }
+
+        if (jif == null) {
             jif = detectJRockit();
         }
         if (jif == null) {
@@ -657,12 +804,43 @@ public enum JvmInformation {
                     jif = HOTSPOT_64_BIT;
                 }
             } else {
-                jif = HOTSPOT_32_BIT;
+                if (isHotspotConcurrentMarkSweepGC()) {
+                    jif = HOTSPOT_32_BIT_WITH_CONCURRENT_MARK_AND_SWEEP;
+                } else {
+                    jif = HOTSPOT_32_BIT;
+                }
             }
         }
 
         return jif;
     }
+
+    private static JvmInformation detectOpenJDK() {
+        JvmInformation jif = null;
+
+        if (isOpenJDK()) {
+            if (is64Bit()) {
+                if (isHotspotCompressedOops() && isHotspotConcurrentMarkSweepGC()) {
+                    jif = OPENJDK_64_BIT_WITH_COMPRESSED_OOPS_AND_CONCURRENT_MARK_AND_SWEEP;
+                } else if (isHotspotCompressedOops()) {
+                    jif = OPENJDK_64_BIT_WITH_COMPRESSED_OOPS;
+                } else if (isHotspotConcurrentMarkSweepGC()) {
+                    jif = OPENJDK_64_BIT_WITH_CONCURRENT_MARK_AND_SWEEP;
+                } else {
+                    jif = OPENJDK_64_BIT;
+                }
+            } else {
+                if (isHotspotConcurrentMarkSweepGC()) {
+                    jif = OPENJDK_32_BIT_WITH_CONCURRENT_MARK_AND_SWEEP;
+                } else {
+                    jif = OPENJDK_32_BIT;
+                }
+            }
+        }
+
+        return jif;
+    }
+
     private static JvmInformation detectJRockit() {
         JvmInformation jif = null;
 
@@ -787,6 +965,14 @@ public enum JvmInformation {
      */
     public static boolean isHotspot() {
         return System.getProperty("java.vm.name", "").toLowerCase().contains("hotspot");
+    }
+
+    /**
+     * Returns true if VM vendor is OpenJDK
+     * @return true, if OpenJDK
+     */
+    public static boolean isOpenJDK() {
+        return System.getProperty("java.vm.name", "").toLowerCase().contains("openjdk");
     }
 
     /**
