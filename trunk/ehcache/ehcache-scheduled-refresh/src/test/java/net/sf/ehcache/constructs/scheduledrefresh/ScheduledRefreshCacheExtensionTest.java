@@ -19,13 +19,16 @@ import java.util.concurrent.TimeUnit;
 
 public class ScheduledRefreshCacheExtensionTest {
 
-   private static OddCacheLoader stupidCacheLoaderOdds = new OddCacheLoader();
+
+  public static final int TIMED_WAIT_IN_SECS = 70;
+  public static final int POLL_WAIT_INTERVAL_SECS = 5;
+  private static OddCacheLoader stupidCacheLoaderOdds = new OddCacheLoader();
    private static EvenCacheLoader stupidCacheLoaderEvens = new EvenCacheLoader();
    private static Logger logger = LoggerFactory.getLogger(ScheduledRefreshCacheExtensionTest.class);
 
    // OK. we want to create an ehcache, then programmatically decorate it with
    // locks.
-   @Test
+   //@Test
    public void testIllegalCronExpression() {
 
       CacheManager manager = new CacheManager(new Configuration().name("illegal-cron"));
@@ -60,9 +63,8 @@ public class ScheduledRefreshCacheExtensionTest {
            cache.registerCacheLoader(stupidCacheLoaderEvens);
            cache.registerCacheLoader(stupidCacheLoaderOdds);
 
-           int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
            ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration().batchSize(100).quartzThreadCount
-               (4).cronExpression(second + "/5 * * * * ?").build();
+               (4).cronExpression("0/5 * * * * ?").build();
            ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
            cache.registerCacheExtension(cacheExtension);
            cacheExtension.init();
@@ -72,12 +74,9 @@ public class ScheduledRefreshCacheExtensionTest {
               cache.put(new Element(i, i + ""));
            }
 
-           second = Math.max(8, 60 - second + 3)+7;
-           System.out.println("Scheduled delay is :: " + second);
+         waitOnExtensionState(cacheExtension,TIMED_WAIT_IN_SECS,2);
 
-           TimeUnit.SECONDS.sleep(second);
-
-           for (Object key : cache.getKeys()) {
+         for (Object key : cache.getKeys()) {
               Element val = cache.get(key);
               // System.out.println("["+key+", "+cache.get(key).getObjectValue()+"]");
               int iVal = ((Number) key).intValue();
@@ -101,14 +100,26 @@ public class ScheduledRefreshCacheExtensionTest {
              ExtendedStatistics.Statistic<Number> procStat=ScheduledRefreshCacheExtension.findKeysProcessedStatistic(cache);
              Assert.assertTrue(procStat.value().intValue()>10);
            } else {
-             org.junit.Assert.assertNotNull("Unable to find statistic",refreshStat);
+             Assert.assertNotNull("Unable to find statistic",refreshStat);
            }
        } finally {
            manager.shutdown();
        }
    }
 
-   // OK. we want to create an ehcache, then programmitaclly decorate it with
+   private void waitOnExtensionState(ScheduledRefreshCacheExtension cacheExtension,
+                                    int timeToWaitSecs,
+                                    int minRefreshCount) throws InterruptedException {
+    for(;timeToWaitSecs>0;timeToWaitSecs=timeToWaitSecs-POLL_WAIT_INTERVAL_SECS) {
+      logger.info("----> Awaiting ... " + cacheExtension.getRefreshCount() + " job(s) seen");
+      TimeUnit.SECONDS.sleep(POLL_WAIT_INTERVAL_SECS);
+      if(cacheExtension.getRefreshCount()>=minRefreshCount) {
+        break;
+      }
+    }
+  }
+
+  // OK. we want to create an ehcache, then programmitaclly decorate it with
    // locks.
    @Test
    public void testSimpleCaseXML() throws InterruptedException {
@@ -118,16 +129,12 @@ public class ScheduledRefreshCacheExtensionTest {
        try {
            Cache cache = manager.getCache("sr-test");
 
-           int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
-
            for (int i = 0; i < 10; i++) {
               cache.put(new Element(i, i + ""));
            }
 
-           second = Math.max(8, 60 - second + 3);
-           System.out.println("Scheduled delay is :: " + second);
-
-           TimeUnit.SECONDS.sleep(second);
+           waitOnExtensionState(ScheduledRefreshCacheExtension.findExtensionsFromCache(cache).iterator().next(),
+             TIMED_WAIT_IN_SECS,2);
 
            for (Object key : cache.getKeys()) {
               Element val = cache.get(key);
@@ -147,40 +154,6 @@ public class ScheduledRefreshCacheExtensionTest {
        }
    }
 
-   // OK. we want to create an ehcache, then programmatically decorate it with
-   // locks.
-   @Test
-   public void testPolling() throws InterruptedException {
 
-      CacheManager manager = new CacheManager(new Configuration().name("pollingCM"));
-
-       try {
-           manager.addCache(new Cache(new CacheConfiguration().name("tt").eternal(true).maxEntriesLocalHeap(5000).overflowToDisk(false)));
-           Ehcache cache = manager.getEhcache("tt");
-           stupidCacheLoaderEvens.setMsDelay(100);
-           cache.registerCacheLoader(stupidCacheLoaderEvens);
-           cache.registerCacheLoader(stupidCacheLoaderOdds);
-
-           int second = (new GregorianCalendar().get(Calendar.SECOND) + 5) % 60;
-           ScheduledRefreshConfiguration config = new ScheduledRefreshConfiguration().batchSize(2).quartzThreadCount
-               (2).pollTimeMs(100).cronExpression(second + "/1 * * * * ?").build();
-           ScheduledRefreshCacheExtension cacheExtension = new ScheduledRefreshCacheExtension(config, cache);
-           cache.registerCacheExtension(cacheExtension);
-           cacheExtension.init();
-           Assert.assertEquals(cacheExtension.getStatus(), Status.STATUS_ALIVE);
-
-           final int ELEMENT_COUNT = 50;
-           long[] orig = new long[ELEMENT_COUNT];
-           for (int i = 0; i < ELEMENT_COUNT; i++) {
-              Element elem = new Element(i, i + "");
-              orig[i] = elem.getCreationTime();
-              cache.put(elem);
-           }
-
-           TimeUnit.SECONDS.sleep(20);
-       } finally {
-           manager.shutdown();
-       }
-   }
 
 }
