@@ -657,7 +657,11 @@ public enum JvmInformation {
                     jif = HOTSPOT_64_BIT;
                 }
             } else {
-                jif = HOTSPOT_32_BIT;
+                if (isHotspotConcurrentMarkSweepGC()) {
+                    jif = HOTSPOT_32_BIT_WITH_CONCURRENT_MARK_AND_SWEEP;
+                } else {
+                    jif = HOTSPOT_32_BIT;
+                }
             }
         }
 
