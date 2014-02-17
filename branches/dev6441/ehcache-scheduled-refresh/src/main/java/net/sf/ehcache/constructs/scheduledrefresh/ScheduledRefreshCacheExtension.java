@@ -33,7 +33,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.statistics.StatisticsManager;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -276,27 +278,43 @@ public class ScheduledRefreshCacheExtension implements CacheExtension {
       return underlyingCache;
    }
 
-   /**
-    * Find extension from cache.
-    *
-    * @param cache the cache
-    * @param groupName the group name
-    * @return the scheduled refresh cache extension
-    */
-   static ScheduledRefreshCacheExtension findExtensionFromCache(Ehcache cache, String groupName) {
-      for (CacheExtension ce : cache.getRegisteredCacheExtensions()) {
-         if (ce instanceof ScheduledRefreshCacheExtension) {
-            ScheduledRefreshCacheExtension probe = (ScheduledRefreshCacheExtension) ce;
-            if (probe.getUnderlyingCache().getName().equals(cache.getName()) &&
-                probe.getExtensionGroupName().equals(groupName)) {
-               return probe;
-            }
-         }
+  /**
+   * Find extension from cache.
+   *
+   * @param cache the cache
+   * @param groupName the group name
+   * @return the scheduled refresh cache extension
+   */
+  static ScheduledRefreshCacheExtension findExtensionFromCache(Ehcache cache, String groupName) {
+    for (CacheExtension ce : cache.getRegisteredCacheExtensions()) {
+      if (ce instanceof ScheduledRefreshCacheExtension) {
+        ScheduledRefreshCacheExtension probe = (ScheduledRefreshCacheExtension) ce;
+        if (probe.getUnderlyingCache().getName().equals(cache.getName()) &&
+          probe.getExtensionGroupName().equals(groupName)) {
+          return probe;
+        }
       }
-      return null;
-   }
+    }
+    return null;
+  }
 
-   /**
+  /**
+   * Find all the scheduled refresh cache extensions from a cache.
+   *
+   * @param cache the cache
+   * @return the scheduled refresh cache extension
+   */
+  static Collection<ScheduledRefreshCacheExtension> findExtensionsFromCache(Ehcache cache) {
+    LinkedList<ScheduledRefreshCacheExtension> exts=new LinkedList<ScheduledRefreshCacheExtension>();
+    for (CacheExtension ce : cache.getRegisteredCacheExtensions()) {
+      if (ce instanceof ScheduledRefreshCacheExtension) {
+        exts.add((ScheduledRefreshCacheExtension)ce);
+      }
+    }
+    return exts;
+  }
+
+  /**
     * Increment refresh count.
     */
    void incrementRefreshCount() {

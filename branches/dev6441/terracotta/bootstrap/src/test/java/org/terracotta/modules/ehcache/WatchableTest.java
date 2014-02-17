@@ -4,6 +4,7 @@
 
 package org.terracotta.modules.ehcache;
 
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import org.terracotta.toolkit.internal.cache.BufferingToolkitCache;
 
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Condition;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -25,44 +27,50 @@ import static org.mockito.Mockito.when;
  */
 public class WatchableTest {
 
-  private ToolkitLock lock;
+  private ToolkitLock configLock;
+  private ToolkitLock activeLock;
   private WanAwareToolkitCache<String, String> watchable;
 
   @Before
   public void setUp() throws Exception {
     final ConcurrentMap<String, Serializable> configMap = new ConcurrentHashMap<String, Serializable>();
     final BufferingToolkitCache<String, String> delegate = mock(BufferingToolkitCache.class);
-    lock = mock(ToolkitLock.class);
+    Condition condition = mock(Condition.class);
+    configLock = when(mock(ToolkitLock.class).getCondition()).thenReturn(condition).getMock();
+    activeLock = when(mock(ToolkitLock.class).isHeldByCurrentThread()).thenReturn(false, true).getMock();
     watchable = new WanAwareToolkitCache<String, String>(
-        delegate, configMap, null, null, lock);
+        delegate, configMap, null, configLock, activeLock, new CacheConfiguration());
   }
 
   @Test
   public void testMustAcquireLockOnGoLive() {
-    when(lock.isHeldByCurrentThread()).thenReturn(false, true);
+    when(activeLock.isHeldByCurrentThread()).thenReturn(false, true);
     watchable.goLive();
-    verify(lock).lock();
+    verify(activeLock).lock();
   }
 
   @Test
   public void testMustNotAcquireLockIfAlreadyHeld() {
-    when(lock.isHeldByCurrentThread()).thenReturn(true);
+    when(activeLock.isHeldByCurrentThread()).thenReturn(true);
     watchable.goLive();
-    verify(lock, never()).lock();
+    verify(activeLock, never()).lock();
   }
 
   @Test
   public void testMustDeactivateCacheIfLockReleased() {
-    when(lock.tryLock()).thenReturn(true);
+    watchable.goLive();
+    when(activeLock.tryLock()).thenReturn(true);
     assertFalse(watchable.probeLiveness());
-    assertFalse(watchable.isActive());
-    verify(lock).unlock();
+    assertFalse(watchable.isOrchestratorAlive());
+    verify(activeLock).unlock();
   }
 
   @Test
   public void testMustNotDeactivateCacheIfLockHeld() {
-    when(lock.tryLock()).thenReturn(false);
+    watchable.goLive();
+    when(activeLock.tryLock()).thenReturn(false);
     assertTrue(watchable.probeLiveness());
-    verify(lock, never()).unlock();
+    assertTrue(watchable.isOrchestratorAlive());
+    verify(activeLock, never()).unlock();
   }
 }

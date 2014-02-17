@@ -310,16 +310,16 @@ public class CacheEventListenerTest extends AbstractCacheTest {
         Serializable key = "1";
         Element element = new Element(key, new Date());
 
-        TestCacheEventListener cacheEventListener = new TestCacheEventListener();
+        final TestCacheEventListener cacheEventListener = new TestCacheEventListener();
         cache.getCacheEventNotificationService().registerListener(cacheEventListener);
 
         //Put
         cache.put(element);
 
         //expire
-        Thread.sleep(15000);
+        TimeUnit.SECONDS.sleep(7); //Expiry set at 5s
         for(int i = 0; i < cache.getCacheConfiguration().getMaxEntriesLocalHeap(); i ++) {
-            cache.put(new Element(i, i));
+            cache.put(new Element(i, i, true));
             cache.get(i); // makes sure the entry is flushed
         }
         assertThat(cacheEventListener.counter.get(), equalTo(1));
