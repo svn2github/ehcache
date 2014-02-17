@@ -3,15 +3,19 @@
  */
 package net.sf.ehcache.osgi;
 
-import junit.framework.Assert;
+import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.constructs.scheduledrefresh.ScheduledRefreshCacheExtension;
 import net.sf.ehcache.constructs.scheduledrefresh.ScheduledRefreshConfiguration;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -24,9 +28,7 @@ import org.terracotta.test.OsgiUtil;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
+import junit.framework.Assert;
 
 /**
  * Adapt ScheduledRefreshCacheExtensionTest to run with OSGi.
@@ -45,7 +47,7 @@ public class OsgiScheduledRefreshTest {
   private static EvenCacheLoader stupidCacheLoaderEvens = new EvenCacheLoader();
 
   public OsgiScheduledRefreshTest() {
-    Thread.currentThread().setContextClassLoader(OsgiScheduledRefreshTest.class.getClassLoader());
+    //
   }
 
   @Configuration
@@ -142,9 +144,11 @@ public class OsgiScheduledRefreshTest {
   // locks.
   @Test
   public void testSimpleCaseXML() throws Exception {
-    CacheManager manager = new CacheManager(
-                                            OsgiScheduledRefreshTest.class
-                                                .getResource("/net/sf/ehcache/osgi/ehcache-scheduled-refresh.xml"));
+    net.sf.ehcache.config.Configuration cmConfig = ConfigurationFactory
+        .parseConfiguration(OsgiScheduledRefreshTest.class
+            .getResource("/net/sf/ehcache/osgi/ehcache-scheduled-refresh.xml"));
+    cmConfig.setClassLoader(getClass().getClassLoader());
+    CacheManager manager = new CacheManager(cmConfig);
 
     Cache cache = manager.getCache("sr-test");
 

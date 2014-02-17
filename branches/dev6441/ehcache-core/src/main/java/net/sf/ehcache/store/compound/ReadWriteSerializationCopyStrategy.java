@@ -16,15 +16,15 @@
 
 package net.sf.ehcache.store.compound;
 
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.ElementIdHelper;
-import net.sf.ehcache.util.PreferTCCLObjectInputStream;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.ElementIdHelper;
+import net.sf.ehcache.util.PreferredLoaderObjectInputStream;
 
 /**
  * A copy strategy that can use partial (if both copy on read and copy on write are set) or full Serialization to copy the object graph
@@ -37,7 +37,7 @@ public class ReadWriteSerializationCopyStrategy implements ReadWriteCopyStrategy
     /**
      * @inheritDoc
      */
-    public Element copyForWrite(Element value) {
+    public Element copyForWrite(Element value, ClassLoader loader) {
         if (value == null) {
             return null;
         } else {
@@ -70,7 +70,7 @@ public class ReadWriteSerializationCopyStrategy implements ReadWriteCopyStrategy
     /**
      * @inheritDoc
      */
-    public Element copyForRead(Element storedValue) {
+    public Element copyForRead(Element storedValue, ClassLoader loader) {
         if (storedValue == null) {
             return null;
         } else {
@@ -81,7 +81,7 @@ public class ReadWriteSerializationCopyStrategy implements ReadWriteCopyStrategy
             ByteArrayInputStream bin = new ByteArrayInputStream((byte[]) storedValue.getObjectValue());
             ObjectInputStream ois = null;
             try {
-                ois = new PreferTCCLObjectInputStream(bin);
+                ois = new PreferredLoaderObjectInputStream(bin, loader);
                 return duplicateElementWithNewValue(storedValue, ois.readObject());
             } catch (Exception e) {
                 throw new CacheException("When configured copyOnRead or copyOnWrite, a Store will only accept Serializable values", e);

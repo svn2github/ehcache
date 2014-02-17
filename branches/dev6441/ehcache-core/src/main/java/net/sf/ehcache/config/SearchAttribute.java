@@ -37,6 +37,8 @@ import net.sf.ehcache.util.PropertyUtil;
  */
 public class SearchAttribute {
 
+    private static final Class<?> UNRESOLVED = UnresolvedType.class;
+    
     private String name;
     private String className;
     private String expression;
@@ -83,7 +85,7 @@ public class SearchAttribute {
      * @param type
      */
     public void setType(String type) {
-        this.type = validateType(type);
+        this.type = UNRESOLVED;
         this.typeName = type;
     }
     
@@ -129,14 +131,19 @@ public class SearchAttribute {
      * Get actual attribute type
      * @return
      */
-    Class<?> getType() {
+    Class<?> getType(ClassLoader loader) {
+        if (type == UNRESOLVED) {
+            type = validateType(this.typeName, loader);
+        }
+        
+        
         return type;
     }
     
     /**
      * Construct the extractor for this attribute configuration
      */
-    public AttributeExtractor constructExtractor() {
+    public AttributeExtractor constructExtractor(ClassLoader loader) {
         if (name == null) {
             throw new InvalidConfigurationException("search attribute has no name");
         }
@@ -145,10 +152,10 @@ public class SearchAttribute {
             return new ReflectionAttributeExtractor(expression);
         } else if (className != null) {
             if (properties != null) {
-                return (AttributeExtractor) ClassLoaderUtil.createNewInstance(className, new Class[] {Properties.class},
+                return (AttributeExtractor) ClassLoaderUtil.createNewInstance(loader, className, new Class[] {Properties.class},
                         new Object[] {PropertyUtil.parseProperties(properties, propertySeparator)});
             } else {
-                return (AttributeExtractor) ClassLoaderUtil.createNewInstance(className);
+                return (AttributeExtractor) ClassLoaderUtil.createNewInstance(loader, className);
             }
         } else {
             return new JavaBeanAttributeExtractor(name);
@@ -279,7 +286,7 @@ public class SearchAttribute {
         return rv;
     }
 
-    private Class<?> validateType(String attrType) {
+    private Class<?> validateType(String attrType, ClassLoader loader) {
         Class<?> realType = null;
         for (Class c : AttributeType.getSupportedJavaTypes()) {
           if (attrType.equals(c.getName())) {
@@ -296,7 +303,7 @@ public class SearchAttribute {
         if (realType == null) {
           // Attempt to load then validate that it's enum
           try {
-            realType = ClassLoaderUtil.loadClass(attrType);
+            realType = loader.loadClass(attrType);
           } catch (ClassNotFoundException e) {
             throw new InvalidConfigurationException(String.format("Unable to load class specified as type of attribute %s: %s", 
                     name, e.getMessage()));
@@ -306,6 +313,7 @@ public class SearchAttribute {
                       attrType, name));
           }
         }
+        
         return realType;
     }
     
@@ -317,4 +325,9 @@ public class SearchAttribute {
         }
         return t;
     }
+    
+    private static class UnresolvedType {
+        //
+    }
+    
 }

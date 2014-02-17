@@ -30,7 +30,7 @@ public class MValueTest {
     @Test
     public void testEnumValue() throws CustomParseException {
         MEnum<Foo> enumVal = new MValue.MEnum<Foo>(null, Foo.class.getName(), "Bar");
-        Enum<Foo> obj = enumVal.asJavaObject();
+        Enum<Foo> obj = enumVal.asEhcacheObject(getClass().getClassLoader());
         Assert.assertEquals(Foo.Bar, obj);
         try {
             new MValue.MEnum<Foo>(null, Foo.class.getName(), "Barr");

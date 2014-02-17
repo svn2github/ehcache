@@ -39,9 +39,10 @@ public final class TxCopyingCacheStore<T extends Store> extends AbstractCopyingC
      * @param copyOnRead           whether to copy on reads
      * @param copyOnWrite          whether to copy on writes
      * @param copyStrategyInstance the copy strategy to use on every copy operation
+     * @param loader               classloadaer of the containing cache
      */
-    public TxCopyingCacheStore(T store, boolean copyOnRead, boolean copyOnWrite, ReadWriteCopyStrategy<Element> copyStrategyInstance) {
-        super(store, copyOnRead, copyOnWrite, copyStrategyInstance);
+    public TxCopyingCacheStore(T store, boolean copyOnRead, boolean copyOnWrite, ReadWriteCopyStrategy<Element> copyStrategyInstance, ClassLoader loader) {
+        super(store, copyOnRead, copyOnWrite, copyStrategyInstance, loader);
         if (!(store instanceof AbstractTransactionStore)) {
             throw new IllegalArgumentException("TxCopyingCacheStore can only wrap a transactional store");
         }
@@ -80,8 +81,8 @@ public final class TxCopyingCacheStore<T extends Store> extends AbstractCopyingC
      */
     private static <T extends Store> TxCopyingCacheStore<T> wrap(final T cacheStore, final CacheConfiguration cacheConfiguration) {
         final ReadWriteCopyStrategy<Element> copyStrategyInstance = cacheConfiguration.getCopyStrategyConfiguration()
-            .getCopyStrategyInstance();
-        return new TxCopyingCacheStore<T>(cacheStore, cacheConfiguration.isCopyOnRead(), cacheConfiguration.isCopyOnWrite(), copyStrategyInstance);
+            .getCopyStrategyInstance(cacheConfiguration.getClassLoader());
+        return new TxCopyingCacheStore<T>(cacheStore, cacheConfiguration.isCopyOnRead(), cacheConfiguration.isCopyOnWrite(), copyStrategyInstance, cacheConfiguration.getClassLoader());
     }
 
     /**
@@ -93,10 +94,10 @@ public final class TxCopyingCacheStore<T extends Store> extends AbstractCopyingC
      */
     public static ElementValueComparator wrap(final ElementValueComparator comparator, final CacheConfiguration cacheConfiguration) {
         final ReadWriteCopyStrategy<Element> copyStrategyInstance = cacheConfiguration.getCopyStrategyConfiguration()
-                .getCopyStrategyInstance();
+                .getCopyStrategyInstance(cacheConfiguration.getClassLoader());
         CopyStrategyHandler copyStrategyHandler = new CopyStrategyHandler(cacheConfiguration.isCopyOnRead(),
                 cacheConfiguration.isCopyOnWrite(),
-                copyStrategyInstance);
+                copyStrategyInstance, cacheConfiguration.getClassLoader());
         return new TxCopyingElementValueComparator(comparator, copyStrategyHandler);
     }
 

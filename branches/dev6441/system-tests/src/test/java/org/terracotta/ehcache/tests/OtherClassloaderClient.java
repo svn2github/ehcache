@@ -15,7 +15,6 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_5;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import org.objectweb.asm.ClassWriter;
@@ -31,25 +30,16 @@ import java.util.Map;
 
 public class OtherClassloaderClient extends ClientBase {
 
-  private ClassLoader otherClassLoader;
+  private final ClassLoader otherClassLoader;
 
   public OtherClassloaderClient(String[] args) {
     super("test", args);
+    otherClassLoader = createClassLoader();
   }
 
   @Override
-  protected void setupCacheManager() {
-    System.setProperty(CacheManager.CAPTURE_TCCL_PROPERTY, "true");
-
-    otherClassLoader = createClassLoader();
-
-    ClassLoader previous = Thread.currentThread().getContextClassLoader();
-    try {
-      Thread.currentThread().setContextClassLoader(otherClassLoader);
-      super.setupCacheManager();
-    } finally {
-      Thread.currentThread().setContextClassLoader(previous);
-    }
+  protected ClassLoader getCacheManagerClassLoader() {
+    return otherClassLoader;
   }
 
   @Override

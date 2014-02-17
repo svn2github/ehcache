@@ -14,7 +14,7 @@ import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
 /**
- * NOTE: Looks like Atomikos does not support suspend/resume. 
+ * NOTE: Looks like Atomikos does not support suspend/resume.
  * 
  * 
  */
@@ -28,7 +28,7 @@ public class SuspendResumeClient extends AbstractTxClient {
 
   @Override
   protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
-    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(); 
+    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(getClass().getClassLoader());
     final TransactionManager txnManager = lookup.getTransactionManager();
     int commitCount = 0;
     int rollbackCount = 0;

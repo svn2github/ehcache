@@ -28,7 +28,7 @@ public class ImmutableValueElementCopyStrategy implements ReadWriteCopyStrategy<
     /**
      * @inheritDoc
      */
-    public Element copyForWrite(Element value) {
+    public Element copyForWrite(Element value, ClassLoader loader) {
         if (value == null) {
             return null;
         }
@@ -38,7 +38,7 @@ public class ImmutableValueElementCopyStrategy implements ReadWriteCopyStrategy<
     /**
      * @inheritDoc
      */
-    public Element copyForRead(Element storedValue) {
+    public Element copyForRead(Element storedValue, ClassLoader loader) {
         if (storedValue == null) {
             return null;
         }

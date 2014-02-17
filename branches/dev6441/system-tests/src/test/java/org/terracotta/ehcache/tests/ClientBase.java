@@ -6,6 +6,8 @@ package org.terracotta.ehcache.tests;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.TimeoutBehaviorConfiguration;
 import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 
@@ -64,7 +66,17 @@ public abstract class ClientBase extends AbstractClientBase {
   }
 
   protected void setupCacheManager() {
-    cacheManager = CacheManager.create(getEhcacheXmlAsStream());
+    Configuration config = ConfigurationFactory.parseConfiguration(getEhcacheXmlAsStream());
+
+    ClassLoader loader = getCacheManagerClassLoader();
+    if (loader != null) {
+      config.setClassLoader(loader);
+    }
+    cacheManager = CacheManager.create(config);
+  }
+
+  protected ClassLoader getCacheManagerClassLoader() {
+    return null;
   }
 
   protected InputStream getEhcacheXmlAsStream() {

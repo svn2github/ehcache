@@ -18,6 +18,7 @@ import net.sf.ehcache.DiskStorePathManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
 import org.junit.Test;
@@ -62,7 +63,7 @@ public class TerracottaBootstrapCacheLoaderTest {
     public void testBootstrapsWhenSnapshotPresent() throws Exception {
 
         DiskStorePathManager pathManager = getDiskStorePathManager(cacheLoader);
-        RotatingSnapshotFile file = new RotatingSnapshotFile(pathManager, MOCKED_CACHE_NAME);
+        RotatingSnapshotFile file = new RotatingSnapshotFile(pathManager, MOCKED_CACHE_NAME, getClass().getClassLoader());
 
         // Duplicated keys should be filtered out!
         final List<Integer> localKeys = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 9);
@@ -86,6 +87,7 @@ public class TerracottaBootstrapCacheLoaderTest {
         CacheManager cacheManager = mock(CacheManager.class);
         when(cache.getCacheManager()).thenReturn(cacheManager);
         when(cache.get(Matchers.<Object>anyObject())).thenReturn(null);
+        when(cacheManager.getConfiguration()).thenReturn(new Configuration());
         return cache;
     }
 

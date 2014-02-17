@@ -17,6 +17,7 @@
 package net.sf.ehcache.store;
 
 import net.sf.ehcache.CacheException;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.SearchAttribute;
@@ -66,13 +67,16 @@ public class BruteForceSearchManager implements SearchManager {
      * account for all search attributes
      */
     private final Set<Attribute> searchAttributes = new CopyOnWriteArraySet<Attribute>();
+    private final Ehcache cache;
     private BruteForceSource bruteForceSource;
+
 
     /**
      * Create a BruteForceSearchManager
+     * @param cache 
      */
-    public BruteForceSearchManager() {
-        //
+    public BruteForceSearchManager(Ehcache cache) {
+        this.cache = cache;
     }
 
     /**
@@ -341,7 +345,7 @@ public class BruteForceSearchManager implements SearchManager {
       for (Map.Entry<String, AttributeExtractor> entry : extractors.entrySet()) {
         String name = entry.getKey();
         SearchAttribute sa = config.getSearchAttributes().get(name);
-        Class<?> c = ConfigurationHelper.getSearchAttributeType(sa);
+        Class<?> c = ConfigurationHelper.getSearchAttributeType(sa, cache.getCacheConfiguration().getClassLoader());
         if (c == null) { continue; }
 
         AttributeExtractor extractor = entry.getValue();

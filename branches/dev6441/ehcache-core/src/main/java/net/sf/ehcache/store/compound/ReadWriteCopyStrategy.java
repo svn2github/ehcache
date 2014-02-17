@@ -31,7 +31,7 @@ public interface ReadWriteCopyStrategy<T> extends Serializable {
      * @param value the value to copy
      * @return the storage-ready copy
      */
-    T copyForWrite(final T value);
+    T copyForWrite(final T value, ClassLoader loader);
 
     /**
      * Reconstruct an object from its storage-ready copy.
@@ -39,5 +39,5 @@ public interface ReadWriteCopyStrategy<T> extends Serializable {
      * @param storedValue the storage-ready copy
      * @return the original object
      */
-    T copyForRead(final T storedValue);
+    T copyForRead(final T storedValue, ClassLoader loader);
 }

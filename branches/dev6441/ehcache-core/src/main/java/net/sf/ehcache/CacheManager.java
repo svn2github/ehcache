@@ -56,7 +56,6 @@ import net.sf.ehcache.transaction.SoftLockManagerImpl;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.processor.XARequestProcessor;
-import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.FailSafeTimer;
 import net.sf.ehcache.util.PropertyUtil;
 import net.sf.ehcache.util.UpdateChecker;
@@ -119,11 +118,6 @@ public class CacheManager {
      * System property to enable creation of a shutdown hook for CacheManager.
      */
     public static final String ENABLE_SHUTDOWN_HOOK_PROPERTY = "net.sf.ehcache.enableShutdownHook";
-    
-    /**
-     * System property to enable capturing of thread context classloader reference at CacheManager creation time
-     */
-    public static final String CAPTURE_TCCL_PROPERTY = "net.sf.ehcache.capture.tccl";
     
 
     private static final Logger LOG = LoggerFactory.getLogger(CacheManager.class);
@@ -237,8 +231,6 @@ public class CacheManager {
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
 
     private String registeredMgmtSvrBind;
-    
-    private final ClassLoader classLoader = captureClassLoader();
 
     /**
      * Statistics thread pool.
@@ -268,14 +260,6 @@ public class CacheManager {
     public CacheManager(Configuration configuration) throws CacheException {
         status = Status.STATUS_UNINITIALISED;
         init(configuration, null, null, null);
-    }
-
-    private static ClassLoader captureClassLoader() {
-        if (Boolean.getBoolean(CAPTURE_TCCL_PROPERTY)) {
-            return Thread.currentThread().getContextClassLoader();
-        }
-        
-        return null;
     }
 
     /**
@@ -1959,7 +1943,11 @@ public class CacheManager {
 
     private List<Ehcache> createDefaultCacheDecorators(Ehcache underlyingCache) {
         return ConfigurationHelper.createDefaultCacheDecorators(underlyingCache, runtimeCfg.getConfiguration()
-                .getDefaultCacheConfiguration());
+                .getDefaultCacheConfiguration(), getClassLoader());
+    }
+
+    private ClassLoader getClassLoader() {
+        return this.runtimeCfg.getConfiguration().getClassLoader();
     }
 
     /**
@@ -2065,7 +2053,7 @@ public class CacheManager {
 
     private FeaturesManager retrieveFeaturesManager() {
         try {
-            Class<? extends FeaturesManager> featuresManagerClass = ClassLoaderUtil.loadClass(FeaturesManager.ENTERPRISE_FM_CLASSNAME);
+            Class<? extends FeaturesManager> featuresManagerClass = (Class<? extends FeaturesManager>) Class.forName(FeaturesManager.ENTERPRISE_FM_CLASSNAME);
 
             try {
                 return featuresManagerClass.getConstructor(CacheManager.class).newInstance(this);
@@ -2096,10 +2084,6 @@ public class CacheManager {
      */
     static CacheManager getInitializingCacheManager(String name) {
         return INITIALIZING_CACHE_MANAGERS_MAP.get(name);
-    }
-    
-    public ClassLoader getClassLoader() {
-        return classLoader;
-    }
+    }    
     
 }

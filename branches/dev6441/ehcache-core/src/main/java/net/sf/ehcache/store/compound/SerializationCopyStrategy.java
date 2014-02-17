@@ -31,14 +31,14 @@ public class SerializationCopyStrategy implements ReadWriteCopyStrategy<Element>
     /**
      * @inheritDoc
      */
-    public Element copyForWrite(Element value) {
-        return copyStrategy.copyForRead(copyStrategy.copyForWrite(value));
+    public Element copyForWrite(Element value, ClassLoader loader) {
+        return copyStrategy.copyForRead(copyStrategy.copyForWrite(value, loader), loader);
     }
 
     /**
      * @inheritDoc
      */
-    public Element copyForRead(Element storedValue) {
-        return copyStrategy.copyForRead(copyStrategy.copyForWrite(storedValue));
+    public Element copyForRead(Element storedValue, ClassLoader loader) {
+        return copyStrategy.copyForRead(copyStrategy.copyForWrite(storedValue, loader), loader);
     }
 }

@@ -94,7 +94,7 @@ class TerracottaClusteredInstanceHelper {
          */
         public Class getFactoryClassOrNull() {
             try {
-                return ClassLoaderUtil.loadClass(factoryClassName);
+                return Class.forName(factoryClassName);
             } catch (ClassNotFoundException e) {
                 return null;
             }
@@ -154,7 +154,7 @@ class TerracottaClusteredInstanceHelper {
             throw new CacheException("Not able to get factory class for: " + terracottaRuntimeType.name());
         }
         try {
-            return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(),
+            return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(getClass().getClassLoader(), factoryClass.getName(),
                     new Class[] {TerracottaClientConfiguration.class, ClassLoader.class}, new Object[] {terracottaConfig, loader});
         } catch (CacheException ce) {
             if (ce.getCause() instanceof NoClassDefFoundError) {

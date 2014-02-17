@@ -120,7 +120,7 @@ public final class ConfigurationFactory {
      * Configures a bean from an XML file in the classpath.
      */
     public static Configuration parseConfiguration() throws CacheException {
-        ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();
+        ClassLoader standardClassloader = Thread.currentThread().getContextClassLoader();
         URL url = null;
         if (standardClassloader != null) {
             url = standardClassloader.getResource(DEFAULT_CLASSPATH_CONFIGURATION_FILE);

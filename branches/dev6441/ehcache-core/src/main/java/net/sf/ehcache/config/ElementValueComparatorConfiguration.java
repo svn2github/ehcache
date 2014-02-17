@@ -25,7 +25,9 @@ import net.sf.ehcache.util.ClassLoaderUtil;
  */
 public class ElementValueComparatorConfiguration {
 
-    private volatile String className = DefaultElementValueComparator.class.getName();
+    private static final String DEFAULT_IMPL = DefaultElementValueComparator.class.getName();
+    
+    private volatile String className = DEFAULT_IMPL;
 
     /**
      * Returns the fully qualified class name for the ElementValueComparator to use
@@ -50,11 +52,17 @@ public class ElementValueComparatorConfiguration {
      * Get (and potentially) instantiate the instance
      * 
      * @param cacheConfiguration the cache configuration
+     * @param loader classloader to use to create the instance
      * @return the instance
      */
-    public ElementValueComparator createElementComparatorInstance(CacheConfiguration cacheConfiguration) {
+    public ElementValueComparator createElementComparatorInstance(CacheConfiguration cacheConfiguration, ClassLoader loader) {
         try {
+            if (DEFAULT_IMPL.equals(className)) {
+                loader = getClass().getClassLoader();
+            }
+            
             return (ElementValueComparator) ClassLoaderUtil.createNewInstance(
+                loader,
                 className,
                 new Class[] {CacheConfiguration.class},
                 new Object[] {cacheConfiguration}

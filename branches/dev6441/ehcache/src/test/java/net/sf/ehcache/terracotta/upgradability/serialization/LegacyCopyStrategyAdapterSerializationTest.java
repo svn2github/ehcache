@@ -36,7 +36,8 @@ public class LegacyCopyStrategyAdapterSerializationTest {
 
     @Override
     public int compare(LegacyCopyStrategyAdapter o1, LegacyCopyStrategyAdapter o2) {
-      return o1.copyForRead(null).getObjectKey().equals(o2.copyForRead(null).getObjectKey()) ? 0 : -1;
+      ClassLoader loader = getClass().getClassLoader();     
+      return o1.copyForRead(null, loader).getObjectKey().equals(o2.copyForRead(null, loader).getObjectKey()) ? 0 : -1;
     }
   };
   

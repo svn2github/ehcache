@@ -110,7 +110,13 @@ public class MAttribute implements ModelElement<Attribute<?>> {
      * @return the string
      */
     public String asEhcacheAttributeString() {
-        return asEhcacheObject().getAttributeName();
+    	if (isKey() || isStar()) {
+    		return Query.KEY.getAttributeName();
+    	} else if (isValue()) {
+    		return Query.VALUE.getAttributeName();
+    	} else {
+    		return name;
+    	}    	    	
     }
 
     /**
@@ -120,7 +126,7 @@ public class MAttribute implements ModelElement<Attribute<?>> {
      */
 
     @SuppressWarnings("rawtypes")
-    public Attribute<?> asEhcacheObject() {
+    public Attribute<?> asEhcacheObject(ClassLoader loader) {
         if (isKey() || isStar()) {
             return Query.KEY;
         } else if (isValue()) {
@@ -129,7 +135,7 @@ public class MAttribute implements ModelElement<Attribute<?>> {
             return new Attribute(name);
         }
     }
-
+    
     /*
      * (non-Javadoc)
      * @see java.lang.Object#toString()

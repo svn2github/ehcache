@@ -43,6 +43,7 @@ import net.sf.ehcache.exceptionhandler.CacheExceptionHandlerFactory;
 import net.sf.ehcache.exceptionhandler.ExceptionHandlingDynamicCacheProxy;
 import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.PropertyUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +66,8 @@ public final class ConfigurationHelper {
     private final Configuration configuration;
     private final CacheManager cacheManager;
 
+    private final ClassLoader loader;
+
     /**
      * Only Constructor
      *
@@ -77,6 +80,7 @@ public final class ConfigurationHelper {
         }
         this.cacheManager = cacheManager;
         this.configuration = configuration;
+        this.loader = configuration.getClassLoader();
     }
 
     /**
@@ -86,7 +90,7 @@ public final class ConfigurationHelper {
      * @return The CacheExceptionHandler, or null if it could not be found.
      */
     public static CacheExceptionHandler createCacheExceptionHandler(
-            CacheConfiguration.CacheExceptionHandlerFactoryConfiguration factoryConfiguration) throws CacheException {
+            CacheConfiguration.CacheExceptionHandlerFactoryConfiguration factoryConfiguration, ClassLoader loader) throws CacheException {
         String className = null;
         CacheExceptionHandler cacheExceptionHandler = null;
         if (factoryConfiguration != null) {
@@ -96,7 +100,7 @@ public final class ConfigurationHelper {
             LOG.debug("No CacheExceptionHandlerFactory class specified. Skipping...");
         } else {
             CacheExceptionHandlerFactory factory = (CacheExceptionHandlerFactory)
-                    ClassLoaderUtil.createNewInstance(className);
+                    ClassLoaderUtil.createNewInstance(loader, className);
             Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                     factoryConfiguration.getPropertySeparator());
             return factory.createExceptionHandler(properties);
@@ -126,7 +130,7 @@ public final class ConfigurationHelper {
             } else {
                 CacheManagerPeerProviderFactory cacheManagerPeerProviderFactory =
                         (CacheManagerPeerProviderFactory)
-                                ClassLoaderUtil.createNewInstance(className);
+                                ClassLoaderUtil.createNewInstance(loader, className);
                 Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                         factoryConfiguration.getPropertySeparator());
                 CacheManagerPeerProvider cacheManagerPeerProvider =
@@ -157,7 +161,7 @@ public final class ConfigurationHelper {
                 return null;
             } else {
                 CacheManagerPeerListenerFactory cacheManagerPeerListenerFactory = (CacheManagerPeerListenerFactory)
-                        ClassLoaderUtil.createNewInstance(className);
+                        ClassLoaderUtil.createNewInstance(loader, className);
                 Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                         factoryConfiguration.getPropertySeparator());
                 CacheManagerPeerListener cacheManagerPeerListener =
@@ -186,7 +190,7 @@ public final class ConfigurationHelper {
             return null;
         } else {
             CacheManagerEventListenerFactory factory = (CacheManagerEventListenerFactory)
-                    ClassLoaderUtil.createNewInstance(className);
+                    ClassLoaderUtil.createNewInstance(loader, className);
             Properties properties = PropertyUtil.parseProperties(cacheManagerEventListenerFactoryConfiguration.properties,
                     cacheManagerEventListenerFactoryConfiguration.getPropertySeparator());
             return factory.createCacheManagerEventListener(cacheManager, properties);
@@ -292,15 +296,20 @@ public final class ConfigurationHelper {
      *
      * @param cacheConfiguration
      */
-    final Ehcache createCache(CacheConfiguration cacheConfiguration) {
-        Ehcache cache = new Cache(cacheConfiguration.clone(), null, null);
-        cache = applyCacheExceptionHandler(cacheConfiguration, cache);
+    final Ehcache createCache(CacheConfiguration cacheConfiguration) {        
+        CacheConfiguration configClone = cacheConfiguration.clone();
+        
+        // make sure all caches use the same classloader that the CacheManager is configured to use
+        configClone.setClassLoader(configuration.getClassLoader());
+        
+        Ehcache cache = new Cache(configClone, null, null);
+        cache = applyCacheExceptionHandler(configClone, cache);
         return cache;
     }
 
     private Ehcache applyCacheExceptionHandler(CacheConfiguration cacheConfiguration, Ehcache cache) {
         CacheExceptionHandler cacheExceptionHandler =
-                createCacheExceptionHandler(cacheConfiguration.getCacheExceptionHandlerFactoryConfiguration());
+                createCacheExceptionHandler(cacheConfiguration.getCacheExceptionHandlerFactoryConfiguration(), loader);
         cache.setCacheExceptionHandler(cacheExceptionHandler);
 
         if (cache.getCacheExceptionHandler() != null) {
@@ -318,21 +327,21 @@ public final class ConfigurationHelper {
     public List<Ehcache> createCacheDecorators(Ehcache cache) {
         CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
         if (cacheConfiguration == null) {
-            return createDefaultCacheDecorators(cache, configuration.getDefaultCacheConfiguration());
+            return createDefaultCacheDecorators(cache, configuration.getDefaultCacheConfiguration(), loader);
         }
         List<CacheDecoratorFactoryConfiguration> cacheDecoratorConfigurations = cacheConfiguration.getCacheDecoratorConfigurations();
         if (cacheDecoratorConfigurations == null || cacheDecoratorConfigurations.size() == 0) {
             LOG.debug("CacheDecoratorFactory not configured. Skipping for '" + cache.getName() + "'.");
-            return createDefaultCacheDecorators(cache, configuration.getDefaultCacheConfiguration());
+            return createDefaultCacheDecorators(cache, configuration.getDefaultCacheConfiguration(), loader);
         }
         List<Ehcache> result = new ArrayList<Ehcache>();
         for (CacheDecoratorFactoryConfiguration factoryConfiguration : cacheDecoratorConfigurations) {
-            Ehcache decoratedCache = createDecoratedCache(cache, factoryConfiguration, false);
+            Ehcache decoratedCache = createDecoratedCache(cache, factoryConfiguration, false, loader);
             if (decoratedCache != null) {
                 result.add(decoratedCache);
             }
         }
-        for (Ehcache defaultDecoratedCache : createDefaultCacheDecorators(cache, configuration.getDefaultCacheConfiguration())) {
+        for (Ehcache defaultDecoratedCache : createDefaultCacheDecorators(cache, configuration.getDefaultCacheConfiguration(), loader)) {
             result.add(defaultDecoratedCache);
         }
         return result;
@@ -342,9 +351,10 @@ public final class ConfigurationHelper {
      * Creates default cache decorators specified in the default cache configuration if any
      * @param cache the underlying cache that will be decorated
      * @param defaultCacheConfiguration default cache configuration
+     * @param loader 
      * @return list of decorated caches
      */
-    public static List<Ehcache> createDefaultCacheDecorators(Ehcache cache, CacheConfiguration defaultCacheConfiguration) {
+    public static List<Ehcache> createDefaultCacheDecorators(Ehcache cache, CacheConfiguration defaultCacheConfiguration, ClassLoader loader) {
         if (cache == null) {
             throw new CacheException("Underlying cache cannot be null when creating decorated caches.");
         }
@@ -357,7 +367,7 @@ public final class ConfigurationHelper {
         List<Ehcache> result = new ArrayList<Ehcache>();
         Set<String> newCacheNames = new HashSet<String>();
         for (CacheDecoratorFactoryConfiguration factoryConfiguration : defaultCacheDecoratorConfigurations) {
-            Ehcache decoratedCache = createDecoratedCache(cache, factoryConfiguration, true);
+            Ehcache decoratedCache = createDecoratedCache(cache, factoryConfiguration, true, loader);
             if (decoratedCache != null) {
                 if (newCacheNames.contains(decoratedCache.getName())) {
                     throw new InvalidConfigurationException(
@@ -376,7 +386,7 @@ public final class ConfigurationHelper {
      * Creates the decorated cache from the decorator config specified. Returns null if the name of the factory class is not specified
      */
     private static Ehcache createDecoratedCache(Ehcache cache,
-            CacheConfiguration.CacheDecoratorFactoryConfiguration factoryConfiguration, boolean forDefaultCache) {
+            CacheConfiguration.CacheDecoratorFactoryConfiguration factoryConfiguration, boolean forDefaultCache, ClassLoader loader) {
         if (factoryConfiguration == null) {
             return null;
         }
@@ -385,7 +395,7 @@ public final class ConfigurationHelper {
             LOG.debug("CacheDecoratorFactory was specified without the name of the factory. Skipping...");
             return null;
         } else {
-            CacheDecoratorFactory factory = (CacheDecoratorFactory) ClassLoaderUtil.createNewInstance(className);
+            CacheDecoratorFactory factory = (CacheDecoratorFactory) ClassLoaderUtil.createNewInstance(loader, className);
             Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                     factoryConfiguration.getPropertySeparator());
             if (forDefaultCache) {
@@ -401,8 +411,8 @@ public final class ConfigurationHelper {
      * @param sa search attribute
      * @return attribute type as class
      */
-    public static Class<?> getSearchAttributeType(SearchAttribute sa) {
-        return sa.getType();
+    public static Class<?> getSearchAttributeType(SearchAttribute sa, ClassLoader loader) {
+        return sa.getType(loader);
     }
 
     /**

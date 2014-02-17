@@ -22,26 +22,28 @@ import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
 
 /**
- * ObjectInputStream that first uses the thread context classloader (TCCL) when resolving classes with fallback to the regular rerializtion
- * loader semantics (which will use this class's loader to resolve classes)
- *
+ * ObjectInputStream that uses a supplied classloader when resolving classes
+ * 
  * @author teck
  */
-public class PreferTCCLObjectInputStream extends ObjectInputStream {
+public class PreferredLoaderObjectInputStream extends ObjectInputStream {
+
+    private final ClassLoader loader;
 
     /**
      * Constructor
-     *
+     * 
      * @param in
      * @throws IOException
      */
-    public PreferTCCLObjectInputStream(InputStream in) throws IOException {
+    public PreferredLoaderObjectInputStream(InputStream in, ClassLoader loader) throws IOException {
         super(in);
+        this.loader = loader;
     }
 
     @Override
     protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-        return ClassLoaderUtil.loadClass(desc.getName());
+        return Class.forName(desc.getName(), false, loader);
     }
 
 }

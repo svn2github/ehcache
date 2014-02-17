@@ -35,9 +35,10 @@ public final class CopyingCacheStore<T extends Store> extends AbstractCopyingCac
      * @param copyOnRead           whether to copy on reads
      * @param copyOnWrite          whether to copy on writes
      * @param copyStrategyInstance the copy strategy to use on every copy operation
+     * @param loader               classloader of the containing cache
      */
-    public CopyingCacheStore(T store, boolean copyOnRead, boolean copyOnWrite, ReadWriteCopyStrategy<Element> copyStrategyInstance) {
-        super(store, copyOnRead, copyOnWrite, copyStrategyInstance);
+    public CopyingCacheStore(T store, boolean copyOnRead, boolean copyOnWrite, ReadWriteCopyStrategy<Element> copyStrategyInstance, ClassLoader loader) {
+        super(store, copyOnRead, copyOnWrite, copyStrategyInstance, loader);
     }
 
 
@@ -63,8 +64,8 @@ public final class CopyingCacheStore<T extends Store> extends AbstractCopyingCac
      */
     private static <T extends Store> CopyingCacheStore<T> wrap(final T cacheStore, final CacheConfiguration cacheConfiguration) {
         final ReadWriteCopyStrategy<Element> copyStrategyInstance = cacheConfiguration.getCopyStrategyConfiguration()
-            .getCopyStrategyInstance();
-        return new CopyingCacheStore<T>(cacheStore, cacheConfiguration.isCopyOnRead(), cacheConfiguration.isCopyOnWrite(), copyStrategyInstance);
+            .getCopyStrategyInstance(cacheConfiguration.getClassLoader());
+        return new CopyingCacheStore<T>(cacheStore, cacheConfiguration.isCopyOnRead(), cacheConfiguration.isCopyOnWrite(), copyStrategyInstance, cacheConfiguration.getClassLoader());
     }
 
     /**
@@ -91,10 +92,10 @@ public final class CopyingCacheStore<T extends Store> extends AbstractCopyingCac
     public static ElementValueComparator wrapIfCopy(final ElementValueComparator comparator, final CacheConfiguration cacheConfiguration) {
         if (isCopyOnReadAndCopyOnWrite(cacheConfiguration)) {
             final ReadWriteCopyStrategy<Element> copyStrategyInstance = cacheConfiguration.getCopyStrategyConfiguration()
-                .getCopyStrategyInstance();
+                .getCopyStrategyInstance(cacheConfiguration.getClassLoader());
             CopyStrategyHandler copyStrategyHandler = new CopyStrategyHandler(cacheConfiguration.isCopyOnRead(),
                     cacheConfiguration.isCopyOnWrite(),
-                    copyStrategyInstance);
+                    copyStrategyInstance, cacheConfiguration.getClassLoader());
             return new CopyingElementValueComparator(comparator, copyStrategyHandler);
         }
         return comparator;

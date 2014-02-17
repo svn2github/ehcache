@@ -20,7 +20,7 @@ public class SimpleTx2 extends AbstractTxClient {
 
   @Override
   protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
-    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
+    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(getClass().getClassLoader());
 
     final TransactionManager txnManager = lookup.getTransactionManager();
 

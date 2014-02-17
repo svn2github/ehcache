@@ -46,7 +46,7 @@ public class CacheWriterBTMTxClient extends AbstractTxClient {
     pds1.getDriverProperties().setProperty("createDatabase", "create");
     pds1.init();
 
-    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
+    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(getClass().getClassLoader());
     final TransactionManager manager = lookup.getTransactionManager();
 
     DerbyCacheWriter writer = new DerbyCacheWriter(pds1);
@@ -93,6 +93,7 @@ public class CacheWriterBTMTxClient extends AbstractTxClient {
       this.pds = pds;
     }
 
+    @Override
     public void write(Element element) throws CacheException {
       try {
         Connection conn = pds.getConnection();
@@ -108,6 +109,7 @@ public class CacheWriterBTMTxClient extends AbstractTxClient {
       }
     }
 
+    @Override
     public void delete(CacheEntry entry) throws CacheException {
       try {
         Connection conn = pds.getConnection();

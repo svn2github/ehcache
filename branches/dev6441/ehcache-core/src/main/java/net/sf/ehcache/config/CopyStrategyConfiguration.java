@@ -19,14 +19,15 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.store.compound.CopyStrategy;
 import net.sf.ehcache.store.compound.LegacyCopyStrategyAdapter;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
-import net.sf.ehcache.util.ClassLoaderUtil;
 
 /**
  * @author Alex Snaps
  */
 public class CopyStrategyConfiguration {
 
-    private volatile String className = "net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy";
+    private static final String DEFAULT_IMPL = "net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy";
+    
+    private volatile String className = DEFAULT_IMPL;
     private ReadWriteCopyStrategy<Element> strategy;
 
     /**
@@ -62,11 +63,15 @@ public class CopyStrategyConfiguration {
      * 
      * @return the instance
      */
-    public synchronized ReadWriteCopyStrategy<Element> getCopyStrategyInstance() {
+    public synchronized ReadWriteCopyStrategy<Element> getCopyStrategyInstance(ClassLoader loader) {
         if (strategy == null) {
             Class copyStrategy = null;
-            try {
-                copyStrategy = ClassLoaderUtil.loadClass(className);
+            try {                
+                if (DEFAULT_IMPL.equals(className)) {
+                    loader = getClass().getClassLoader();
+                }
+                
+                copyStrategy = loader.loadClass(className);
                 Object strategyObject = copyStrategy.newInstance();
                 if (strategyObject instanceof CopyStrategy) {
                     strategy = new LegacyCopyStrategyAdapter((CopyStrategy) strategyObject);
