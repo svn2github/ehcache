@@ -854,10 +854,8 @@ public class ConcurrentHashMap<K, V>
                             if ((pr = p.right) != null &&
                                 (r = getTreeNode(h, k, pr)) != null)
                                 return r;
-                            else if ((pl = p.left) != null && h <= pl.hash)
+                            else
                                 dir = -1;
-                            else // nothing there
-                                return null;
                         }
                     }
                 }
