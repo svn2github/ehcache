@@ -33,16 +33,19 @@ public class MValueTest {
         Enum<Foo> obj = enumVal.asEhcacheObject(getClass().getClassLoader());
         Assert.assertEquals(Foo.Bar, obj);
         try {
-            new MValue.MEnum<Foo>(null, Foo.class.getName(), "Barr");
+            MEnum<Foo> mEnum = new MValue.MEnum<Foo>(null, Foo.class.getName(), "Barr");
+            mEnum.asEhcacheObject(getClass().getClassLoader());
             Assert.fail();
         } catch (Exception e) {
             // expected
         }
     }
     
+    @Test
     public void testNonEnumValue() throws CustomParseException {
         try {
-            new MValue.MEnum<Foo>(null, Boolean.class.getName(), "TRUE");
+        	MEnum<Foo> mEnum = new MValue.MEnum<Foo>(null, Boolean.class.getName(), "TRUE");
+            mEnum.asEhcacheObject(getClass().getClassLoader());
             Assert.fail();
         } catch (Exception e) {
             // expected
