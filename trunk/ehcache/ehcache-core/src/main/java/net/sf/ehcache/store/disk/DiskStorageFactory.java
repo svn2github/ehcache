@@ -50,7 +50,7 @@ import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
 import net.sf.ehcache.store.disk.ods.FileAllocationTree;
 import net.sf.ehcache.store.disk.ods.Region;
 import net.sf.ehcache.util.MemoryEfficientByteArrayOutputStream;
-import net.sf.ehcache.util.PreferTCCLObjectInputStream;
+import net.sf.ehcache.util.PreferredLoaderObjectInputStream;
 import net.sf.ehcache.util.TimeUtil;
 
 import org.slf4j.Logger;
@@ -113,12 +113,16 @@ public class DiskStorageFactory {
     private final boolean diskPersistent;
 
     private final DiskStorePathManager diskStorePathManager;
+    
+    private final ClassLoader classLoader;
+   
     /**
      * Constructs an disk persistent factory for the given cache and disk path.
      *
      * @param cache cache that fronts this factory
      */
     public DiskStorageFactory(Ehcache cache, RegisteredEventListeners cacheEventNotificationService) {
+        this.classLoader = cache.getCacheConfiguration().getClassLoader();       
         this.diskStorePathManager = cache.getCacheManager().getDiskStorePathManager();
         this.file = diskStorePathManager.getFile(cache.getName(), ".data");
 
@@ -361,7 +365,7 @@ public class DiskStorageFactory {
             data.readFully(buffer);
         }
 
-        ObjectInputStream objstr = new PreferTCCLObjectInputStream(new ByteArrayInputStream(buffer));
+        ObjectInputStream objstr = new PreferredLoaderObjectInputStream(new ByteArrayInputStream(buffer), classLoader);
 
         try {
             return (Element) objstr.readObject();
@@ -1127,7 +1131,7 @@ public class DiskStorageFactory {
         }
 
         try {
-            ObjectInputStream ois = new PreferTCCLObjectInputStream(new FileInputStream(indexFile));
+            ObjectInputStream ois = new PreferredLoaderObjectInputStream(new FileInputStream(indexFile), classLoader);
             try {
                 Object key = ois.readObject();
                 Object value = ois.readObject();

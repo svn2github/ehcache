@@ -54,12 +54,13 @@ abstract class AbstractCopyingCacheStore<T extends Store> implements Store {
      * @param copyOnRead whether to copy on reads
      * @param copyOnWrite whether to copy on writes
      * @param copyStrategyInstance the copy strategy to use on every copy operation
+     * @param loader classloader of the containing cache
      */
     public AbstractCopyingCacheStore(final T store, final boolean copyOnRead, final boolean copyOnWrite,
-                                     final ReadWriteCopyStrategy<Element> copyStrategyInstance) {
+                                     final ReadWriteCopyStrategy<Element> copyStrategyInstance, ClassLoader loader) {
 
         this.store = store;
-        copyStrategyHandler = new CopyStrategyHandler(copyOnRead, copyOnWrite, copyStrategyInstance);
+        copyStrategyHandler = new CopyStrategyHandler(copyOnRead, copyOnWrite, copyStrategyInstance, loader);
     }
 
     @Override

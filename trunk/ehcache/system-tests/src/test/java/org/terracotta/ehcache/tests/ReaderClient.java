@@ -4,8 +4,6 @@
 package org.terracotta.ehcache.tests;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.constructs.classloader.ClassLoaderAwareCache;
 
 import java.util.Iterator;
 import java.util.List;
@@ -20,9 +18,7 @@ public class ReaderClient extends OtherClassloaderClient {
     super(args);
   }
 
-  protected void test(Cache c) throws Throwable {
-    Ehcache cache = new ClassLoaderAwareCache(c, createClassLoader());
-
+  protected void test(Cache cache) throws Throwable {
     List keys = cache.getKeys();
     Iterator iter = keys.iterator();
     while (iter.hasNext()) {

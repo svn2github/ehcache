@@ -5,7 +5,6 @@ package org.terracotta.modules.ehcache.store;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
-import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
@@ -57,8 +56,9 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   private final AsyncCoordinatorFactory         asyncCoordinatorFactory;
   private final TerracottaStoreInitializationService      initializationService;
 
-  public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
-    toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration);
+  public TerracottaClusteredInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration,
+                                            ClassLoader loader) {
+    toolkitInstanceFactory = createToolkitInstanceFactory(terracottaClientConfiguration, loader);
     initializationService = new TerracottaStoreInitializationService(toolkitInstanceFactory.getToolkit().getClusterInfo());
     topology = createTopology(toolkitInstanceFactory);
     clusteredEventReplicatorFactory = new ClusteredEventReplicatorFactory(toolkitInstanceFactory);
@@ -84,8 +84,9 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
     LOGGER.info(ehcacheCoreProductInfo.toString());
   }
 
-  protected ToolkitInstanceFactory createToolkitInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration) {
-    return new ToolkitInstanceFactoryImpl(terracottaClientConfiguration);
+  protected ToolkitInstanceFactory createToolkitInstanceFactory(TerracottaClientConfiguration terracottaClientConfiguration,
+                                                                ClassLoader loader) {
+    return new ToolkitInstanceFactoryImpl(terracottaClientConfiguration, loader);
   }
 
   protected AsyncCoordinatorFactory createAsyncCoordinatorFactory() {

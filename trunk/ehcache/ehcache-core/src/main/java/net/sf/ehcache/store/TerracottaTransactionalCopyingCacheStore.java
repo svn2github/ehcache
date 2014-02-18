@@ -35,9 +35,10 @@ public final class TerracottaTransactionalCopyingCacheStore extends AbstractCopy
      *
      * @param store                the real store
      * @param copyStrategyInstance the copy strategy to use on every copy operation
+     * @param loader               classloader of the containing cache
      */
-    public TerracottaTransactionalCopyingCacheStore(TerracottaStore store, ReadWriteCopyStrategy<Element> copyStrategyInstance) {
-        super(store, true, false, copyStrategyInstance);
+    public TerracottaTransactionalCopyingCacheStore(TerracottaStore store, ReadWriteCopyStrategy<Element> copyStrategyInstance, ClassLoader loader) {
+        super(store, true, false, copyStrategyInstance, loader);
     }
 
     @Override

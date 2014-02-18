@@ -94,7 +94,7 @@ class TerracottaClusteredInstanceHelper {
          */
         public Class getFactoryClassOrNull() {
             try {
-                return ClassLoaderUtil.loadClass(factoryClassName);
+                return Class.forName(factoryClassName);
             } catch (ClassNotFoundException e) {
                 return null;
             }
@@ -131,7 +131,7 @@ class TerracottaClusteredInstanceHelper {
      * @param terracottaConfig
      * @return the selected terracotta store factory
      */
-    ClusteredInstanceFactory newClusteredInstanceFactory(TerracottaClientConfiguration terracottaConfig) {
+    ClusteredInstanceFactory newClusteredInstanceFactory(TerracottaClientConfiguration terracottaConfig, ClassLoader loader) {
         lookupTerracottaRuntime();
         if (terracottaRuntimeType == null) {
             throw new CacheException("Terracotta cache classes are not available, you are missing jar(s) most likely");
@@ -154,8 +154,8 @@ class TerracottaClusteredInstanceHelper {
             throw new CacheException("Not able to get factory class for: " + terracottaRuntimeType.name());
         }
         try {
-            return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(factoryClass.getName(),
-                    new Class[] {TerracottaClientConfiguration.class}, new Object[] {terracottaConfig});
+            return (ClusteredInstanceFactory) ClassLoaderUtil.createNewInstance(getClass().getClassLoader(), factoryClass.getName(),
+                    new Class[] {TerracottaClientConfiguration.class, ClassLoader.class}, new Object[] {terracottaConfig, loader});
         } catch (CacheException ce) {
             if (ce.getCause() instanceof NoClassDefFoundError) {
                 throw new CacheException("Could not create ClusteredInstanceFactory due to missing class."

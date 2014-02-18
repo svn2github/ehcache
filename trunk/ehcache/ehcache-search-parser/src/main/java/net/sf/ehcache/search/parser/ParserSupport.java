@@ -13,8 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import net.sf.ehcache.util.ClassLoaderUtil;
-
 /**
  * This class is support stuff for delegate parsing.
  */
@@ -72,11 +70,11 @@ public class ParserSupport {
      * @param valueName the value name
      * @return the object
      */
-    public static <T extends Enum<T>> Enum<T> makeEnumFromString(String enumName, String valueName) {
+    public static <T extends Enum<T>> Enum<T> makeEnumFromString(ClassLoader loader, String enumName, String valueName) {
         // Attempt to load enum class by name, then validate that it's really enum
         Class<?> realType;
         try {
-          realType = ClassLoaderUtil.loadClass(enumName);
+          realType = loader.loadClass(enumName);
         } catch (ClassNotFoundException e) {
           throw new IllegalArgumentException(String.format("Unable to load class specified as name of enum %s: %s", 
                   enumName, e.getMessage()));

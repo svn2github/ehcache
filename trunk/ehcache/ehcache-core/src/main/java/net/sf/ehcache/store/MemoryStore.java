@@ -219,7 +219,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     public static Store create(final Ehcache cache, Pool pool) {
         CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
-        final BruteForceSearchManager searchManager = new BruteForceSearchManager();
+        final BruteForceSearchManager searchManager = new BruteForceSearchManager(cache);
         MemoryStore memoryStore = new MemoryStore(cache, pool, new BasicBackingFactory(), searchManager);
         cacheConfiguration.addConfigurationListener(memoryStore);
         searchManager.setBruteForceSource(createBruteForceSource(memoryStore, cache.getCacheConfiguration()));
@@ -238,7 +238,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
         BruteForceSource source = new MemoryStoreBruteForceSource(memoryStore, cacheConfiguration.getSearchable());
         CopyStrategyHandler copyStrategyHandler = new CopyStrategyHandler(cacheConfiguration.isCopyOnRead(),
                 cacheConfiguration.isCopyOnWrite(),
-                cacheConfiguration.getCopyStrategy());
+                cacheConfiguration.getCopyStrategy(), cacheConfiguration.getClassLoader());
         if (cacheConfiguration.getTransactionalMode().isTransactional()) {
             source = new TransactionalBruteForceSource(source, copyStrategyHandler);
         } else if (cacheConfiguration.isCopyOnRead() || cacheConfiguration.isCopyOnWrite()) {

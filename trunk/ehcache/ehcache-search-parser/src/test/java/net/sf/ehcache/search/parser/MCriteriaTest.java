@@ -35,58 +35,60 @@ import org.junit.Test;
 
 public class MCriteriaTest {
 
-    @Test
+    private final ClassLoader loader = getClass().getClassLoader();
+
+	@Test
     public void testSimpleModelCriteria() throws CustomParseException {
         {
             MInt obj = new MValue.MInt(null, "0");
             Simple mcrit = new MCriteria.Simple(new MAttribute("foo"), MCriteria.SimpleOp.EQ, obj);
-            EqualTo crit = (EqualTo)mcrit.asEhcacheObject();
+            EqualTo crit = (EqualTo)mcrit.asEhcacheObject(loader);
             Assert.assertEquals(crit.getAttributeName(), "foo");
-            Assert.assertEquals(crit.getValue(), obj.asEhcacheObject());
+            Assert.assertEquals(crit.getValue(), obj.asEhcacheObject(loader));
         }
         {
             MInt obj = new MValue.MInt(null, "0");
             Simple mcrit = new MCriteria.Simple(new MAttribute("foo"), MCriteria.SimpleOp.NE, obj);
-            NotEqualTo crit = (NotEqualTo)mcrit.asEhcacheObject();
+            NotEqualTo crit = (NotEqualTo)mcrit.asEhcacheObject(loader);
             Assert.assertEquals(crit.getAttributeName(), "foo");
-            Assert.assertEquals(crit.getValue(), obj.asEhcacheObject());
+            Assert.assertEquals(crit.getValue(), obj.asEhcacheObject(loader));
         }
         {
             MInt obj = new MValue.MInt(null, "0");
             Simple mcrit = new MCriteria.Simple(new MAttribute("foo"), MCriteria.SimpleOp.GE, obj);
-            GreaterThanOrEqual crit = (GreaterThanOrEqual)mcrit.asEhcacheObject();
+            GreaterThanOrEqual crit = (GreaterThanOrEqual)mcrit.asEhcacheObject(loader);
             Assert.assertEquals(crit.getAttributeName(), "foo");
-            Assert.assertEquals(crit.getComparableValue(), obj.asEhcacheObject());
+            Assert.assertEquals(crit.getComparableValue(), obj.asEhcacheObject(loader));
         }
         {
             MInt obj = new MValue.MInt(null, "0");
             Simple mcrit = new MCriteria.Simple(new MAttribute("foo"), MCriteria.SimpleOp.GT, obj);
-            GreaterThan crit = (GreaterThan)mcrit.asEhcacheObject();
+            GreaterThan crit = (GreaterThan)mcrit.asEhcacheObject(loader);
             Assert.assertEquals(crit.getAttributeName(), "foo");
-            Assert.assertEquals(crit.getComparableValue(), obj.asEhcacheObject());
+            Assert.assertEquals(crit.getComparableValue(), obj.asEhcacheObject(loader));
         }
         {
             MInt obj = new MValue.MInt(null, "0");
             Simple mcrit = new MCriteria.Simple(new MAttribute("foo"), MCriteria.SimpleOp.LT, obj);
-            LessThan crit = (LessThan)mcrit.asEhcacheObject();
+            LessThan crit = (LessThan)mcrit.asEhcacheObject(loader);
             Assert.assertEquals(crit.getAttributeName(), "foo");
-            Assert.assertEquals(crit.getComparableValue(), obj.asEhcacheObject());
+            Assert.assertEquals(crit.getComparableValue(), obj.asEhcacheObject(loader));
         }
         {
             MInt obj = new MValue.MInt(null, "0");
             Simple mcrit = new MCriteria.Simple(new MAttribute("foo"), MCriteria.SimpleOp.LE, obj);
-            LessThanOrEqual crit = (LessThanOrEqual)mcrit.asEhcacheObject();
+            LessThanOrEqual crit = (LessThanOrEqual)mcrit.asEhcacheObject(loader);
             Assert.assertEquals(crit.getAttributeName(), "foo");
-            Assert.assertEquals(crit.getComparableValue(), obj.asEhcacheObject());
+            Assert.assertEquals(crit.getComparableValue(), obj.asEhcacheObject(loader));
         }
     }
 
     void checkBetween(String name, ModelElement<?> obj1, boolean min, ModelElement<?> obj2, boolean max) {
         Between between = new MCriteria.Between(new MAttribute(name), obj1, min, obj2, max);
-        net.sf.ehcache.search.expression.Between crit = (net.sf.ehcache.search.expression.Between)between.asEhcacheObject();
+        net.sf.ehcache.search.expression.Between crit = (net.sf.ehcache.search.expression.Between)between.asEhcacheObject(loader);
         Assert.assertEquals(crit.getAttributeName(), name);
-        Assert.assertEquals(crit.getMin(), obj1.asEhcacheObject());
-        Assert.assertEquals(crit.getMax(), obj2.asEhcacheObject());
+        Assert.assertEquals(crit.getMin(), obj1.asEhcacheObject(loader));
+        Assert.assertEquals(crit.getMax(), obj2.asEhcacheObject(loader));
         Assert.assertEquals(crit.isMinInclusive(), min);
         Assert.assertEquals(crit.isMaxInclusive(), max);
     }
@@ -104,7 +106,7 @@ public class MCriteriaTest {
     @Test
     public void testIlike() {
         MCriteria.ILike ilike = new MCriteria.ILike(MAttribute.KEY, "foo.*foo");
-        ILike crit = (ILike)ilike.asEhcacheObject();
+        ILike crit = (ILike)ilike.asEhcacheObject(loader);
         Assert.assertEquals(crit.getRegex(), "foo.*foo");
         Assert.assertEquals(crit.getAttributeName(), MAttribute.KEY.getName());
     }
@@ -112,7 +114,7 @@ public class MCriteriaTest {
     @Test
     public void testLike() {
         MCriteria.Like like = new MCriteria.Like(MAttribute.KEY, "foo.%foo");
-        ILike crit = (ILike)like.asEhcacheObject();
+        ILike crit = (ILike)like.asEhcacheObject(loader);
         Assert.assertEquals(like.getLikeRegex(), "foo.%foo");
         Assert.assertEquals(like.getILikeRegex(), "foo.*foo");
         Assert.assertEquals(crit.getRegex(), "foo.*foo");
@@ -123,7 +125,7 @@ public class MCriteriaTest {
     public void testNot() throws CustomParseException {
         MCriteria.Simple simple = new MCriteria.Simple(MAttribute.KEY, MCriteria.SimpleOp.EQ, new MValue.MInt(null, "1"));
         MCriteria.Not not = new MCriteria.Not(simple);
-        Not crit = (Not)not.asEhcacheObject();
+        Not crit = (Not)not.asEhcacheObject(loader);
         @SuppressWarnings("unused")
         EqualTo inner = (EqualTo)crit.getCriteria();
         Assert.assertTrue(true); // the casts are sufficient for the test.
@@ -136,7 +138,7 @@ public class MCriteriaTest {
         Simple mcrit3 = new MCriteria.Simple(new MAttribute("foo"), MCriteria.SimpleOp.NE, new MValue.MInt(null, "5"));
 
         MCriteria.And and = new MCriteria.And(mcrit1, mcrit2, mcrit3);
-        And crit = (And)and.asEhcacheObject();
+        And crit = (And)and.asEhcacheObject(loader);
         Assert.assertTrue(crit.getCriterion()[0] instanceof GreaterThan);
         Assert.assertTrue(crit.getCriterion()[1] instanceof And);
         And crit2 = (And)crit.getCriterion()[1];
@@ -151,7 +153,7 @@ public class MCriteriaTest {
         Simple mcrit2 = new MCriteria.Simple(new MAttribute("foo"), MCriteria.SimpleOp.LT, new MValue.MInt(null, "10"));
         MCriteria.Or or = new MCriteria.Or(mcrit1, mcrit2);
 
-        Or crit = (Or)or.asEhcacheObject();
+        Or crit = (Or)or.asEhcacheObject(loader);
         Assert.assertTrue(crit.getCriterion()[0] instanceof GreaterThan);
         Assert.assertTrue(crit.getCriterion()[1] instanceof LessThan);
     }

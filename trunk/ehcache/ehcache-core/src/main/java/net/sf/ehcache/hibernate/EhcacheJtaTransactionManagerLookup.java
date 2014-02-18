@@ -33,8 +33,8 @@ public class EhcacheJtaTransactionManagerLookup extends DefaultTransactionManage
     /**
      * Construct a new transaction manager lookup.
      */
-    public EhcacheJtaTransactionManagerLookup() {
-        // no-op
+    public EhcacheJtaTransactionManagerLookup(ClassLoader loader) {
+        super(loader);
     }
 
     /**

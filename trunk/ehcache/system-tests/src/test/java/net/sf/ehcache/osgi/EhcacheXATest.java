@@ -72,7 +72,7 @@ public class EhcacheXATest {
 
   @Test
   public void testXACache() throws Exception {
-    TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
+    TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(getClass().getClassLoader());
     TransactionManager tm = lookup.getTransactionManager();
     CacheManager cacheManager = new CacheManager(
                                                  EhcacheXATest.class

@@ -38,14 +38,14 @@ public class LegacyCopyStrategyAdapter implements ReadWriteCopyStrategy<Element>
     /**
      * {@inheritDoc}
      */
-    public Element copyForWrite(Element value) {
+    public Element copyForWrite(Element value, ClassLoader loader) {
         return legacyCopyStrategy.copy(value);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Element copyForRead(Element storedValue) {
+    public Element copyForRead(Element storedValue, ClassLoader loader) {
         return legacyCopyStrategy.copy(storedValue);
     }
 }

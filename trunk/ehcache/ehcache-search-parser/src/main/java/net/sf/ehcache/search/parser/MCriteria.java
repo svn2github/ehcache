@@ -164,20 +164,20 @@ public interface MCriteria extends ModelElement<Criteria> {
          * (non-Javadoc)
          * @see net.sf.ehcache.search.parser.MCriteria#asCriteria()
          */
-        public Criteria asEhcacheObject() {
+        public Criteria asEhcacheObject(ClassLoader loader) {
             switch (op) {
                 case EQ:
-                    return new EqualTo(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject());
+                    return new EqualTo(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject(loader));
                 case NE:
-                    return new NotEqualTo(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject());
+                    return new NotEqualTo(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject(loader));
                 case GT:
-                    return new GreaterThan(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject());
+                    return new GreaterThan(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject(loader));
                 case LE:
-                    return new LessThanOrEqual(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject());
+                    return new LessThanOrEqual(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject(loader));
                 case LT:
-                    return new LessThan(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject());
+                    return new LessThan(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject(loader));
                 case GE:
-                    return new GreaterThanOrEqual(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject());
+                    return new GreaterThanOrEqual(attr.asEhcacheAttributeString(), getRhs().asEhcacheObject(loader));
                 case NULL:
                     return new IsNull(attr.asEhcacheAttributeString());
                 case NOT_NULL:
@@ -327,9 +327,9 @@ public interface MCriteria extends ModelElement<Criteria> {
          * (non-Javadoc)
          * @see net.sf.ehcache.search.parser.MCriteria#asCriteria()
          */
-        public Criteria asEhcacheObject() {
-            return new net.sf.ehcache.search.expression.Between(attr.asEhcacheAttributeString(), getMin().asEhcacheObject(),
-                getMax().asEhcacheObject(), isIncludeMin(), isIncludeMax());
+        public Criteria asEhcacheObject(ClassLoader loader) {
+            return new net.sf.ehcache.search.expression.Between(attr.asEhcacheAttributeString(), getMin().asEhcacheObject(loader),
+                getMax().asEhcacheObject(loader), isIncludeMin(), isIncludeMax());
         }
 
         /*
@@ -431,7 +431,7 @@ public interface MCriteria extends ModelElement<Criteria> {
          * (non-Javadoc)
          * @see net.sf.ehcache.search.parser.MCriteria#asCriteria()
          */
-        public Criteria asEhcacheObject() {
+        public Criteria asEhcacheObject(ClassLoader loader) {
             return new net.sf.ehcache.search.expression.ILike(attr.asEhcacheAttributeString(), getRegexp());
         }
 
@@ -508,13 +508,13 @@ public interface MCriteria extends ModelElement<Criteria> {
          * (non-Javadoc)
          * @see net.sf.ehcache.search.parser.MCriteria#asCriteria()
          */
-        public Criteria asEhcacheObject() {
+        public Criteria asEhcacheObject(ClassLoader loader) {
 
-            Criteria crit = new net.sf.ehcache.search.expression.Or(crits[crits.length - 2].asEhcacheObject(),
-                crits[crits.length - 1].asEhcacheObject());
+            Criteria crit = new net.sf.ehcache.search.expression.Or(crits[crits.length - 2].asEhcacheObject(loader),
+                crits[crits.length - 1].asEhcacheObject(loader));
             if (crits.length > 2) {
                 for (int i = crits.length - 3; i >= 0; i--) {
-                    crit = new net.sf.ehcache.search.expression.Or(crits[i].asEhcacheObject(), crit);
+                    crit = new net.sf.ehcache.search.expression.Or(crits[i].asEhcacheObject(loader), crit);
                 }
             }
             return crit;
@@ -584,12 +584,12 @@ public interface MCriteria extends ModelElement<Criteria> {
          * (non-Javadoc)
          * @see net.sf.ehcache.search.parser.MCriteria#asCriteria()
          */
-        public Criteria asEhcacheObject() {
-            Criteria crit = new net.sf.ehcache.search.expression.And(crits[crits.length - 2].asEhcacheObject(),
-                crits[crits.length - 1].asEhcacheObject());
+        public Criteria asEhcacheObject(ClassLoader loader) {
+            Criteria crit = new net.sf.ehcache.search.expression.And(crits[crits.length - 2].asEhcacheObject(loader),
+                crits[crits.length - 1].asEhcacheObject(loader));
             if (crits.length > 2) {
                 for (int i = crits.length - 3; i >= 0; i--) {
-                    crit = new net.sf.ehcache.search.expression.And(crits[i].asEhcacheObject(), crit);
+                    crit = new net.sf.ehcache.search.expression.And(crits[i].asEhcacheObject(loader), crit);
                 }
             }
             return crit;
@@ -663,8 +663,8 @@ public interface MCriteria extends ModelElement<Criteria> {
          * (non-Javadoc)
          * @see net.sf.ehcache.search.parser.MCriteria#asCriteria()
          */
-        public Criteria asEhcacheObject() {
-            return new net.sf.ehcache.search.expression.Not(crit.asEhcacheObject());
+        public Criteria asEhcacheObject(ClassLoader loader) {
+            return new net.sf.ehcache.search.expression.Not(crit.asEhcacheObject(loader));
         }
 
         /*
@@ -767,7 +767,7 @@ public interface MCriteria extends ModelElement<Criteria> {
          * (non-Javadoc)
          * @see net.sf.ehcache.search.parser.MCriteria#asCriteria()
          */
-        public Criteria asEhcacheObject() {
+        public Criteria asEhcacheObject(ClassLoader loader) {
             return new net.sf.ehcache.search.expression.ILike(attr.asEhcacheAttributeString(), getILikeRegex());
         }
 

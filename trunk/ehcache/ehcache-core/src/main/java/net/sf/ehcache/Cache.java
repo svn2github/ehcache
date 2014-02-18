@@ -334,6 +334,9 @@ public class Cache implements InternalEhcache, StoreListener {
     public Cache(CacheConfiguration cacheConfiguration,
                  RegisteredEventListeners registeredEventListeners,
                  BootstrapCacheLoader bootstrapCacheLoader) {
+        
+        final ClassLoader loader = cacheConfiguration.getClassLoader();
+        
         cacheStatus.changeState(Status.STATUS_UNINITIALISED);
 
         this.configuration = cacheConfiguration.clone();
@@ -346,16 +349,16 @@ public class Cache implements InternalEhcache, StoreListener {
         }
 
         RegisteredEventListeners listeners = getCacheEventNotificationService();
-        registerCacheListeners(configuration, listeners);
-        registerCacheExtensions(configuration, this);
+        registerCacheListeners(configuration, listeners, loader);
+        registerCacheExtensions(configuration, this, loader);
 
         if (null == bootstrapCacheLoader) {
-            this.bootstrapCacheLoader = createBootstrapCacheLoader(configuration.getBootstrapCacheLoaderFactoryConfiguration());
+            this.bootstrapCacheLoader = createBootstrapCacheLoader(configuration.getBootstrapCacheLoaderFactoryConfiguration(), loader);
         } else {
             this.bootstrapCacheLoader = bootstrapCacheLoader;
         }
-        registerCacheLoaders(configuration, this);
-        registerCacheWriter(configuration, this);
+        registerCacheLoaders(configuration, this, loader);
+        registerCacheWriter(configuration, this, loader);
 
     }
 
@@ -787,13 +790,15 @@ public class Cache implements InternalEhcache, StoreListener {
         if (original.compoundStore != null) {
             throw new CloneNotSupportedException("Cannot clone an initialized cache.");
         }
+        
+        final ClassLoader loader = original.configuration.getClassLoader();
 
         // create new copies of the statistics
         configuration = original.configuration.clone();
         cacheStatus.changeState(Status.STATUS_UNINITIALISED);
         configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
         //XXX - should this be here?
-        elementValueComparator = configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration);
+        elementValueComparator = configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration, loader);
         for (PropertyChangeListener propertyChangeListener : original.propertyChangeSupport.getPropertyChangeListeners()) {
             addPropertyChangeListener(propertyChangeListener);
         }
@@ -832,14 +837,15 @@ public class Cache implements InternalEhcache, StoreListener {
 
     /**
      * A factory method to create a RegisteredEventListeners
+     * @param loader 
      */
     private static void registerCacheListeners(CacheConfiguration cacheConfiguration,
-                                                 RegisteredEventListeners registeredEventListeners) {
+                                                 RegisteredEventListeners registeredEventListeners, ClassLoader loader) {
         List cacheEventListenerConfigurations = cacheConfiguration.getCacheEventListenerConfigurations();
         for (Object cacheEventListenerConfiguration : cacheEventListenerConfigurations) {
             CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration =
                     (CacheConfiguration.CacheEventListenerFactoryConfiguration) cacheEventListenerConfiguration;
-            CacheEventListener cacheEventListener = createCacheEventListener(factoryConfiguration);
+            CacheEventListener cacheEventListener = createCacheEventListener(factoryConfiguration, loader);
             registeredEventListeners.registerListener(cacheEventListener, factoryConfiguration.getListenFor());
         }
     }
@@ -849,13 +855,14 @@ public class Cache implements InternalEhcache, StoreListener {
      *
      * @param cacheConfiguration the cache configuration
      * @param cache              the cache
+     * @param loader 
      */
-    private static void registerCacheExtensions(CacheConfiguration cacheConfiguration, Ehcache cache) {
+    private static void registerCacheExtensions(CacheConfiguration cacheConfiguration, Ehcache cache, ClassLoader loader) {
         List cacheExtensionConfigurations = cacheConfiguration.getCacheExtensionConfigurations();
         for (Object cacheExtensionConfiguration : cacheExtensionConfigurations) {
             CacheConfiguration.CacheExtensionFactoryConfiguration factoryConfiguration =
                     (CacheConfiguration.CacheExtensionFactoryConfiguration) cacheExtensionConfiguration;
-            CacheExtension cacheExtension = createCacheExtension(factoryConfiguration, cache);
+            CacheExtension cacheExtension = createCacheExtension(factoryConfiguration, cache, loader);
             cache.registerCacheExtension(cacheExtension);
         }
     }
@@ -865,13 +872,14 @@ public class Cache implements InternalEhcache, StoreListener {
      *
      * @param cacheConfiguration the cache configuration
      * @param cache              the cache
+     * @param loader 
      */
-    private static void registerCacheLoaders(CacheConfiguration cacheConfiguration, Ehcache cache) {
+    private static void registerCacheLoaders(CacheConfiguration cacheConfiguration, Ehcache cache, ClassLoader loader) {
         List cacheLoaderConfigurations = cacheConfiguration.getCacheLoaderConfigurations();
         for (Object cacheLoaderConfiguration : cacheLoaderConfigurations) {
             CacheConfiguration.CacheLoaderFactoryConfiguration factoryConfiguration =
                     (CacheConfiguration.CacheLoaderFactoryConfiguration) cacheLoaderConfiguration;
-            CacheLoader cacheLoader = createCacheLoader(factoryConfiguration, cache);
+            CacheLoader cacheLoader = createCacheLoader(factoryConfiguration, cache, loader);
             cache.registerCacheLoader(cacheLoader);
         }
     }
@@ -881,11 +889,12 @@ public class Cache implements InternalEhcache, StoreListener {
      *
      * @param cacheConfiguration the cache configuration
      * @param cache              the cache
+     * @param loader 
      */
-    private static void registerCacheWriter(CacheConfiguration cacheConfiguration, Ehcache cache) {
+    private static void registerCacheWriter(CacheConfiguration cacheConfiguration, Ehcache cache, ClassLoader loader) {
         CacheWriterConfiguration config = cacheConfiguration.getCacheWriterConfiguration();
         if (config != null) {
-            CacheWriter cacheWriter = createCacheWriter(config, cache);
+            CacheWriter cacheWriter = createCacheWriter(config, cache, loader);
             cache.registerCacheWriter(cacheWriter);
         }
     }
@@ -895,9 +904,10 @@ public class Cache implements InternalEhcache, StoreListener {
      * Tries to load the class specified otherwise defaults to null.
      *
      * @param factoryConfiguration
+     * @param loader 
      */
     private static CacheEventListener createCacheEventListener(
-            CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration) {
+            CacheConfiguration.CacheEventListenerFactoryConfiguration factoryConfiguration, ClassLoader loader) {
         String className = null;
         CacheEventListener cacheEventListener = null;
         if (factoryConfiguration != null) {
@@ -907,7 +917,7 @@ public class Cache implements InternalEhcache, StoreListener {
             LOG.debug("CacheEventListener factory not configured. Skipping...");
         } else {
             CacheEventListenerFactory factory = (CacheEventListenerFactory)
-                    ClassLoaderUtil.createNewInstance(className);
+                    ClassLoaderUtil.createNewInstance(loader, className);
             Properties properties =
 
                     PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
@@ -922,9 +932,10 @@ public class Cache implements InternalEhcache, StoreListener {
      * Tries to load the class specified otherwise defaults to null.
      *
      * @param factoryConfiguration
+     * @param loader 
      */
     private static CacheExtension createCacheExtension(
-            CacheConfiguration.CacheExtensionFactoryConfiguration factoryConfiguration, Ehcache cache) {
+            CacheConfiguration.CacheExtensionFactoryConfiguration factoryConfiguration, Ehcache cache, ClassLoader loader) {
         String className = null;
         CacheExtension cacheExtension = null;
         if (factoryConfiguration != null) {
@@ -933,7 +944,7 @@ public class Cache implements InternalEhcache, StoreListener {
         if (className == null) {
             LOG.debug("CacheExtension factory not configured. Skipping...");
         } else {
-            CacheExtensionFactory factory = (CacheExtensionFactory) ClassLoaderUtil.createNewInstance(className);
+            CacheExtensionFactory factory = (CacheExtensionFactory) ClassLoaderUtil.createNewInstance(loader, className);
             Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                     factoryConfiguration.getPropertySeparator());
             cacheExtension = factory.createCacheExtension(cache, properties);
@@ -945,9 +956,10 @@ public class Cache implements InternalEhcache, StoreListener {
      * Tries to load the class specified otherwise defaults to null.
      *
      * @param factoryConfiguration
+     * @param loader 
      */
     private static CacheLoader createCacheLoader(
-            CacheConfiguration.CacheLoaderFactoryConfiguration factoryConfiguration, Ehcache cache) {
+            CacheConfiguration.CacheLoaderFactoryConfiguration factoryConfiguration, Ehcache cache, ClassLoader loader) {
         String className = null;
         CacheLoader cacheLoader = null;
         if (factoryConfiguration != null) {
@@ -956,7 +968,7 @@ public class Cache implements InternalEhcache, StoreListener {
         if (className == null) {
             LOG.debug("CacheLoader factory not configured. Skipping...");
         } else {
-            CacheLoaderFactory factory = (CacheLoaderFactory) ClassLoaderUtil.createNewInstance(className);
+            CacheLoaderFactory factory = (CacheLoaderFactory) ClassLoaderUtil.createNewInstance(loader, className);
             Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                     factoryConfiguration.getPropertySeparator());
             cacheLoader = factory.createCacheLoader(cache, properties);
@@ -968,8 +980,9 @@ public class Cache implements InternalEhcache, StoreListener {
      * Tries to load the class specified otherwise defaults to null.
      *
      * @param config
+     * @param loader 
      */
-    private static CacheWriter createCacheWriter(CacheWriterConfiguration config, Ehcache cache) {
+    private static CacheWriter createCacheWriter(CacheWriterConfiguration config, Ehcache cache, ClassLoader loader) {
         String className = null;
         CacheWriter cacheWriter = null;
         CacheWriterConfiguration.CacheWriterFactoryConfiguration factoryConfiguration = config.getCacheWriterFactoryConfiguration();
@@ -979,7 +992,7 @@ public class Cache implements InternalEhcache, StoreListener {
         if (null == className) {
             LOG.debug("CacheWriter factory not configured. Skipping...");
         } else {
-            CacheWriterFactory factory = (CacheWriterFactory) ClassLoaderUtil.createNewInstance(className);
+            CacheWriterFactory factory = (CacheWriterFactory) ClassLoaderUtil.createNewInstance(loader, className);
             Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                     factoryConfiguration.getPropertySeparator());
             if (null == properties) {
@@ -992,11 +1005,12 @@ public class Cache implements InternalEhcache, StoreListener {
 
     /**
      * Tries to load a BootstrapCacheLoader from the class specified.
+     * @param loader 
      *
      * @return If there is none returns null.
      */
     private static final BootstrapCacheLoader createBootstrapCacheLoader(
-            CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration factoryConfiguration) throws CacheException {
+            CacheConfiguration.BootstrapCacheLoaderFactoryConfiguration factoryConfiguration, ClassLoader loader) throws CacheException {
         String className = null;
         BootstrapCacheLoader bootstrapCacheLoader = null;
         if (factoryConfiguration != null) {
@@ -1006,7 +1020,7 @@ public class Cache implements InternalEhcache, StoreListener {
             LOG.debug("No BootstrapCacheLoaderFactory class specified. Skipping...");
         } else {
             BootstrapCacheLoaderFactory factory = (BootstrapCacheLoaderFactory)
-                    ClassLoaderUtil.createNewInstance(className);
+                    ClassLoaderUtil.createNewInstance(loader, className);
             Properties properties = PropertyUtil.parseProperties(factoryConfiguration.getProperties(),
                     factoryConfiguration.getPropertySeparator());
             return factory.createBootstrapCacheLoader(properties);
@@ -1041,6 +1055,14 @@ public class Cache implements InternalEhcache, StoreListener {
      */
     public void initialise() {
         synchronized (this) {
+            final ClassLoader loader = getCacheConfiguration().getClassLoader();
+            
+            // XXX: Is there a better way to relax this check for shadow caches?          
+            // verify that the cache and cache manager use the same classloader reference
+            if (loader != cacheManager.getConfiguration().getClassLoader() && !getName().startsWith("local_shadow_cache")) {
+                throw new CacheException("This cache (" + getName() + ") uses a different classloader reference than it's containing cache manager");
+            }
+            
             if (!cacheStatus.canInitialize()) {
                 throw new IllegalStateException("Cannot initialise the " + configuration.getName()
                         + " cache because its status is not STATUS_UNINITIALISED");
@@ -1080,7 +1102,7 @@ public class Cache implements InternalEhcache, StoreListener {
                             + maxConcurrency + ". Please reconfigure cache '" + getName() + "' with concurrency value <= " + maxConcurrency
                             + " or use system property '" + EHCACHE_CLUSTERREDSTORE_MAX_CONCURRENCY_PROP + "' to override the default");
                 }
-                elementValueComparator = configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration);
+                elementValueComparator = configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration, loader);
 
                 Callable<TerracottaStore> callable = new Callable<TerracottaStore>() {
                     @Override
@@ -1106,12 +1128,12 @@ public class Cache implements InternalEhcache, StoreListener {
                                     + "Please reconfigure cache '" + getName() + "' with transactionalMode = " + clusteredTransactionalMode);
                         }
                         
-                        TerracottaStore terracottaStore = makeClusteredTransactionalIfNeeded((TerracottaStore) tempStore, elementValueComparator);
+                        TerracottaStore terracottaStore = makeClusteredTransactionalIfNeeded((TerracottaStore) tempStore, elementValueComparator, loader);
 
                         if (isSearchable()) {
                             Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
                             for (SearchAttribute sa : configuration.getSearchAttributes().values()) {
-                                extractors.put(sa.getName(), sa.constructExtractor());
+                                extractors.put(sa.getName(), sa.constructExtractor(loader));
                             }
 
                             terracottaStore.setAttributeExtractors(extractors);
@@ -1157,7 +1179,7 @@ public class Cache implements InternalEhcache, StoreListener {
                 } else {
                     store = featuresManager.createStore(this, onHeapPool, onDiskPool);
                 }
-                store = handleTransactionalAndCopy(store);
+                store = handleTransactionalAndCopy(store, loader);
             }
 
 
@@ -1166,7 +1188,7 @@ public class Cache implements InternalEhcache, StoreListener {
             if (!isTerracottaClustered() && isSearchable()) {
                 Map<String, AttributeExtractor> extractors = new HashMap<String, AttributeExtractor>();
                 for (SearchAttribute sa : configuration.getSearchAttributes().values()) {
-                    extractors.put(sa.getName(), sa.constructExtractor());
+                    extractors.put(sa.getName(), sa.constructExtractor(loader));
                 }
 
                 compoundStore.setAttributeExtractors(extractors);
@@ -1204,16 +1226,16 @@ public class Cache implements InternalEhcache, StoreListener {
         }
     }
 
-    private Store handleTransactionalAndCopy(Store store) {
+    private Store handleTransactionalAndCopy(Store store, ClassLoader loader) {
         Store wrappedStore;
 
         if (configuration.getTransactionalMode().isTransactional()) {
             elementValueComparator = TxCopyingCacheStore.wrap(
-                    configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration), configuration);
+                    configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration, loader), configuration);
             wrappedStore = TxCopyingCacheStore.wrapTxStore(makeTransactional(store), configuration);
         } else {
             elementValueComparator = CopyingCacheStore.wrapIfCopy(
-                configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration), configuration);
+                configuration.getElementValueComparatorConfiguration().createElementComparatorInstance(configuration, loader), configuration);
             wrappedStore = CopyingCacheStore.wrapIfCopy(store, configuration);
         }
         return wrappedStore;
@@ -1288,7 +1310,7 @@ public class Cache implements InternalEhcache, StoreListener {
         return wrappedStore;
     }
 
-    private TerracottaStore makeClusteredTransactionalIfNeeded(final TerracottaStore store, final ElementValueComparator comparator) {
+    private TerracottaStore makeClusteredTransactionalIfNeeded(final TerracottaStore store, final ElementValueComparator comparator, ClassLoader loader) {
         TerracottaStore wrappedStore;
 
         if (configuration.getTransactionalMode().isTransactional()) {
@@ -1318,7 +1340,7 @@ public class Cache implements InternalEhcache, StoreListener {
                 throw new IllegalStateException("Should not get there");
             }
 
-            wrappedStore = new TerracottaTransactionalCopyingCacheStore(wrappedStore, new ReadWriteSerializationCopyStrategy());
+            wrappedStore = new TerracottaTransactionalCopyingCacheStore(wrappedStore, new ReadWriteSerializationCopyStrategy(), loader);
         } else {
             wrappedStore = store;
         }

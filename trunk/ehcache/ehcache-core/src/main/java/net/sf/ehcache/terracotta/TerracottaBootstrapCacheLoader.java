@@ -156,7 +156,7 @@ public class TerracottaBootstrapCacheLoader extends MemoryLimitedCacheLoader imp
         DiskStorePathManager pathManager = diskStorePathManager != null ? diskStorePathManager : cache.getCacheManager()
                 .getDiskStorePathManager();
 
-        final RotatingSnapshotFile snapshotFile = new RotatingSnapshotFile(pathManager, cache.getName());
+        final RotatingSnapshotFile snapshotFile = new RotatingSnapshotFile(pathManager, cache.getName(), manager.getConfiguration().getClassLoader());
         try {
             final Set<Object> keys = snapshotFile.readAll();
             int loaded = 0;

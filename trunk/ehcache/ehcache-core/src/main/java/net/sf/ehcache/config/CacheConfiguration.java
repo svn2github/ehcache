@@ -19,6 +19,7 @@ package net.sf.ehcache.config;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.EhcacheDefaultClassLoader;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
 import net.sf.ehcache.config.PinningConfiguration.Store;
@@ -406,6 +407,7 @@ public class CacheConfiguration implements Cloneable {
     private volatile boolean maxEntriesLocalDiskExplicitlySet;
     private volatile boolean maxBytesLocalDiskExplicitlySet;
     private volatile boolean maxBytesLocalOffHeapExplicitlySet;
+    private volatile ClassLoader classLoader = EhcacheDefaultClassLoader.getInstance();
 
     /**
      * Default constructor.
@@ -1228,7 +1230,7 @@ public class CacheConfiguration implements Cloneable {
      */
     public ReadWriteCopyStrategy<Element> getCopyStrategy() {
         // todo really make this pluggable through config!
-        return copyStrategyConfiguration.getCopyStrategyInstance();
+        return copyStrategyConfiguration.getCopyStrategyInstance(getClassLoader());
     }
 
     /**
@@ -3049,6 +3051,15 @@ public class CacheConfiguration implements Cloneable {
      */
     public Searchable getSearchable() {
         return searchable;
+    }
+
+    public ClassLoader getClassLoader() {
+        return this.classLoader;
+    }
+    
+    public void setClassLoader(ClassLoader classLoader) {
+        checkDynamicChange();
+        this.classLoader = classLoader;
     }
 
 }

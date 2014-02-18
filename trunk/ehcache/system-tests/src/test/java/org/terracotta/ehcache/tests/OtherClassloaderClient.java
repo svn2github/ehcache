@@ -15,9 +15,7 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_5;
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.constructs.classloader.ClassLoaderAwareCache;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -32,16 +30,21 @@ import java.util.Map;
 
 public class OtherClassloaderClient extends ClientBase {
 
+  private final ClassLoader otherClassLoader;
+
   public OtherClassloaderClient(String[] args) {
     super("test", args);
+    otherClassLoader = createClassLoader();
   }
 
   @Override
-  protected void runTest(Cache c, Toolkit toolkit) throws Throwable {
-    // Construct Value instances from a foreign classloader
-    ClassLoader otherClassLoader = createClassLoader();
-    Ehcache cache = new ClassLoaderAwareCache(c, otherClassLoader);
+  protected ClassLoader getCacheManagerClassLoader() {
+    return otherClassLoader;
+  }
 
+  @Override
+  protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
+    // Construct Value instances from a foreign classloader
     Class<? extends Valueable> valueClass = (Class<? extends Valueable>) otherClassLoader
         .loadClass("org.terracotta.ehcache.tests.Value");
 

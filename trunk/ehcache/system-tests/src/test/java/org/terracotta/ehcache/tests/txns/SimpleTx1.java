@@ -8,13 +8,12 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
+import org.junit.Assert;
 import org.terracotta.toolkit.Toolkit;
 
 import java.io.Serializable;
 
 import javax.transaction.TransactionManager;
-
-import org.junit.Assert;
 
 public class SimpleTx1 extends AbstractTxClient {
 
@@ -25,7 +24,7 @@ public class SimpleTx1 extends AbstractTxClient {
 
   @Override
   protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
-    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
+    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(getClass().getClassLoader());
     final TransactionManager txnManager = lookup.getTransactionManager();
     int commitCount = 0;
     int rollbackCount = 0;

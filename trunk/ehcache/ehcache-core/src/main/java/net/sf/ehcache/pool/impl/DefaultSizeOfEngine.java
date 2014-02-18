@@ -36,8 +36,6 @@ import net.sf.ehcache.pool.sizeof.filter.AnnotationSizeOfFilter;
 import net.sf.ehcache.pool.sizeof.filter.CombinationSizeOfFilter;
 import net.sf.ehcache.pool.sizeof.filter.ResourceSizeOfFilter;
 import net.sf.ehcache.pool.sizeof.filter.SizeOfFilter;
-import net.sf.ehcache.util.ClassLoaderUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,7 +159,7 @@ public class DefaultSizeOfEngine implements SizeOfEngine {
             } catch (MalformedURLException e) {
                 LOG.debug("MalformedURLException using {} as a file URL", userFilterProperty);
             }
-            filterUrls.add(ClassLoaderUtil.getStandardClassLoader().getResource(userFilterProperty));
+            filterUrls.add(Thread.currentThread().getContextClassLoader().getResource(userFilterProperty));
             for (URL filterUrl : filterUrls) {
                 SizeOfFilter filter;
                 try {

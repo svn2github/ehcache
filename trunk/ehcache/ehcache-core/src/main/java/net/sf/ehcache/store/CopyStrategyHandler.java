@@ -29,6 +29,7 @@ public final class CopyStrategyHandler {
     private final boolean copyOnRead;
     private final boolean copyOnWrite;
     private final ReadWriteCopyStrategy<Element> copyStrategy;
+    private final ClassLoader loader;
 
 
     /**
@@ -38,10 +39,11 @@ public final class CopyStrategyHandler {
      * @param copyOnWrite copy on write flag
      * @param copyStrategy the copy strategy to use
      */
-    public CopyStrategyHandler(boolean copyOnRead, boolean copyOnWrite, ReadWriteCopyStrategy<Element> copyStrategy) {
+    public CopyStrategyHandler(boolean copyOnRead, boolean copyOnWrite, ReadWriteCopyStrategy<Element> copyStrategy, ClassLoader loader) {
         this.copyOnRead = copyOnRead;
         this.copyOnWrite = copyOnWrite;
         this.copyStrategy = copyStrategy;
+        this.loader = loader;
         if (isCopyActive() && this.copyStrategy == null) {
             throw new IllegalArgumentException("Copy strategy cannot be null with copyOnRead or copyOnWrite true");
         }
@@ -59,9 +61,9 @@ public final class CopyStrategyHandler {
         }
 
         if (copyOnRead && copyOnWrite) {
-            return copyStrategy.copyForRead(element);
+            return copyStrategy.copyForRead(element, loader);
         } else if (copyOnRead) {
-            return copyStrategy.copyForRead(copyStrategy.copyForWrite(element));
+            return copyStrategy.copyForRead(copyStrategy.copyForWrite(element, loader), loader);
         } else {
             return element;
         }
@@ -79,9 +81,9 @@ public final class CopyStrategyHandler {
         }
 
         if (copyOnRead && copyOnWrite) {
-            return copyStrategy.copyForWrite(element);
+            return copyStrategy.copyForWrite(element, loader);
         } else if (copyOnWrite) {
-            return copyStrategy.copyForRead(copyStrategy.copyForWrite(element));
+            return copyStrategy.copyForRead(copyStrategy.copyForWrite(element, loader), loader);
         } else {
             return element;
         }
@@ -99,7 +101,7 @@ public final class CopyStrategyHandler {
         }
 
         if (copyOnRead && copyOnWrite) {
-            return copyStrategy.copyForWrite(element);
+            return copyStrategy.copyForWrite(element, loader);
         } else {
             return element;
         }

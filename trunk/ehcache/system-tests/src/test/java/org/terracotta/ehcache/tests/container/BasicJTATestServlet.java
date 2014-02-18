@@ -25,7 +25,7 @@ public class BasicJTATestServlet extends HttpServlet {
     resp.setContentType("text/html");
     PrintWriter out = resp.getWriter();
     try {
-    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
+    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(getClass().getClassLoader());
     final TransactionManager txManager = lookup.getTransactionManager();
     if(txManager == null) {
       throw new AssertionError("txnManager is null, this test container test requires a txnManager");

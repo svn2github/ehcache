@@ -22,7 +22,7 @@ public class TwoResourceTx1 extends AbstractTxClient {
   @Override
   protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
     Cache cache2 = getCacheManager().getCache("test2");
-    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
+    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(getClass().getClassLoader());
     final TransactionManager txnManager = lookup.getTransactionManager();
     int commitCount = 0;
     int rollbackCount = 0;

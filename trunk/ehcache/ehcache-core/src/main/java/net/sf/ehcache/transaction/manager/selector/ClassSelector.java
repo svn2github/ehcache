@@ -15,8 +15,6 @@
  */
 package net.sf.ehcache.transaction.manager.selector;
 
-import net.sf.ehcache.util.ClassLoaderUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,16 +29,19 @@ public abstract class ClassSelector extends Selector {
     private static final Logger LOG = LoggerFactory.getLogger(ClassSelector.class);
 
     private final String classname;
+    private final ClassLoader classLoader;
 
     /**
      * Constructor
      *
      * @param vendor the transaction manager vendor name
+     * @param loader the classloader to load from
      * @param classname the name of the class to instanciate
      */
-    public ClassSelector(String vendor, String classname) {
+    public ClassSelector(String vendor, ClassLoader loader, String classname) {
         super(vendor);
         this.classname = classname;
+        this.classLoader = loader;
     }
 
     /**
@@ -51,7 +52,7 @@ public abstract class ClassSelector extends Selector {
         TransactionManager transactionManager = null;
 
         try {
-            Class txManagerClass = ClassLoaderUtil.loadClass(classname);
+            Class txManagerClass = classLoader.loadClass(classname);
             transactionManager = (TransactionManager) txManagerClass.newInstance();
         } catch (ClassNotFoundException e) {
             LOG.debug("FactorySelector failed lookup", e);

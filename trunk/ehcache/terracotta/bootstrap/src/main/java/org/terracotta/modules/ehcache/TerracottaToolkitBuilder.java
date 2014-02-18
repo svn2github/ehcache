@@ -1,18 +1,10 @@
 /*
- * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy
- * of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations
- * under the License.
- * 
+ * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved. Licensed under the Apache
+ * License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain
+ * a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in
+ * writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package org.terracotta.modules.ehcache;
@@ -32,10 +24,13 @@ public class TerracottaToolkitBuilder {
   private static final String      TC_CONFIG_SNIPPET_KEY          = "tcConfigSnippet";
   private static final String      REJOIN_KEY                     = "rejoin";
   private static final String      PRODUCT_ID_KEY                 = "productId";
+  private static final String      CLASSLOADER_KEY                = "classloader";
+
   private boolean                  rejoin;
-  private final TCConfigTypeStatus tcConfigTypeStatus            = new TCConfigTypeStatus();
-  private final Set<String>        tunnelledMBeanDomains         = Collections.synchronizedSet(new HashSet<String>());
+  private final TCConfigTypeStatus tcConfigTypeStatus             = new TCConfigTypeStatus();
+  private final Set<String>        tunnelledMBeanDomains          = Collections.synchronizedSet(new HashSet<String>());
   private String                   productId;
+  private ClassLoader              classLoader;
 
   public Toolkit buildToolkit() throws IllegalStateException {
     if (tcConfigTypeStatus.getState() == TCConfigTypeState.INIT) {
@@ -58,7 +53,7 @@ public class TerracottaToolkitBuilder {
         throw new IllegalStateException("Unknown tc config type - " + tcConfigTypeStatus.getState());
     }
     String toolkitUrl = createTerracottaToolkitUrl(isUrl, tcConfigOrUrl);
-    return createToolkit(toolkitUrl, getTerracottaToolkitProperties(isUrl, tcConfigOrUrl));
+    return createToolkit(toolkitUrl, getTerracottaToolkitProperties(isUrl, tcConfigOrUrl, classLoader));
   }
 
   private Toolkit createToolkit(String url, Properties props) {
@@ -69,8 +64,13 @@ public class TerracottaToolkitBuilder {
     }
   }
 
-  private Properties getTerracottaToolkitProperties(boolean isUrl, String tcConfigOrUrl) {
+  private Properties getTerracottaToolkitProperties(boolean isUrl, String tcConfigOrUrl, ClassLoader loader) {
     Properties properties = new Properties();
+
+    if (loader != null) {
+      properties.put(CLASSLOADER_KEY, loader);
+    }
+
     properties.setProperty(TC_TUNNELLED_MBEAN_DOMAINS_KEY, getTunnelledDomainCSV());
     if (!isUrl) {
       properties.setProperty(TC_CONFIG_SNIPPET_KEY, tcConfigOrUrl);
@@ -183,6 +183,11 @@ public class TerracottaToolkitBuilder {
 
   public String getProductId() {
     return productId;
+  }
+
+  public TerracottaToolkitBuilder setClassLoader(ClassLoader loader) {
+    this.classLoader = loader;
+    return this;
   }
 
   public TerracottaToolkitBuilder setProductId(final String productId) {
