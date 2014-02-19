@@ -3,13 +3,12 @@
  */
 package org.terracotta.modules.ehcache.store;
 
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.toolkit.cache.ToolkitCache;
+import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotificationEvent;
 import org.terracotta.toolkit.events.ToolkitNotificationListener;
 import org.terracotta.toolkit.events.ToolkitNotifier;
@@ -23,26 +22,49 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
   private static final Logger            LOG = LoggerFactory.getLogger(CacheConfigChangeBridge.class);
 
   private final ToolkitNotifier          notifier;
-  private final ToolkitCache    backend;
-  private final Ehcache                  cache;
+  private final ToolkitCache             backend;
+  private final CacheConfiguration       cacheConfiguration;
   private final String                   fullyQualifiedEhcacheName;
 
-  public CacheConfigChangeBridge(Ehcache cache, String fullyQualifiedEhcacheName, ToolkitCacheInternal backend,
-                                 ToolkitNotifier<CacheConfigChangeNotificationMsg> notifier) {
-    this.cache = cache;
+  public CacheConfigChangeBridge(String fullyQualifiedEhcacheName, ToolkitCacheInternal backend,
+                                 ToolkitNotifier<CacheConfigChangeNotificationMsg> notifier,
+                                 CacheConfiguration cacheConfiguration) {
+    this.cacheConfiguration = cacheConfiguration;
     this.fullyQualifiedEhcacheName = fullyQualifiedEhcacheName;
     this.backend = backend;
     this.notifier = notifier;
   }
 
   public void connectConfigs() {
-    cache.getCacheConfiguration().addConfigurationListener(this);
+    // Match up the global config values to the local cache configuration first.
+    initializeFromCluster();
+
+    cacheConfiguration.addConfigurationListener(this);
     notifier.addNotificationListener(this);
   }
 
   public void disconnectConfigs() {
-    cache.getCacheConfiguration().removeConfigurationListener(this);
+    cacheConfiguration.removeConfigurationListener(this);
     notifier.removeNotificationListener(this);
+  }
+
+  private void initializeFromCluster() {
+    Configuration clusterConfig = backend.getConfiguration();
+    cacheConfiguration.internalSetMaxEntriesInCache(clusterConfig.getInt(DynamicConfigType.MAX_TOTAL_COUNT.getToolkitConfigName()));
+    int tti = clusterConfig.getInt(DynamicConfigType.MAX_TTI_SECONDS.getToolkitConfigName());
+    int ttl = clusterConfig.getInt(DynamicConfigType.MAX_TTL_SECONDS.getToolkitConfigName());
+    if (tti != 0 || ttl != 0) {
+      cacheConfiguration.setEternal(false);
+      cacheConfiguration.internalSetTimeToIdle(tti);
+      cacheConfiguration.internalSetTimeToLive(ttl);
+    } else {
+      cacheConfiguration.setEternal(true);
+    }
+
+    cacheConfiguration.internalSetMemCapacity(clusterConfig.getInt(DynamicConfigType.MAX_COUNT_LOCAL_HEAP.getToolkitConfigName()));
+    cacheConfiguration.internalSetMemCapacityInBytes(clusterConfig.getLong(DynamicConfigType.MAX_BYTES_LOCAL_HEAP.getToolkitConfigName()));
+    cacheConfiguration.internalSetOverflowToOffheap(clusterConfig.getBoolean(ToolkitConfigFields.OFFHEAP_ENABLED_FIELD_NAME));
+    cacheConfiguration.internalSetMaxBytesLocalOffheap(clusterConfig.getLong(ToolkitConfigFields.MAX_BYTES_LOCAL_OFFHEAP_FIELD_NAME));
   }
 
   private void change(DynamicConfigType type, Serializable newValue, boolean notifyRemote) {
@@ -123,23 +145,23 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
       Object newValue = notification.getNewValue();
       switch (type) {
         case MAX_TTI_SECONDS: {
-          cache.getCacheConfiguration().internalSetTimeToIdle(getLong(newValue));
+          cacheConfiguration.internalSetTimeToIdle(getLong(newValue));
           break;
         }
         case MAX_TTL_SECONDS: {
-          cache.getCacheConfiguration().internalSetTimeToLive(getLong(newValue));
+          cacheConfiguration.internalSetTimeToLive(getLong(newValue));
           break;
         }
         case MAX_TOTAL_COUNT: {
-          cache.getCacheConfiguration().internalSetMaxEntriesInCache(mapTotalCountToMaxEntriesInCache(getInt(newValue)));
+          cacheConfiguration.internalSetMaxEntriesInCache(mapTotalCountToMaxEntriesInCache(getInt(newValue)));
           break;
         }
         case MAX_COUNT_LOCAL_HEAP: {
-          cache.getCacheConfiguration().internalSetMemCapacity(getInt(newValue));
+          cacheConfiguration.internalSetMemCapacity(getInt(newValue));
           break;
         }
         case MAX_BYTES_LOCAL_HEAP: {
-          cache.getCacheConfiguration().internalSetMemCapacityInBytes(getLong(newValue));
+          cacheConfiguration.internalSetMemCapacityInBytes(getLong(newValue));
           break;
         }
       }

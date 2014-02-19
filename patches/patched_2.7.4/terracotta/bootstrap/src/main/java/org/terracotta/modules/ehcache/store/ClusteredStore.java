@@ -176,8 +176,8 @@ public class ClusteredStore implements TerracottaStore, StoreListener  {
   private static CacheConfigChangeBridge createConfigChangeBridge(ToolkitInstanceFactory toolkitInstanceFactory,
                                                                   Ehcache ehcache,
                                                                   ToolkitCacheInternal<String, Serializable> cache) {
-    return new CacheConfigChangeBridge(ehcache, toolkitInstanceFactory.getFullyQualifiedCacheName(ehcache), cache,
-                                       toolkitInstanceFactory.getOrCreateConfigChangeNotifier(ehcache));
+    return new CacheConfigChangeBridge(toolkitInstanceFactory.getFullyQualifiedCacheName(ehcache), cache,
+                                       toolkitInstanceFactory.getOrCreateConfigChangeNotifier(ehcache), ehcache.getCacheConfiguration());
   }
 
   private static void validateConfig(Ehcache ehcache) {
