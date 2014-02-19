@@ -3031,6 +3031,20 @@ public class CacheConfiguration implements Cloneable {
     }
 
     /**
+     * Intended for internal use only, and subject to change.
+     */
+    public void internalSetMaxBytesLocalOffheap(long maxBytesLocalOffheap) {
+        this.maxBytesLocalOffHeap = maxBytesLocalOffheap;
+    }
+
+    /**
+     * Intended for internal use only, and subject to change.
+     */
+    public void internalSetOverflowToOffheap(boolean overflowToOffHeap) {
+        this.overflowToOffHeap = overflowToOffHeap;
+    }
+
+    /**
      * Get the defined search attributes indexed by attribute name
      *
      * @return search attributes
