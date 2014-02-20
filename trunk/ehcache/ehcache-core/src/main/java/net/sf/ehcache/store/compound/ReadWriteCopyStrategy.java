@@ -24,6 +24,8 @@ import java.io.Serializable;
  * @author Ludovic Orban
  */
 public interface ReadWriteCopyStrategy<T> extends Serializable {
+    
+    static final long serialVersionUID = 7167094683291072136L;
 
     /**
      * Deep copies some object and returns an internal storage-ready copy

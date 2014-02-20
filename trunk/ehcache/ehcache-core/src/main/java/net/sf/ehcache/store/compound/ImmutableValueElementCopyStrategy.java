@@ -23,6 +23,8 @@ import net.sf.ehcache.Element;
  */
 public class ImmutableValueElementCopyStrategy implements ReadWriteCopyStrategy<Element> {
 
+    private static final long serialVersionUID = 6938731518478806173L;
+    
     private final ReadWriteSerializationCopyStrategy copyStrategy = new ReadWriteSerializationCopyStrategy();
 
     /**

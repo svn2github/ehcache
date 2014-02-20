@@ -26,6 +26,8 @@ import net.sf.ehcache.Element;
  */
 public class SerializationCopyStrategy implements ReadWriteCopyStrategy<Element> {
 
+    private static final long serialVersionUID = -7932063007392582487L;
+    
     private final ReadWriteSerializationCopyStrategy copyStrategy = new ReadWriteSerializationCopyStrategy();
 
     /**
