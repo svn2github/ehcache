@@ -80,12 +80,15 @@ public class CacheConfigChangeBridgeTest {
 
   @Test
   public void testOverrideLocallyConfiguredExpiry() throws Exception {
-    CacheConfigChangeBridge bridge = new CacheConfigChangeBridge("foo",
-        backend, notifier, cacheConfiguration);
-
     cacheConfiguration.setEternal(false);
     cacheConfiguration.setTimeToLiveSeconds(123);
     cacheConfiguration.setTimeToIdleSeconds(321);
+
+    CacheConfigChangeBridge bridge = new CacheConfigChangeBridge("foo",
+        backend, notifier, cacheConfiguration);
+
+    toolkitCacheConfig.internalSetConfigMapping(ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME, 0);
+    toolkitCacheConfig.internalSetConfigMapping(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME, 0);
 
     bridge.connectConfigs();
 
