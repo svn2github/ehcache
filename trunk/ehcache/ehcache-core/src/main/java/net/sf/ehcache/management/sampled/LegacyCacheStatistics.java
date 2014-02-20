@@ -210,6 +210,54 @@ public interface LegacyCacheStatistics {
     long getUpdateCount();
 
     /**
+     * Number of one arg replace operations that succeeded.
+     * @return Number of replaces
+     */
+    long getReplaceOneArgSuccessCount();
+
+    /**
+     * Number of one arg replace operations that missed.
+     * @return Number of replace misses
+     */
+    long getReplaceOneArgMissCount();
+
+    /**
+     * Number of two arg replace operations that succeeded.
+     * @return Number of replaces
+     */
+    long getReplaceTwoArgSuccessCount();
+
+    /**
+     * Number of two arg replace operations that missed.
+     * @return Number of replace misses
+     */
+    long getReplaceTwoArgMissCount();
+
+    /**
+     * Number of putIfAbsent operations that succeeded.
+     * @return Number of putIfAbsents
+     */
+    long getPutIfAbsentSuccessCount();
+
+    /**
+     * Number of putIfAbsent operations that missed.
+     * @return Number of putIfAbsent misses
+     */
+    long getPutIfAbsentMissCount();
+
+    /**
+     * Number of removeElement operations that succeeded
+     * @return Number of removeElement operations
+     */
+    long getRemoveElementSuccessCount();
+
+    /**
+     * Number of removeElement operations that missed.
+     * @return Number of removeElement misses
+     */
+    long getRemoveElementMissCount();
+
+    /**
      * Number of elements expired since creation or last clear.
      *
      * @return Number of expired elements

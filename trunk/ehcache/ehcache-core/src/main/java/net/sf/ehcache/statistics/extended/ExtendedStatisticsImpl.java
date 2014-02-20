@@ -16,28 +16,6 @@
 
 package net.sf.ehcache.statistics.extended;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.terracotta.context.query.Matchers.attributes;
-import static org.terracotta.context.query.Matchers.context;
-import static org.terracotta.context.query.Matchers.hasAttribute;
-import static org.terracotta.context.query.Matchers.identifier;
-import static org.terracotta.context.query.Matchers.subclassOf;
-import static org.terracotta.context.query.QueryBuilder.queryBuilder;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.ClusterEventOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -53,7 +31,6 @@ import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 import net.sf.ehcache.util.concurrent.ConcurrentHashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.context.TreeNode;
@@ -64,6 +41,28 @@ import org.terracotta.statistics.OperationStatistic;
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.Time;
 import org.terracotta.statistics.ValueStatistic;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.terracotta.context.query.Matchers.attributes;
+import static org.terracotta.context.query.Matchers.context;
+import static org.terracotta.context.query.Matchers.hasAttribute;
+import static org.terracotta.context.query.Matchers.identifier;
+import static org.terracotta.context.query.Matchers.subclassOf;
+import static org.terracotta.context.query.QueryBuilder.queryBuilder;
 
 /**
  * The Class ExtendedStatisticsImpl.
@@ -326,12 +325,52 @@ public class ExtendedStatisticsImpl implements ExtendedStatistics {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#remove()
      */
     @Override
     public Operation<RemoveOutcome> remove() {
         return (Operation<RemoveOutcome>) getStandardOperation(StandardOperationStatistic.CACHE_REMOVE);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#replaceOneArg()
+     */
+    @Override
+    public Operation<CacheOperationOutcomes.ReplaceOneArgOutcome> replaceOneArg() {
+        return (Operation<CacheOperationOutcomes.ReplaceOneArgOutcome>) getStandardOperation(StandardOperationStatistic.CACHE_ONE_ARG_REPLACE);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#replaceTwoArg()
+     */
+    @Override
+    public Operation<CacheOperationOutcomes.ReplaceTwoArgOutcome> replaceTwoArg() {
+        return (Operation<CacheOperationOutcomes.ReplaceTwoArgOutcome>) getStandardOperation(StandardOperationStatistic.CACHE_TWO_ARG_REPLACE);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#putIfAbsent()
+     */
+    @Override
+    public Operation<CacheOperationOutcomes.PutIfAbsentOutcome> putIfAbsent() {
+        return (Operation<CacheOperationOutcomes.PutIfAbsentOutcome>) getStandardOperation(StandardOperationStatistic.CACHE_PUT_IF_ABSENT);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see net.sf.ehcache.statistics.extended.ExtendedStatistics#removeElement()
+     */
+    @Override
+    public Operation<CacheOperationOutcomes.RemoveElementOutcome> removeElement() {
+        return (Operation<CacheOperationOutcomes.RemoveElementOutcome>) getStandardOperation(StandardOperationStatistic.CACHE_REMOVE_ELEMENT);
     }
 
     /*

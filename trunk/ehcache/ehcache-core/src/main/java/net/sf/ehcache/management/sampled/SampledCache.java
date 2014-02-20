@@ -20,18 +20,16 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.hibernate.management.impl.BaseEmitterBean;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.management.MBeanNotificationInfo;
 import javax.management.NotCompliantMBeanException;
 import javax.management.Notification;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An implementation of {@link SampledCacheMBean}
@@ -1084,6 +1082,70 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getReplaceOneArgSuccessCount() {
+        return sampledCacheDelegate.getReplaceOneArgSuccessCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getReplaceOneArgMissCount() {
+        return sampledCacheDelegate.getReplaceOneArgMissCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getReplaceTwoArgSuccessCount() {
+        return sampledCacheDelegate.getReplaceTwoArgSuccessCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getReplaceTwoArgMissCount() {
+        return sampledCacheDelegate.getReplaceTwoArgMissCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPutIfAbsentSuccessCount() {
+        return sampledCacheDelegate.getPutIfAbsentSuccessCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getPutIfAbsentMissCount() {
+        return sampledCacheDelegate.getPutIfAbsentMissCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getRemoveElementSuccessCount() {
+        return sampledCacheDelegate.getRemoveElementSuccessCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getRemoveElementMissCount() {
+        return sampledCacheDelegate.getRemoveElementMissCount();
+    }
+
+    /**
      * getCacheAttributes
      *
      * @return map of attribute name -> value
@@ -1506,41 +1568,129 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         return sampledCacheDelegate.getNonStopSuccessMostRecentSample();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getNonStopFailureMostRecentSample() {
         return sampledCacheDelegate.getNonStopFailureMostRecentSample();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getNonStopRejoinTimeoutMostRecentSample() {
         return sampledCacheDelegate.getNonStopRejoinTimeoutMostRecentSample();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getNonStopTimeoutMostRecentSample() {
         return sampledCacheDelegate.getNonStopTimeoutMostRecentSample();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getNonStopSuccessRate() {
         return getNonStopSuccessMostRecentSample();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getNonStopFailureRate() {
         return getNonStopFailureMostRecentSample();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getNonStopRejoinTimeoutRate() {
         return getNonStopRejoinTimeoutMostRecentSample();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getNonStopTimeoutRate() {
         return getNonStopTimeoutMostRecentSample();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getReplaceOneArgSuccessSample() {
+        return sampledCacheDelegate.getReplaceOneArgSuccessSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getReplaceOneArgMissSample() {
+        return sampledCacheDelegate.getReplaceOneArgMissSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getReplaceTwoArgSuccessSample() {
+        return sampledCacheDelegate.getReplaceTwoArgSuccessSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getReplaceTwoArgMissSample() {
+        return sampledCacheDelegate.getReplaceTwoArgMissSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getPutIfAbsentSuccessSample() {
+        return sampledCacheDelegate.getPutIfAbsentSuccessSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getPutIfAbsentMissSample() {
+        return sampledCacheDelegate.getPutIfAbsentMissSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getRemoveElementSuccessSample() {
+        return sampledCacheDelegate.getRemoveElementSuccessSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SampledCounter getRemoveElementMissSample() {
+        return sampledCacheDelegate.getRemoveElementMissSample();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getNonstopTimeoutRatio() {
         return sampledCacheDelegate.getNonstopTimeoutRatio();

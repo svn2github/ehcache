@@ -16,9 +16,6 @@
 
 package net.sf.ehcache.statistics;
 
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
@@ -34,8 +31,10 @@ import net.sf.ehcache.store.StoreOperationOutcomes.RemoveOutcome;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
-
 import org.terracotta.statistics.StatisticsManager;
+
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * StatisticsGateway rollup class.

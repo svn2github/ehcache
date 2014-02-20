@@ -85,6 +85,30 @@ public interface ExtendedStatistics {
     Operation<CacheOperationOutcomes.RemoveOutcome> remove();
 
     /**
+     * single arg replace operation
+     * @return
+     */
+    Operation<CacheOperationOutcomes.ReplaceOneArgOutcome> replaceOneArg();
+
+    /**
+     * two arg replace operation
+     * @return
+     */
+    Operation<CacheOperationOutcomes.ReplaceTwoArgOutcome> replaceTwoArg();
+
+    /**
+     * put if absent operation
+     * @return
+     */
+    Operation<CacheOperationOutcomes.PutIfAbsentOutcome> putIfAbsent();
+
+    /**
+     * remove element operation
+     * @return
+     */
+    Operation<CacheOperationOutcomes.RemoveElementOutcome> removeElement();
+
+    /**
      * Heap get.
      *
      * @return the operation

@@ -22,6 +22,8 @@ import net.sf.ehcache.CacheOperationOutcomes.PutAllOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.PutOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.RemoveAllOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.RemoveOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.PutIfAbsentOutcome;
+import net.sf.ehcache.CacheOperationOutcomes.RemoveElementOutcome;
 import net.sf.ehcache.CacheOperationOutcomes.SearchOutcome;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoaderFactory;
@@ -103,7 +105,6 @@ import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterFactory;
 import net.sf.ehcache.writer.CacheWriterManager;
 import net.sf.ehcache.writer.CacheWriterManagerException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.context.annotations.ContextAttribute;
@@ -273,6 +274,14 @@ public class Cache implements InternalEhcache, StoreListener {
     private final OperationObserver<RemoveAllOutcome> removeAllObserver = operation(RemoveAllOutcome.class).named("removeAll").of(this)
             .tag("cache", "bulk").build();
     private final OperationObserver<SearchOutcome> searchObserver = operation(SearchOutcome.class).named("search").of(this).tag("cache").build();
+    private final OperationObserver<CacheOperationOutcomes.ReplaceOneArgOutcome> replace1Observer = operation(CacheOperationOutcomes.ReplaceOneArgOutcome.class).named("replace1").of(this)
+      .tag("cache").build();
+    private final OperationObserver<CacheOperationOutcomes.ReplaceTwoArgOutcome> replace2Observer = operation(CacheOperationOutcomes.ReplaceTwoArgOutcome.class).named("replace2").of(this)
+      .tag("cache").build();
+    private final OperationObserver<PutIfAbsentOutcome> putIfAbsentObserver = operation(PutIfAbsentOutcome.class).named("putIfAbsent").of(this)
+      .tag("cache").build();
+    private final OperationObserver<RemoveElementOutcome> removeElementObserver = operation(RemoveElementOutcome.class).named("removeElement").of(this)
+      .tag("cache").build();
 
     /**
      * A ThreadPoolExecutor which uses a thread pool to schedule loads in the order in which they are requested.
@@ -3675,6 +3684,7 @@ public class Cache implements InternalEhcache, StoreListener {
             return null;
         }
 
+        putIfAbsentObserver.begin();
         //this guard currently ensures reasonable behavior on expiring elements
         getQuiet(element.getObjectKey());
 
@@ -3685,6 +3695,9 @@ public class Cache implements InternalEhcache, StoreListener {
         Element result = compoundStore.putIfAbsent(element);
         if (result == null) {
             notifyPutInternalListeners(element, doNotNotifyCacheReplicators, false);
+            putIfAbsentObserver.end(PutIfAbsentOutcome.SUCCESS);
+        } else {
+            putIfAbsentObserver.end(PutIfAbsentOutcome.FAILURE);
         }
         return result;
     }
@@ -3705,10 +3718,13 @@ public class Cache implements InternalEhcache, StoreListener {
             return false;
         }
 
+        removeElementObserver.begin();
         // this guard currently ensures reasonable behavior on expiring elements
         getQuiet(element.getObjectKey());
 
         Element result = compoundStore.removeElement(element, elementValueComparator);
+
+        removeElementObserver.end(result==null?RemoveElementOutcome.FAILURE :RemoveElementOutcome.SUCCESS);
 
         // FIXME shouldn't this be done only if result != null
         notifyRemoveInternalListeners(element.getObjectKey(), false, true, false, result);
@@ -3734,7 +3750,9 @@ public class Cache implements InternalEhcache, StoreListener {
             return false;
         }
 
-        getQuiet(old.getObjectKey());
+      replace2Observer.begin();
+
+      getQuiet(old.getObjectKey());
 
         element.resetAccessStatistics();
         applyDefaultsToElementWithoutLifespanSet(element);
@@ -3745,6 +3763,9 @@ public class Cache implements InternalEhcache, StoreListener {
         if (result) {
             element.updateUpdateStatistics();
             notifyPutInternalListeners(element, false, true);
+            replace2Observer.end(CacheOperationOutcomes.ReplaceTwoArgOutcome.SUCCESS);
+        } else {
+            replace2Observer.end(CacheOperationOutcomes.ReplaceTwoArgOutcome.FAILURE);
         }
         return result;
     }
@@ -3765,6 +3786,7 @@ public class Cache implements InternalEhcache, StoreListener {
             return null;
         }
 
+        replace1Observer.begin();
         getQuiet(element.getObjectKey());
 
         element.resetAccessStatistics();
@@ -3775,6 +3797,9 @@ public class Cache implements InternalEhcache, StoreListener {
         if (result != null) {
             element.updateUpdateStatistics();
             notifyPutInternalListeners(element, false, true);
+            replace1Observer.end(CacheOperationOutcomes.ReplaceOneArgOutcome.SUCCESS);
+        } else {
+            replace1Observer.end(CacheOperationOutcomes.ReplaceOneArgOutcome.FAILURE);
         }
         return result;
     }

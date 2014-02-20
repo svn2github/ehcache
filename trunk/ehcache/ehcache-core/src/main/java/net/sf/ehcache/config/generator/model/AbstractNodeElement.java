@@ -181,7 +181,9 @@ public abstract class AbstractNodeElement implements NodeElement {
      * @return list of {@link FactoryConfigurationElement}
      */
     public static List<FactoryConfigurationElement> getAllFactoryElements(NodeElement parent, String name,
-            Collection<? extends FactoryConfiguration> factoryConfigurations) {
+                                                                          Collection factoryConfigurations1) {
+
+        Collection<? extends FactoryConfiguration> factoryConfigurations=factoryConfigurations1;
         List<FactoryConfigurationElement> elements = new ArrayList<FactoryConfigurationElement>();
         for (FactoryConfiguration config : factoryConfigurations) {
             elements.add(new FactoryConfigurationElement(parent, name, config));
