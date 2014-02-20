@@ -51,7 +51,9 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
   private void initializeFromCluster() {
     Configuration clusterConfig = backend.getConfiguration();
     if (clusterConfig.hasField(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME)) {
-      cacheConfiguration.internalSetMaxEntriesInCache(clusterConfig.getInt(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME));
+      int maxEntries = clusterConfig.getInt(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME);
+      maxEntries = maxEntries < 0 ? 0 : maxEntries;
+      cacheConfiguration.internalSetMaxEntriesInCache(maxEntries);
     }
 
     if (clusterConfig.hasField(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME) ||
@@ -62,11 +64,13 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
       int ttl = clusterConfig.hasField(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME) ?
           clusterConfig.getInt(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME) : 0;
       if (tti != 0 || ttl != 0) {
-        cacheConfiguration.setEternal(false);
+        cacheConfiguration.internalSetEternal(false);
         cacheConfiguration.internalSetTimeToIdle(tti);
         cacheConfiguration.internalSetTimeToLive(ttl);
       } else {
-        cacheConfiguration.setEternal(true);
+        cacheConfiguration.internalSetEternal(true);
+        cacheConfiguration.internalSetTimeToIdle(0);
+        cacheConfiguration.internalSetTimeToLive(0);
       }
     }
 

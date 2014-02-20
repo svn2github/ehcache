@@ -43,6 +43,8 @@ public class CacheConfigChangeBridgeTest {
 
   @Test
   public void testConnectConfigsSetsUpLocalCacheConfiguration() throws Exception {
+    cacheConfiguration.freezeConfiguration();
+
     CacheConfigChangeBridge bridge = new CacheConfigChangeBridge("foo",
         backend, notifier, cacheConfiguration);
 
@@ -95,6 +97,18 @@ public class CacheConfigChangeBridgeTest {
     assertThat(cacheConfiguration.isEternal(), is(true));
     assertThat(cacheConfiguration.getTimeToLiveSeconds(), is(0L));
     assertThat(cacheConfiguration.getTimeToIdleSeconds(), is(0L));
+  }
+
+  @Test
+  public void testSetUnlimitedMaxEntriesInCache() throws Exception {
+    CacheConfigChangeBridge bridge = new CacheConfigChangeBridge("foo",
+        backend, notifier, cacheConfiguration);
+
+    toolkitCacheConfig.internalSetConfigMapping(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME, -1);
+
+    bridge.connectConfigs();
+
+    assertThat(cacheConfiguration.getMaxEntriesInCache(), is(0L));
   }
 
   private static class TestConfiguration extends AbstractConfiguration {
