@@ -106,16 +106,16 @@ enum StandardOperationStatistic {
     NONSTOP(CacheOperationOutcomes.NonStopOperationOutcomes.class, "nonstop", "cache"),
 
     /** single arg replace events */
-    CACHE_ONE_ARG_REPLACE(CacheOperationOutcomes.ReplaceOneArgOutcome.class, "replace1", "cache"),
+    CACHE_ONE_ARG_REPLACE(true, cache(), CacheOperationOutcomes.ReplaceOneArgOutcome.class, "replace1", "cache"),
 
     /** two arg replace events */
-    CACHE_TWO_ARG_REPLACE(CacheOperationOutcomes.ReplaceTwoArgOutcome.class, "replace2", "cache"),
+    CACHE_TWO_ARG_REPLACE(true, cache(), CacheOperationOutcomes.ReplaceTwoArgOutcome.class, "replace2", "cache"),
 
     /** single arge replace events */
-    CACHE_PUT_IF_ABSENT(CacheOperationOutcomes.PutIfAbsentOutcome.class, "putIfAbsent", "cache"),
+    CACHE_PUT_IF_ABSENT(true, cache(), CacheOperationOutcomes.PutIfAbsentOutcome.class, "putIfAbsent", "cache"),
 
     /** single arge replace events */
-    CACHE_REMOVE_ELEMENT(CacheOperationOutcomes.RemoveElementOutcome.class, "removeElement", "cache");
+    CACHE_REMOVE_ELEMENT(true, cache(), CacheOperationOutcomes.RemoveElementOutcome.class, "removeElement", "cache");
 
     private static final int THIRTY = 30;
     private static final int TEN = 10;
