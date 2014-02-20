@@ -852,4 +852,53 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return the non stop timeout most recent sample
      */
     long getNonStopTimeoutRate();
+
+    /**
+     * Gets the one arg replace success sample
+     * @return one arg success sample
+     */
+    SampledCounter getReplaceOneArgSuccessSample();
+
+    /**
+     * Gets the one arg replace miss sample
+     * @return one arg miss sample
+     */
+    SampledCounter getReplaceOneArgMissSample();
+
+    /**
+     * Gets the two arg replace success sample
+     * @return two arg success sample
+     */
+    SampledCounter getReplaceTwoArgSuccessSample();
+
+    /**
+     * Gets the two arg replace miss sample
+     * @return two arg miss sample
+     */
+    SampledCounter getReplaceTwoArgMissSample();
+
+    /**
+     * Gets the putIfAbsent success sample
+     * @return putIfAbsent success sample
+     */
+    SampledCounter getPutIfAbsentSuccessSample();
+
+    /**
+     * Gets the putIfAbsent miss sample
+     * @return putIfAbsent miss sample
+     */
+    SampledCounter getPutIfAbsentMissSample();
+
+    /**
+     * Gets the removeElement success sample
+     * @return removeElement success sample
+     */
+    SampledCounter getRemoveElementSuccessSample();
+
+    /**
+     * Gets the removeElement miss sample
+     * @return removeElement miss sample
+     */
+    SampledCounter getRemoveElementMissSample();
+
 }

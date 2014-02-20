@@ -16,9 +16,6 @@
 
 package net.sf.ehcache.statistics;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.ClusterEventOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.EvictionOutcome;
@@ -32,6 +29,9 @@ import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
 
+import java.util.Arrays;
+import java.util.EnumSet;
+
 /**
  * The CoreStatisticsImpl class.
  *
@@ -43,6 +43,10 @@ public class CoreStatisticsImpl implements CoreStatistics {
     private final CountOperation cacheGet;
     private final CountOperation cachePut;
     private final CountOperation cacheRemove;
+    private final CountOperation cacheReplace1;
+    private final CountOperation cacheReplace2;
+    private final CountOperation cachePutIfAbsent;
+    private final CountOperation cacheRemoveElement;
     private final CountOperation localHeapGet;
     private final CountOperation localHeapPut;
 
@@ -71,7 +75,10 @@ public class CoreStatisticsImpl implements CoreStatistics {
         this.cacheGet = asCountOperation(extended.get());
         this.cachePut = asCountOperation(extended.put());
         this.cacheRemove = asCountOperation(extended.remove());
-
+        this.cacheReplace1 = asCountOperation(extended.replaceOneArg());
+        this.cacheReplace2 = asCountOperation(extended.replaceOneArg());
+        this.cachePutIfAbsent = asCountOperation(extended.putIfAbsent());
+        this.cacheRemoveElement = asCountOperation(extended.removeElement());
         this.localHeapGet = asCountOperation(extended.heapGet());
         this.localHeapPut = asCountOperation(extended.heapPut());
         this.localHeapRemove = asCountOperation(extended.heapRemove());
@@ -131,6 +138,38 @@ public class CoreStatisticsImpl implements CoreStatistics {
     @Override
     public CountOperation<CacheOperationOutcomes.RemoveOutcome> remove() {
         return cacheRemove;
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#replaceOneArg()
+     */
+    @Override
+    public CountOperation<CacheOperationOutcomes.ReplaceOneArgOutcome> replaceOneArg() {
+        return cacheReplace1;
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#replaceTwoArg()
+     */
+    @Override
+    public CountOperation<CacheOperationOutcomes.ReplaceTwoArgOutcome> replaceTwoArg() {
+        return cacheReplace2;
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#putIfAbsent()
+     */
+    @Override
+    public CountOperation<CacheOperationOutcomes.PutIfAbsentOutcome> putIfAbsent() {
+        return cachePutIfAbsent;
+    }
+
+    /* (non-Javadoc)
+     * @see net.sf.ehcache.statistics.CoreStatistics#removeElement()
+     */
+    @Override
+    public CountOperation<CacheOperationOutcomes.RemoveElementOutcome> removeElement() {
+        return cacheRemoveElement;
     }
 
     /* (non-Javadoc)

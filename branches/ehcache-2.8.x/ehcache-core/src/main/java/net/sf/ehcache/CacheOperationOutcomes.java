@@ -155,4 +155,37 @@ public interface CacheOperationOutcomes {
         /** The timeout. */
         TIMEOUT;
     }
+
+  enum ReplaceOneArgOutcome {
+    /** replaced */
+    SUCCESS,
+
+    /** not found */
+    FAILURE,
+  }
+
+  enum ReplaceTwoArgOutcome {
+    /** replaced */
+    SUCCESS,
+
+    /** not found */
+    FAILURE,
+  }
+
+  enum PutIfAbsentOutcome {
+    /** put into cache */
+    SUCCESS,
+
+    /** already exisits; not put into cache */
+    FAILURE,
+  }
+
+  enum RemoveElementOutcome {
+    /** element removed from cache */
+    SUCCESS,
+
+    /** not found */
+    FAILURE,
+  }
+
 }

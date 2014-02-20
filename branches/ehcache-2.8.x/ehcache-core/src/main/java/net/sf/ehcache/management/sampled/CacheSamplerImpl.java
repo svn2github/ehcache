@@ -16,11 +16,8 @@
 
 package net.sf.ehcache.management.sampled;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.ClusterEventOutcomes;
 import net.sf.ehcache.CacheOperationOutcomes.NonStopOperationOutcomes;
 import net.sf.ehcache.CacheStoreHelper;
@@ -39,10 +36,14 @@ import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 import net.sf.ehcache.util.counter.sampled.TimeStampedCounterValue;
 import net.sf.ehcache.writer.writebehind.WriteBehindManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.statistics.archive.Timestamped;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * An implementation of {@link CacheSampler}
@@ -1250,6 +1251,153 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
         }
     }
 
+    @Override
+    public long getReplaceOneArgSuccessCount() {
+        try {
+            return cache.getStatistics().getExtended().replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.SUCCESS).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getReplaceOneArgSuccessRate() {
+        try {
+            return cache.getStatistics().getExtended().replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.SUCCESS).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getReplaceOneArgMissCount() {
+        try {
+            return cache.getStatistics().getExtended().replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.FAILURE).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getReplaceOneArgMissRate() {
+        try {
+            return cache.getStatistics().getExtended().replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.FAILURE).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getReplaceTwoArgSuccessCount() {
+        try {
+            return cache.getStatistics().getExtended().replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.SUCCESS).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getReplaceTwoArgSuccessRate() {
+        try {
+            return cache.getStatistics().getExtended().replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.SUCCESS).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getReplaceTwoArgMissCount() {
+        try {
+            return cache.getStatistics().getExtended().replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.SUCCESS).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getReplaceTwoArgMissRate() {
+        try {
+            return cache.getStatistics().getExtended().replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.FAILURE).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getPutIfAbsentSuccessCount() {
+        try {
+            return cache.getStatistics().getExtended().putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.SUCCESS).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getPutIfAbsentSuccessRate() {
+        try {
+            return cache.getStatistics().getExtended().putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.SUCCESS).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getPutIfAbsentMissCount() {
+        try {
+            return cache.getStatistics().getExtended().putIfAbsent().component(
+                CacheOperationOutcomes.PutIfAbsentOutcome.FAILURE).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getPutIfAbsentMissRate() {
+        try {
+            return cache.getStatistics().getExtended().putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.FAILURE).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getRemoveElementSuccessCount() {
+        try {
+            return cache.getStatistics().getExtended().removeElement().component(
+                CacheOperationOutcomes.RemoveElementOutcome.SUCCESS).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getRemoveElementSuccessRate() {
+        try {
+            return cache.getStatistics().getExtended().removeElement().component(CacheOperationOutcomes.RemoveElementOutcome.SUCCESS).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getRemoveElementMissCount() {
+        try {
+            return cache.getStatistics().getExtended().removeElement().component(
+                CacheOperationOutcomes.RemoveElementOutcome.FAILURE).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getRemoveElementMissRate() {
+        try {
+            return cache.getStatistics().getExtended().removeElement().component(CacheOperationOutcomes.RemoveElementOutcome.FAILURE).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -1359,8 +1507,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getSearchesPerSecond() {
-        // TODO I can't math.
-        return 0;
+        return 1000l/TimeUnit.MILLISECONDS.convert(getAverageSearchTimeNanos(),TimeUnit.NANOSECONDS);
     }
 
     /**
@@ -1917,6 +2064,54 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     @Override
     public long getNonStopTimeoutRate() {
         return getNonStopTimeoutMostRecentSample();
+    }
+
+    @Override
+    public SampledCounter getReplaceOneArgSuccessSample() {
+        return new SampledCounterProxy(cache.getStatistics().getExtended().replaceOneArg().component(
+            CacheOperationOutcomes.ReplaceOneArgOutcome.SUCCESS).rate());
+    }
+
+    @Override
+    public SampledCounter getReplaceOneArgMissSample() {
+        return new SampledCounterProxy(cache.getStatistics().getExtended().replaceOneArg().component(
+            CacheOperationOutcomes.ReplaceOneArgOutcome.FAILURE).rate());
+    }
+
+    @Override
+    public SampledCounter getReplaceTwoArgSuccessSample() {
+        return new SampledCounterProxy(cache.getStatistics().getExtended().replaceTwoArg().component(
+            CacheOperationOutcomes.ReplaceTwoArgOutcome.SUCCESS).rate());
+    }
+
+    @Override
+    public SampledCounter getReplaceTwoArgMissSample() {
+        return new SampledCounterProxy(cache.getStatistics().getExtended().replaceTwoArg().component(
+            CacheOperationOutcomes.ReplaceTwoArgOutcome.FAILURE).rate());
+    }
+
+    @Override
+    public SampledCounter getPutIfAbsentSuccessSample() {
+        return new SampledCounterProxy(cache.getStatistics().getExtended().putIfAbsent().component(
+            CacheOperationOutcomes.PutIfAbsentOutcome.SUCCESS).rate());
+    }
+
+    @Override
+    public SampledCounter getPutIfAbsentMissSample() {
+        return new SampledCounterProxy(cache.getStatistics().getExtended().putIfAbsent().component(
+            CacheOperationOutcomes.PutIfAbsentOutcome.FAILURE).rate());
+    }
+
+    @Override
+    public SampledCounter getRemoveElementSuccessSample() {
+        return new SampledCounterProxy(cache.getStatistics().getExtended().removeElement().component(
+            CacheOperationOutcomes.RemoveElementOutcome.SUCCESS).rate());
+    }
+
+    @Override
+    public SampledCounter getRemoveElementMissSample() {
+        return new SampledCounterProxy(cache.getStatistics().getExtended().removeElement().component(
+            CacheOperationOutcomes.RemoveElementOutcome.FAILURE).rate());
     }
 
     @Override

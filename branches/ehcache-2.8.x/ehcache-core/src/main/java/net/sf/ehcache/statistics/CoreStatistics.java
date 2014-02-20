@@ -17,7 +17,6 @@
 package net.sf.ehcache.statistics;
 
 import net.sf.ehcache.CacheOperationOutcomes;
-import net.sf.ehcache.statistics.CoreStatistics.CountOperation;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
@@ -68,12 +67,40 @@ public interface CoreStatistics {
      */
     public CountOperation<CacheOperationOutcomes.PutOutcome> put();
 
+  /**
+   * Remove operation.
+   *
+   * @return the count operation
+   */
+    public CountOperation<CacheOperationOutcomes.RemoveOutcome> remove();
+
     /**
-     * Removes the.
+     * The single arg replace operation.
      *
      * @return the count operation
      */
-    public CountOperation<CacheOperationOutcomes.RemoveOutcome> remove();
+    public CountOperation<CacheOperationOutcomes.ReplaceOneArgOutcome> replaceOneArg();
+
+    /**
+     * The two arg replace operation.
+     *
+     * @return the count operation
+     */
+    public CountOperation<CacheOperationOutcomes.ReplaceTwoArgOutcome> replaceTwoArg();
+
+    /**
+     * The put if absent operation.
+     *
+     * @return the count operation
+     */
+    public CountOperation<CacheOperationOutcomes.PutIfAbsentOutcome> putIfAbsent();
+
+    /**
+     * The remove element operation.
+     *
+     * @return the count operation
+     */
+    public CountOperation<CacheOperationOutcomes.RemoveElementOutcome> removeElement();
 
     /**
      * Local heap get.

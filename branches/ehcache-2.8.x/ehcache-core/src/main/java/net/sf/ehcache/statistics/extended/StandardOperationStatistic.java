@@ -16,23 +16,22 @@
 
 package net.sf.ehcache.statistics.extended;
 
-import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.cache;
-import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.children;
-import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.descendants;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.store.StoreOperationOutcomes;
 import net.sf.ehcache.transaction.xa.XaCommitOutcome;
 import net.sf.ehcache.transaction.xa.XaRecoveryOutcome;
 import net.sf.ehcache.transaction.xa.XaRollbackOutcome;
-
 import org.terracotta.context.query.Query;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.cache;
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.children;
+import static net.sf.ehcache.statistics.extended.EhcacheQueryBuilder.descendants;
 
 /**
  * The Enum OperationType.
@@ -43,8 +42,10 @@ enum StandardOperationStatistic {
 
     /** The cache get. */
     CACHE_GET(true, cache(), CacheOperationOutcomes.GetOutcome.class, "get", "cache"),
+
     /** The cache put. */
     CACHE_PUT(true, cache(), CacheOperationOutcomes.PutOutcome.class, "put", "cache"),
+
     /** The cache remove. */
     CACHE_REMOVE(true, cache(), CacheOperationOutcomes.RemoveOutcome.class, "remove", "cache"),
 
@@ -102,7 +103,19 @@ enum StandardOperationStatistic {
     CLUSTER_EVENT(CacheOperationOutcomes.ClusterEventOutcomes.class, "cluster", "cache"),
 
     /** cluster events */
-    NONSTOP(CacheOperationOutcomes.NonStopOperationOutcomes.class, "nonstop", "cache");
+    NONSTOP(CacheOperationOutcomes.NonStopOperationOutcomes.class, "nonstop", "cache"),
+
+    /** single arg replace events */
+    CACHE_ONE_ARG_REPLACE(CacheOperationOutcomes.ReplaceOneArgOutcome.class, "replace1", "cache"),
+
+    /** two arg replace events */
+    CACHE_TWO_ARG_REPLACE(CacheOperationOutcomes.ReplaceTwoArgOutcome.class, "replace2", "cache"),
+
+    /** single arge replace events */
+    CACHE_PUT_IF_ABSENT(CacheOperationOutcomes.PutIfAbsentOutcome.class, "putIfAbsent", "cache"),
+
+    /** single arge replace events */
+    CACHE_REMOVE_ELEMENT(CacheOperationOutcomes.RemoveElementOutcome.class, "removeElement", "cache");
 
     private static final int THIRTY = 30;
     private static final int TEN = 10;

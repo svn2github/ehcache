@@ -16,9 +16,9 @@
 
 package net.sf.ehcache.statistics;
 
-import java.util.concurrent.TimeUnit;
-
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * The Interface FlatStatistics; the almighty confluence of all basic statistics.

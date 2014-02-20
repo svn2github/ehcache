@@ -4,36 +4,39 @@
  */
 package net.sf.ehcache.statistics;
 
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheOperationOutcomes;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.terracotta.statistics.StatisticsManager;
-
-import static net.sf.ehcache.CacheOperationOutcomes.GetOutcome.*;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics;
-import net.sf.ehcache.statistics.extended.ExtendedStatisticsImpl;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Result;
 import net.sf.ehcache.statistics.extended.ExtendedStatistics.Statistic;
+import net.sf.ehcache.statistics.extended.ExtendedStatisticsImpl;
 import net.sf.ehcache.util.RetryAssert;
-
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsCollectionContaining;
 import org.hamcrest.core.IsEqual;
+import org.junit.Test;
+import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.archive.Timestamped;
-import static org.hamcrest.core.Is.*;
-import static org.hamcrest.number.OrderingComparison.*;
+
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static net.sf.ehcache.CacheOperationOutcomes.GetOutcome.HIT;
+import static net.sf.ehcache.CacheOperationOutcomes.GetOutcome.MISS_EXPIRED;
+import static net.sf.ehcache.CacheOperationOutcomes.GetOutcome.MISS_NOT_FOUND;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.greaterThanOrEqualTo;
+import static org.hamcrest.number.OrderingComparison.lessThanOrEqualTo;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -83,6 +86,141 @@ public class ExtendedStatisticsTest {
         }
     }
 
+    @Test
+    public void testCASReplace1CacheStatistics() throws InterruptedException {
+        CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
+        try {
+            Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
+            manager.addCache(foo);
+
+            ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
+
+            foo.put(new Element("one", "one"));
+
+            assertThat(extendedStats.replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.SUCCESS)
+                .count().value(), is(0L));
+            assertThat(extendedStats.replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.FAILURE)
+                .count().value(), is(0L));
+
+            foo.replace(new Element("two", "two"));
+
+            assertThat(extendedStats.replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.SUCCESS)
+                .count().value(), is(0L));
+            assertThat(extendedStats.replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.FAILURE)
+                .count().value(), is(1L));
+
+            foo.replace(new Element("one", "two"));
+
+            assertThat(extendedStats.replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.SUCCESS)
+                .count().value(), is(1L));
+            assertThat(extendedStats.replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.FAILURE)
+                .count().value(), is(1L));
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+    @Test
+    public void testCASReplace2CacheStatistics() throws InterruptedException {
+        CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
+        try {
+            Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
+            manager.addCache(foo);
+
+            ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
+
+            foo.put(new Element("one", "one"));
+
+            assertThat(extendedStats.replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.SUCCESS)
+                .count().value(), is(0L));
+            assertThat(extendedStats.replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.FAILURE)
+                .count().value(), is(0L));
+
+            foo.replace(new Element("one", "two"),new Element("one","two"));
+
+            assertThat(extendedStats.replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.SUCCESS)
+                .count().value(), is(0L));
+            assertThat(extendedStats.replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.FAILURE)
+                .count().value(), is(1L));
+
+            foo.replace(new Element("one", "one"), new Element("one", "two"));
+
+            assertThat(extendedStats.replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.SUCCESS)
+                .count().value(), is(1L));
+            assertThat(extendedStats.replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.FAILURE)
+                .count().value(), is(1L));
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+    @Test
+    public void testCASPutIfAbsentCacheStatistics() throws InterruptedException {
+        CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
+        try {
+            Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
+            manager.addCache(foo);
+
+            ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
+
+            foo.put(new Element("one", "one"));
+
+            assertThat(extendedStats.putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.SUCCESS)
+                .count().value(), is(0L));
+            assertThat(extendedStats.putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.FAILURE)
+                .count().value(), is(0L));
+
+            foo.putIfAbsent(new Element("one","two"));
+            assertThat(extendedStats.putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.SUCCESS)
+                .count().value(), is(0L));
+            assertThat(extendedStats.putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.FAILURE)
+                .count().value(), is(1L));
+
+            foo.putIfAbsent(new Element("two","one"));
+            assertThat(extendedStats.putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.SUCCESS)
+                .count().value(), is(1L));
+            assertThat(extendedStats.putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.FAILURE)
+                .count().value(), is(1L));
+        } finally {
+            manager.shutdown();
+        }
+    }
+
+
+    @Test
+    public void testCASRemoveElementCacheStatistics() throws InterruptedException {
+        CacheManager manager = new CacheManager(new Configuration().name("foo-manager"));
+        try {
+            Cache foo = new Cache(new CacheConfiguration().name("foo").maxEntriesLocalHeap(1000));
+            manager.addCache(foo);
+
+            ExtendedStatistics extendedStats = foo.getStatistics().getExtended();
+
+            foo.put(new Element("one", "one"));
+
+            assertThat(extendedStats.removeElement().component(CacheOperationOutcomes.RemoveElementOutcome.SUCCESS)
+                .count().value(), is(0L));
+            assertThat(extendedStats.removeElement().component(CacheOperationOutcomes.RemoveElementOutcome.FAILURE)
+                .count().value(), is(0L));
+
+            foo.removeElement(new Element("one", "one1"));
+
+            assertThat(extendedStats.removeElement().component(CacheOperationOutcomes.RemoveElementOutcome.SUCCESS)
+                .count().value(), is(0L));
+            assertThat(extendedStats.removeElement().component(CacheOperationOutcomes.RemoveElementOutcome.FAILURE)
+                .count().value(), is(1L));
+
+            foo.removeElement(new Element("one", "one"));
+
+            assertThat(extendedStats.removeElement().component(CacheOperationOutcomes.RemoveElementOutcome.SUCCESS)
+                .count().value(), is(1L));
+            assertThat(extendedStats.removeElement().component(CacheOperationOutcomes.RemoveElementOutcome.FAILURE)
+                .count().value(), is(1L));
+
+        } finally {
+            manager.shutdown();
+        }
+    }
 
     @Test
     public void testExtendedCacheTimeToDisable() throws InterruptedException {
