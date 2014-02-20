@@ -216,10 +216,22 @@ public interface LegacyCacheStatistics {
     long getReplaceOneArgSuccessCount();
 
     /**
+     * Rate of one arg replace operations that succeeded. Similar to most recent smaple
+     * @return Rate of replaces
+     */
+    long getReplaceOneArgSuccessRate();
+
+    /**
      * Number of one arg replace operations that missed.
      * @return Number of replace misses
      */
     long getReplaceOneArgMissCount();
+
+    /**
+     * Rate of one arg replace operations that missed.
+     * @return Rate of replace misses
+     */
+    long getReplaceOneArgMissRate();
 
     /**
      * Number of two arg replace operations that succeeded.
@@ -228,10 +240,22 @@ public interface LegacyCacheStatistics {
     long getReplaceTwoArgSuccessCount();
 
     /**
+     * Rate of two arg replace operations that succeeded.
+     * @return Rate of replaces
+     */
+    long getReplaceTwoArgSuccessRate();
+
+    /**
      * Number of two arg replace operations that missed.
      * @return Number of replace misses
      */
     long getReplaceTwoArgMissCount();
+
+    /**
+     * Rate of two arg replace operations that missed.
+     * @return Rate of replace misses
+     */
+    long getReplaceTwoArgMissRate();
 
     /**
      * Number of putIfAbsent operations that succeeded.
@@ -240,10 +264,22 @@ public interface LegacyCacheStatistics {
     long getPutIfAbsentSuccessCount();
 
     /**
+     * Rate of putIfAbsent operations that succeeded.
+     * @return Rate of putIfAbsents
+     */
+    long getPutIfAbsentSuccessRate();
+
+    /**
      * Number of putIfAbsent operations that missed.
      * @return Number of putIfAbsent misses
      */
     long getPutIfAbsentMissCount();
+
+    /**
+     * Rate of putIfAbsent operations that missed.
+     * @return Rate of putIfAbsent misses
+     */
+    long getPutIfAbsentMissRate();
 
     /**
      * Number of removeElement operations that succeeded
@@ -252,10 +288,22 @@ public interface LegacyCacheStatistics {
     long getRemoveElementSuccessCount();
 
     /**
+     * Rate of removeElement operations that succeeded
+     * @return Rate of removeElement operations
+     */
+    long getRemoveElementSuccessRate();
+
+    /**
      * Number of removeElement operations that missed.
      * @return Number of removeElement misses
      */
     long getRemoveElementMissCount();
+
+    /**
+     * Rate of removeElement operations that missed.
+     * @return Rate of removeElement misses
+     */
+    long getRemoveElementMissRate();
 
     /**
      * Number of elements expired since creation or last clear.

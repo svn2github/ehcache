@@ -1261,9 +1261,27 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     }
 
     @Override
+    public long getReplaceOneArgSuccessRate() {
+        try {
+            return cache.getStatistics().getExtended().replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.SUCCESS).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
     public long getReplaceOneArgMissCount() {
         try {
             return cache.getStatistics().getExtended().replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.FAILURE).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getReplaceOneArgMissRate() {
+        try {
+            return cache.getStatistics().getExtended().replaceOneArg().component(CacheOperationOutcomes.ReplaceOneArgOutcome.FAILURE).rate().value().longValue();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1279,6 +1297,15 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     }
 
     @Override
+    public long getReplaceTwoArgSuccessRate() {
+        try {
+            return cache.getStatistics().getExtended().replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.SUCCESS).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
     public long getReplaceTwoArgMissCount() {
         try {
             return cache.getStatistics().getExtended().replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.SUCCESS).count().value();
@@ -1288,9 +1315,27 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     }
 
     @Override
+    public long getReplaceTwoArgMissRate() {
+        try {
+            return cache.getStatistics().getExtended().replaceTwoArg().component(CacheOperationOutcomes.ReplaceTwoArgOutcome.FAILURE).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
     public long getPutIfAbsentSuccessCount() {
         try {
             return cache.getStatistics().getExtended().putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.SUCCESS).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getPutIfAbsentSuccessRate() {
+        try {
+            return cache.getStatistics().getExtended().putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.SUCCESS).rate().value().longValue();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }
@@ -1307,6 +1352,15 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     }
 
     @Override
+    public long getPutIfAbsentMissRate() {
+        try {
+            return cache.getStatistics().getExtended().putIfAbsent().component(CacheOperationOutcomes.PutIfAbsentOutcome.FAILURE).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
     public long getRemoveElementSuccessCount() {
         try {
             return cache.getStatistics().getExtended().removeElement().component(
@@ -1317,10 +1371,28 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
     }
 
     @Override
+    public long getRemoveElementSuccessRate() {
+        try {
+            return cache.getStatistics().getExtended().removeElement().component(CacheOperationOutcomes.RemoveElementOutcome.SUCCESS).rate().value().longValue();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
     public long getRemoveElementMissCount() {
         try {
             return cache.getStatistics().getExtended().removeElement().component(
                 CacheOperationOutcomes.RemoveElementOutcome.FAILURE).count().value();
+        } catch (RuntimeException e) {
+            throw Utils.newPlainException(e);
+        }
+    }
+
+    @Override
+    public long getRemoveElementMissRate() {
+        try {
+            return cache.getStatistics().getExtended().removeElement().component(CacheOperationOutcomes.RemoveElementOutcome.FAILURE).rate().value().longValue();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
         }

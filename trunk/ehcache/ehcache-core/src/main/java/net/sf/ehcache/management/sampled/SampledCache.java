@@ -1089,12 +1089,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         return sampledCacheDelegate.getReplaceOneArgSuccessCount();
     }
 
+    @Override
+    public long getReplaceOneArgSuccessRate() {
+        return sampledCacheDelegate.getReplaceOneArgSuccessRate();
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public long getReplaceOneArgMissCount() {
         return sampledCacheDelegate.getReplaceOneArgMissCount();
+    }
+
+    @Override
+    public long getReplaceOneArgMissRate() {
+        return sampledCacheDelegate.getReplaceOneArgMissRate();
     }
 
     /**
@@ -1105,12 +1115,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         return sampledCacheDelegate.getReplaceTwoArgSuccessCount();
     }
 
+    @Override
+    public long getReplaceTwoArgSuccessRate() {
+        return sampledCacheDelegate.getReplaceTwoArgSuccessRate();
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public long getReplaceTwoArgMissCount() {
         return sampledCacheDelegate.getReplaceTwoArgMissCount();
+    }
+
+    @Override
+    public long getReplaceTwoArgMissRate() {
+        return sampledCacheDelegate.getReplaceTwoArgMissRate();
     }
 
     /**
@@ -1121,12 +1141,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         return sampledCacheDelegate.getPutIfAbsentSuccessCount();
     }
 
+    @Override
+    public long getPutIfAbsentSuccessRate() {
+        return sampledCacheDelegate.getPutIfAbsentSuccessRate();
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public long getPutIfAbsentMissCount() {
         return sampledCacheDelegate.getPutIfAbsentMissCount();
+    }
+
+    @Override
+    public long getPutIfAbsentMissRate() {
+        return sampledCacheDelegate.getPutIfAbsentMissRate();
     }
 
     /**
@@ -1137,12 +1167,22 @@ public class SampledCache extends BaseEmitterBean implements SampledCacheMBean, 
         return sampledCacheDelegate.getRemoveElementSuccessCount();
     }
 
+    @Override
+    public long getRemoveElementSuccessRate() {
+        return sampledCacheDelegate.getRemoveElementSuccessRate();
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public long getRemoveElementMissCount() {
         return sampledCacheDelegate.getRemoveElementMissCount();
+    }
+
+    @Override
+    public long getRemoveElementMissRate() {
+        return sampledCacheDelegate.getRemoveElementMissRate();
     }
 
     /**
