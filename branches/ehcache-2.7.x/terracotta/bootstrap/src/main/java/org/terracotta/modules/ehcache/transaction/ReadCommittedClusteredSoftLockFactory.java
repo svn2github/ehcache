@@ -10,7 +10,6 @@ import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.TransactionID;
 import net.sf.ehcache.transaction.local.LocalTransactionContext;
-
 import org.terracotta.modules.ehcache.ToolkitInstanceFactory;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.toolkit.collections.ToolkitMap;
@@ -131,29 +130,17 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
 
   @Override
   public void clearSoftLock(SoftLock softLock) {
-    for (SerializedReadCommittedClusteredSoftLock serializedSoftLock : newKeyLocks.keySet()) {
-      if (serializedSoftLock.getSoftLock(toolkitInstanceFactory, this).equals(softLock)) {
-        newKeyLocks.remove(serializedSoftLock);
-        break;
-      }
-    }
-
-    for (Map.Entry<ClusteredSoftLockIDKey, SerializedReadCommittedClusteredSoftLock> entry : allLocks.entrySet()) {
-      if (entry.getValue().getSoftLock(toolkitInstanceFactory, this).equals(softLock)) {
-        allLocks.remove(entry.getKey());
-        break;
-      }
-    }
+    SoftLockID softLockId = new SoftLockID(((ReadCommittedClusteredSoftLock)softLock).getTransactionID(), softLock.getKey(), null, null);
+    ClusteredSoftLockIDKey clusteredIdKey = new ClusteredSoftLockIDKey(softLockId);
+    SerializedReadCommittedClusteredSoftLock serializedClusteredSoftLock = allLocks.remove(clusteredIdKey);
+    newKeyLocks.remove(serializedClusteredSoftLock);
   }
 
   private Set<Object> getNewKeys() {
     Set<Object> result = new HashSet<Object>();
-    int i = 0;
     for (SerializedReadCommittedClusteredSoftLock serialized : newKeyLocks.keySet()) {
-      newKeyLocks.get(i); // workaround for DEV-5390
       result.add(serialized.getSoftLock(toolkitInstanceFactory, this).getKey());
     }
-
     return result;
   }
 

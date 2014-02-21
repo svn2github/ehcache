@@ -31,4 +31,27 @@ public class SerializedReadCommittedClusteredSoftLock implements Serializable {
     return rv;
   }
 
+  @Override
+  public boolean equals(Object object) {
+    if (object instanceof SerializedReadCommittedClusteredSoftLock) {
+      SerializedReadCommittedClusteredSoftLock other = (SerializedReadCommittedClusteredSoftLock) object;
+
+      if (!transactionID.equals(other.transactionID)) { return false; }
+      if (!deserializedKey.equals(other.deserializedKey)) { return false; }
+
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hashCode = 31;
+
+    hashCode *= transactionID.hashCode();
+    hashCode *= deserializedKey.hashCode();
+
+    return hashCode;
+  }
+
 }
