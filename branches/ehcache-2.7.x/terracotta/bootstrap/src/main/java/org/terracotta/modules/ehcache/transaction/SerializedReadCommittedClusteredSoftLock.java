@@ -11,6 +11,8 @@ import java.io.Serializable;
 
 public class SerializedReadCommittedClusteredSoftLock implements Serializable {
 
+  private static final long                                 serialVersionUID = -766870846218858666L;
+
   private final TransactionID                               transactionID;
   private final Object                                      deserializedKey;
   private transient volatile ReadCommittedClusteredSoftLock softLock;
