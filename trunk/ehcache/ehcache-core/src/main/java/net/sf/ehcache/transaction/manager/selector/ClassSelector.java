@@ -29,19 +29,16 @@ public abstract class ClassSelector extends Selector {
     private static final Logger LOG = LoggerFactory.getLogger(ClassSelector.class);
 
     private final String classname;
-    private final ClassLoader classLoader;
 
     /**
      * Constructor
      *
      * @param vendor the transaction manager vendor name
-     * @param loader the classloader to load from
      * @param classname the name of the class to instanciate
      */
-    public ClassSelector(String vendor, ClassLoader loader, String classname) {
+    public ClassSelector(String vendor, String classname) {
         super(vendor);
         this.classname = classname;
-        this.classLoader = loader;
     }
 
     /**
@@ -52,7 +49,7 @@ public abstract class ClassSelector extends Selector {
         TransactionManager transactionManager = null;
 
         try {
-            Class txManagerClass = classLoader.loadClass(classname);
+            Class txManagerClass = Class.forName(classname);
             transactionManager = (TransactionManager) txManagerClass.newInstance();
         } catch (ClassNotFoundException e) {
             LOG.debug("FactorySelector failed lookup", e);

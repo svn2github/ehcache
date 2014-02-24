@@ -33,21 +33,18 @@ public abstract class FactorySelector extends Selector {
 
     private final String factoryClassName;
     private final String factoryMethodName;
-    private final ClassLoader classLoader;
-
+    
     /**
      * Constructor
      *
      * @param vendor the transaction manager vendor name
-     * @param loader the classloader to load from
      * @param factoryClassName the class used to lookup the transaction manager
      * @param factoryMethodName the method to be called on the class used to lookup the transaction manager
      */
-    public FactorySelector(String vendor, ClassLoader loader, String factoryClassName, String factoryMethodName) {
+    public FactorySelector(String vendor, String factoryClassName, String factoryMethodName) {
         super(vendor);
         this.factoryClassName = factoryClassName;
         this.factoryMethodName = factoryMethodName;
-        this.classLoader = loader;
     }
 
     /**
@@ -58,7 +55,7 @@ public abstract class FactorySelector extends Selector {
         TransactionManager transactionManager = null;
 
         try {
-            Class factoryClass = classLoader.loadClass(factoryClassName);
+            Class factoryClass = Class.forName(factoryClassName);
             Class[] signature = null;
             Object[] args = null;
             Method method = factoryClass.getMethod(factoryMethodName, signature);
@@ -74,9 +71,6 @@ public abstract class FactorySelector extends Selector {
         }
         return transactionManager;
     }
-    
-    protected ClassLoader getClassLoader() {
-        return classLoader;
-    }
+
     
 }

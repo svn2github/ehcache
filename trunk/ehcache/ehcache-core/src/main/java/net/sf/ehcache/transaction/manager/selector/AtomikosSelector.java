@@ -25,7 +25,7 @@ public class AtomikosSelector extends ClassSelector {
     /**
      * Constructor
      */
-    public AtomikosSelector(ClassLoader loader) {
-        super("Atomikos", loader, "com.atomikos.icatch.jta.UserTransactionManager");
+    public AtomikosSelector() {
+        super("Atomikos", "com.atomikos.icatch.jta.UserTransactionManager");
     }
 }

@@ -28,7 +28,7 @@ public class SuspendResumeClient extends AbstractTxClient {
 
   @Override
   protected void runTest(Cache cache, Toolkit toolkit) throws Throwable {
-    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(getClass().getClassLoader());
+    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
     final TransactionManager txnManager = lookup.getTransactionManager();
     int commitCount = 0;
     int rollbackCount = 0;

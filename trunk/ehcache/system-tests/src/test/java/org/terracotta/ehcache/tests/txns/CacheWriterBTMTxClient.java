@@ -46,7 +46,7 @@ public class CacheWriterBTMTxClient extends AbstractTxClient {
     pds1.getDriverProperties().setProperty("createDatabase", "create");
     pds1.init();
 
-    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup(getClass().getClassLoader());
+    final TransactionManagerLookup lookup = new DefaultTransactionManagerLookup();
     final TransactionManager manager = lookup.getTransactionManager();
 
     DerbyCacheWriter writer = new DerbyCacheWriter(pds1);

@@ -1171,12 +1171,7 @@ public final class Configuration {
                         lookupConfiguration.getPropertySeparator());
                 Class<? extends TransactionManagerLookup> transactionManagerLookupClass = (Class<? extends TransactionManagerLookup>) getClassLoader()
                         .loadClass(lookupConfiguration.getFullyQualifiedClassPath());
-                if (DefaultTransactionManagerLookup.class.isAssignableFrom(transactionManagerLookupClass)) {
-                    this.transactionManagerLookup = transactionManagerLookupClass.getConstructor(ClassLoader.class).newInstance(
-                            getClassLoader());
-                } else {
-                    this.transactionManagerLookup = transactionManagerLookupClass.newInstance();
-                }
+                this.transactionManagerLookup = transactionManagerLookupClass.newInstance();
                 this.transactionManagerLookup.setProperties(properties);
             } catch (Exception e) {
                 LOG.error("could not instantiate transaction manager lookup class: {}", lookupConfiguration.getFullyQualifiedClassPath(), e);

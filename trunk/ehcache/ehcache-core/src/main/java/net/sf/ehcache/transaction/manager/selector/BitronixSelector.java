@@ -34,8 +34,8 @@ public class BitronixSelector extends FactorySelector {
     /**
      * Constructor
      */
-    public BitronixSelector(ClassLoader loader) {
-        super("Bitronix", loader, "bitronix.tm.TransactionManagerServices", "getTransactionManager");
+    public BitronixSelector() {
+        super("Bitronix", "bitronix.tm.TransactionManagerServices", "getTransactionManager");
     }
 
     /**
@@ -46,7 +46,7 @@ public class BitronixSelector extends FactorySelector {
         String uniqueName = ehcacheXAResource.getCacheName();
         try {
 
-            Class producerClass = getClassLoader().loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
+            Class producerClass = Class.forName("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
 
             Class[] signature = new Class[] {String.class, XAResource.class};
             Object[] args = new Object[] {uniqueName, ehcacheXAResource};
@@ -64,7 +64,7 @@ public class BitronixSelector extends FactorySelector {
     public void unregisterResource(EhcacheXAResource ehcacheXAResource, boolean forRecovery) {
         String uniqueName = ehcacheXAResource.getCacheName();
         try {
-            Class producerClass = getClassLoader().loadClass("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
+            Class producerClass = Class.forName("bitronix.tm.resource.ehcache.EhCacheXAResourceProducer");
 
             Class[] signature = new Class[] {String.class, XAResource.class};
             Object[] args = new Object[] {uniqueName, ehcacheXAResource};

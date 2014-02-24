@@ -73,13 +73,13 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
 
     private final Selector[] transactionManagerSelectors;
     
-    public DefaultTransactionManagerLookup(ClassLoader loader) {
+    public DefaultTransactionManagerLookup() {
         transactionManagerSelectors = new Selector[] {
                 defaultJndiSelector,
                 new GlassfishSelector(),
-                new WeblogicSelector(loader),
-                new BitronixSelector(loader),
-                new AtomikosSelector(loader)
+                new WeblogicSelector(),
+                new BitronixSelector(),
+                new AtomikosSelector()
             };
     }
 
