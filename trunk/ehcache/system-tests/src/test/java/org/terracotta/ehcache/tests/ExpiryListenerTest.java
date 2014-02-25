@@ -4,7 +4,6 @@
  */
 package org.terracotta.ehcache.tests;
 
-import com.tc.object.ClientConfigurationContext;
 import com.tc.test.config.model.TestConfig;
 
 import java.io.BufferedReader;
