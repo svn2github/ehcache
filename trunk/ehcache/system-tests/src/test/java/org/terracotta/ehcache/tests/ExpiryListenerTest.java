@@ -16,7 +16,6 @@ public class ExpiryListenerTest extends AbstractCacheTestBase {
   public ExpiryListenerTest(TestConfig testConfig) {
     // assume the 'test' cache TTL is 3s
     super("evict-cache-test.xml", testConfig, ExpiryListenerClient1.class, ExpiryListenerClient2.class);
-    testConfig.addTcProperty("seda." + ClientConfigurationContext.SERVER_EVENT_STAGE + ".sleepMs", "5000");
     testConfig.getClientConfig().setParallelClients(false);
   }
 
