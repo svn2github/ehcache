@@ -51,9 +51,8 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
   private void initializeFromCluster() {
     Configuration clusterConfig = backend.getConfiguration();
     if (clusterConfig.hasField(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME)) {
-      int maxEntries = clusterConfig.getInt(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME);
-      maxEntries = maxEntries < 0 ? 0 : maxEntries;
-      cacheConfiguration.internalSetMaxEntriesInCache(maxEntries);
+      cacheConfiguration.internalSetMaxEntriesInCache(
+          mapTotalCountToMaxEntriesInCache(clusterConfig.getInt(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME)));
     }
 
     if (clusterConfig.hasField(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME) ||
@@ -68,7 +67,9 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
         cacheConfiguration.internalSetTimeToIdle(tti);
         cacheConfiguration.internalSetTimeToLive(ttl);
       } else {
-        cacheConfiguration.internalSetEternal(true);
+        // We do not want to override the eternal flag since we can't make the assumption that having 0 TTI/TTL means
+        // the cache is eternal. The user could very well have set the TTI/TTL to 0 with the intent to set it to something
+        // non-zero later.
         cacheConfiguration.internalSetTimeToIdle(0);
         cacheConfiguration.internalSetTimeToLive(0);
       }
