@@ -468,47 +468,50 @@ public class CacheResourceServiceImplTest extends ResourceServiceImplITHelper {
 
 
     CacheManager clusteredCacheManager = createClusteredCacheManager();
-    // you have to specify a cache when doing mutation
-    CacheEntity cacheEntity = new CacheEntity();
-    Map<String,Object> attributes = new HashMap<String, Object>();
-    attributes.put("MaxEntriesInCache", 30000);
-    attributes.put("MaxEntriesLocalHeap",20000);
-    attributes.put("LoggingEnabled", Boolean.TRUE);
-    attributes.put("TimeToIdleSeconds", 20);
-    attributes.put("TimeToLiveSeconds", 43);
-    attributes.put("NodeBulkLoadEnabled", Boolean.TRUE); //ONLY FOR CLUSTERED !!!
-    attributes.put("Enabled", Boolean.FALSE);
 
-    String agentId = getEhCacheAgentId();
-    final String agentsFilter = ";ids=" + agentId;
-    String cmsFilter = ";names=testCacheManagerClustered";
-    String cachesFilter = ";names=testCacheClustered";
-    cacheEntity.getAttributes().putAll(attributes);
-    expect().statusCode(204).log().ifStatusCodeIsEqualTo(400)
-            .given()
-            .contentType(ContentType.JSON)
-            .body(cacheEntity)
-            .when().put(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter,cmsFilter, cachesFilter);
+    try {
+      // you have to specify a cache when doing mutation
+      CacheEntity cacheEntity = new CacheEntity();
+      Map<String, Object> attributes = new HashMap<String, Object>();
+      attributes.put("MaxEntriesInCache", 30000);
+      attributes.put("MaxEntriesLocalHeap", 20000);
+      attributes.put("LoggingEnabled", Boolean.TRUE);
+      attributes.put("TimeToIdleSeconds", 20);
+      attributes.put("TimeToLiveSeconds", 43);
+      attributes.put("NodeBulkLoadEnabled", Boolean.TRUE); //ONLY FOR CLUSTERED !!!
+      attributes.put("Enabled", Boolean.FALSE);
 
-
-    cmsFilter = "";
-    // we check the properties were changed
-    expect().contentType(ContentType.JSON)
-            .body("get(0).agentId", equalTo(agentId))
-            .body("get(0).name", equalTo("testCacheClustered"))
-            .body("get(0).attributes.MaxEntriesInCache", equalTo(30000))
-            .body("get(0).attributes.MaxEntriesLocalHeap", equalTo(20000))
-            .body("get(0).attributes.LoggingEnabled", equalTo(Boolean.TRUE))
-            .body("get(0).attributes.NodeBulkLoadEnabled",equalTo(Boolean.TRUE) ) //ONLY FOR CLUSTERED !!!
-            .body("get(0).attributes.ClusterBulkLoadEnabled", equalTo(Boolean.TRUE)) //ONLY FOR CLUSTERED !!!
-            .body("get(0).attributes.TimeToIdleSeconds", equalTo(20))
-            .body("get(0).attributes.TimeToLiveSeconds", equalTo(43))
-            .body("get(0).attributes.Enabled", equalTo(Boolean.FALSE))
-            .statusCode(200)
-            .when().get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter,cmsFilter, cachesFilter);
+      String agentId = getEhCacheAgentId();
+      final String agentsFilter = ";ids=" + agentId;
+      String cmsFilter = ";names=testCacheManagerClustered";
+      String cachesFilter = ";names=testCacheClustered";
+      cacheEntity.getAttributes().putAll(attributes);
+      expect().statusCode(204).log().ifStatusCodeIsEqualTo(400)
+              .given()
+              .contentType(ContentType.JSON)
+              .body(cacheEntity)
+              .when().put(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter, cmsFilter, cachesFilter);
 
 
-    clusteredCacheManager.shutdown();
+      cmsFilter = "";
+      // we check the properties were changed
+      expect().contentType(ContentType.JSON)
+              .body("get(0).agentId", equalTo(agentId))
+              .body("get(0).name", equalTo("testCacheClustered"))
+              .body("get(0).attributes.MaxEntriesInCache", equalTo(30000))
+              .body("get(0).attributes.MaxEntriesLocalHeap", equalTo(20000))
+              .body("get(0).attributes.LoggingEnabled", equalTo(Boolean.TRUE))
+              .body("get(0).attributes.NodeBulkLoadEnabled", equalTo(Boolean.TRUE)) //ONLY FOR CLUSTERED !!!
+              .body("get(0).attributes.ClusterBulkLoadEnabled", equalTo(Boolean.TRUE)) //ONLY FOR CLUSTERED !!!
+              .body("get(0).attributes.TimeToIdleSeconds", equalTo(20))
+              .body("get(0).attributes.TimeToLiveSeconds", equalTo(43))
+              .body("get(0).attributes.Enabled", equalTo(Boolean.FALSE))
+              .statusCode(200)
+              .when().get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter, cmsFilter, cachesFilter);
+    } finally {
+      clusteredCacheManager.shutdown();
+    }
+
   }
 
 
@@ -657,7 +660,7 @@ public class CacheResourceServiceImplTest extends ResourceServiceImplITHelper {
     configuration.setName("testCacheManagerClustered");
     TerracottaClientConfiguration terracottaConfiguration = new TerracottaClientConfiguration().url(CLUSTER_URL);
     configuration.addTerracottaConfig(terracottaConfiguration);
-    CacheConfiguration myCache = new CacheConfiguration().eternal(false).name("testCacheClustered").terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(10000);
+    CacheConfiguration myCache = new CacheConfiguration().eternal(false).name("testCacheClustered").terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(10000).timeToIdleSeconds(1);
     configuration.addCache(myCache);
     ManagementRESTServiceConfiguration managementRESTServiceConfiguration = new ManagementRESTServiceConfiguration();
     managementRESTServiceConfiguration.setBind("0.0.0.0:"+STANDALONE_REST_AGENT_PORT);
