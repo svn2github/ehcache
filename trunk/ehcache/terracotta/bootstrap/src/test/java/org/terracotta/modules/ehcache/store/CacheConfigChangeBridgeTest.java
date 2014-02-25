@@ -94,7 +94,7 @@ public class CacheConfigChangeBridgeTest {
 
     bridge.connectConfigs();
 
-    assertThat(cacheConfiguration.isEternal(), is(true));
+    assertThat(cacheConfiguration.isEternal(), is(false));
     assertThat(cacheConfiguration.getTimeToLiveSeconds(), is(0L));
     assertThat(cacheConfiguration.getTimeToIdleSeconds(), is(0L));
   }
