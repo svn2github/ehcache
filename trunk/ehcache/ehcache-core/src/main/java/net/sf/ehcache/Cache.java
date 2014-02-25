@@ -1066,10 +1066,14 @@ public class Cache implements InternalEhcache, StoreListener {
         synchronized (this) {
             final ClassLoader loader = getCacheConfiguration().getClassLoader();
             
-            // XXX: Is there a better way to relax this check for shadow caches?          
+          
             // verify that the cache and cache manager use the same classloader reference
-            if (loader != cacheManager.getConfiguration().getClassLoader() && !getName().startsWith("local_shadow_cache")) {
-                throw new CacheException("This cache (" + getName() + ") uses a different classloader reference than it's containing cache manager");
+            if (loader != cacheManager.getConfiguration().getClassLoader()) {
+                
+                // XXX: Is there a better way to relax this check for shadow caches?
+                if (!getName().startsWith("local_shadow_cache")) {                              
+                    throw new CacheException("This cache (" + getName() + ") is configurated with a different classloader reference than its containing cache manager");                               
+                }
             }
             
             if (!cacheStatus.canInitialize()) {
