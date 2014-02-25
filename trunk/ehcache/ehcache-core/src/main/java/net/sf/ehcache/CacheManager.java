@@ -157,6 +157,8 @@ public class CacheManager {
     private static final Map<String, CacheManager> INITIALIZING_CACHE_MANAGERS_MAP = new ConcurrentHashMap<String, CacheManager>();
 
     private static final long LOCAL_TX_RECOVERY_THREAD_JOIN_TIMEOUT = 1000L;
+    
+    static final String LOCAL_CACHE_NAME_PREFIX = "local_shadow_cache_for_";
 
     /**
      * Status of the Cache Manager
@@ -1361,7 +1363,7 @@ public class CacheManager {
 
 
     private String getParentCacheName(Ehcache shadow) {
-        String shadowPrefix = "local_shadow_cache_for_" + getName() + "___tc_clustered-ehcache|" + getName() + "|";
+        String shadowPrefix = LOCAL_CACHE_NAME_PREFIX + getName() + "___tc_clustered-ehcache|" + getName() + "|";
         if (shadow.getName().startsWith(shadowPrefix)) {
             return shadow.getName().substring(shadowPrefix.length());
         } else {
