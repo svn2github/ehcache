@@ -2995,6 +2995,13 @@ public class CacheConfiguration implements Cloneable {
     /**
      * Intended for internal use only, and subject to change.
      */
+    public void internalSetEternal(boolean eternal) {
+        this.eternal = eternal;
+    }
+
+    /**
+     * Intended for internal use only, and subject to change.
+     */
     public void internalSetMemCapacity(int capacity) {
         this.maxEntriesLocalHeap = capacity;
     }

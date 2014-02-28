@@ -50,21 +50,43 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
 
   private void initializeFromCluster() {
     Configuration clusterConfig = backend.getConfiguration();
-    cacheConfiguration.internalSetMaxEntriesInCache(clusterConfig.getInt(DynamicConfigType.MAX_TOTAL_COUNT.getToolkitConfigName()));
-    int tti = clusterConfig.getInt(DynamicConfigType.MAX_TTI_SECONDS.getToolkitConfigName());
-    int ttl = clusterConfig.getInt(DynamicConfigType.MAX_TTL_SECONDS.getToolkitConfigName());
-    if (tti != 0 || ttl != 0) {
-      cacheConfiguration.setEternal(false);
-      cacheConfiguration.internalSetTimeToIdle(tti);
-      cacheConfiguration.internalSetTimeToLive(ttl);
-    } else {
-      cacheConfiguration.setEternal(true);
+    if (clusterConfig.hasField(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME)) {
+      cacheConfiguration.internalSetMaxEntriesInCache(
+          mapTotalCountToMaxEntriesInCache(clusterConfig.getInt(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME)));
     }
 
-    cacheConfiguration.internalSetMemCapacity(clusterConfig.getInt(DynamicConfigType.MAX_COUNT_LOCAL_HEAP.getToolkitConfigName()));
-    cacheConfiguration.internalSetMemCapacityInBytes(clusterConfig.getLong(DynamicConfigType.MAX_BYTES_LOCAL_HEAP.getToolkitConfigName()));
-    cacheConfiguration.internalSetOverflowToOffheap(clusterConfig.getBoolean(ToolkitConfigFields.OFFHEAP_ENABLED_FIELD_NAME));
-    cacheConfiguration.internalSetMaxBytesLocalOffheap(clusterConfig.getLong(ToolkitConfigFields.MAX_BYTES_LOCAL_OFFHEAP_FIELD_NAME));
+    if (clusterConfig.hasField(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME) ||
+        clusterConfig.hasField(ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME)) {
+
+      int tti = clusterConfig.hasField(ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME) ?
+          clusterConfig.getInt(ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME) : 0;
+      int ttl = clusterConfig.hasField(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME) ?
+          clusterConfig.getInt(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME) : 0;
+      if (tti != 0 || ttl != 0) {
+        cacheConfiguration.internalSetEternal(false);
+        cacheConfiguration.internalSetTimeToIdle(tti);
+        cacheConfiguration.internalSetTimeToLive(ttl);
+      } else {
+        // We do not want to override the eternal flag since we can't make the assumption that having 0 TTI/TTL means
+        // the cache is eternal. The user could very well have set the TTI/TTL to 0 with the intent to set it to something
+        // non-zero later.
+        cacheConfiguration.internalSetTimeToIdle(0);
+        cacheConfiguration.internalSetTimeToLive(0);
+      }
+    }
+
+    if (clusterConfig.hasField(ToolkitConfigFields.MAX_COUNT_LOCAL_HEAP_FIELD_NAME)) {
+      cacheConfiguration.internalSetMemCapacity(clusterConfig.getInt(ToolkitConfigFields.MAX_COUNT_LOCAL_HEAP_FIELD_NAME));
+    }
+    if (clusterConfig.hasField(ToolkitConfigFields.MAX_BYTES_LOCAL_HEAP_FIELD_NAME)) {
+      cacheConfiguration.internalSetMemCapacityInBytes(clusterConfig.getLong(ToolkitConfigFields.MAX_BYTES_LOCAL_HEAP_FIELD_NAME));
+    }
+    if (clusterConfig.hasField(ToolkitConfigFields.OFFHEAP_ENABLED_FIELD_NAME)) {
+      cacheConfiguration.internalSetOverflowToOffheap(clusterConfig.getBoolean(ToolkitConfigFields.OFFHEAP_ENABLED_FIELD_NAME));
+    }
+    if (clusterConfig.hasField(ToolkitConfigFields.MAX_BYTES_LOCAL_OFFHEAP_FIELD_NAME)) {
+      cacheConfiguration.internalSetMaxBytesLocalOffheap(clusterConfig.getLong(ToolkitConfigFields.MAX_BYTES_LOCAL_OFFHEAP_FIELD_NAME));
+    }
   }
 
   private void change(DynamicConfigType type, Serializable newValue, boolean notifyRemote) {
