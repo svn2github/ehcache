@@ -860,7 +860,7 @@ public final class Configuration {
      * Allows BeanHandler to add a Terracotta configuration to the configuration
      */
     public final void addTerracottaConfig(TerracottaClientConfiguration terracottaConfiguration) throws ObjectExistsException {
-        if (this.terracottaConfigConfiguration != null) {
+        if (this.terracottaConfigConfiguration != null && terracottaConfiguration != null) {
             throw new ObjectExistsException("The TerracottaConfig has already been configured");
         }
         final String prop = "terracottaConfigConfiguration";

@@ -17,6 +17,7 @@
 package net.sf.ehcache.config;
 
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.Status;
 
 import org.junit.Test;
@@ -41,6 +42,22 @@ public class ConfigurationTest {
         } catch (IllegalStateException e) {
             assertThat(e.getMessage(), containsString("share a Configuration"));
         }
+    }
+
+    @Test
+    public void testNullingTerracottaConfiguration() {
+        Configuration config = new Configuration();
+        config.addTerracottaConfig(new TerracottaClientConfiguration());
+
+        try {
+            config.addTerracottaConfig(new TerracottaClientConfiguration());
+            throw new AssertionError();
+        } catch (ObjectExistsException oee) {
+            // expected
+        }
+
+        config.addTerracottaConfig(null);
+        config.addTerracottaConfig(new TerracottaClientConfiguration());
     }
 
     @Test
