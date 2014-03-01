@@ -2,6 +2,7 @@ package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.wan.Watchable;
@@ -47,12 +48,13 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   private final ToolkitLock configMapLock;
   private final ToolkitLock activeLock;
   private final CacheConfiguration cacheConfiguration;
+  private final boolean masterCache;
 
   public WanAwareToolkitCache(final BufferingToolkitCache<K, V> delegate,
                               final ToolkitMap<String, Serializable> configMap,
-                              final NonStopFeature nonStop,
-                              final ToolkitLock activeLock, final CacheConfiguration cacheConfiguration) {
-    this(delegate, configMap, nonStop, configMap.getReadWriteLock().writeLock(), activeLock, cacheConfiguration);
+                              final NonStopFeature nonStop, final ToolkitLock activeLock,
+                              final CacheConfiguration cacheConfiguration, final boolean masterCache) {
+    this(delegate, configMap, nonStop, configMap.getReadWriteLock().writeLock(), activeLock, cacheConfiguration, masterCache);
   }
 
   /**
@@ -61,14 +63,15 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   WanAwareToolkitCache(final BufferingToolkitCache<K, V> delegate,
                        final ConcurrentMap<String, Serializable> configMap,
                        final NonStopFeature nonStop,
-                       final ToolkitLock configMapLock,
-                       final ToolkitLock activeLock, final CacheConfiguration cacheConfiguration) {
+                       final ToolkitLock configMapLock, final ToolkitLock activeLock,
+                       final CacheConfiguration cacheConfiguration, final boolean masterCache) {
     this.delegate = delegate;
     this.configMap = configMap;
     this.nonStop = nonStop;
     this.configMapLock = configMapLock;
     this.activeLock = activeLock;
     this.cacheConfiguration = cacheConfiguration;
+    this.masterCache = masterCache;
     configMap.putIfAbsent(CACHE_ACTIVE_KEY, false);
     configMap.putIfAbsent(ORCHESTRATOR_ALIVE_KEY, false);
   }
@@ -80,6 +83,10 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
    */
   public boolean isReady() {
     Boolean active = (Boolean) configMap.get(CACHE_ACTIVE_KEY);
+    if (isMasterCache()) {
+      return active != null && active;
+    }
+    
     return active != null && active && isOrchestratorAlive();
   }
 
@@ -589,9 +596,13 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   }
 
   private void checkImmediateTimeout() {
-    if (isImmediateNonStopTimeout() && !isOrchestratorAlive()) {
+    if (isImmediateNonStopTimeout() && !isMasterCache() && !isOrchestratorAlive()) {
       throw new NonStopException("Orchestrator for cache '" + name() + "' is not alive.");
     }
+  }
+
+  private boolean isMasterCache() {
+    return masterCache;
   }
 
   boolean isOrchestratorAlive() {
@@ -639,7 +650,7 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
     // no-op for the time being
   }
 
-  private boolean markOrchestratorDead() {
+  boolean markOrchestratorDead() {
     if (configMap.replace(ORCHESTRATOR_ALIVE_KEY, true, false)) {
       notifyClients();
       return true;
@@ -648,7 +659,7 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
     }
   }
 
-  private void markOrchestratorAlive() {
+  void markOrchestratorAlive() {
     configMap.put(ORCHESTRATOR_ALIVE_KEY, true);
     notifyClients();
   }
