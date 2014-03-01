@@ -131,7 +131,8 @@ public interface ToolkitInstanceFactory {
    */
   WanAwareToolkitCache<String, Serializable> getOrCreateWanAwareToolkitCache(String cacheManagerName,
                                                                              String cacheName,
-                                                                             CacheConfiguration ehcacheConfig);
+                                                                             CacheConfiguration ehcacheConfig,
+                                                                             boolean masterCache);
 
   void waitForOrchestrator(String cacheManagerName);
 

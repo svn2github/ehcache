@@ -205,9 +205,11 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     ToolkitCacheInternal<String, Serializable> toolkitCache = getOrCreateRegularToolkitCache(
         cacheManagerName, cacheName, cache.getCacheConfiguration());
     if(wanUtil.isWanEnabledCache(cacheManagerName, cacheName)) {
-      toolkitCache = createWanAwareToolkitCache(cacheManagerName, cacheName, toolkitCache, cache.getCacheConfiguration());
+      final boolean replicaCache = wanUtil.isCacheReplica(cacheManagerName, cacheName);
+      toolkitCache = createWanAwareToolkitCache(cacheManagerName, cacheName, toolkitCache,
+                                                cache.getCacheConfiguration(), !replicaCache);
 
-      if (wanUtil.isCacheReplica(cacheManagerName, cacheName)) {
+      if (replicaCache) {
         LOGGER.info("Pinning the Cache '{}' belonging to Cache Manager '{}' " +
                     "and setting its TTI and TTL values to zero as it is a WAN Replica Cache. " +
                     "This cache's capacity will be controlled by its Master cache.",
@@ -231,21 +233,24 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   @Override
   public WanAwareToolkitCache<String, Serializable> getOrCreateWanAwareToolkitCache(final String cacheManagerName,
                                                                                     final String cacheName,
-                                                                                    final CacheConfiguration ehcacheConfig) {
+                                                                                    final CacheConfiguration ehcacheConfig,
+                                                                                    final boolean masterCache) {
     final ToolkitCacheInternal<String, Serializable> toolkitCache =
         getOrCreateRegularToolkitCache(cacheManagerName, cacheName, ehcacheConfig);
-    return createWanAwareToolkitCache(cacheManagerName, cacheName, toolkitCache, ehcacheConfig);
+    return createWanAwareToolkitCache(cacheManagerName, cacheName, toolkitCache, ehcacheConfig, masterCache);
   }
 
   private WanAwareToolkitCache<String, Serializable> createWanAwareToolkitCache(final String cacheManagerName,
                                                                                 final String cacheName,
                                                                                 final ToolkitCacheInternal<String, Serializable> toolkitCache,
-                                                                                final CacheConfiguration cacheConfiguration) {
+                                                                                final CacheConfiguration cacheConfiguration,
+                                                                                final boolean masterCache) {
     final String fullyQualifiedCacheName = EhcacheEntitiesNaming.getToolkitCacheNameFor(cacheManagerName, cacheName);
     final ToolkitMap<String, Serializable> configMap = getOrCreateConfigMap(fullyQualifiedCacheName);
     return new WanAwareToolkitCache<String, Serializable>((BufferingToolkitCache<String,Serializable>)toolkitCache, configMap,
                                                           toolkit.getFeature(ToolkitFeatureType.NONSTOP),
-                                                          toolkit.getLock(toolkitCache.getName() + LOCK_TAG), cacheConfiguration);
+                                                          toolkit.getLock(toolkitCache.getName() + LOCK_TAG),
+                                                          cacheConfiguration, masterCache);
   }
 
   private ToolkitCacheInternal<String, Serializable> getOrCreateRegularToolkitCache(final String cacheManagerName,
