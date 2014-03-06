@@ -3,6 +3,7 @@ package net.sf.ehcache.pool;
 import java.io.IOException;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
@@ -222,7 +223,7 @@ public class TwinCachesTest {
     }
 
     @Test
-    public void testIntroducedRandomAccessTripletCache() throws IOException {
+    public void testIntroducedRandomAccessTripletCache() throws Exception {
         manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
         Ehcache one = manager.addCacheIfAbsent("one");
@@ -269,21 +270,30 @@ public class TwinCachesTest {
 
         Ehcache three = manager.addCacheIfAbsent("three");
 
-        for (int i = 0; i < 20 * MAX; i++) {
-            Ehcache chosen;
-            float choice = rndm.nextFloat();
-            if (choice < ratioOne) {
-                chosen = one;
-            } else if (choice < ratioTwo) {
-                chosen = two;
-            } else {
-                chosen = three;
-            }
+        for (int j = 0; j < 20; j++) {
+            long start = System.nanoTime();
+            for (int i = 0; i < MAX; i++) {
+                Ehcache chosen;
+                float choice = rndm.nextFloat();
+                if (choice < ratioOne) {
+                    chosen = one;
+                } else if (choice < ratioTwo) {
+                    chosen = two;
+                } else {
+                    chosen = three;
+                }
 
-            int key = getRandomKey(rndm, MAX);
-            Element e = chosen.get(key);
-            if (e == null) {
-                chosen.put(new Element(key, new byte[128]));
+                int key = getRandomKey(rndm, MAX);
+                Element e = chosen.get(key);
+                if (e == null) {
+                    chosen.put(new Element(key, new byte[128]));
+                }
+            }
+            long timeTaken = System.nanoTime() - start;
+            long sleepTime = TimeUnit.MILLISECONDS.toNanos(250) - timeTaken;
+            if (sleepTime > 0) {
+                System.out.println("Sleeping for " + sleepTime);
+                TimeUnit.NANOSECONDS.sleep(sleepTime);
             }
         }
 
