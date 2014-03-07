@@ -1169,7 +1169,15 @@ public final class Configuration {
             try {
                 Properties properties = PropertyUtil.parseProperties(lookupConfiguration.getProperties(),
                         lookupConfiguration.getPropertySeparator());
-                Class<? extends TransactionManagerLookup> transactionManagerLookupClass = (Class<? extends TransactionManagerLookup>) getClassLoader()
+                
+                ClassLoader loader = getClassLoader(); 
+                
+                // when loading the default impl use the same loader as ehcache itself
+                if (DEFAULT_TRANSACTION_MANAGER_LOOKUP_CONFIG.getFullyQualifiedClassPath().equals(lookupConfiguration.getFullyQualifiedClassPath())) {                                                                      
+                    loader = getClass().getClassLoader();
+                }                
+                
+                Class<? extends TransactionManagerLookup> transactionManagerLookupClass = (Class<? extends TransactionManagerLookup>) loader
                         .loadClass(lookupConfiguration.getFullyQualifiedClassPath());
                 this.transactionManagerLookup = transactionManagerLookupClass.newInstance();
                 this.transactionManagerLookup.setProperties(properties);
