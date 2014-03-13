@@ -80,6 +80,7 @@ public abstract class AbstractStoreCommand implements Command {
                 softLock.unfreeze();
                 softLock.unlock();
                 softLockedElement = null;
+                // shouldn't we unpin the key here?
                 throw new OptimisticLockFailureException();
             }
         } else {
@@ -88,6 +89,7 @@ public abstract class AbstractStoreCommand implements Command {
                 softLock.unfreeze();
                 softLock.unlock();
                 softLockedElement = null;
+                // shouldn't we unpin the key here?
                 throw new OptimisticLockFailureException();
             }
         }
@@ -98,19 +100,22 @@ public abstract class AbstractStoreCommand implements Command {
     /**
      * {@inheritDoc}
      */
-    public void rollback(Store store, SoftLockManager softLockManager) {
-        if (oldElement == null) {
-            store.remove(getObjectKey());
-        } else {
-            store.put(oldElement);
-        }
-
+    public void rollback(Store underlyingStore, SoftLockManager softLockManager,
+                         ElementValueComparator comparator) {
         SoftLockID softLockId = (SoftLockID) softLockedElement.getObjectValue();
-        SoftLock softLock = softLockManager.findSoftLockById(softLockId);
 
+        // must unpin before replacing the softlock ID to avoid racily unpinning another transaction's element
         if (!softLockId.wasPinned()) {
-            store.setPinned(softLockId.getKey(), false);
+            underlyingStore.setPinned(softLockId.getKey(), false);
         }
+
+        if (oldElement == null) {
+            underlyingStore.removeElement(softLockedElement, comparator);
+        } else {
+            underlyingStore.replace(softLockedElement, oldElement, comparator);
+        }
+
+        SoftLock softLock = softLockManager.findSoftLockById(softLockId);
 
         softLock.unfreeze();
         softLock.unlock();

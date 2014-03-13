@@ -53,8 +53,9 @@ public interface Command {
      * Rollback the prepared change
      * @param store the underlying store
      * @param softLockManager the soft lock manager
+     * @param comparator the element value comparator
      */
-    public void rollback(Store store, SoftLockManager softLockManager);
+    public void rollback(Store store, SoftLockManager softLockManager, ElementValueComparator comparator);
 
     /**
      * Get the key of the element this command is working on

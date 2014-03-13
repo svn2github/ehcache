@@ -27,6 +27,7 @@ import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
 import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.DeadLockException;
 import net.sf.ehcache.transaction.SoftLock;
+import net.sf.ehcache.transaction.SoftLockHelper;
 import net.sf.ehcache.transaction.SoftLockManager;
 import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionAwareAttributeExtractor;
@@ -1072,23 +1073,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     void commit(List<SoftLock> softLocks) {
         LOG.debug("committing {} soft lock(s) in cache {}", softLocks.size(), cache.getName());
         for (SoftLock softLock : softLocks) {
-            Element e = underlyingStore.getQuiet(softLock.getKey());
-            if (e == null) {
-                // the element can be null if it was manually unpinned, see DEV-8308
-                continue;
-            }
-            SoftLockID softLockId = (SoftLockID)e.getObjectValue();
-
-            Element element = softLockId.getNewElement();
-            if (element != null) {
-                underlyingStore.put(element);
-            } else {
-                underlyingStore.remove(softLock.getKey());
-            }
-
-            if (!softLockId.wasPinned()) {
-                underlyingStore.setPinned(softLock.getKey(), false);
-            }
+            SoftLockHelper.commit(softLock, underlyingStore, comparator);
         }
     }
 
@@ -1099,23 +1084,7 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     void rollback(List<SoftLock> softLocks) {
         LOG.debug("rolling back {} soft lock(s) in cache {}", softLocks.size(), cache.getName());
         for (SoftLock softLock : softLocks) {
-            Element e = underlyingStore.getQuiet(softLock.getKey());
-            if (e == null) {
-              // the element can be null if it was manually unpinned, see DEV-8308
-              continue;
-            }
-            SoftLockID softLockId = (SoftLockID)e.getObjectValue();
-
-            Element element = softLockId.getOldElement();
-            if (element != null) {
-                underlyingStore.put(element);
-            } else {
-                underlyingStore.remove(softLock.getKey());
-            }
-
-            if (!softLockId.wasPinned()) {
-                underlyingStore.setPinned(softLock.getKey(), false);
-            }
+            SoftLockHelper.rollback(softLock, underlyingStore, comparator);
         }
     }
 

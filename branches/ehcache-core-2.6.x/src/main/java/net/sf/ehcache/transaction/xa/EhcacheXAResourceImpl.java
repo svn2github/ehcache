@@ -22,10 +22,10 @@ import net.sf.ehcache.statistics.LiveCacheStatisticsWrapper;
 import net.sf.ehcache.store.ElementValueComparator;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.compound.ReadWriteCopyStrategy;
+import net.sf.ehcache.transaction.SoftLockHelper;
 import net.sf.ehcache.transaction.TransactionIDNotFoundException;
 import net.sf.ehcache.transaction.SoftLock;
 import net.sf.ehcache.transaction.SoftLockManager;
-import net.sf.ehcache.transaction.SoftLockID;
 import net.sf.ehcache.transaction.TransactionIDFactory;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 import net.sf.ehcache.transaction.xa.commands.Command;
@@ -233,7 +233,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                 preparedCommands.add(0, command);
             } catch (OptimisticLockFailureException ie) {
                 for (Command preparedCommand : preparedCommands) {
-                    preparedCommand.rollback(underlyingStore, softLockManager);
+                    preparedCommand.rollback(underlyingStore, softLockManager, comparator);
                 }
                 preparedCommands.clear();
                 throw new EhcacheXAException(command + " failed because value changed between execution and 2PC",
@@ -305,23 +305,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
 
             for (SoftLock softLock : softLocks) {
-                Element e = underlyingStore.getQuiet(softLock.getKey());
-                if (e == null) {
-                    // the element can be null if it was manually unpinned, see DEV-8308
-                    continue;
-                }
-                SoftLockID softLockId = (SoftLockID)e.getObjectValue();
-                Element frozenElement = softLockId.getNewElement();
-
-                if (frozenElement != null) {
-                    underlyingStore.put(frozenElement);
-                } else {
-                    underlyingStore.remove(softLock.getKey());
-                }
-
-                if (!softLockId.wasPinned()) {
-                    underlyingStore.setPinned(softLock.getKey(), false);
-                }
+                SoftLockHelper.commit(softLock, underlyingStore, comparator);
             }
 
             for (SoftLock softLock : softLocks) {
@@ -412,23 +396,7 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
             }
 
             for (SoftLock softLock : softLocks) {
-                Element e = underlyingStore.getQuiet(softLock.getKey());
-                if (e == null) {
-                    // the element can be null if it was manually unpinned, see DEV-8308
-                    continue;
-                }
-                SoftLockID softLockId = (SoftLockID)e.getObjectValue();
-                Element frozenElement = softLockId.getOldElement();
-
-                if (frozenElement != null) {
-                    underlyingStore.put(frozenElement);
-                } else {
-                    underlyingStore.remove(softLock.getKey());
-                }
-
-                if (!softLockId.wasPinned()) {
-                    underlyingStore.setPinned(softLock.getKey(), false);
-                }
+                SoftLockHelper.rollback(softLock, underlyingStore, comparator);
             }
 
             for (SoftLock softLock : softLocks) {
