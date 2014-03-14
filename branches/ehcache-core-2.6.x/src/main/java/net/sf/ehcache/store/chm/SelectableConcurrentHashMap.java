@@ -752,6 +752,7 @@ public class SelectableConcurrentHashMap {
                             } else {
                                 preRemove(e);
                                 e.value = DUMMY_PINNED_ELEMENT;
+                                e.accessed = true;
                                 ++numDummyPinnedKeys;
                             }
                         }
