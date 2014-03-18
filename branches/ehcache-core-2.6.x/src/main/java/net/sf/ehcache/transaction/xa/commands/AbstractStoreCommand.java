@@ -80,7 +80,9 @@ public abstract class AbstractStoreCommand implements Command {
                 softLock.unfreeze();
                 softLock.unlock();
                 softLockedElement = null;
-                // shouldn't we unpin the key here?
+                if (!wasPinned) {
+                    store.setPinned(softLockId.getKey(), false);
+                }
                 throw new OptimisticLockFailureException();
             }
         } else {
@@ -89,7 +91,9 @@ public abstract class AbstractStoreCommand implements Command {
                 softLock.unfreeze();
                 softLock.unlock();
                 softLockedElement = null;
-                // shouldn't we unpin the key here?
+                if (!wasPinned) {
+                    store.setPinned(softLockId.getKey(), false);
+                }
                 throw new OptimisticLockFailureException();
             }
         }
