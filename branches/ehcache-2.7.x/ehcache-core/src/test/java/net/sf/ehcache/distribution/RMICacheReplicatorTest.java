@@ -913,7 +913,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         List<CacheManager> cluster = createCluster(3, createSynchronousCache().name("testCacheOperationsSynchronousMultiThreaded"));
         try {
             // Run a set of threads, that attempt to fetch the elements
-            final List executables = new ArrayList();
+            final List<Callable<Void>> executables = new ArrayList<Callable<Void>>();
 
             executables.add(new ClusterExecutable(cluster.get(0), "testCacheOperationsSynchronousMultiThreaded"));
             executables.add(new ClusterExecutable(cluster.get(1), "testCacheOperationsSynchronousMultiThreaded"));
@@ -946,7 +946,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
         List<CacheManager> cluster = createCluster(3, createAsynchronousCacheViaInvalidate().name("testCacheOperationsAsynchronousMultiThreaded"));
         try {
             // Run a set of threads, that attempt to fetch the elements
-            final List executables = new ArrayList();
+            final List<Callable<Void>> executables = new ArrayList<Callable<Void>>();
 
             executables.add(new ClusterExecutable(cluster.get(0), "testCacheOperationsAsynchronousMultiThreaded"));
             executables.add(new ClusterExecutable(cluster.get(1), "testCacheOperationsAsynchronousMultiThreaded"));
