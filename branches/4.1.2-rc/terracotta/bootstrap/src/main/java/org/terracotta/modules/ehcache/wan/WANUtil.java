@@ -107,11 +107,14 @@ public class WANUtil {
 
   public void markCacheAsReplica(String cacheManagerName, String cacheName) {
     final ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
-    final Boolean existingValue = (Boolean) cacheConfigMap.putIfAbsent(REPLICA_CACHE_FLAG, Boolean.TRUE);
-    if (existingValue != null && existingValue.equals(true)) {
-      LOGGER.info("Cache '{}' in CacheManager '{}' was found marked as a Replica", cacheName, cacheManagerName);
-    }
+    cacheConfigMap.put(REPLICA_CACHE_FLAG, Boolean.TRUE);
     LOGGER.info("Cache '{}' in CacheManager '{}' has been marked as a Replica", cacheName, cacheManagerName);
+  }
+
+  public void markCacheAsMaster(String cacheManagerName, String cacheName) {
+    final ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
+    cacheConfigMap.put(REPLICA_CACHE_FLAG, Boolean.FALSE);
+    LOGGER.info("Cache '{}' in CacheManager '{}' has been marked as a Master", cacheName, cacheManagerName);
   }
 
   public boolean isCacheReplica(String cacheManagerName, String cacheName) {
@@ -120,8 +123,7 @@ public class WANUtil {
                                          + " and CacheName- " + cacheName);
     }
 
-    Boolean value = (Boolean) getCacheConfigMap(cacheManagerName, cacheName).get(REPLICA_CACHE_FLAG);
-    return (value == null) ? false : value;
+    return (Boolean) getCacheConfigMap(cacheManagerName, cacheName).get(REPLICA_CACHE_FLAG);
   }
 
 
