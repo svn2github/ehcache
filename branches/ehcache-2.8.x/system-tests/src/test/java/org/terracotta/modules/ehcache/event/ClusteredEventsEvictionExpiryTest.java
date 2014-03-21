@@ -6,13 +6,14 @@ package org.terracotta.modules.ehcache.event;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
+
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
 import org.terracotta.modules.ehcache.cluster.TopologyListenerImpl;
 import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
-import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
@@ -21,11 +22,7 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import junit.framework.Assert;
-
 public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
-
-  private static final int NODE_COUNT = 5;
 
   public ClusteredEventsEvictionExpiryTest(TestConfig testConfig) {
     super("clustered-events-test.xml", testConfig, App.class, App.class, App.class, App.class, App.class);
@@ -35,11 +32,9 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
 
   public static class App extends ClientBase {
     private static final Logger LOG = Logger.getLogger(TopologyListenerImpl.class);
-    private final ToolkitBarrier barrier;
 
     public App(String[] args) {
       super("testSerializationExpiry", args);
-      this.barrier = getClusteringToolkit().getBarrier("test-barrier", NODE_COUNT);
     }
 
     public static void main(String[] args) {
@@ -53,11 +48,11 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
 
     private void testCache(final Cache cache) throws Throwable {
       LOG.info("Testing cache: " + cache);
-      final int index = barrier.await();
+      final int index = waitForAllClients();
 
       Assert.assertEquals(0, cache.getSize());
       final EhcacheTerracottaEventListener listener = getEhcacheTerracottaEventListener(cache);
-      barrier.await();
+      waitForAllClients();
 
       LOG.info("Testing element TTL expiry.");
       NonPortable keyTTL = new NonPortable("key_TTL_" + index);
@@ -65,11 +60,11 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
       Element elementToExpireTTL = new Element(keyTTL, valueTTL);
       elementToExpireTTL.setTimeToLive(4);
       cache.put(elementToExpireTTL);
-      barrier.await();
+      waitForAllClients();
 
       Thread.sleep(5000);
       Assert.assertNull(cache.get(keyTTL));
-      barrier.await();
+      waitForAllClients();
 
       // since server expiration is disabled, client expiration should notify only one client
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
@@ -77,7 +72,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
         public Boolean call() throws Exception {
           LOG.info("TTL Expiration. Expired so far: " + listener.getExpired().size() + ", evicted so far: "
                    + listener.getEvicted().size());
-          return (listener.getExpired().size() == NODE_COUNT) && (listener.getEvicted().size() == 0);
+          return (listener.getExpired().size() == getParticipantCount()) && (listener.getEvicted().size() == 0);
         }
       });
 
@@ -92,7 +87,7 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
         }
       }
       Assert.assertTrue(foundExpiredKey);
-      barrier.await();
+      waitForAllClients();
 
       LOG.info("Testing element TTI expiry.");
       NonPortable keyTTI = new NonPortable("key_TTI_" + index);
@@ -100,18 +95,18 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
       Element elementToExpireTTI = new Element(keyTTI, valueTTI);
       elementToExpireTTI.setTimeToIdle(4);
       cache.put(elementToExpireTTI);
-      barrier.await();
+      waitForAllClients();
 
       Thread.sleep(5000);
       Assert.assertNull(cache.get(keyTTI));
-      barrier.await();
+      waitForAllClients();
 
       WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
           LOG.info("TTI Expiration. Expired so far: " + listener.getExpired().size() + ", evicted so far: "
                    + listener.getEvicted().size());
-          return (listener.getExpired().size() == 2 * NODE_COUNT) && (listener.getEvicted().size() == 0);
+          return (listener.getExpired().size() == 2 * getParticipantCount()) && (listener.getEvicted().size() == 0);
         }
       });
 
@@ -126,7 +121,9 @@ public class ClusteredEventsEvictionExpiryTest extends AbstractCacheTestBase {
         }
       }
       Assert.assertTrue(foundExpiredKey);
-      barrier.await();
+      LOG.info("Test finished - waiting for other clients to finish");
+      waitForAllClients();
+      LOG.info("Test finished - passed barrier");
       Assert.assertEquals(0, cache.getSize());
     }
 
