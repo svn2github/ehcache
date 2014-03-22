@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+  <defaultCache eternal="true"/>
+
+  <cache name="test" maxEntriesLocalHeap="1000" eternal="true">
+
+    <cacheEventListenerFactory
+      class="net.sf.ehcache.event.TerracottaCacheEventReplicationFactory"
+      listenFor="all" />
+
+    <terracotta clustered="true" />
+  </cache>
+
+  <terracottaConfig url="localhost:PORT" />
+
+</ehcache>
