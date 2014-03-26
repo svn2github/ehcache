@@ -5,13 +5,13 @@
   </formats>
   
   <fileSets>
-    <fileSet>
-      <directory>${basedir}</directory>
-      <includes>
-        <include>pom.xml</include>
-      </includes>
-      <outputDirectory>/</outputDirectory>
-    </fileSet>  
+    <!--<fileSet>-->
+      <!--<directory>${basedir}</directory>-->
+      <!--<includes>-->
+        <!--<include>pom.xml</include>-->
+      <!--</includes>-->
+      <!--<outputDirectory>/</outputDirectory>-->
+    <!--</fileSet>  -->
     <fileSet>
       <directory>${basedir}/src</directory>
       <outputDirectory>/src</outputDirectory>
