@@ -163,12 +163,12 @@ final class AgentLoader {
         }
     }
 
-    private static File getAgentFile() throws IOException {
+    private static File getAgentFile() throws IOException, URISyntaxException {
         URL agent = AgentLoader.class.getResource("sizeof-agent.jar");
         if (agent == null) {
             return null;
         } else if (agent.getProtocol().equals("file")) {
-            return new File(agent.getFile());
+            return new File(agent.toURI());
         } else {
             File temp = File.createTempFile("ehcache-sizeof-agent", ".jar");
             try {
