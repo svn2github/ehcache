@@ -2,7 +2,6 @@ package org.terracotta.modules.ehcache;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.NonstopConfiguration;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.wan.Watchable;
@@ -49,12 +48,16 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   private final ToolkitLock activeLock;
   private final CacheConfiguration cacheConfiguration;
   private final boolean masterCache;
+  private final boolean bidirectional;
 
   public WanAwareToolkitCache(final BufferingToolkitCache<K, V> delegate,
                               final ToolkitMap<String, Serializable> configMap,
-                              final NonStopFeature nonStop, final ToolkitLock activeLock,
-                              final CacheConfiguration cacheConfiguration, final boolean masterCache) {
-    this(delegate, configMap, nonStop, configMap.getReadWriteLock().writeLock(), activeLock, cacheConfiguration, masterCache);
+                              final NonStopFeature nonStop,
+                              final ToolkitLock activeLock,
+                              final CacheConfiguration cacheConfiguration,
+                              final boolean masterCache,
+                              final boolean bidirectional) {
+    this(delegate, configMap, nonStop, configMap.getReadWriteLock().writeLock(), activeLock, cacheConfiguration, masterCache, bidirectional);
   }
 
   /**
@@ -63,8 +66,11 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   WanAwareToolkitCache(final BufferingToolkitCache<K, V> delegate,
                        final ConcurrentMap<String, Serializable> configMap,
                        final NonStopFeature nonStop,
-                       final ToolkitLock configMapLock, final ToolkitLock activeLock,
-                       final CacheConfiguration cacheConfiguration, final boolean masterCache) {
+                       final ToolkitLock configMapLock,
+                       final ToolkitLock activeLock,
+                       final CacheConfiguration cacheConfiguration,
+                       final boolean masterCache,
+                       final boolean bidirectional) {
     this.delegate = delegate;
     this.configMap = configMap;
     this.nonStop = nonStop;
@@ -72,6 +78,7 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
     this.activeLock = activeLock;
     this.cacheConfiguration = cacheConfiguration;
     this.masterCache = masterCache;
+    this.bidirectional = bidirectional;
     configMap.putIfAbsent(CACHE_ACTIVE_KEY, false);
     configMap.putIfAbsent(ORCHESTRATOR_ALIVE_KEY, false);
   }
@@ -86,8 +93,8 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
     if (isMasterCache()) {
       return active != null && active;
     }
-    
-    return active != null && active && isOrchestratorAlive();
+
+    return active != null && active && (isOrchestratorAlive() || !bidirectional);
   }
 
   /**
@@ -601,7 +608,7 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   }
 
   private void checkImmediateTimeout() {
-    if (isImmediateNonStopTimeout() && !isMasterCache() && !isOrchestratorAlive()) {
+    if (isImmediateNonStopTimeout() && !isMasterCache() && !isOrchestratorAlive() && bidirectional) {
       throw new NonStopException("Orchestrator for cache '" + name() + "' is not alive.");
     }
   }
@@ -658,6 +665,11 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   boolean markOrchestratorDead() {
     if (configMap.replace(ORCHESTRATOR_ALIVE_KEY, true, false)) {
       notifyClients();
+      if (bidirectional) {
+        LOGGER.error("Orchestrator is not running for cache '{}'. Marking it as dead.", getName());
+      } else {
+        LOGGER.warn("Orchestrator is not running for cache '{}'. Cache remains operational, but it won't receive any subsequent updates over WAN.", getName());
+      }
       return true;
     } else {
       return false;
@@ -673,9 +685,7 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   public boolean probeLiveness() {
     if (activeLock.tryLock()) {
       try {
-        if (markOrchestratorDead()) {
-          LOGGER.error("Orchestrator is not running for cache '{}'. Marking it as dead.", getName());
-        }
+        markOrchestratorDead();
         return false;
       } finally {
         activeLock.unlock();

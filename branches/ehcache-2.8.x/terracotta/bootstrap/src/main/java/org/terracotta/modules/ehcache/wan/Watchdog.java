@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class Watchdog {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(WANUtil.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Watchdog.class);
   private static final long WATCHDOG_INTERVAL = 5000L;
   private static final ThreadFactory DEFAULT_THREAD_FACTORY = new ThreadFactory() {
     @Override

@@ -39,7 +39,7 @@ public class WatchableTest {
     configLock = when(mock(ToolkitLock.class).getCondition()).thenReturn(condition).getMock();
     activeLock = when(mock(ToolkitLock.class).isHeldByCurrentThread()).thenReturn(false, true).getMock();
     watchable = new WanAwareToolkitCache<String, String>(
-        delegate, configMap, null, configLock, activeLock, new CacheConfiguration(), true);
+        delegate, configMap, null, configLock, activeLock, new CacheConfiguration(), true, true);
   }
 
   @Test

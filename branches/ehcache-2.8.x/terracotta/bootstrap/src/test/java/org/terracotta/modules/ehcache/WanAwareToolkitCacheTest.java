@@ -1,10 +1,6 @@
 package org.terracotta.modules.ehcache;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import net.sf.ehcache.config.CacheConfiguration;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +10,10 @@ import org.terracotta.toolkit.internal.cache.BufferingToolkitCache;
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Eugene Shelestovich
@@ -27,6 +27,7 @@ public class WanAwareToolkitCacheTest {
   private WanAwareToolkitCache<String, String> wanAwareCache;
   private WanAwareToolkitCache<String, String> masterWanAwareCache;
   private WanAwareToolkitCache<String, String> replicaWanAwareCache;
+  private WanAwareToolkitCache<String, String> unidirectionalReplicaWanAwareCache;
   private ToolkitLock activeLock;
   private boolean                              waitHappened;
 
@@ -38,16 +39,17 @@ public class WanAwareToolkitCacheTest {
     when(activeLock.isHeldByCurrentThread()).thenReturn(false, true);
     configMap = new ConcurrentHashMap<String, Serializable>();
 
-    masterWanAwareCache = getTestableWanAwareToolkitCache(true);
-    replicaWanAwareCache = getTestableWanAwareToolkitCache(false);
+    masterWanAwareCache = getTestableWanAwareToolkitCache(true, true);
+    replicaWanAwareCache = getTestableWanAwareToolkitCache(false, true);
+    unidirectionalReplicaWanAwareCache = getTestableWanAwareToolkitCache(false, false);
 
     // by default we perform tests on master cache
     wanAwareCache = masterWanAwareCache;
   }
 
-  private WanAwareToolkitCache<String, String> getTestableWanAwareToolkitCache(boolean isMasterCache) {
+  private WanAwareToolkitCache<String, String> getTestableWanAwareToolkitCache(boolean isMasterCache, final boolean bidirectional) {
     return new WanAwareToolkitCache<String, String>(delegate, configMap, null, null, activeLock,
-        new CacheConfiguration(), isMasterCache) {
+        new CacheConfiguration(), isMasterCache, bidirectional) {
       @Override
       void waitUntilActive() {
         waitHappened = true;
@@ -94,8 +96,19 @@ public class WanAwareToolkitCacheTest {
         .assertWaitHappened(true).andAssertPutCallDelegatedToCache();
   }
 
+  @Test
+  public void testClientShouldNotWaitWhenUnidirectionalReplicaCacheOrchestratorIsDown() {
+    forUnidirectionalReplicaCache().whenCacheIsActive().whenOrchestratorIsDead().andClientPerformsPutOperation()
+        .assertWaitHappened(false).andAssertPutCallDelegatedToCache();
+  }
+
   private WanAwareToolkitCacheTest forReplicaCache() {
     wanAwareCache = replicaWanAwareCache;
+    return this;
+  }
+
+  private WanAwareToolkitCacheTest forUnidirectionalReplicaCache() {
+    wanAwareCache = unidirectionalReplicaWanAwareCache;
     return this;
   }
 
