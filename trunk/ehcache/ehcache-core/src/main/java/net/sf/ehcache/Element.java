@@ -144,7 +144,7 @@ public class Element implements Serializable, Cloneable {
         this.value = value;
         this.version = version;
         HIT_COUNT_UPDATER.set(this, 0);
-        this.creationTime = System.currentTimeMillis();
+        this.creationTime = getCurrentTime();
     }
 
     /**
@@ -258,7 +258,7 @@ public class Element implements Serializable, Cloneable {
         if (timeToLiveSeconds != null) {
             setTimeToLive(timeToLiveSeconds.intValue());
         }
-        this.creationTime = System.currentTimeMillis();
+        this.creationTime = getCurrentTime();
     }
 
     /**
@@ -457,7 +457,7 @@ public class Element implements Serializable, Cloneable {
      */
     @Deprecated
     public final void setCreateTime() {
-        creationTime = System.currentTimeMillis();
+        creationTime = getCurrentTime();
     }
 
     /**
@@ -529,7 +529,7 @@ public class Element implements Serializable, Cloneable {
      * Resets the hit count to 0 and the last access time to now. Used when an Element is put into a cache.
      */
     public final void resetAccessStatistics() {
-        lastAccessTime = System.currentTimeMillis();
+        lastAccessTime = getCurrentTime();
         HIT_COUNT_UPDATER.set(this, 0);
     }
 
@@ -537,7 +537,7 @@ public class Element implements Serializable, Cloneable {
      * Sets the last access time to now and increase the hit count.
      */
     public final void updateAccessStatistics() {
-        lastAccessTime = System.currentTimeMillis();
+        lastAccessTime = getCurrentTime();
         HIT_COUNT_UPDATER.incrementAndGet(this);
     }
 
@@ -545,7 +545,7 @@ public class Element implements Serializable, Cloneable {
      * Sets the last access time to now without updating the hit count.
      */
     public final void updateUpdateStatistics() {
-        lastUpdateTime = System.currentTimeMillis();
+        lastUpdateTime = getCurrentTime();
         if (ELEMENT_VERSION_AUTO) {
           version = lastUpdateTime;
         }
@@ -723,7 +723,7 @@ public class Element implements Serializable, Cloneable {
             return false;
         }
 
-        long now = System.currentTimeMillis();
+        long now = getCurrentTime();
         long expirationTime = getExpirationTime();
 
         return now > expirationTime;
@@ -858,6 +858,14 @@ public class Element implements Serializable, Cloneable {
             timeToIdle = tti;
             timeToLive = ttl;
         }
+    }
+
+    /**
+     * Seam for testing purposes
+     * @return System.currentTimeMillis() by default
+     */
+    long getCurrentTime() {
+        return System.currentTimeMillis();
     }
 
     /**
