@@ -9,7 +9,6 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
-
 import org.terracotta.modules.ehcache.async.AsyncConfig;
 import org.terracotta.modules.ehcache.collections.SerializedToolkitCache;
 import org.terracotta.modules.ehcache.event.CacheDisposalNotification;
@@ -132,7 +131,8 @@ public interface ToolkitInstanceFactory {
   WanAwareToolkitCache<String, Serializable> getOrCreateWanAwareToolkitCache(String cacheManagerName,
                                                                              String cacheName,
                                                                              CacheConfiguration ehcacheConfig,
-                                                                             boolean masterCache);
+                                                                             boolean masterCache,
+                                                                             boolean bidirectional);
 
   void waitForOrchestrator(String cacheManagerName);
 

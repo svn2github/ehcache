@@ -20,6 +20,7 @@ public class WANUtil {
   private static final String          WAN_ENABLED_CACHE_ENTRY                   = WAN_PREFIX + "ENABLED_CACHE";
   private static final String          REPLICA_CACHE_FLAG                        = "IS_REPLICA";
   private static final String          META_DATA_AVAILABLE_FLAG                  = "WAN_META_DATA_AVAILABLE";
+  private static final String          BIDIRECTIONAL_FLAG                        = "IS_BIDIRECTIONAL";
 
   private final ToolkitInstanceFactory factory;
 
@@ -126,7 +127,26 @@ public class WANUtil {
     return (Boolean) getCacheConfigMap(cacheManagerName, cacheName).get(REPLICA_CACHE_FLAG);
   }
 
+  public void markCacheAsBidirectional(String cacheManagerName, String cacheName) {
+    final ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
+    cacheConfigMap.put(BIDIRECTIONAL_FLAG, Boolean.TRUE);
+    LOGGER.info("Cache '{}' in CacheManager '{}' has been marked as BIDIRECTIONAL", cacheName, cacheManagerName);
+  }
 
+  public void markCacheAsUnidirectional(String cacheManagerName, String cacheName) {
+    final ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
+    cacheConfigMap.put(BIDIRECTIONAL_FLAG, Boolean.FALSE);
+    LOGGER.info("Cache '{}' in CacheManager '{}' has been marked as UNIDIRECTIONAL", cacheName, cacheManagerName);
+  }
+
+  public boolean isCacheBidirectional(String cacheManagerName, String cacheName) {
+    if (cacheName == null || cacheManagerName == null) {
+      throw new IllegalArgumentException("Invalid arguments: CacheManagerName- " + cacheManagerName
+                                         + " and CacheName- " + cacheName);
+    }
+
+    return (Boolean) getCacheConfigMap(cacheManagerName, cacheName).get(BIDIRECTIONAL_FLAG);
+  }
 
   /**
    * This method is used by Client to mark the cache as wan-disabled.
