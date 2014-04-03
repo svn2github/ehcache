@@ -36,7 +36,7 @@ import java.io.File;
  * @author Greg Luck
  */
 @Ignore("Client hangs")
-public class TerracottaIntegrationTest {
+public class TerracottaIT {
 
     /**
      * the CacheManager instance

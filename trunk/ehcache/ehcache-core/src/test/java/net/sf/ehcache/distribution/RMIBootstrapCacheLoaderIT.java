@@ -48,7 +48,7 @@ import static net.sf.ehcache.distribution.AbstractRMITest.createRMICacheManagerC
  * @author Greg Luck
  * @version $Id$
  */
-public class RMIBootstrapCacheLoaderTest extends AbstractRMITest {
+public class RMIBootstrapCacheLoaderIT extends AbstractRMITest {
 
     /**
      * Force the VM to grow to its full size. This stops SoftReferences from being reclaimed in favour of

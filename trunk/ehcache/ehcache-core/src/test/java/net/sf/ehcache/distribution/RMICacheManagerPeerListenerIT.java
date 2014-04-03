@@ -57,9 +57,9 @@ import static net.sf.ehcache.distribution.AbstractRMITest.createRMICacheManagerC
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class RMICacheManagerPeerListenerTest extends AbstractRMITest {
+public class RMICacheManagerPeerListenerIT extends AbstractRMITest {
 
-    private static final Logger LOGGER = Logger.getLogger(RMICacheManagerPeerListenerTest.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(RMICacheManagerPeerListenerIT.class.getName());
 
     /**
      * CacheManager 1 in the cluster

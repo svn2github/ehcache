@@ -56,9 +56,9 @@ import org.slf4j.LoggerFactory;
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class RMICacheManagerPeerTest extends AbstractRMITest {
+public class RMICacheManagerPeerIT extends AbstractRMITest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RMICacheManagerPeerTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(RMICacheManagerPeerIT.class.getName());
 
     @After
     public void tearDown() throws InterruptedException {

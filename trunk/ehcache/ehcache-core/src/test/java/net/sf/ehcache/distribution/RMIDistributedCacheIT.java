@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMIDistributedCacheTest extends AbstractRMITest {
+public class RMIDistributedCacheIT extends AbstractRMITest {
 
 
     /**

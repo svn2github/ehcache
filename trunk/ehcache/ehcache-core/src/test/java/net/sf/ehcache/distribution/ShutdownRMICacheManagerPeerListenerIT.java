@@ -1,6 +1,5 @@
 package net.sf.ehcache.distribution;
 
-import net.sf.ehcache.AbstractCacheTest;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
 import org.junit.Test;
@@ -12,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Alex Snaps
  */
-public class ShutdownRMICacheManagerPeerListenerTest {
+public class ShutdownRMICacheManagerPeerListenerIT {
 
     /**
      * Does the RMI listener stop?
