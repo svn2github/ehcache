@@ -4,40 +4,40 @@
         "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
 
 <module name="Checker">
-    <property name="severity" value="error"/>
+  <property name="severity" value="error"/>
 
-    <module name="Translation"/>
+  <module name="Translation"/>
 
-    <module name="JavadocPackage">
-        <property name="allowLegacy" value="true"/>
-    </module>
+  <module name="JavadocPackage">
+    <property name="allowLegacy" value="true"/>
+  </module>
 
-    <!-- Header -->
-    <module name="Header">
-        <property name="headerFile" value="${checkstyle.header.file}"/>
-    </module>
+  <!-- Header -->
+  <module name="Header">
+    <property name="headerFile" value="${checkstyle.header.file}"/>
+  </module>
 
-    <module name="FileLength">
-        <property name="max" value="1400"/>
-    </module>
+  <module name="FileLength">
+    <property name="max" value="1400"/>
+  </module>
 
-    <!-- Duplicate Code -->
-    <module name="StrictDuplicateCode">
-        <property name="min" value="30"/>
-    </module>
-    
-    <module name="FileTabCharacter"/>
+  <!-- Duplicate Code -->
+  <module name="StrictDuplicateCode">
+    <property name="min" value="30"/>
+  </module>
 
-    <!-- Miscellaneous -->
-    <module name="RegexpSingleline">
-        <property name="format" value="System\.(out|err)\.print"/>
-    </module>
-    <!-- Make sure commons logging is not used -->
-    <module name="RegexpSingleline">
-        <property name="format" value="import org\.apache\.commons\.logging\.Log;"/>
-    </module>
+  <module name="FileTabCharacter"/>
 
-    <module name="TreeWalker">
-        <property name="cacheFile" value="target/checkstyle.cache"/>
-    </module>
+  <!-- Miscellaneous -->
+  <module name="RegexpSingleline">
+    <property name="format" value="System\.(out|err)\.print"/>
+  </module>
+  <!-- Make sure commons logging is not used -->
+  <module name="RegexpSingleline">
+    <property name="format" value="import org\.apache\.commons\.logging\.Log;"/>
+  </module>
+
+  <module name="TreeWalker">
+    <property name="cacheFile" value="target/checkstyle.cache"/>
+  </module>
 </module>
