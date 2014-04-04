@@ -24,8 +24,8 @@
   <suppress checks="ThrowsCount" files="Store.java"/>
 
   <!-- Candidates for refactoring. Cyclomatic complexity is blown out mostly
-     because of the LOG guards (if (LOG.isDebugEnabled) { ...) which are there for
-     runtime performance.-->
+    because of the LOG guards (if (LOG.isDebugEnabled) { ...) which are there for
+    runtime performance.-->
   <suppress checks="CyclomaticComplexity" files="Cache.java"/>
   <suppress checks="CyclomaticComplexity" files="NonstopConfiguration"/>
   <suppress checks="CyclomaticComplexity" files="Segment.java"/>
@@ -51,9 +51,6 @@
   <suppress checks="FileLength" files="Cache.java"/>
   <suppress checks="ExecutableStatementCount" files="Cache.java"/>
   <suppress checks="AnonInnerLengthCheck" files="Cache.java"/>
-  <suppress checks="IllegalTypeCheck" files="Cache.java"/>
-  <suppress checks="IllegalTypeCheck" files="TxCopyingCacheStore.java"/>
-  <suppress checks="ParameterNumber" files="Statistics.java"/>
   <suppress checks="CyclomaticComplexity" files="WriteBehindQueue.java"/>
   <suppress checks="NPathComplexity" files="WriteBehindQueue.java"/>
   <suppress checks="CyclomaticComplexity" files="CacheWriterConfiguration.java"/>
@@ -64,7 +61,6 @@
   <suppress checks="FinalClass" files="TerracottaClusteredInstanceHelper.java"/>
   <suppress checks="UnusedImports" files="Ehcache.java"/>
   <suppress checks="CyclomaticComplexity" files="BaseQueryInterpreter.java"/>
-  <suppress checks="ReturnCount" files="BaseQueryInterpreter.java"/>
   <suppress checks="CyclomaticComplexity" files="BruteForceSearchManager.java"/>
   <suppress checks="NPathComplexity" files="BruteForceSearchManager.java"/>
 
@@ -74,8 +70,6 @@
   <suppress checks="StrictDuplicateCode" files="NonstopAwareEntityRegionAccessStrategy.java" />
   <suppress checks="StrictDuplicateCode" files="NonstopAwareCollectionRegionAccessStrategy.java" />
 
-  <suppress checks="MagicNumber" files="JvmInformation.java" />
-  <suppress checks="MagicNumber" files="DevModeClassLoader.java" />
   <suppress checks="IllegalImport" files="UnsafeSizeOf.java" />
   <suppress checks="MutableExceptionCheck" files="MaxDepthExceededException.java"/>
   <suppress checks="BooleanExpressionComplexity" files="DiskStorePathManager.java"/>
@@ -86,7 +80,6 @@
   <suppress checks="NPathComplexity" files="ObjectGraphWalker.java"/>
   <suppress checks="CyclomaticComplexity" files="LocalTransactionStore.java"/>
   <suppress checks="NPathComplexity" files="LocalTransactionStore.java"/>
-  <suppress checks="NestedIfDepth" files="LocalTransactionStore.java"/>
   <suppress checks="NPathComplexity" files="MemoryStore.java"/>
   <suppress checks="CyclomaticComplexity" files="MemoryStore.java"/>
   <suppress checks="FileLength" files="MemoryStore.java"/>
@@ -106,8 +99,6 @@
   <suppress checks="ClassFanOutComplexity" files="CacheConfiguration.java"/>
   <suppress checks="CyclomaticComplexity" files="CacheConfiguration.java"/>
 
-  <!-- A candidate, maybe... if you know what you do -->
-  <suppress checks="NestedIfDepth" files="SlewClock.java"/>
 
   <!-- Contributed code -->
   <suppress checks="" files="ConcurrentHashMap.java"/>
@@ -116,6 +107,345 @@
 
   <!-- Contains a thread therefore cannot.  -->
   <suppress checks="SuperClone" files="RMIBootstrapCacheLoader.java"/>
-
   <suppress checks="SuperClone" files="ClassLoaderAwareCache.java"/>
+
+  <!-- SUPPRESSIONS TO BE CLEARED AFTER CHECKSTYLE REWORK -->
+  <suppress checks="JavadocMethod" files="BootstrapCacheLoader.java"/>
+  <suppress checks="JavadocMethod" files="Cache.java"/>
+  <suppress checks="JavadocMethod" files="CacheInitializationHelper.java"/>
+  <suppress checks="JavadocMethod" files="CacheManager.java"/>
+  <suppress checks="JavadocMethod" files="CacheStoreHelper.java"/>
+  <suppress checks="JavadocMethod" files="ClusterSchemeNotAvailableException.java"/>
+  <suppress checks="JavadocMethod" files="ConcurrencyUtil.java"/>
+  <suppress checks="JavadocMethod" files="ReadWriteLockSync.java"/>
+  <suppress checks="JavadocMethod" files="CacheConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="CacheConfigurationListener.java"/>
+  <suppress checks="JavadocMethod" files="CacheWriterConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="Configuration.java"/>
+  <suppress checks="JavadocMethod" files="ConfigurationFactory.java"/>
+  <suppress checks="JavadocMethod" files="ConfigurationHelper.java"/>
+  <suppress checks="JavadocMethod" files="CopyStrategyConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="DiskStoreConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="DynamicSearchListener.java"/>
+  <suppress checks="JavadocMethod" files="FactoryConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="ConfigurationGenerator.java"/>
+  <suppress checks="JavadocMethod" files="ConfigurationSource.java"/>
+  <suppress checks="JavadocMethod" files="AbstractNodeElement.java"/>
+  <suppress checks="JavadocMethod" files="CacheConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="CacheWriterConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="ConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="CopyStrategyConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="DefaultCacheConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="DiskStoreConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="ElementValueComparatorConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="FactoryConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="ManagementRESTServiceConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="NonstopConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="PersistenceConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="PinningConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="SearchableConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="SizeOfPolicyConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="TerracottaConfigConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="TerracottaConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="TimeoutBehaviorConfigurationElement.java"/>
+  <suppress checks="JavadocMethod" files="NodeElement.java"/>
+  <suppress checks="JavadocMethod" files="SimpleNodeElement.java"/>
+  <suppress checks="JavadocMethod" files="XMLGeneratorVisitor.java"/>
+  <suppress checks="JavadocMethod" files="InvalidConfigurationException.java"/>
+  <suppress checks="JavadocMethod" files="ManagementRESTServiceConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="NonstopConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="Searchable.java"/>
+  <suppress checks="JavadocMethod" files="SearchAttribute.java"/>
+  <suppress checks="JavadocMethod" files="TerracottaClientConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="TerracottaConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="TimeoutBehaviorConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="BlockingCache.java"/>
+  <suppress checks="JavadocMethod" files="CacheEntryFactory.java"/>
+  <suppress checks="JavadocMethod" files="SelfPopulatingCache.java"/>
+  <suppress checks="JavadocMethod" files="UpdatingSelfPopulatingCache.java"/>
+  <suppress checks="JavadocMethod" files="ClassLoaderAwareCache.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheDecoratorAdapter.java"/>
+  <suppress checks="JavadocMethod" files="InvalidLockStateAfterRejoinException.java"/>
+  <suppress checks="JavadocMethod" files="LockOperationTimedOutNonstopException.java"/>
+  <suppress checks="JavadocMethod" files="NonStopCacheException.java"/>
+  <suppress checks="JavadocMethod" files="RejoinCacheException.java"/>
+  <suppress checks="JavadocMethod" files="OverrideCheck.java"/>
+  <suppress checks="JavadocMethod" files="ReadThroughCache.java"/>
+  <suppress checks="JavadocMethod" files="ReadThroughCacheConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="RefreshAheadCache.java"/>
+  <suppress checks="JavadocMethod" files="RefreshAheadCacheConfiguration.java"/>
+  <suppress checks="JavadocMethod" files="ThreadedWorkQueue.java"/>
+  <suppress checks="JavadocMethod" files="ShutdownListener.java"/>
+  <suppress checks="JavadocMethod" files="DiskStorePathManager.java"/>
+  <suppress checks="JavadocMethod" files="CacheManagerPeerProvider.java"/>
+  <suppress checks="JavadocMethod" files="CachePeer.java"/>
+  <suppress checks="JavadocMethod" files="ConfigurableRMIClientSocketFactory.java"/>
+  <suppress checks="JavadocMethod" files="EventMessage.java"/>
+  <suppress checks="JavadocMethod" files="LegacyEventMessage.java"/>
+  <suppress checks="JavadocMethod" files="ManualRMICacheManagerPeerProvider.java"/>
+  <suppress checks="JavadocMethod" files="MulticastKeepaliveHeartbeatReceiver.java"/>
+  <suppress checks="JavadocMethod" files="MulticastKeepaliveHeartbeatSender.java"/>
+  <suppress checks="JavadocMethod" files="MulticastRMICacheManagerPeerProvider.java"/>
+  <suppress checks="JavadocMethod" files="RMIAsynchronousCacheReplicator.java"/>
+  <suppress checks="JavadocMethod" files="RMIBootstrapCacheLoader.java"/>
+  <suppress checks="JavadocMethod" files="RMICacheManagerPeerListenerFactory.java"/>
+  <suppress checks="JavadocMethod" files="RMICacheManagerPeerProvider.java"/>
+  <suppress checks="JavadocMethod" files="RMICacheManagerPeerProviderFactory.java"/>
+  <suppress checks="JavadocMethod" files="RMICachePeer.java"/>
+  <suppress checks="JavadocMethod" files="RmiEventMessage.java"/>
+  <suppress checks="JavadocMethod" files="RMISynchronousCacheReplicator.java"/>
+  <suppress checks="JavadocMethod" files="TransactionalRMICachePeer.java"/>
+  <suppress checks="JavadocMethod" files="Ehcache.java"/>
+  <suppress checks="JavadocMethod" files="Element.java"/>
+  <suppress checks="JavadocMethod" files="ElementIdHelper.java"/>
+  <suppress checks="JavadocMethod" files="RegisteredEventListeners.java"/>
+  <suppress checks="JavadocMethod" files="FeaturesManager.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheNonstrictReadWriteCache.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheReadOnlyCache.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheReadWriteCache.java"/>
+  <suppress checks="JavadocMethod" files="EhCacheRegionFactory.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheStats.java"/>
+  <suppress checks="JavadocMethod" files="HibernateStats.java"/>
+  <suppress checks="JavadocMethod" files="AggregateCacheRegionStats.java"/>
+  <suppress checks="JavadocMethod" files="BaseEmitterBean.java"/>
+  <suppress checks="JavadocMethod" files="BeanUtils.java"/>
+  <suppress checks="JavadocMethod" files="CacheRegionStats.java"/>
+  <suppress checks="JavadocMethod" files="CacheRegionUtils.java"/>
+  <suppress checks="JavadocMethod" files="CollectionStats.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheHibernate.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheHibernateMbeanNames.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheHibernateMBeanRegistration.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheHibernateMBeanRegistrationImpl.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheStatsImpl.java"/>
+  <suppress checks="JavadocMethod" files="EntityStats.java"/>
+  <suppress checks="JavadocMethod" files="HibernateStatsImpl.java"/>
+  <suppress checks="JavadocMethod" files="NullHibernateStats.java"/>
+  <suppress checks="JavadocMethod" files="QueryStats.java"/>
+  <suppress checks="JavadocMethod" files="HibernateNonstopCacheExceptionHandler.java"/>
+  <suppress checks="JavadocMethod" files="NonstopAccessStrategyFactory.java"/>
+  <suppress checks="JavadocMethod" files="NonstopAwareCollectionRegionAccessStrategy.java"/>
+  <suppress checks="JavadocMethod" files="NonstopAwareEntityRegionAccessStrategy.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheCollectionRegion.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheDataRegion.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheEntityRegion.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheQueryResultsRegion.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheTimestampsRegion.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheTransactionalDataRegion.java"/>
+  <suppress checks="JavadocMethod" files="SingletonEhCacheRegionFactory.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheAccessStrategyFactory.java"/>
+  <suppress checks="JavadocMethod" files="NonStrictReadWriteEhcacheCollectionRegionAccessStrategy.java"/>
+  <suppress checks="JavadocMethod" files="NonStrictReadWriteEhcacheEntityRegionAccessStrategy.java"/>
+  <suppress checks="JavadocMethod" files="ReadOnlyEhcacheCollectionRegionAccessStrategy.java"/>
+  <suppress checks="JavadocMethod" files="ReadOnlyEhcacheEntityRegionAccessStrategy.java"/>
+  <suppress checks="JavadocMethod" files="ReadWriteEhcacheCollectionRegionAccessStrategy.java"/>
+  <suppress checks="JavadocMethod" files="ReadWriteEhcacheEntityRegionAccessStrategy.java"/>
+  <suppress checks="JavadocMethod" files="CacheLoader.java"/>
+  <suppress checks="JavadocMethod" files="CacheConfigurationMBean.java"/>
+  <suppress checks="JavadocMethod" files="CacheManagerMBean.java"/>
+  <suppress checks="JavadocMethod" files="DevModeClassLoader.java"/>
+  <suppress checks="JavadocMethod" files="ManagedCacheManagerPeerProvider.java"/>
+  <suppress checks="JavadocMethod" files="ManagementService.java"/>
+  <suppress checks="JavadocMethod" files="MBeanRegistrationProvider.java"/>
+  <suppress checks="JavadocMethod" files="MBeanRegistrationProviderException.java"/>
+  <suppress checks="JavadocMethod" files="MBeanRegistrationProviderFactory.java"/>
+  <suppress checks="JavadocMethod" files="MBeanRegistrationProviderImpl.java"/>
+  <suppress checks="JavadocMethod" files="NullMBeanRegistrationProvider.java"/>
+  <suppress checks="JavadocMethod" files="ResourceClassLoader.java"/>
+  <suppress checks="JavadocMethod" files="CacheManagerSampler.java"/>
+  <suppress checks="JavadocMethod" files="SampledCache.java"/>
+  <suppress checks="JavadocMethod" files="SampledCacheManager.java"/>
+  <suppress checks="JavadocMethod" files="SampledCacheMBean.java"/>
+  <suppress checks="JavadocMethod" files="SampledEhcacheMBeans.java"/>
+  <suppress checks="JavadocMethod" files="SampledMBeanRegistrationProvider.java"/>
+  <suppress checks="JavadocMethod" files="ObjectExistsException.java"/>
+  <suppress checks="JavadocMethod" files="AbstractPoolAccessor.java"/>
+  <suppress checks="JavadocMethod" files="AnnotationProxyFactory.java"/>
+  <suppress checks="JavadocMethod" files="MaxDepthExceededException.java"/>
+  <suppress checks="JavadocMethod" files="Aggregator.java"/>
+  <suppress checks="JavadocMethod" files="AggregatorException.java"/>
+  <suppress checks="JavadocMethod" files="Aggregators.java"/>
+  <suppress checks="JavadocMethod" files="Average.java"/>
+  <suppress checks="JavadocMethod" files="Max.java"/>
+  <suppress checks="JavadocMethod" files="Min.java"/>
+  <suppress checks="JavadocMethod" files="Sum.java"/>
+  <suppress checks="JavadocMethod" files="AttributeExtractorException.java"/>
+  <suppress checks="JavadocMethod" files="AttributeType.java"/>
+  <suppress checks="JavadocMethod" files="DynamicAttributesExtractor.java"/>
+  <suppress checks="JavadocMethod" files="ReflectionAttributeExtractor.java"/>
+  <suppress checks="JavadocMethod" files="UnknownAttributeException.java"/>
+  <suppress checks="JavadocMethod" files="Attribute.java"/>
+  <suppress checks="JavadocMethod" files="ExecutionHints.java"/>
+  <suppress checks="JavadocMethod" files="BaseCriteria.java"/>
+  <suppress checks="JavadocMethod" files="Criteria.java"/>
+  <suppress checks="JavadocMethod" files="EqualTo.java"/>
+  <suppress checks="JavadocMethod" files="GreaterThan.java"/>
+  <suppress checks="JavadocMethod" files="GreaterThanOrEqual.java"/>
+  <suppress checks="JavadocMethod" files="InCollection.java"/>
+  <suppress checks="JavadocMethod" files="IsNull.java"/>
+  <suppress checks="JavadocMethod" files="LessThan.java"/>
+  <suppress checks="JavadocMethod" files="LessThanOrEqual.java"/>
+  <suppress checks="JavadocMethod" files="NotEqualTo.java"/>
+  <suppress checks="JavadocMethod" files="NotILike.java"/>
+  <suppress checks="JavadocMethod" files="NotNull.java"/>
+  <suppress checks="JavadocMethod" files="AggregateOnlyResult.java"/>
+  <suppress checks="JavadocMethod" files="BaseQueryInterpreter.java"/>
+  <suppress checks="JavadocMethod" files="BaseResult.java"/>
+  <suppress checks="JavadocMethod" files="GroupedResultImpl.java"/>
+  <suppress checks="JavadocMethod" files="OrderComparator.java"/>
+  <suppress checks="JavadocMethod" files="ResultImpl.java"/>
+  <suppress checks="JavadocMethod" files="ResultsImpl.java"/>
+  <suppress checks="JavadocMethod" files="SearchManager.java"/>
+  <suppress checks="JavadocMethod" files="Query.java"/>
+  <suppress checks="JavadocMethod" files="Result.java"/>
+  <suppress checks="JavadocMethod" files="SearchException.java"/>
+  <suppress checks="JavadocMethod" files="ProxiedDynamicMBean.java"/>
+  <suppress checks="JavadocMethod" files="CacheUsageListener.java"/>
+  <suppress checks="JavadocMethod" files="ExtendedStatisticsImpl.java"/>
+  <suppress checks="JavadocMethod" files="RateImpl.java"/>
+  <suppress checks="JavadocMethod" files="AuthoritativeTier.java"/>
+  <suppress checks="JavadocMethod" files="CacheKeySet.java"/>
+  <suppress checks="JavadocMethod" files="HeapCacheBackEnd.java"/>
+  <suppress checks="JavadocMethod" files="CachingTier.java"/>
+  <suppress checks="JavadocMethod" files="ImmutableValueElementCopyStrategy.java"/>
+  <suppress checks="JavadocMethod" files="ReadWriteCopyStrategy.java"/>
+  <suppress checks="JavadocMethod" files="ReadWriteSerializationCopyStrategy.java"/>
+  <suppress checks="JavadocMethod" files="SerializationCopyStrategy.java"/>
+  <suppress checks="JavadocMethod" files="CopyStrategyHandler.java"/>
+  <suppress checks="JavadocMethod" files="DiskStorageFactory.java"/>
+  <suppress checks="JavadocMethod" files="AATreeSet.java"/>
+  <suppress checks="JavadocMethod" files="FileAllocationTree.java"/>
+  <suppress checks="JavadocMethod" files="Region.java"/>
+  <suppress checks="JavadocMethod" files="Segment.java"/>
+  <suppress checks="JavadocMethod" files="LruMemoryStore.java"/>
+  <suppress checks="JavadocMethod" files="PressuredStore.java"/>
+  <suppress checks="JavadocMethod" files="Store.java"/>
+  <suppress checks="JavadocMethod" files="StoreListener.java"/>
+  <suppress checks="JavadocMethod" files="StoreQuery.java"/>
+  <suppress checks="JavadocMethod" files="ClusteredInstanceFactory.java"/>
+  <suppress checks="JavadocMethod" files="ClusteredInstanceFactoryWrapper.java"/>
+  <suppress checks="JavadocMethod" files="TerracottaCacheCluster.java"/>
+  <suppress checks="JavadocMethod" files="TerracottaClient.java"/>
+  <suppress checks="JavadocMethod" files="TerracottaNotRunningException.java"/>
+  <suppress checks="JavadocMethod" files="DelegatingTransactionIDFactory.java"/>
+  <suppress checks="JavadocMethod" files="LocalTransactionStore.java"/>
+  <suppress checks="JavadocMethod" files="SoftLockManager.java"/>
+  <suppress checks="JavadocMethod" files="SoftLockManagerImpl.java"/>
+  <suppress checks="JavadocMethod" files="TransactionIDFactory.java"/>
+  <suppress checks="JavadocMethod" files="TransactionIDNotFoundException.java"/>
+  <suppress checks="JavadocMethod" files="TransactionIDSerializedForm.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheXAResourceImpl.java"/>
+  <suppress checks="JavadocMethod" files="XATransactionStore.java"/>
+  <suppress checks="JavadocMethod" files="XidTransactionIDImpl.java"/>
+  <suppress checks="JavadocMethod" files="XidTransactionIDSerializedForm.java"/>
+  <suppress checks="JavadocMethod" files="CircularLossyQueue.java"/>
+  <suppress checks="JavadocMethod" files="Counter.java"/>
+  <suppress checks="JavadocMethod" files="CounterConfig.java"/>
+  <suppress checks="JavadocMethod" files="CounterImpl.java"/>
+  <suppress checks="JavadocMethod" files="CounterManager.java"/>
+  <suppress checks="JavadocMethod" files="CounterManagerImpl.java"/>
+  <suppress checks="JavadocMethod" files="SampledCounterImpl.java"/>
+  <suppress checks="JavadocMethod" files="SampledRateCounter.java"/>
+  <suppress checks="JavadocMethod" files="SampledRateCounterConfig.java"/>
+  <suppress checks="JavadocMethod" files="SampledRateCounterImpl.java"/>
+  <suppress checks="JavadocMethod" files="TimeStampedCounterValue.java"/>
+  <suppress checks="JavadocMethod" files="FailSafeTimer.java"/>
+  <suppress checks="JavadocMethod" files="MergedEnumeration.java"/>
+  <suppress checks="JavadocMethod" files="NamedThreadFactory.java"/>
+  <suppress checks="JavadocMethod" files="PreferredLoaderObjectInputStream.java"/>
+  <suppress checks="JavadocMethod" files="ProductInfo.java"/>
+  <suppress checks="JavadocMethod" files="PropertyUtil.java"/>
+  <suppress checks="JavadocMethod" files="SetAsList.java"/>
+  <suppress checks="JavadocMethod" files="TimeUtil.java"/>
+  <suppress checks="JavadocMethod" files="WeakIdentityConcurrentMap.java"/>
+  <suppress checks="JavadocMethod" files="CacheWriter.java"/>
+  <suppress checks="JavadocMethod" files="NonStopWriteBehind.java"/>
+  <suppress checks="JavadocMethod" files="WriteBehindManager.java"/>
+  <suppress checks="JavadocMethod" files="StripedReadWriteLock.java"/>
+  <suppress checks="JavadocMethod" files="RMICacheManagerPeerListener.java"/>
+  <suppress checks="JavadocMethod" files="CacheExtensionFactory.java"/>
+  <suppress checks="JavadocMethod" files="CacheMBean.java"/>
+  <suppress checks="JavadocMethod" files="JvmInformation.java"/>
+  <suppress checks="JavadocMethod" files="AggregatorInstance.java"/>
+  <suppress checks="JavadocMethod" files="ExtendedStatistics.java"/>
+  <suppress checks="JavadocMethod" files="FlatStatistics.java"/>
+  <suppress checks="JavadocMethod" files="LegacyStoreWrapper.java"/>
+  <suppress checks="JavadocMethod" files="CastingOperationConverter.java"/>
+  <suppress checks="JavadocMethod" files="DeleteOperation.java"/>
+  <suppress checks="JavadocMethod" files="WriteOperation.java"/>  
+  <suppress checks="JavadocMethod" files="CacheManagerPeerListener.java"/>
+  <suppress checks="JavadocMethod" files="CacheEventListener.java"/>
+  <suppress checks="JavadocMethod" files="CacheExtension.java"/>
+  <suppress checks="JavadocMethod" files="EhCacheProvider.java"/>
+  <suppress checks="JavadocMethod" files="SingletonEhCacheProvider.java"/>
+  <suppress checks="JavadocMethod" files="DynamicSearchChecker.java"/>
+  <suppress checks="JavadocMethod" files="Results.java"/>
+  <suppress checks="JavadocMethod" files="CacheWriterManager.java"/>
+  <suppress checks="JavadocMethod" files="WriteBehind.java"/>
+  <suppress checks="JavadocMethod" files="EhcacheDefaultClassLoader.java"/>
+  <suppress checks="JavadocMethod" files="ReadWriteCopyStrategy.java"/>
+  <suppress checks="JavadocMethod" files="DefaultTransactionManagerLookup.java"/>  
+
+  <suppress checks="JavadocType" files="CacheOperationOutcomes.java"/>
+  <suppress checks="JavadocType" files="CacheConfiguration.java"/>
+  <suppress checks="JavadocType" files="Configuration.java"/>
+  <suppress checks="JavadocType" files="EhcacheDefaultClassLoader.java"/>
+  <suppress checks="JavadocType" files="ReadWriteCopyStrategy.java"/>
+  <suppress checks="JavadocType" files="DefaultTransactionManagerLookup.java"/>
+  
+  <suppress checks="JavadocVariable" files="ReadWriteCopyStrategy.java"/> 
+
+  <suppress checks="LineLength" files="Cache.java"/>
+  <suppress checks="LineLength" files="CacheManager.java"/>
+  <suppress checks="LineLength" files="CacheConfiguration.java"/>
+  <suppress checks="LineLength" files="CacheWriterConfiguration.java"/>
+  <suppress checks="LineLength" files="Configuration.java"/>
+  <suppress checks="LineLength" files="BlockingCache.java"/>
+  <suppress checks="LineLength" files="Ehcache.java"/>
+  <suppress checks="LineLength" files="NullHibernateStats.java"/>
+  <suppress checks="LineLength" files="AbstractReadWriteEhcacheAccessStrategy.java"/>
+  <suppress checks="LineLength" files="ManagementService.java"/>
+  <suppress checks="LineLength" files="CacheSamplerImpl.java"/>
+  <suppress checks="LineLength" files="AnnotationProxyFactory.java"/>
+  <suppress checks="LineLength" files="Query.java"/>
+  <suppress checks="LineLength" files="CopyingCacheStore.java"/>
+  <suppress checks="LineLength" files="Segment.java"/>
+  <suppress checks="LineLength" files="TxCopyingCacheStore.java"/>
+  <suppress checks="LineLength" files="TerracottaClient.java"/>
+  <suppress checks="LineLength" files="CacheWriter.java"/>
+
+  <suppress checks="HideUtilityClassConstructor" files="ElementIdHelper.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="BeanUtils.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="ManagementServerLoader.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="Utils.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="AgentLoader.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="DynamicSearchChecker.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="Constants.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="EhcacheQueryBuilder.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="CacheTransactionHelper.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="MemorySizeParser.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="TimeUtil.java"/>
+  <suppress checks="HideUtilityClassConstructor" files="VmUtils.java"/>  
+
+  <suppress checks="WhitespaceAround" files="Cache.java"/>
+  <suppress checks="WhitespaceAround" files="AbstractNodeElement.java"/>
+  <suppress checks="WhitespaceAround" files="CacheSamplerImpl.java"/>
+  
+  <suppress checks="WhitespaceAfter" files="CacheSamplerImpl.java"/>
+  <suppress checks="NoWhitespaceAfter" files="DefaultTransactionManagerLookup.java"/>
+  
+  <suppress checks="UnusedImports" files="ConfigurationFactory.java"/>
+  <suppress checks="UnusedImports" files="TerracottaClient.java"/>
+  
+  <suppress checks="DeclarationOrder" files="CacheManager.java"/>
+  <suppress checks="DeclarationOrder" files="EhcacheDefaultClassLoader.java"/>
+  
+  <suppress checks="ExecutableStatementCount" files="Configuration.java"/>
+  <suppress checks="ExecutableStatementCount" files="CoreStatisticsImpl.java"/>
+  
+  <suppress checks="FinalClass" files="EhcacheDefaultClassLoader.java"/>
+  
+  <suppress checks="UpperEll" files="CacheSamplerImpl.java"/>
+  
+  <suppress checks="ClassFanOutComplexity" files="ExtendedStatisticsImpl.java"/>
+
 </suppressions>
