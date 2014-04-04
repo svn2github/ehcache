@@ -16,6 +16,11 @@
 
 package net.sf.ehcache.pool.sizeof;
 
+import net.sf.ehcache.config.MemoryUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,6 +29,7 @@ import java.lang.instrument.Instrumentation;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
@@ -31,11 +37,6 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.List;
-
-import net.sf.ehcache.config.MemoryUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This will try to load the agent using the Attach API of JDK6.
@@ -163,12 +164,12 @@ final class AgentLoader {
         }
     }
 
-    private static File getAgentFile() throws IOException {
+    private static File getAgentFile() throws IOException, URISyntaxException {
         URL agent = AgentLoader.class.getResource("sizeof-agent.jar");
         if (agent == null) {
             return null;
         } else if (agent.getProtocol().equals("file")) {
-            return new File(agent.getFile());
+            return new File(agent.toURI());
         } else {
             File temp = File.createTempFile("ehcache-sizeof-agent", ".jar");
             try {

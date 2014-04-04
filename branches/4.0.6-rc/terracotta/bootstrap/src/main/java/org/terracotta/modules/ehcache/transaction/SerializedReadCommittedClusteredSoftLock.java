@@ -11,6 +11,8 @@ import java.io.Serializable;
 
 public class SerializedReadCommittedClusteredSoftLock implements Serializable {
 
+  private static final long                                 serialVersionUID = -766870846218858666L;
+
   private final TransactionID                               transactionID;
   private final Object                                      deserializedKey;
   private transient volatile ReadCommittedClusteredSoftLock softLock;
@@ -29,6 +31,29 @@ public class SerializedReadCommittedClusteredSoftLock implements Serializable {
       rv = softLock;
     }
     return rv;
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (object instanceof SerializedReadCommittedClusteredSoftLock) {
+      SerializedReadCommittedClusteredSoftLock other = (SerializedReadCommittedClusteredSoftLock) object;
+
+      if (!transactionID.equals(other.transactionID)) { return false; }
+      if (!deserializedKey.equals(other.deserializedKey)) { return false; }
+
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hashCode = 31;
+
+    hashCode *= transactionID.hashCode();
+    hashCode *= deserializedKey.hashCode();
+
+    return hashCode;
   }
 
 }

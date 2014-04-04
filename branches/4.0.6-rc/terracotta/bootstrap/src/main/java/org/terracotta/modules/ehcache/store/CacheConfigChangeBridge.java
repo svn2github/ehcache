@@ -3,13 +3,12 @@
  */
 package org.terracotta.modules.ehcache.store;
 
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.toolkit.cache.ToolkitCache;
+import org.terracotta.toolkit.config.Configuration;
 import org.terracotta.toolkit.events.ToolkitNotificationEvent;
 import org.terracotta.toolkit.events.ToolkitNotificationListener;
 import org.terracotta.toolkit.events.ToolkitNotifier;
@@ -23,26 +22,71 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
   private static final Logger            LOG = LoggerFactory.getLogger(CacheConfigChangeBridge.class);
 
   private final ToolkitNotifier          notifier;
-  private final ToolkitCache    backend;
-  private final Ehcache                  cache;
+  private final ToolkitCache             backend;
+  private final CacheConfiguration       cacheConfiguration;
   private final String                   fullyQualifiedEhcacheName;
 
-  public CacheConfigChangeBridge(Ehcache cache, String fullyQualifiedEhcacheName, ToolkitCacheInternal backend,
-                                 ToolkitNotifier<CacheConfigChangeNotificationMsg> notifier) {
-    this.cache = cache;
+  public CacheConfigChangeBridge(String fullyQualifiedEhcacheName, ToolkitCacheInternal backend,
+                                 ToolkitNotifier<CacheConfigChangeNotificationMsg> notifier,
+                                 CacheConfiguration cacheConfiguration) {
+    this.cacheConfiguration = cacheConfiguration;
     this.fullyQualifiedEhcacheName = fullyQualifiedEhcacheName;
     this.backend = backend;
     this.notifier = notifier;
   }
 
   public void connectConfigs() {
-    cache.getCacheConfiguration().addConfigurationListener(this);
+    // Match up the global config values to the local cache configuration first.
+    initializeFromCluster();
+
+    cacheConfiguration.addConfigurationListener(this);
     notifier.addNotificationListener(this);
   }
 
   public void disconnectConfigs() {
-    cache.getCacheConfiguration().removeConfigurationListener(this);
+    cacheConfiguration.removeConfigurationListener(this);
     notifier.removeNotificationListener(this);
+  }
+
+  private void initializeFromCluster() {
+    Configuration clusterConfig = backend.getConfiguration();
+    if (clusterConfig.hasField(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME)) {
+      cacheConfiguration.internalSetMaxEntriesInCache(
+          mapTotalCountToMaxEntriesInCache(clusterConfig.getInt(ToolkitConfigFields.MAX_TOTAL_COUNT_FIELD_NAME)));
+    }
+
+    if (clusterConfig.hasField(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME) ||
+        clusterConfig.hasField(ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME)) {
+
+      int tti = clusterConfig.hasField(ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME) ?
+          clusterConfig.getInt(ToolkitConfigFields.MAX_TTI_SECONDS_FIELD_NAME) : 0;
+      int ttl = clusterConfig.hasField(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME) ?
+          clusterConfig.getInt(ToolkitConfigFields.MAX_TTL_SECONDS_FIELD_NAME) : 0;
+      if (tti != 0 || ttl != 0) {
+        cacheConfiguration.internalSetEternal(false);
+        cacheConfiguration.internalSetTimeToIdle(tti);
+        cacheConfiguration.internalSetTimeToLive(ttl);
+      } else {
+        // We do not want to override the eternal flag since we can't make the assumption that having 0 TTI/TTL means
+        // the cache is eternal. The user could very well have set the TTI/TTL to 0 with the intent to set it to something
+        // non-zero later.
+        cacheConfiguration.internalSetTimeToIdle(0);
+        cacheConfiguration.internalSetTimeToLive(0);
+      }
+    }
+
+    if (clusterConfig.hasField(ToolkitConfigFields.MAX_COUNT_LOCAL_HEAP_FIELD_NAME)) {
+      cacheConfiguration.internalSetMemCapacity(clusterConfig.getInt(ToolkitConfigFields.MAX_COUNT_LOCAL_HEAP_FIELD_NAME));
+    }
+    if (clusterConfig.hasField(ToolkitConfigFields.MAX_BYTES_LOCAL_HEAP_FIELD_NAME)) {
+      cacheConfiguration.internalSetMemCapacityInBytes(clusterConfig.getLong(ToolkitConfigFields.MAX_BYTES_LOCAL_HEAP_FIELD_NAME));
+    }
+    if (clusterConfig.hasField(ToolkitConfigFields.OFFHEAP_ENABLED_FIELD_NAME)) {
+      cacheConfiguration.internalSetOverflowToOffheap(clusterConfig.getBoolean(ToolkitConfigFields.OFFHEAP_ENABLED_FIELD_NAME));
+    }
+    if (clusterConfig.hasField(ToolkitConfigFields.MAX_BYTES_LOCAL_OFFHEAP_FIELD_NAME)) {
+      cacheConfiguration.internalSetMaxBytesLocalOffheap(clusterConfig.getLong(ToolkitConfigFields.MAX_BYTES_LOCAL_OFFHEAP_FIELD_NAME));
+    }
   }
 
   private void change(DynamicConfigType type, Serializable newValue, boolean notifyRemote) {
@@ -123,23 +167,23 @@ public class CacheConfigChangeBridge implements CacheConfigurationListener, Tool
       Object newValue = notification.getNewValue();
       switch (type) {
         case MAX_TTI_SECONDS: {
-          cache.getCacheConfiguration().internalSetTimeToIdle(getLong(newValue));
+          cacheConfiguration.internalSetTimeToIdle(getLong(newValue));
           break;
         }
         case MAX_TTL_SECONDS: {
-          cache.getCacheConfiguration().internalSetTimeToLive(getLong(newValue));
+          cacheConfiguration.internalSetTimeToLive(getLong(newValue));
           break;
         }
         case MAX_TOTAL_COUNT: {
-          cache.getCacheConfiguration().internalSetMaxEntriesInCache(mapTotalCountToMaxEntriesInCache(getInt(newValue)));
+          cacheConfiguration.internalSetMaxEntriesInCache(mapTotalCountToMaxEntriesInCache(getInt(newValue)));
           break;
         }
         case MAX_COUNT_LOCAL_HEAP: {
-          cache.getCacheConfiguration().internalSetMemCapacity(getInt(newValue));
+          cacheConfiguration.internalSetMemCapacity(getInt(newValue));
           break;
         }
         case MAX_BYTES_LOCAL_HEAP: {
-          cache.getCacheConfiguration().internalSetMemCapacityInBytes(getLong(newValue));
+          cacheConfiguration.internalSetMemCapacityInBytes(getLong(newValue));
           break;
         }
       }

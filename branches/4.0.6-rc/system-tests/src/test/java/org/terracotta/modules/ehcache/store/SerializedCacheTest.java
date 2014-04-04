@@ -52,8 +52,8 @@ public class SerializedCacheTest extends AbstractCacheTestBase {
         cache.put(new Element("key", value));
       }
 
-      barrier.await();
       waitForAllCurrentTransactionsToComplete(cache);
+      barrier.await();
 
       ValueHolder value = (ValueHolder) cache.get("key").getObjectValue();
       Assert.assertEquals(1, cache.getSize());

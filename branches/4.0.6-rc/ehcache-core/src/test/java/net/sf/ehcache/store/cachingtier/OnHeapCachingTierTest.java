@@ -5,18 +5,27 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.CachingTier;
+import net.sf.ehcache.store.LruPolicy;
 import net.sf.ehcache.store.Policy;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -203,6 +212,259 @@ public class OnHeapCachingTierTest {
         Assert.assertThat(backend.getMaxEntriesLocalHeap(), is(10L));
         cache.getCacheConfiguration().setMaxEntriesLocalHeap(20);
         Assert.assertThat(backend.getMaxEntriesLocalHeap(), is(20L));
+    }
+
+    @Test
+    @Ignore("This takes a while to run... hopefully will never be useful again though!")
+    public void testCRQ302() throws InterruptedException {
+
+        final int entriesOnHeap = 20 * 1000;
+        final int population = 800 * 1000;
+
+//        final long seed = 1392742339502L;
+        final long seed = System.currentTimeMillis();
+        final ConcurrentHashMap<Object, Object> evicted = new ConcurrentHashMap<Object, Object>();
+//        final ConcurrentMap<Object, Object> map = new ConcurrentHashMap<Object, Object>();
+//        final HeapCacheBackEnd<Object, Object> backEnd = new FakeHeapCacheBackEnd(entriesOnHeap, map);
+        final HeapCacheBackEnd<Object, Object> backEnd = new CountBasedBackEnd<Object, Object>(entriesOnHeap, new LruPolicy());
+        final OnHeapCachingTier<Object, Element> cachingTier = new OnHeapCachingTier<Object, Element>(
+            backEnd);
+        cachingTier.addListener(new CachingTier.Listener<Object, Element>() {
+            @Override
+            public void evicted(final Object key, final Element value) {
+//                evicted.put(key, value);
+//                cachingTier.remove(value.getObjectValue());
+            }
+        });
+        Thread[] threads = new Thread[1];
+        System.out.println("Running " + threads.length + " threads, seeded with " + seed);
+        for (int i = 0; i < threads.length; i++) {
+//            threads[i] = new Thread(new CachingTierAccessor(200000, cachingTier, seed, backEnd, evicted));
+            threads[i] = new Thread(new CachingTierAccessor(population, cachingTier, seed / (i + 1), backEnd, evicted));
+            threads[i].start();
+        }
+
+        long start = System.currentTimeMillis();
+        while(CachingTierAccessor.gotNull == null) {
+            for (Thread thread : threads) {
+                thread.join(5000);
+                if(thread.isAlive()) {
+                    break;
+                }
+            }
+            System.out.println("CachingTier's size: " + cachingTier.getInMemorySize());
+            System.out.println("Evictions: " + evicted.size());
+            if(System.currentTimeMillis() - start > TimeUnit.MINUTES.toMillis(3)) {
+                CachingTierAccessor.gotNull = new UTF8ByteDataHolder("That's enough!");
+            }
+        }
+        System.out.println("Value for key " + CachingTierAccessor.gotNull + " : " + backEnd.get(CachingTierAccessor.gotNull));
+
+        System.out.println("Ran " + threads.length + " threads, seeded with " + seed);
+        int faults = 0;
+        int count = 0;
+        for(int i = 0 ; i < population; i++) {
+            final UTF8ByteDataHolder key = new UTF8ByteDataHolder(Integer.toString(i));
+            Object e = backEnd.get(key);
+            if(e != null) {
+                if(!(e instanceof Element)) {
+                    ++faults;
+                    System.out.println(key + " maps to non-Element: " + e);
+                } else {
+                    ++count;
+                }
+            }
+            e = backEnd.get((long) i);
+            if(e != null) {
+                if(!(e instanceof Element)) {
+                    ++faults;
+                    System.out.println(key + " maps to non-Element: " + e);
+                } else {
+                    ++count;
+                }
+            }
+        }
+        assertThat("We're leaking faults on get!!!", faults, is(0));
+        assertThat("Didn't see all values!", count, is(backEnd.size()));
+
+        count = 0;
+        for (Map.Entry<Object, Object> entry : backEnd.entrySet()) {
+            if(!(entry.getValue() instanceof Element)) {
+                ++faults;
+                System.err.println("Failed for key " + entry.getKey() + ": " + entry.getValue());
+            } else {
+                ++count;
+            }
+        }
+        System.err.println("Faults: " + faults + " vs. Elements: " + (backEnd.size() - faults));
+        assertThat("We're leaking faults!!!", faults, is(0));
+        assertThat("Didn't see all values!", count, is(backEnd.size()));
+
+        for(int i = 0 ; i < population; i++) {
+            final UTF8ByteDataHolder key = new UTF8ByteDataHolder(Integer.toString(i));
+            final Object value = new Element(key, "");
+            final Object put = backEnd.putIfAbsent(key, value);
+            if(put != null) {
+                if(!(put instanceof Element)) {
+                    ++faults;
+                    System.out.println(key + " maps to non-Element: " + put);
+                } else {
+                    ++count;
+                }
+            }
+        }
+        assertThat("We're leaking faults through putIfAbsent ONLY!!!", faults, is(0));
+    }
+
+    private static class CachingTierAccessor implements Runnable {
+
+        private static volatile UTF8ByteDataHolder gotNull = null;
+
+        private final int population;
+        private final OnHeapCachingTier<Object, Element> cachingTier;
+        private final HeapCacheBackEnd<Object, Object> backEnd;
+        private final Map<Object, Object> evicted;
+        private final Random random;
+
+        public CachingTierAccessor(final int population, final OnHeapCachingTier<Object, Element> cachingTier, long seed, final HeapCacheBackEnd<Object, Object> backEnd, Map<Object, Object> evicted) {
+            this.population = population;
+            this.cachingTier = cachingTier;
+            this.backEnd = backEnd;
+            this.evicted = evicted;
+            this.random = new Random(seed);
+        }
+
+        @Override
+        public void run() {
+            while (gotNull == null) {
+                final long longValue = random.nextInt(population);
+                final UTF8ByteDataHolder key = new UTF8ByteDataHolder(Long.toString(longValue));
+                switch(random.nextInt(3)) {
+                    case 0:
+                        cachingTier.remove(key);
+                        break;
+                    default:
+                        final Element newE = new Element(key, longValue);
+                        Element e = cachingTier.get(key, new Callable<Element>() {
+                                @Override
+                                public Element call() throws Exception {
+                                    if (random.nextBoolean()) {
+//                                        evicted.remove(key);
+                                        return newE;
+                                    } else return null;
+                                }
+                            }, true);
+                        if(newE == e) {
+                            cachingTier.get(e.getObjectValue(), new Callable<Element>() {
+                                @Override
+                                public Element call() throws Exception {
+                                    return new Element(newE.getObjectValue(), newE.getObjectKey());
+                                }
+                            }, false);
+                        }
+                        final long start = System.nanoTime();
+                        int loops = 0;
+                        while(e == null) {
+                            ++loops;
+                            e = cachingTier.get(key, new Callable<Element>() {
+                                @Override
+                                public Element call() throws Exception {
+//                                    evicted.remove(key);
+                                    return newE;
+                                }
+                            }, true);
+                            if (e == null && loops > 100) {
+                                System.out.println(Thread.currentThread()
+                                                       .getName() + " =>" + '\n' + "Got null for " + key + '\n' + "cachingTier.contains(): " + cachingTier
+                                                       .contains(key) + '\n' + "backEnd.get(): " + backEnd.get(key) + '\n' + "evicted.contains(): " + evicted
+                                                       .containsKey(key) + '\n' + "cachingTier.get(): " + cachingTier.get(key, new Callable<Element>() {
+                                    @Override
+                                    public Element call() throws Exception {
+                                        return new Element(key, "EVIL !!!!");
+                                    }
+                                }, false) + '\n' + "Loops: " + loops + '\n');
+                            } else if(newE == e) {
+                                cachingTier.get(e.getObjectValue(), new Callable<Element>() {
+                                    @Override
+                                    public Element call() throws Exception {
+                                        return new Element(newE.getObjectValue(), newE.getObjectKey());
+                                    }
+                                }, false);
+                            }
+
+                            if (System.nanoTime() - start > TimeUnit.MILLISECONDS.toNanos(500) && loops > 1) {
+                                System.err.println(Thread.currentThread()
+                                                       .getName() + " looped " + loops + " on key " + key);
+                                gotNull = key;
+                            }
+                        }
+                }
+            }
+        }
+    }
+
+    public static class UTF8ByteDataHolder implements Serializable { //}, Comparable<UTF8ByteDataHolder> {
+        private static final int HASH_SEED = 1704124966;
+        private static final int FNV_32_PRIME = 0x01000193;
+
+        private final byte[] bytes;
+
+        // Used for tests
+        public UTF8ByteDataHolder(String str) {
+            try {
+                this.bytes = str.getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new AssertionError(e);
+            }
+        }
+
+        public byte[] getBytes() {
+            return bytes;
+        }
+
+        public String asString() {
+            return getString();
+        }
+
+        private String getString() {
+            try {
+                return new String(bytes, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new AssertionError(e);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return asString();
+        }
+
+        @Override
+        public int hashCode() {
+            return computeHashCode(HASH_SEED);
+        }
+
+        protected int computeHashCode(int init) {
+            int hash = init;
+            for (byte b : bytes) {
+                hash ^= b;
+                hash *= FNV_32_PRIME;
+            }
+            return hash;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof UTF8ByteDataHolder) {
+                UTF8ByteDataHolder other = (UTF8ByteDataHolder) obj;
+                return (Arrays.equals(this.bytes, other.bytes)) && this.getClass().equals(other.getClass());
+            }
+            return false;
+        }
+
+        public int compareTo(final UTF8ByteDataHolder o) {
+            return asString().compareTo(o.asString());
+        }
     }
 
     /**
