@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+All content copyright (c) 2003-2008 Terracotta, Inc.,
+except as may otherwise be noted in a separate copyright notice.
+All rights reserved
+
+-->
+<tc:tc-config xmlns:tc="http://www.terracotta.org/config"
+	      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	      xsi:schemaLocation="http://www.terracotta.org/config ..\..\..\common\src.resources\com\tc\config\schema\terracotta-4.xsd">
+  <clients>
+    <logs>terracotta/clients-logs</logs>
+  </clients>
+
+  <servers>
+    <server name="localhost">
+      <logs>terracotta/server-logs</logs>
+    </server>
+  </servers>
+
+</tc:tc-config>
