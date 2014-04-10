@@ -16,8 +16,6 @@
 
 package net.sf.ehcache.event;
 
-import static net.sf.ehcache.statistics.StatisticBuilder.operation;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheOperationOutcomes;
@@ -28,7 +26,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.distribution.CacheReplicator;
 import net.sf.ehcache.store.TerracottaStore;
-
 import org.terracotta.statistics.StatisticsManager;
 import org.terracotta.statistics.observer.OperationObserver;
 
@@ -37,6 +34,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static net.sf.ehcache.statistics.StatisticBuilder.operation;
 
 /**
  * Registered listeners for registering and unregistering CacheEventListeners and multicasting notifications to registrants.
@@ -148,7 +147,7 @@ public class RegisteredEventListeners {
         internalNotifyElementRemoved(null, callback, remoteEvent);
     }
 
-    private void internalNotifyElementRemoved(Element element, ElementCreationCallback callback, boolean remoteEvent) {
+    void internalNotifyElementRemoved(Element element, ElementCreationCallback callback, boolean remoteEvent) {
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -183,7 +182,7 @@ public class RegisteredEventListeners {
         internalNotifyElementPut(null, callback, remoteEvent);
     }
 
-    private void internalNotifyElementPut(Element element, ElementCreationCallback callback, boolean remoteEvent) {
+    void internalNotifyElementPut(Element element, ElementCreationCallback callback, boolean remoteEvent) {
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -219,7 +218,7 @@ public class RegisteredEventListeners {
         internalNotifyElementUpdated(null, callback, remoteEvent);
     }
 
-    private void internalNotifyElementUpdated(Element element, ElementCreationCallback callback, boolean remoteEvent) {
+    void internalNotifyElementUpdated(Element element, ElementCreationCallback callback, boolean remoteEvent) {
         if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
@@ -255,7 +254,7 @@ public class RegisteredEventListeners {
         internalNotifyElementExpiry(null, callback, remoteEvent);
     }
 
-    private void internalNotifyElementExpiry(Element element, ElementCreationCallback callback, boolean remoteEvent) {
+    void internalNotifyElementExpiry(Element element, ElementCreationCallback callback, boolean remoteEvent) {
         if (!remoteEvent) {
             expiryObserver.begin();
             expiryObserver.end(ExpiredOutcome.SUCCESS);
@@ -306,8 +305,8 @@ public class RegisteredEventListeners {
         internalNotifyElementEvicted(null, callback, remoteEvent);
     }
 
-    private void internalNotifyElementEvicted(Element element, ElementCreationCallback callback, boolean remoteEvent) {
-        if (hasCacheEventListeners()) {
+    void internalNotifyElementEvicted(Element element, ElementCreationCallback callback, boolean remoteEvent) {
+      if (hasCacheEventListeners()) {
             for (ListenerWrapper listenerWrapper : cacheEventListeners) {
                 if (listenerWrapper.getScope().shouldDeliver(remoteEvent)
                     && !isCircularNotification(remoteEvent, listenerWrapper.getListener())) {

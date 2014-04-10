@@ -321,7 +321,7 @@ public class Cache implements InternalEhcache, StoreListener {
      * @param cacheConfiguration the configuration that should be used to create the cache with
      */
     public Cache(CacheConfiguration cacheConfiguration) {
-        this(cacheConfiguration, null, null);
+        this(cacheConfiguration, null, (BootstrapCacheLoader) null);
     }
 
     /**
@@ -791,6 +791,17 @@ public class Cache implements InternalEhcache, StoreListener {
     }
 
     /**
+     * Test only
+     */
+    Cache(CacheConfiguration config, Store compoundStore, RegisteredEventListeners listeners) {
+        this.configuration = config;
+        this.compoundStore = compoundStore;
+        this.registeredEventListeners = listeners;
+        cacheStatus.changeState(Status.STATUS_ALIVE);
+
+    }
+
+    /**
      * Constructor for cloning.
      * @param original
      * @throws CloneNotSupportedException
@@ -844,7 +855,8 @@ public class Cache implements InternalEhcache, StoreListener {
         }
     }
 
-    /**
+
+  /**
      * A factory method to create a RegisteredEventListeners
      * @param loader 
      */
