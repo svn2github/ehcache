@@ -48,7 +48,7 @@ public interface SoftLockManager {
     /**
      * Find a previously created and still existing soft lock
      * @param softLockId the soft lock's ID
-     * @return the soft lock
+     * @return the soft lock, or null if no soft lock with the corresponding ID could be found
      */
     SoftLock findSoftLockById(SoftLockID softLockId);
 
