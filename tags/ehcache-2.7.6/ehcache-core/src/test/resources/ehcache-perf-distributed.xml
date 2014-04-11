@@ -1,0 +1,34 @@
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../main/config/ehcache.xsd">
+
+    <cacheManagerPeerProviderFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerProviderFactory"
+                                     properties="peerDiscovery=automatic, multicastGroupAddress=230.0.0.1, multicastGroupPort=4446, timeToLive=0"/>
+    <cacheManagerPeerListenerFactory class="net.sf.ehcache.distribution.RMICacheManagerPeerListenerFactory"/>
+
+    <defaultCache maxElementsInMemory="0" eternal="true">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
+        <bootstrapCacheLoaderFactory class="net.sf.ehcache.distribution.RMIBootstrapCacheLoaderFactory" />
+    </defaultCache>
+
+    <cache name="asynchronousCache" maxElementsInMemory="0" eternal="true">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=true,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
+    </cache>
+
+    <cache name="synchronousCache" maxElementsInMemory="0" eternal="true">
+        <cacheEventListenerFactory class="net.sf.ehcache.distribution.RMICacheReplicatorFactory"
+                                   properties="replicateAsynchronously=false,
+                                               replicatePuts=true,
+                                               replicateUpdates=true,
+                                               replicateUpdatesViaCopy=true,
+                                               replicateRemovals=true "/>
+    </cache>
+</ehcache>
