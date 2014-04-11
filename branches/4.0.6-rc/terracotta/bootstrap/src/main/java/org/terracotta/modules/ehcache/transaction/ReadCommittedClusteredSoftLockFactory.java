@@ -75,6 +75,9 @@ public class ReadCommittedClusteredSoftLockFactory implements SoftLockManager {
   @Override
   public SoftLock findSoftLockById(SoftLockID softLockId) {
     SerializedReadCommittedClusteredSoftLock serializedSoftLock = allLocks.get(new ClusteredSoftLockIDKey(softLockId));
+    if (serializedSoftLock == null) {
+      return null;
+    }
     return serializedSoftLock.getSoftLock(toolkitInstanceFactory, this);
   }
 
