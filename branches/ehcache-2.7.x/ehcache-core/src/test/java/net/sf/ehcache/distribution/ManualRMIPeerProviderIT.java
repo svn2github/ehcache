@@ -32,7 +32,7 @@ import static net.sf.ehcache.distribution.AbstractRMITest.createAsynchronousCach
  * @author <a href="mailto:gluck@thoughtworks.com">Greg Luck</a>
  * @version $Id$
  */
-public class ManualRMIPeerProviderTest extends MulticastRMIPeerProviderTest {
+public class ManualRMIPeerProviderIT extends MulticastRMIPeerProviderIT {
 
     /**
      * {@inheritDoc}
