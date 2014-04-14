@@ -58,9 +58,9 @@ import org.junit.Test;
  *
  * @author Abhishek Sanoujam
  */
-public class RMICacheReplicatorWithLargePayloadTest extends AbstractRMITest {
+public class RMICacheReplicatorWithLargePayloadIT extends AbstractRMITest {
 
-    private static final Logger LOG = Logger.getLogger(RMICacheReplicatorWithLargePayloadTest.class.getName());
+    private static final Logger LOG = Logger.getLogger(RMICacheReplicatorWithLargePayloadIT.class.getName());
 
     private static int MB = 1024 * 1024;
 

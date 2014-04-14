@@ -57,7 +57,7 @@ import static net.sf.ehcache.distribution.AbstractRMITest.createRMICacheManagerC
  * @author Greg Luck
  * @version $Id$
  */
-public class MulticastRMIPeerProviderTest extends AbstractRMITest {
+public class MulticastRMIPeerProviderIT extends AbstractRMITest {
 
     /**
      * Cache Manager 1
@@ -161,7 +161,7 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
     @Test
     public void testProviderCreatedFromDefaultCache() throws InterruptedException {
         //manual does not nor should it work this way
-        assumeThat(getClass(), IsSame.<Class<?>>sameInstance(MulticastRMIPeerProviderTest.class));
+        assumeThat(getClass(), IsSame.<Class<?>>sameInstance(MulticastRMIPeerProviderIT.class));
 
         manager1.addCache("fromDefaultCache");
         manager2.addCache("fromDefaultCache");
@@ -173,7 +173,7 @@ public class MulticastRMIPeerProviderTest extends AbstractRMITest {
     @Test
     public void testDeleteReplicatedCache() throws InterruptedException {
         //manual does not nor should it work this way
-        assumeThat(getClass(), IsSame.<Class<?>>sameInstance(MulticastRMIPeerProviderTest.class));
+        assumeThat(getClass(), IsSame.<Class<?>>sameInstance(MulticastRMIPeerProviderIT.class));
 
         MulticastKeepaliveHeartbeatSender.setHeartBeatStaleTime(3000);
 

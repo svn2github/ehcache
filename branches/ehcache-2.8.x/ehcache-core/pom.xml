@@ -202,14 +202,11 @@
                 <exclude>**/*PerfTest.java</exclude>
                 <exclude>**/*PerfTest*.java</exclude>
                 <exclude>**/Abstract*Test.java</exclude>
-                <exclude>**/RMICacheReplicatorWithLargePayloadTest.java</exclude>
-                <exclude>**/*Integration*Test.java</exclude>
               </excludes>
             </configuration>
           </execution>
           <execution>
-            <!-- Run RMICacheReplicatorWithLargePayloadTest with 256 MB heap -->
-            <id>large-heap-test-execution</id>
+            <id>integration-test-execution</id>
             <phase>integration-test</phase>
             <goals>
               <goal>test</goal>
@@ -221,9 +218,9 @@
                 <exclude>**/*$*</exclude>
               </excludes>
               <includes>
-                <include>**/RMICacheReplicatorWithLargePayloadTest.java
-                </include>
-                <include>**/TerracottaIntegrationTest.java</include>
+               <include>**/IT*.java</include>
+               <include>**/*IT.java</include>
+               <include>**/*ITCase.java</include>
               </includes>
               <argLine>${tests.supplemental.args} -Xms512m -Xmx512m</argLine>
             </configuration>

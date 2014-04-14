@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
  * @author Greg Luck
  * @version $Id$
  */
-public class RMICacheReplicatorTest extends AbstractRMITest {
+public class RMICacheReplicatorIT extends AbstractRMITest {
 
     @BeforeClass
     public static void enableRmiLogging() throws IOException {
@@ -98,7 +98,7 @@ public class RMICacheReplicatorTest extends AbstractRMITest {
      */
     protected static final boolean SYNCHRONOUS = false;
 
-    private static final Logger LOG = LoggerFactory.getLogger(RMICacheReplicatorTest.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(RMICacheReplicatorIT.class.getName());
 
     /**
      * {@inheritDoc}
