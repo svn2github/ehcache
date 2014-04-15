@@ -265,11 +265,13 @@ public class ParseModel {
      */
     @SuppressWarnings("rawtypes")
     public Query getQuery(Ehcache ehcache) {
+    	ClassLoader loader = ehcache.getCacheConfiguration().getClassLoader();    	
+    	
         Query q = ehcache.createQuery();
 
         // single criteria
         if (criteria != null) {
-            q.addCriteria(criteria.asEhcacheObject());
+            q.addCriteria(criteria.asEhcacheObject(loader));
         }
 
         // limit.
@@ -298,11 +300,11 @@ public class ParseModel {
         
         // targets. what to retrieve
         for (MAttribute ma : getIncludedTargetAttributes()) {
-            q.includeAttribute(ma.asEhcacheObject());
+            q.includeAttribute(ma.asEhcacheObject(loader));
         }
 
         for (MAggregate ma : getIncludedTargetAgregators()) {
-            q.includeAggregator(ma.asEhcacheObject());
+            q.includeAggregator(ma.asEhcacheObject(loader));
         }
         if (isIncludedTargetKeys()) {
             q.includeKeys();
@@ -320,12 +322,12 @@ public class ParseModel {
 
         // group by
         for (MAttribute ma : groupBy) {
-            q.addGroupBy(ma.asEhcacheObject());
+            q.addGroupBy(ma.asEhcacheObject(loader));
         }
 
         // order by
         for (MOrderBy o : orderBy) {
-            q.addOrderBy(o.getAttribute().asEhcacheObject(), o.isOrderAscending() ? Direction.ASCENDING
+            q.addOrderBy(o.getAttribute().asEhcacheObject(loader), o.isOrderAscending() ? Direction.ASCENDING
                 : Direction.DESCENDING);
         }
 

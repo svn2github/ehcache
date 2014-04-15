@@ -3,6 +3,7 @@
  */
 package org.terracotta.modules.ehcache;
 
+import static java.lang.String.format;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.ConfigurationFactory;
@@ -14,6 +15,7 @@ import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.transaction.Decision;
 import net.sf.ehcache.transaction.TransactionID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.modules.ehcache.async.AsyncConfig;
@@ -76,8 +78,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.String.format;
-
 public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   public static final Logger           LOGGER                                   = LoggerFactory
@@ -114,8 +114,9 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   private final EntityNamesHolder         entityNames;
   private final Watchdog                  wanWatchdog;
 
-  public ToolkitInstanceFactoryImpl(final TerracottaClientConfiguration terracottaClientConfiguration, final String productId) {
-    this.toolkit = createTerracottaToolkit(terracottaClientConfiguration, productId);
+  public ToolkitInstanceFactoryImpl(final TerracottaClientConfiguration terracottaClientConfiguration,
+                                    final String productId, ClassLoader loader) {
+    this.toolkit = createTerracottaToolkit(terracottaClientConfiguration, productId, loader);
     updateDefaultNonStopConfig(toolkit);
     this.clusteredEntityManager = new ClusteredEntityManager(toolkit);
     this.entityNames = new EntityNamesHolder();
@@ -123,8 +124,9 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     this.wanWatchdog = Watchdog.create();
   }
 
-  public ToolkitInstanceFactoryImpl(final TerracottaClientConfiguration terracottaClientConfiguration) {
-    this(terracottaClientConfiguration, null);
+  public ToolkitInstanceFactoryImpl(final TerracottaClientConfiguration terracottaClientConfiguration,
+                                    ClassLoader loader) {
+    this(terracottaClientConfiguration, null, loader);
   }
 
   // Constructor to enable unit testing
@@ -160,7 +162,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
   }
 
   private static Toolkit createTerracottaToolkit(TerracottaClientConfiguration terracottaClientConfiguration,
-                                                 String productId) {
+                                                 String productId, ClassLoader loader) {
     TerracottaToolkitBuilder terracottaClientBuilder = new TerracottaToolkitBuilder();
     EhcacheTcConfig ehcacheTcConfig = EhcacheTcConfig.create(terracottaClientConfiguration);
     switch (ehcacheTcConfig.type) {
@@ -176,6 +178,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     terracottaClientBuilder.addTunnelledMBeanDomain("net.sf.ehcache.hibernate");
     terracottaClientBuilder.setRejoinEnabled(terracottaClientConfiguration.isRejoin());
     terracottaClientBuilder.setProductId(productId);
+    terracottaClientBuilder.setClassLoader(loader);
     return terracottaClientBuilder.buildToolkit();
   }
 

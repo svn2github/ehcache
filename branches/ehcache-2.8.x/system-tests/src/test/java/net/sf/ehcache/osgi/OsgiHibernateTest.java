@@ -74,7 +74,7 @@ public class OsgiHibernateTest {
   protected BundleContext bc;
 
   public OsgiHibernateTest() {
-    Thread.currentThread().setContextClassLoader(OsgiHibernateTest.class.getClassLoader());
+    //
   }
 
   public void testBundle() {
@@ -124,9 +124,19 @@ public class OsgiHibernateTest {
   @Before
   public void setUp() throws Exception {
     printBundles();
-    config = new Configuration().configure(OsgiHibernateTest.class
-        .getResource("/net/sf/ehcache/osgi/hibernate.cfg.xml"));
-    config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+
+    ClassLoader prev = Thread.currentThread().getContextClassLoader();
+    try {
+      Thread.currentThread().setContextClassLoader(OsgiHibernateTest.class.getClassLoader());
+      config = new Configuration().configure(OsgiHibernateTest.class
+          .getResource("/net/sf/ehcache/osgi/hibernate.cfg.xml"));
+
+      config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+      getSessionFactory(); // call for side effect of initializing the session factory
+    } finally {
+      Thread.currentThread().setContextClassLoader(prev);
+    }
+
     getSessionFactory().getStatistics().setStatisticsEnabled(true);
     removeCaches();
   }

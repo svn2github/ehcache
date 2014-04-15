@@ -48,11 +48,7 @@ public abstract class MValue<T> implements ModelElement<T> {
         this.tok = tok;
     }
 
-    public T asJavaObject() {
-        return javaObject;
-    }
-
-    public T asEhcacheObject() {
+    public T asEhcacheObject(ClassLoader loader) {
         return javaObject;
     }
 
@@ -462,7 +458,6 @@ public abstract class MValue<T> implements ModelElement<T> {
         public MEnum(Token tok, String className, String value) throws CustomParseException {
             super(tok, "enum", Message.ENUM_LITERAL, value);
             this.className = className;
-            cacheJavaObject();
         }
 
         /*
@@ -471,8 +466,14 @@ public abstract class MValue<T> implements ModelElement<T> {
          */
         @Override
         protected Enum<T> constructJavaObject() {
-            return ParserSupport.makeEnumFromString(className, getValue());
+        	throw new UnsupportedOperationException();
         }
+        
+        @Override
+        public Enum<T> asEhcacheObject(ClassLoader loader) {
+            return ParserSupport.makeEnumFromString(loader, className, getValue());
+        }
+        
 
         /*
          * (non-Javadoc)

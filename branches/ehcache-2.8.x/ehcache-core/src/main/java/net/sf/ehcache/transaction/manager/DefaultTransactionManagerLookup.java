@@ -71,12 +71,17 @@ public class DefaultTransactionManagerLookup implements TransactionManagerLookup
 
     private final JndiSelector defaultJndiSelector = new GenericJndiSelector();
 
-    private final Selector[] transactionManagerSelectors = new Selector[] {defaultJndiSelector,
-        new GlassfishSelector(),
-        new WeblogicSelector(),
-        new BitronixSelector(),
-        new AtomikosSelector()
-    };
+    private final Selector[] transactionManagerSelectors;
+    
+    public DefaultTransactionManagerLookup() {
+        transactionManagerSelectors = new Selector[] {
+                defaultJndiSelector,
+                new GlassfishSelector(),
+                new WeblogicSelector(),
+                new BitronixSelector(),
+                new AtomikosSelector()
+            };
+    }
 
     /**
      * {@inheritDoc}

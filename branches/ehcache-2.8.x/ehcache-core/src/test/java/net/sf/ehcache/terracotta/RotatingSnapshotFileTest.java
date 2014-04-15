@@ -32,9 +32,11 @@ public class RotatingSnapshotFileTest {
     @Rule
     public final TemporaryFolder directory = new TemporaryFolder();
     
+    private final ClassLoader loader = getClass().getClassLoader();
+    
     @Test
     public void testSuccessfulWrite() throws IOException {
-        RotatingSnapshotFile snapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(directory.getRoot().getAbsolutePath()), "test");
+        RotatingSnapshotFile snapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(directory.getRoot().getAbsolutePath()), "test", loader);
         Set<Object> keys = populateWithValues(snapshotFile, 100);
         assertThat(snapshotFile.currentSnapshotFile().exists(), is(true));
         assertThat(snapshotFile.tempSnapshotFile().exists(), is(false));
@@ -45,7 +47,7 @@ public class RotatingSnapshotFileTest {
 
     @Test
     public void testStopsOnThreadInterrupted() throws IOException, InterruptedException {
-        final RotatingSnapshotFile file = new RotatingSnapshotFile(new DiskStorePathManager(directory.getRoot().getAbsolutePath()), "killMe");
+        final RotatingSnapshotFile file = new RotatingSnapshotFile(new DiskStorePathManager(directory.getRoot().getAbsolutePath()), "killMe", loader);
         final AtomicReference<Throwable> throwable = new AtomicReference<Throwable>();
         Set<Object> keys = populateWithValues(file, 100);
         assertThat(file.currentSnapshotFile().exists(), is(true));
@@ -108,7 +110,7 @@ public class RotatingSnapshotFileTest {
 
     @Test
     public void testFinishesOnThreadInterrupted() throws IOException, InterruptedException {
-        final RotatingSnapshotFile file = new RotatingSnapshotFile(new DiskStorePathManager(directory.getRoot().getAbsolutePath()), "killMe");
+        final RotatingSnapshotFile file = new RotatingSnapshotFile(new DiskStorePathManager(directory.getRoot().getAbsolutePath()), "killMe", loader);
         final AtomicReference<Throwable> throwable = new AtomicReference<Throwable>();
         Set<Object> keys = populateWithValues(file, 100);
         assertThat(file.currentSnapshotFile().exists(), is(true));

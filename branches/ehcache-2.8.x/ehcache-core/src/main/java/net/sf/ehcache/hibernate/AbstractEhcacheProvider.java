@@ -19,7 +19,6 @@ import java.net.URL;
 import java.util.Properties;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.Timestamper;
 
 import org.hibernate.cache.Cache;
@@ -101,7 +100,7 @@ abstract class AbstractEhcacheProvider implements CacheProvider {
      * Load the supplied resource from the classpath.
      */
     protected URL loadResource(String configurationResourceName) {
-        ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();
+        ClassLoader standardClassloader = Thread.currentThread().getContextClassLoader();
         URL url = null;
         if (standardClassloader != null) {
             url = standardClassloader.getResource(configurationResourceName);

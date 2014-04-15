@@ -17,7 +17,6 @@
 package net.sf.ehcache.terracotta.upgradability.serialization;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Comparator;
 
 import net.sf.ehcache.transaction.TransactionID;

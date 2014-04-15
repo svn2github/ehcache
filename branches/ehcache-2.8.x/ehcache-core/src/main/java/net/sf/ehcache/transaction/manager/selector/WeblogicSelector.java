@@ -16,8 +16,6 @@
 package net.sf.ehcache.transaction.manager.selector;
 
 import net.sf.ehcache.transaction.xa.EhcacheXAResource;
-import net.sf.ehcache.util.ClassLoaderUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +49,7 @@ public class WeblogicSelector extends FactorySelector {
 
         String uniqueName = ehcacheXAResource.getCacheName();
         try {
-            Class tmImplClass = ClassLoaderUtil.loadClass("weblogic.transaction.TransactionManager");
+            Class tmImplClass = Class.forName("weblogic.transaction.TransactionManager");
 
             Class[] signature = new Class[] {String.class, XAResource.class};
             Object[] args = new Object[] {uniqueName, ehcacheXAResource};
@@ -73,7 +71,7 @@ public class WeblogicSelector extends FactorySelector {
 
         String uniqueName = ehcacheXAResource.getCacheName();
         try {
-            Class tmImplClass = ClassLoaderUtil.loadClass("weblogic.transaction.TransactionManager");
+            Class tmImplClass = Class.forName("weblogic.transaction.TransactionManager");
 
             Class[] signature = new Class[] {String.class, Boolean.TYPE};
             Object[] args = new Object[] {uniqueName, Boolean.TRUE};

@@ -28,7 +28,6 @@ import net.sf.ehcache.hibernate.regions.EhcacheEntityRegion;
 import net.sf.ehcache.hibernate.regions.EhcacheCollectionRegion;
 import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactory;
 import net.sf.ehcache.hibernate.strategy.EhcacheAccessStrategyFactoryImpl;
-import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.Timestamper;
 
 import org.hibernate.cache.CacheDataDescription;
@@ -166,7 +165,7 @@ abstract class AbstractEhcacheRegionFactory implements RegionFactory {
      * Load a resource from the classpath.
      */
     protected static URL loadResource(String configurationResourceName) {
-        ClassLoader standardClassloader = ClassLoaderUtil.getStandardClassLoader();
+        ClassLoader standardClassloader = Thread.currentThread().getContextClassLoader();
         URL url = null;
         if (standardClassloader != null) {
             url = standardClassloader.getResource(configurationResourceName);

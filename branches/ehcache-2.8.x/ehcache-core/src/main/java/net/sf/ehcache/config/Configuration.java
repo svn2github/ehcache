@@ -19,6 +19,7 @@ package net.sf.ehcache.config;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.EhcacheDefaultClassLoader;
 import net.sf.ehcache.FeaturesManager;
 import net.sf.ehcache.ObjectExistsException;
 import net.sf.ehcache.Status;
@@ -26,7 +27,6 @@ import net.sf.ehcache.config.generator.ConfigurationSource;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
-import net.sf.ehcache.util.ClassLoaderUtil;
 import net.sf.ehcache.util.PropertyUtil;
 
 import org.slf4j.Logger;
@@ -197,6 +197,7 @@ public final class Configuration {
     private String maxBytesLocalOffHeapInput;
     private Long maxBytesLocalDisk;
     private String maxBytesLocalDiskInput;
+    private volatile ClassLoader classLoader = EhcacheDefaultClassLoader.getInstance();
 
     /**
      * Empty constructor, which is used by {@link ConfigurationFactory}, and can be also used programmatically.
@@ -582,7 +583,7 @@ public final class Configuration {
 
     private long getOffHeapLimit() {
         try {
-            Class<Store> enterpriseFmClass = ClassLoaderUtil.loadClass(FeaturesManager.ENTERPRISE_FM_CLASSNAME);
+            Class<Store> enterpriseFmClass = (Class<Store>) Class.forName(FeaturesManager.ENTERPRISE_FM_CLASSNAME);
 
             try {
                 return (Long)enterpriseFmClass.getMethod("getMaxBytesAllocatable").invoke(null);
@@ -1172,10 +1173,18 @@ public final class Configuration {
             }
             FactoryConfiguration lookupConfiguration = getTransactionManagerLookupConfiguration();
             try {
-                Properties properties = PropertyUtil.parseProperties(lookupConfiguration.getProperties(), lookupConfiguration
-                    .getPropertySeparator());
-                Class<TransactionManagerLookup> transactionManagerLookupClass = (Class<TransactionManagerLookup>) Class
-                        .forName(lookupConfiguration.getFullyQualifiedClassPath());
+                Properties properties = PropertyUtil.parseProperties(lookupConfiguration.getProperties(),
+                        lookupConfiguration.getPropertySeparator());
+                
+                ClassLoader loader = getClassLoader(); 
+                
+                // when loading the default impl use the same loader as ehcache itself
+                if (DEFAULT_TRANSACTION_MANAGER_LOOKUP_CONFIG.getFullyQualifiedClassPath().equals(lookupConfiguration.getFullyQualifiedClassPath())) {                                                                      
+                    loader = getClass().getClassLoader();
+                }                
+                
+                Class<? extends TransactionManagerLookup> transactionManagerLookupClass = (Class<? extends TransactionManagerLookup>) loader
+                        .loadClass(lookupConfiguration.getFullyQualifiedClassPath());
                 this.transactionManagerLookup = transactionManagerLookupClass.newInstance();
                 this.transactionManagerLookup.setProperties(properties);
             } catch (Exception e) {
@@ -1284,5 +1293,20 @@ public final class Configuration {
         public boolean hasOffHeapPool() {
             return isMaxBytesLocalOffHeapSet();
         }
+    }
+
+    public ClassLoader getClassLoader() {
+        return this.classLoader;
+    }
+
+    /**
+     * Set the classloader for the cache manager (and it's associated caches) to use when creating application objects (eg. cache values,
+     * event listeners, etc). The default classloading behavior is to prefer Thread.currentThread().getContextClassLoader() and fallback
+     * to the classloader that loaded ehcache itself. 
+     * 
+     * @param loader the classloader to use
+     */
+    public void setClassLoader(ClassLoader loader) {
+        this.classLoader = loader;
     }
 }

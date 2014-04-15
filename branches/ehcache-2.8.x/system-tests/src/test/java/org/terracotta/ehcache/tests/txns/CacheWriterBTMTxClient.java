@@ -93,6 +93,7 @@ public class CacheWriterBTMTxClient extends AbstractTxClient {
       this.pds = pds;
     }
 
+    @Override
     public void write(Element element) throws CacheException {
       try {
         Connection conn = pds.getConnection();
@@ -108,6 +109,7 @@ public class CacheWriterBTMTxClient extends AbstractTxClient {
       }
     }
 
+    @Override
     public void delete(CacheEntry entry) throws CacheException {
       try {
         Connection conn = pds.getConnection();

@@ -113,7 +113,7 @@ public class KeySnapshotterTest {
         CacheManager manager = new CacheManager(new Configuration().name("testDisposesProperlyImmediately"));
         try {
             deleteFolder(new File(DUMPS_DIRECTORY));
-            final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DUMPS_DIRECTORY), "testingInterruptImmediate");
+            final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DUMPS_DIRECTORY), "testingInterruptImmediate", getClass().getClassLoader());
             final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
             KeySnapshotter snapshotter = new KeySnapshotter(createFakeTcClusteredCache(manager, mockedTcStore), 1, true, rotatingSnapshotFile);
             final CyclicBarrier barrier = new CyclicBarrier(2);
@@ -161,7 +161,7 @@ public class KeySnapshotterTest {
         CacheManager manager = new CacheManager(new Configuration().name("testDisposesProperlyImmediately"));
         try {
             deleteFolder(new File(DUMPS_DIRECTORY));
-            final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DUMPS_DIRECTORY), "testingInterruptFinishes");
+            final RotatingSnapshotFile rotatingSnapshotFile = new RotatingSnapshotFile(new DiskStorePathManager(DUMPS_DIRECTORY), "testingInterruptFinishes", getClass().getClassLoader());
             final TerracottaStore mockedTcStore = mock(TerracottaStore.class);
             final CyclicBarrier barrier = new CyclicBarrier(2);
             final Set mockedSet = mock(Set.class);

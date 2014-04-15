@@ -11,8 +11,6 @@ import java.net.URL;
 import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.util.ClassLoaderUtil;
-
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -40,7 +38,7 @@ public class EhCacheRegionFactoryTest {
 
     @Test
     public void testLoadingFromOutsideTheClasspath() {
-        URL resource = ClassLoaderUtil.getStandardClassLoader().getResource("hibernate-config/ehcache.xml");
+        URL resource = Thread.currentThread().getContextClassLoader().getResource("hibernate-config/ehcache.xml");
         config.setProperty("net.sf.ehcache.configurationResourceName", "file://" + resource.getFile());
         SessionFactory sessionFactory = null;
         try {
@@ -55,7 +53,7 @@ public class EhCacheRegionFactoryTest {
 
     @Test
     public void testOverwritesCacheManager() throws NoSuchFieldException, IllegalAccessException {
-        URL resource = ClassLoaderUtil.getStandardClassLoader().getResource("hibernate-config/ehcache.xml");
+        URL resource = Thread.currentThread().getContextClassLoader().getResource("hibernate-config/ehcache.xml");
         config.setProperty("net.sf.ehcache.configurationResourceName", "file://" + resource.getFile());
         config.setProperty("net.sf.ehcache.cacheManagerName", "overwrittenCacheManagerName");
         SessionFactory sessionFactory = config.buildSessionFactory();

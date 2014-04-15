@@ -63,7 +63,7 @@ public class StronglyConsistentCacheAccessor extends EhcacheDecoratorAdapter {
 
         elementComparator = underlyingCache.getCacheConfiguration()
                 .getElementValueComparatorConfiguration()
-                .createElementComparatorInstance(underlyingCache.getCacheConfiguration());
+                .createElementComparatorInstance(underlyingCache.getCacheConfiguration(), underlyingCache.getCacheConfiguration().getClassLoader());
     }
 
     @Override

@@ -94,6 +94,9 @@ public class CopyOnReadTest extends AbstractCacheTestBase {
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
+      Class c = findLoadedClass(name);
+      if (c != null) { return c; }
+
       if (name.equals(ValueHolder.class.getName())) {
         InputStream in = getClass().getClassLoader().getResourceAsStream(name.replace('.', '/').concat(".class"));
         byte[] b;

@@ -71,7 +71,7 @@ public class TerracottaClient {
             if (tcUrl != null && tcUrl.contains("@") && secretProviderClassname != null) {
                 try {
                     System.setProperty(CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY, CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME);
-                    Class<?> secretProviderWrapperClass = ClassLoaderUtil.loadClass(CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME);
+                    Class<?> secretProviderWrapperClass = Class.forName(CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME);
                     secretProviderWrapperClass.getMethod("useAsDelegate", String.class).invoke(secretProviderWrapperClass, secretProviderClassname);
                 } catch (Exception e) {
                     throw new CacheException("Unable to initialize " + CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME, e);
@@ -174,7 +174,7 @@ public class TerracottaClient {
         }
         info("Creating new ClusteredInstanceFactory");
         ClusteredInstanceFactory factory;
-        factory = TerracottaClusteredInstanceHelper.getInstance().newClusteredInstanceFactory(terracottaClientConfiguration);
+        factory = TerracottaClusteredInstanceHelper.getInstance().newClusteredInstanceFactory(terracottaClientConfiguration, cacheManager.getConfiguration().getClassLoader());
         CacheCluster underlyingCacheCluster = factory.getTopology();
 
         cacheCluster.setUnderlyingCacheCluster(underlyingCacheCluster);

@@ -18,6 +18,6 @@ package net.sf.ehcache.search.parser;
 
 public interface ModelElement<T> {
 
-    public T asEhcacheObject();
+    public T asEhcacheObject(ClassLoader loader);
 
 }

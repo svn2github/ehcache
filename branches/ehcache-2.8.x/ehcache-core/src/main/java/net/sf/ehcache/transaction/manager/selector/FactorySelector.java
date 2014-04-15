@@ -15,8 +15,6 @@
  */
 package net.sf.ehcache.transaction.manager.selector;
 
-import net.sf.ehcache.util.ClassLoaderUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +33,7 @@ public abstract class FactorySelector extends Selector {
 
     private final String factoryClassName;
     private final String factoryMethodName;
-
+    
     /**
      * Constructor
      *
@@ -57,7 +55,7 @@ public abstract class FactorySelector extends Selector {
         TransactionManager transactionManager = null;
 
         try {
-            Class factoryClass = ClassLoaderUtil.loadClass(factoryClassName);
+            Class factoryClass = Class.forName(factoryClassName);
             Class[] signature = null;
             Object[] args = null;
             Method method = factoryClass.getMethod(factoryMethodName, signature);
@@ -73,4 +71,6 @@ public abstract class FactorySelector extends Selector {
         }
         return transactionManager;
     }
+
+    
 }

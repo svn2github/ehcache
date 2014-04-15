@@ -111,18 +111,18 @@ public class MAggregate implements ModelElement<Aggregator> {
      *
      * @return the aggregator
      */
-    public Aggregator asEhcacheObject() {
+    public Aggregator asEhcacheObject(ClassLoader loader) {
         switch (op) {
             case Sum:
-                return ma.asEhcacheObject().sum();
+                return ma.asEhcacheObject(loader).sum();
             case Min:
-                return ma.asEhcacheObject().min();
+                return ma.asEhcacheObject(loader).min();
             case Max:
-                return ma.asEhcacheObject().max();
+                return ma.asEhcacheObject(loader).max();
             case Count:
-                return ma.asEhcacheObject().count();
+                return ma.asEhcacheObject(loader).count();
             case Average:
-                return ma.asEhcacheObject().average();
+                return ma.asEhcacheObject(loader).average();
         }
         throw new IllegalStateException("Unknown agg operator: " + op);
     }

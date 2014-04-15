@@ -8,13 +8,12 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.transaction.manager.DefaultTransactionManagerLookup;
 import net.sf.ehcache.transaction.manager.TransactionManagerLookup;
 
+import org.junit.Assert;
 import org.terracotta.toolkit.Toolkit;
 
 import java.io.Serializable;
 
 import javax.transaction.TransactionManager;
-
-import org.junit.Assert;
 
 public class SimpleTx1 extends AbstractTxClient {
 

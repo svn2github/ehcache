@@ -27,14 +27,14 @@ public class NullReadWriteCopyStrategy implements ReadWriteCopyStrategy<Element>
     /**
      * {@inheritDoc}
      */
-    public Element copyForWrite(Element value) {
+    public Element copyForWrite(Element value, ClassLoader loader) {
         return value;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Element copyForRead(Element storedValue) {
+    public Element copyForRead(Element storedValue, ClassLoader loader) {
         return storedValue;
     }
 }

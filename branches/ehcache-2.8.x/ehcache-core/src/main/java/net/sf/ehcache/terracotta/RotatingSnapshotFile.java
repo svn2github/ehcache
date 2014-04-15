@@ -31,7 +31,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.DiskStorePathManager;
-import net.sf.ehcache.util.PreferTCCLObjectInputStream;
+import net.sf.ehcache.util.PreferredLoaderObjectInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +56,8 @@ class RotatingSnapshotFile {
     private final Lock writeLock;
     private final DiskStorePathManager diskStorePathManager;
 
+    private final ClassLoader classLoader;
+
     {
         ReadWriteLock rwl = new ReentrantReadWriteLock();
         readLock = rwl.readLock();
@@ -67,9 +69,10 @@ class RotatingSnapshotFile {
      *
      * @param cacheName  use as base name of the files
      */
-    RotatingSnapshotFile(final DiskStorePathManager diskStorePathManager, final String cacheName) {
+    RotatingSnapshotFile(final DiskStorePathManager diskStorePathManager, final String cacheName, final ClassLoader classLoader) {
         this.diskStorePathManager = diskStorePathManager;
         this.cacheName = cacheName;
+        this.classLoader = classLoader;
     }
 
     /**
@@ -133,7 +136,7 @@ class RotatingSnapshotFile {
             final Set<T> values = new HashSet<T>();
             FileInputStream fis = new FileInputStream(currentSnapshot);
             try {
-                ObjectInputStream ois = new PreferTCCLObjectInputStream(fis);
+                ObjectInputStream ois = new PreferredLoaderObjectInputStream(fis, classLoader);
                 boolean eof = false;
                 while (!eof) {
                     try {
