@@ -1,22 +1,26 @@
 package net.sf.ehcache.pool;
 
-import java.io.IOException;
-
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import junit.framework.Assert;
-
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.MemoryUnit;
+import net.sf.ehcache.store.FrontEndCacheTier;
+import net.sf.ehcache.store.MemoryStore;
+import net.sf.ehcache.util.ratestatistics.AtomicRateStatistic;
 
 import org.junit.After;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import junit.framework.Assert;
 
 public class TwinCachesTest {
 
@@ -226,7 +230,8 @@ public class TwinCachesTest {
     public void testIntroducedRandomAccessTripletCache() throws Exception {
         manager = new CacheManager(new Configuration().maxBytesLocalHeap(2, MemoryUnit.MEGABYTES).defaultCache(new CacheConfiguration("default", 0).eternal(true)));
 
-        Ehcache one = manager.addCacheIfAbsent("one");
+        final Ehcache one = manager.addCacheIfAbsent("one");
+        configureMemoryStoreStatsWithSmallerAverageWindowToSupportFastRuns(one);
 
         final int MAX = 1024 * 32;
 
@@ -243,7 +248,8 @@ public class TwinCachesTest {
         Random rndm = new Random(seed);
         float ratio = rndm.nextFloat();
 
-        Ehcache two = manager.addCacheIfAbsent("two");
+        final Ehcache two = manager.addCacheIfAbsent("two");
+        configureMemoryStoreStatsWithSmallerAverageWindowToSupportFastRuns(two);
 
         for (int i = 0; i < 20 * MAX; i++) {
             Ehcache chosen = (rndm.nextFloat() < ratio) ? one : two;
@@ -268,32 +274,24 @@ public class TwinCachesTest {
         float ratioOne = rndm.nextFloat();
         float ratioTwo = (rndm.nextFloat() * (1 - ratioOne)) + ratioOne;
 
-        Ehcache three = manager.addCacheIfAbsent("three");
+        final Ehcache three = manager.addCacheIfAbsent("three");
+        configureMemoryStoreStatsWithSmallerAverageWindowToSupportFastRuns(three);
 
-        for (int j = 0; j < 20; j++) {
-            long start = System.nanoTime();
-            for (int i = 0; i < MAX; i++) {
-                Ehcache chosen;
-                float choice = rndm.nextFloat();
-                if (choice < ratioOne) {
-                    chosen = one;
-                } else if (choice < ratioTwo) {
-                    chosen = two;
-                } else {
-                    chosen = three;
-                }
-
-                int key = getRandomKey(rndm, MAX);
-                Element e = chosen.get(key);
-                if (e == null) {
-                    chosen.put(new Element(key, new byte[128]));
-                }
+        for (int i = 0; i < 20 * MAX; i++) {
+            Ehcache chosen;
+            float choice = rndm.nextFloat();
+            if (choice < ratioOne) {
+                chosen = one;
+            } else if (choice < ratioTwo) {
+                chosen = two;
+            } else {
+                chosen = three;
             }
-            long timeTaken = System.nanoTime() - start;
-            long sleepTime = TimeUnit.MILLISECONDS.toNanos(250) - timeTaken;
-            if (sleepTime > 0) {
-                System.out.println("Sleeping for " + sleepTime);
-                TimeUnit.NANOSECONDS.sleep(sleepTime);
+
+            int key = getRandomKey(rndm, MAX);
+            Element e = chosen.get(key);
+            if (e == null) {
+                chosen.put(new Element(key, new byte[128]));
             }
         }
 
@@ -309,6 +307,21 @@ public class TwinCachesTest {
         Assert.assertEquals(ratioOne, ((float) one.getSize()) / totalThree, 0.1f);
         Assert.assertEquals(ratioTwo - ratioOne, ((float) two.getSize()) / totalThree, 0.1f);
         Assert.assertEquals(1 - ratioTwo, ((float)three.getSize()) / totalThree, 0.1f);
+    }
+
+    private void configureMemoryStoreStatsWithSmallerAverageWindowToSupportFastRuns(Ehcache cache) throws Exception {
+        FrontEndCacheTier cacheTier = (FrontEndCacheTier)new CacheStoreHelper((net.sf.ehcache.Cache)cache).getStore();
+        Field authority = FrontEndCacheTier.class.getDeclaredField("authority");
+        authority.setAccessible(true);
+        MemoryStore store = (MemoryStore)authority.get(cacheTier);
+
+        Field hitRate = MemoryStore.class.getDeclaredField("hitRate");
+        hitRate.setAccessible(true);
+        hitRate.set(store, new AtomicRateStatistic(200, TimeUnit.MILLISECONDS));
+
+        Field missRate = MemoryStore.class.getDeclaredField("missRate");
+        missRate.setAccessible(true);
+        missRate.set(store, new AtomicRateStatistic(200, TimeUnit.MILLISECONDS));
     }
 
     @Test
