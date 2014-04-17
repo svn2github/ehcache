@@ -34,6 +34,8 @@ import net.sf.ehcache.util.PreferredLoaderObjectInputStream;
  */
 public class ReadWriteSerializationCopyStrategy implements ReadWriteCopyStrategy<Element> {
 
+    private static final long serialVersionUID = 2659269742281205622L;
+    
     /**
      * @inheritDoc
      */

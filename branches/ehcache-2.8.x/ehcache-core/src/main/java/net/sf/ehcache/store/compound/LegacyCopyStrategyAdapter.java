@@ -24,6 +24,8 @@ import net.sf.ehcache.Element;
  */
 public class LegacyCopyStrategyAdapter implements ReadWriteCopyStrategy<Element> {
 
+    private static final long serialVersionUID = -6986893869400882078L;
+    
     private final CopyStrategy legacyCopyStrategy;
 
     /**

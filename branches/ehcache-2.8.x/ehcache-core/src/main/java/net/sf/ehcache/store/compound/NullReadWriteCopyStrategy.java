@@ -24,6 +24,8 @@ import net.sf.ehcache.Element;
  */
 public class NullReadWriteCopyStrategy implements ReadWriteCopyStrategy<Element> {
 
+    private static final long serialVersionUID = -3210079128116741621L;
+    
     /**
      * {@inheritDoc}
      */
