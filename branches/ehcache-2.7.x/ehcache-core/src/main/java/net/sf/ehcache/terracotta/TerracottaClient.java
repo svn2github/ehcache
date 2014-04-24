@@ -16,12 +16,6 @@
 
 package net.sf.ehcache.terracotta;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.cluster.CacheCluster;
@@ -31,6 +25,12 @@ import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Class encapsulating the idea of a Terracotta client. Provides access to the {@link ClusteredInstanceFactory} for the cluster
@@ -43,7 +43,7 @@ public class TerracottaClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
     private static final int REJOIN_SLEEP_MILLIS_ON_EXCEPTION = Integer.getInteger("net.sf.ehcache.rejoin.sleepMillisOnException", 5000);
 
-    private static final String CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY = "com.terracotta.express.SecretProvider";
+    public static final String CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY = "com.terracotta.express.SecretProvider";
     private static final String CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME = "net.sf.ehcache.terracotta.security.SingletonSecretProviderWrapper";
 
     private final TerracottaClientConfiguration terracottaClientConfiguration;
@@ -53,11 +53,10 @@ public class TerracottaClient {
     private ExecutorService l1TerminatorThreadPool;
 
     /**
-     * Constructor accepting the {@link TerracottaClientRejoinListener} and the {@link TerracottaClientConfiguration}
+     * Constructor accepting the {@link CacheManager} and the {@link TerracottaClientConfiguration}
      *
-     * @param cacheManager
-     * @param rejoinAction
-     * @param terracottaClientConfiguration
+     * @param cacheManager the cache manager to be clustered
+     * @param terracottaClientConfiguration the configuration for the terracotta client
      */
     public TerracottaClient(CacheManager cacheManager, TerracottaClientConfiguration terracottaClientConfiguration) {
         this.cacheManager = cacheManager;
@@ -114,7 +113,7 @@ public class TerracottaClient {
      * Returns true if the clusteredInstanceFactory was created, otherwise returns false.
      * Multiple threads calling this method block and only one of them creates the factory.
      *
-     * @param cacheConfigs
+     * @param cacheConfigs map of cache names to cache configurations
      * @return true if the clusteredInstanceFactory was created, otherwise returns false
      */
     public boolean createClusteredInstanceFactory(Map<String, CacheConfiguration> cacheConfigs) {
