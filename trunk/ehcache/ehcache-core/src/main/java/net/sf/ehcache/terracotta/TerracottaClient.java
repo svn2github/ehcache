@@ -40,6 +40,9 @@ public class TerracottaClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
     private static final int REJOIN_SLEEP_MILLIS_ON_EXCEPTION = Integer.getInteger("net.sf.ehcache.rejoin.sleepMillisOnException", 5000);
 
+    /**
+     * System property used to specify the secrect provider to use
+     */
     public static final String CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY = "com.terracotta.express.SecretProvider";
     private static final String CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME = "net.sf.ehcache.terracotta.security.SingletonSecretProviderWrapper";
 
@@ -154,7 +157,7 @@ public class TerracottaClient {
     
     /**
      * Wait for the Orchestrator for this CacheManager
-     * @param cacheManagerName
+     * @param cacheManagerName Name of the cache manager
      */
     public void waitForOrchestrator(String cacheManagerName) {
         clusteredInstanceFactory.waitForOrchestrator(cacheManagerName);
