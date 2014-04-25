@@ -526,6 +526,11 @@ public class WanAwareToolkitCache<K, V> implements BufferingToolkitCache<K, V>, 
   }
 
   @Override
+  public Map<K, VersionedValue<V>> getAllVersioned(final Collection<K> keys) {
+    return delegate.getAllVersioned(keys);
+  }
+
+  @Override
   public void removeListener(final ToolkitCacheListener<K> listener) {
     delegate.removeListener(listener);
   }
