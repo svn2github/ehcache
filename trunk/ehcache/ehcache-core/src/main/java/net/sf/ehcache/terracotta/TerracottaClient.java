@@ -37,13 +37,14 @@ import java.util.concurrent.ThreadFactory;
  */
 public class TerracottaClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
-    private static final int REJOIN_SLEEP_MILLIS_ON_EXCEPTION = Integer.getInteger("net.sf.ehcache.rejoin.sleepMillisOnException", 5000);
-
     /**
      * System property used to specify the secrect provider to use
      */
     public static final String CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY = "com.terracotta.express.SecretProvider";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
+    private static final int REJOIN_SLEEP_MILLIS_ON_EXCEPTION = Integer.getInteger("net.sf.ehcache.rejoin.sleepMillisOnException", 5000);
+
     private static final String CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME = "net.sf.ehcache.terracotta.security.SingletonSecretProviderWrapper";
 
     private final TerracottaClientConfiguration terracottaClientConfiguration;
