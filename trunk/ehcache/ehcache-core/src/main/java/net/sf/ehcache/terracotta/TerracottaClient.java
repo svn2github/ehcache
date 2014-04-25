@@ -20,7 +20,6 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
-import net.sf.ehcache.util.ClassLoaderUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public class TerracottaClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(TerracottaClient.class);
     private static final int REJOIN_SLEEP_MILLIS_ON_EXCEPTION = Integer.getInteger("net.sf.ehcache.rejoin.sleepMillisOnException", 5000);
 
-    private static final String CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY = "com.terracotta.express.SecretProvider";
+    public static final String CUSTOM_SECRET_PROVIDER_SYSTEM_PROPERTY = "com.terracotta.express.SecretProvider";
     private static final String CUSTOM_SECRET_PROVIDER_WRAPPER_CLASSNAME = "net.sf.ehcache.terracotta.security.SingletonSecretProviderWrapper";
 
     private final TerracottaClientConfiguration terracottaClientConfiguration;
@@ -53,8 +52,8 @@ public class TerracottaClient {
     /**
      * Constructor accepting the {@link CacheManager} and the {@link TerracottaClientConfiguration}
      *
-     * @param cacheManager
-     * @param terracottaClientConfiguration
+     * @param cacheManager the cache manager to be clustered
+     * @param terracottaClientConfiguration the configuration for the terracotta client
      */
     public TerracottaClient(CacheManager cacheManager, TerracottaClientConfiguration terracottaClientConfiguration) {
         this.cacheManager = cacheManager;
