@@ -31,4 +31,4 @@ How to monitor cache usage with the Terracotta Management Console
 With the sample running, you can monitor the runtime statistics
 of the cache using the Terracotta Management console.
 
-See http://terracotta.org/documentation/4.1/tms/tms for more information.
+See http://terracotta.org/documentation/tms/tms for more information.
