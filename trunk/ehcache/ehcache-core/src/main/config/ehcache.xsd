@@ -236,6 +236,7 @@
         </xs:sequence>
         <xs:attribute name="keys" use="optional" type="xs:boolean" default="true"/>
         <xs:attribute name="values" use="optional" type="xs:boolean" default="true"/>
+        <xs:attribute name="allowDynamicIndexing" use="optional" type="xs:boolean" default="false"/>
       </xs:complexType>
     </xs:element>
 

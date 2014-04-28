@@ -692,6 +692,14 @@ Here is an example of CacheManager level resource tuning, which will use up to 4
     	<searchable>
 	</cache>
 
+    If you intend to use dynamic attribute extraction (see net.sf.ehcache.Cache.registerDynamicAttributesExtractor) then
+    you need to enable it as follows:
+
+    <cache>
+        <searchable allowDynamicIndexing="true"/>
+    </cache>
+
+
     RMI Cache Replication
     +++++++++++++++++++++
 
