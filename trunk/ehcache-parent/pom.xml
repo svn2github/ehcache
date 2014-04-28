@@ -448,6 +448,7 @@
   <scm>
     <connection>scm:svn:http://svn.terracotta.org/svn/ehcache/trunk/ehcache-parent</connection>
     <developerConnection>scm:svn:https://svn.terracotta.org/repo/ehcache/trunk/ehcache-parent</developerConnection>
+    <url>http://svn.terracotta.org/svn/ehcache/trunk/ehcache-parent/</url>
   </scm>
 
 </project>
