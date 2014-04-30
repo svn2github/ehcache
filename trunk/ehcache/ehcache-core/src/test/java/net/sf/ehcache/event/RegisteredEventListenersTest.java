@@ -46,15 +46,17 @@ import org.junit.Test;
  * 
  */
 public class RegisteredEventListenersTest {
-    private RegisteredEventListeners createRegisteredEventListeners() {
+    private RegisteredEventListeners createRegisteredEventListeners(TerracottaStore store) {
         Ehcache cache = mock(Ehcache.class);
+        when(cache.getStatus()).thenReturn(Status.STATUS_ALIVE);
         CacheStoreHelper cacheStoreHelper = mock(CacheStoreHelper.class);
+        when(cacheStoreHelper.getStore()).thenReturn(store);
         return new RegisteredEventListeners(cache, cacheStoreHelper);
     }
 
     @Test
     public void testDetectRegisterCacheReplicator() {
-        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners();
+        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners(null);
 
         CacheEventListener listener = mock(CacheReplicator.class);
         registeredEventListeners.registerListener(listener);
@@ -63,7 +65,7 @@ public class RegisteredEventListenersTest {
 
     @Test
     public void testDetectRegisterNonCacheReplicator() {
-        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners();
+        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners(null);
 
         CacheEventListener listener = mock(CacheEventListener.class);
         registeredEventListeners.registerListener(listener);
@@ -72,7 +74,7 @@ public class RegisteredEventListenersTest {
 
     @Test
     public void testCanRegisterListener() {
-        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners();
+        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners(null);
 
         CacheEventListener listener = mock(CacheEventListener.class);
 
@@ -83,7 +85,7 @@ public class RegisteredEventListenersTest {
 
     @Test
     public void testCanUnregisterListener() throws Exception {
-        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners();
+        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners(null);
         CacheEventListener listener = mock(CacheEventListener.class);
 
         registeredEventListeners.registerListener(listener);
@@ -95,7 +97,7 @@ public class RegisteredEventListenersTest {
 
     @Test
     public void testCacheReplicatorAccounting() throws Exception {
-        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners();
+        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners(null);
 
         CacheEventListener listener1 = mock(CacheEventListener.class);
         CacheEventListener listener2 = mock(CacheEventListener.class);
@@ -117,13 +119,8 @@ public class RegisteredEventListenersTest {
 
     @Test
     public void testNotifyTerracottaStoreOfListenerChangeOnRegister() throws Exception {
-        Ehcache cache = mock(Ehcache.class);
-        when(cache.getStatus()).thenReturn(Status.STATUS_ALIVE);
         TerracottaStore store = mock(TerracottaStore.class);
-        CacheStoreHelper cacheStoreHelper = mock(CacheStoreHelper.class);
-        when(cacheStoreHelper.getStore()).thenReturn(store);
-        RegisteredEventListeners registeredEventListeners = new RegisteredEventListeners(cache, cacheStoreHelper);
-
+        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners(store);
         CacheEventListener listener = mock(CacheEventListener.class);
 
         registeredEventListeners.registerListener(listener);
@@ -132,12 +129,8 @@ public class RegisteredEventListenersTest {
 
     @Test
     public void testNotifyTerracottaStoreOfListenerChangeOnUnregister() throws Exception {
-        Ehcache cache = mock(Ehcache.class);
-        when(cache.getStatus()).thenReturn(Status.STATUS_ALIVE);
         TerracottaStore store = mock(TerracottaStore.class);
-        CacheStoreHelper cacheStoreHelper = mock(CacheStoreHelper.class);
-        when(cacheStoreHelper.getStore()).thenReturn(store);
-        RegisteredEventListeners registeredEventListeners = new RegisteredEventListeners(cache, cacheStoreHelper);
+        RegisteredEventListeners registeredEventListeners = createRegisteredEventListeners(store);
 
         CacheEventListener listener = mock(CacheEventListener.class);
 
