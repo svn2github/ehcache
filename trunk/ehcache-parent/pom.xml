@@ -37,6 +37,7 @@
     <terracotta-os-releases-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-os-releases</terracotta-os-releases-url>
     <terracotta-releases-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-releases</terracotta-releases-url>
     <terracotta-ee-releases-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-ee-releases</terracotta-ee-releases-url>
+    <terracotta-nexus-staging-url>http://nexus.terracotta.eur.ad.sag/service/local/staging/deploy/maven2</terracotta-nexus-staging-url>
   </properties>
 
   <build>
@@ -291,7 +292,7 @@
       <id>deploy-sonatype</id>
       <distributionManagement>
         <repository>
-          <id>sourceforge-releases</id>
+          <id>sonatype-nexus-staging</id>
           <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
       </distributionManagement>
@@ -304,7 +305,6 @@
       <name>Terracotta OS Releases Repository</name>
       <url>${terracotta-os-releases-url}</url>
     </repository>
-    <!-- Releases are deployed using the nexus-staging-maven-plugin, so release repository is not configured here. -->
     <snapshotRepository>
       <id>terracotta-os-snapshots</id>
       <uniqueVersion>false</uniqueVersion>
