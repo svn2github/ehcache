@@ -5,7 +5,7 @@
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
-    <version>2.5</version>
+    <version>2.12</version>
     <relativePath/>
   </parent>
 
@@ -323,11 +323,6 @@
   <profiles>
     <profile>
       <id>system-tests</id>
-      <!--activation>
-        <property>
-          <name>!jenkins.publisher</name>
-        </property>
-      </activation-->
       <modules>
         <module>system-tests</module>
       </modules>
@@ -339,6 +334,20 @@
       </modules>
     </profile>
   </profiles>
+
+  <distributionManagement>
+    <repository>
+      <id>terracotta-nexus-staging</id>
+      <name>Terracotta Nexus Staging Repository</name>
+      <url>${terracotta-nexus-staging-url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>terracotta-os-snapshots</id>
+       <uniqueVersion>false</uniqueVersion>
+       <name>Terracotta OS Snapshots Repository</name>
+       <url>${terracotta-os-snapshots-url}</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <repositories>
     <repository>
