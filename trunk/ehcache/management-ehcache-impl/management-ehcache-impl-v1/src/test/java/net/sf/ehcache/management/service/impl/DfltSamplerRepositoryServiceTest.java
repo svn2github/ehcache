@@ -35,7 +35,7 @@ public class DfltSamplerRepositoryServiceTest {
   public void setUp() throws Exception {
     ManagementRESTServiceConfiguration managementRESTServiceConfiguration = new ManagementRESTServiceConfiguration();
     managementRESTServiceConfiguration.setEnabled(true);
-    repositoryService = new DfltSamplerRepositoryService("123", managementRESTServiceConfiguration);
+    repositoryService = new DfltSamplerRepositoryService("123", managementRESTServiceConfiguration, null);
 
     CacheManager cacheManager = mock(CacheManager.class);
     Ehcache ehcache = mock(Ehcache.class);

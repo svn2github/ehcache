@@ -12,7 +12,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.AbstractManagementServer;
-import net.sf.ehcache.management.service.SamplerRepositoryService;
+import net.sf.ehcache.management.service.ManagementServerLifecycle;
 
 import org.easymock.IAnswer;
 import org.junit.After;
@@ -64,7 +64,7 @@ public class AbstractManagementServerTest {
     managementServer.start();
     PowerMock.verify(serverMock);
   }
-  
+
   @Test(expected = CacheException.class)
   /**
    * Verifies that managementServer.start() calls server.start() and rethrows the exception
@@ -72,7 +72,7 @@ public class AbstractManagementServerTest {
    */
   public void startTestException() throws Exception {
     StandaloneServer serverMock = PowerMock.createMock(StandaloneServer.class);
-    SamplerRepositoryService sampleRepositoryServiceMock = createMock(SamplerRepositoryService.class);
+    ManagementServerLifecycle sampleRepositoryServiceMock = createMock(ManagementServerLifecycle.class);
     ManagementServer managementServer = new ManagementServer(serverMock, sampleRepositoryServiceMock);
     serverMock.start();
     PowerMock.expectLastCall().andAnswer(new ExceptionAnswer<Object>());
@@ -86,7 +86,7 @@ public class AbstractManagementServerTest {
   @Test
   public void stopTest() throws Exception {
     StandaloneServer serverMock = PowerMock.createMock(StandaloneServer.class);
-    SamplerRepositoryService sampleRepositoryServiceMock = createMock(SamplerRepositoryService.class);
+    ManagementServerLifecycle sampleRepositoryServiceMock = createMock(ManagementServerLifecycle.class);
     ManagementServer managementServer = new ManagementServer(serverMock, sampleRepositoryServiceMock);
 
     serverMock.stop();
@@ -97,14 +97,14 @@ public class AbstractManagementServerTest {
     PowerMock.replay(serverMock);
     replay(sampleRepositoryServiceMock);
 
-    
+
     //stop is also calling ServiceLocator.unload() ; to make this is called, let's load it first
     //and assert it is unloaded after stop()
     managementServer.loadEmbeddedAgentServiceLocatorWithStringClass();
     assertNotNull(ServiceLocator.locate(String.class));
-    
+
     managementServer.stop();
-    
+
     IllegalStateException exceptionThrown = null;
     try {
       // since the servicelocator is unloaded, it should throw an exception
@@ -113,14 +113,14 @@ public class AbstractManagementServerTest {
       exceptionThrown = e;
     }
     assertNotNull(exceptionThrown);
-    
+
     PowerMock.verify(serverMock);
     verify(sampleRepositoryServiceMock);
   }
 
   @Test
   public void registerTest() {
-    SamplerRepositoryService sampleRepositoryServiceMock = createMock(SamplerRepositoryService.class);
+    ManagementServerLifecycle sampleRepositoryServiceMock = createMock(ManagementServerLifecycle.class);
     ManagementServer managementServer = new ManagementServer(null, sampleRepositoryServiceMock);
     sampleRepositoryServiceMock.register(cacheManager);
     expectLastCall().andAnswer(new NullAnswer<Object>());
@@ -132,7 +132,7 @@ public class AbstractManagementServerTest {
 
   @Test
   public void unregisterTest() {
-    SamplerRepositoryService sampleRepositoryServiceMock = createMock(SamplerRepositoryService.class);
+    ManagementServerLifecycle sampleRepositoryServiceMock = createMock(ManagementServerLifecycle.class);
     ManagementServer managementServer = new ManagementServer(null, sampleRepositoryServiceMock);
     sampleRepositoryServiceMock.unregister(cacheManager);
     expectLastCall().andAnswer(new NullAnswer<Object>());
@@ -143,7 +143,7 @@ public class AbstractManagementServerTest {
 
   @Test
   public void hasRegisteredTest() {
-    SamplerRepositoryService sampleRepositoryServiceMock = createMock(SamplerRepositoryService.class);
+    ManagementServerLifecycle sampleRepositoryServiceMock = createMock(ManagementServerLifecycle.class);
     ManagementServer managementServer = new ManagementServer(null, sampleRepositoryServiceMock);
     expect(sampleRepositoryServiceMock.hasRegistered()).andReturn(Boolean.TRUE);
     replay(sampleRepositoryServiceMock);
@@ -167,9 +167,9 @@ public class AbstractManagementServerTest {
 
   class ManagementServer extends AbstractManagementServer {
 
-    ManagementServer(StandaloneServer server, SamplerRepositoryService repositoryService) {
+    ManagementServer(StandaloneServer server, ManagementServerLifecycle repositoryService) {
       this.standaloneServer = server;
-      this.samplerRepoSvc = repositoryService;
+      this.managementServerLifecycles.add(repositoryService);
     }
 
     protected void loadEmbeddedAgentServiceLocatorWithStringClass() {
@@ -184,7 +184,5 @@ public class AbstractManagementServerTest {
     }
   }
 
-  
-  
 
 }

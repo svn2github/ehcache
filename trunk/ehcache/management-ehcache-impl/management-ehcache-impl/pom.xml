@@ -14,6 +14,11 @@
   <description>A product library implementing the ehcache management resource service interfaces and integrating with ehcache to construct the relevant management resource entities.</description>
 
   <dependencies>
+  <dependency>
+  <groupId>org.terracotta</groupId>
+  <artifactId>management-core</artifactId>
+  <version>1.2.3</version>
+  </dependency>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>management-ehcache</artifactId>

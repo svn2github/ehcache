@@ -32,7 +32,7 @@ public class ApplicationEhCacheTest {
     List<String> classpathElements = getClasspathElements();
 
     ApplicationEhCacheV1 applicationEhCache = new ApplicationEhCacheV1();
-    Set<Class<?>> applicationClasses = applicationEhCache.getClasses();
+    Set<Class<?>> applicationClasses = applicationEhCache.getRestResourceClasses();
 
     Set<Class<?>> allClassesFound = new HashSet<Class<?>>();
     for (String cpElement : classpathElements) {

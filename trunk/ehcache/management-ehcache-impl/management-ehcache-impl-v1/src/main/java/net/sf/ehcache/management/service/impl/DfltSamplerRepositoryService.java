@@ -40,14 +40,13 @@ import net.sf.ehcache.management.sampled.CacheSamplerImpl;
 import net.sf.ehcache.management.service.CacheManagerService;
 import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
-import net.sf.ehcache.management.service.SamplerRepositoryService;
+import net.sf.ehcache.management.service.ManagementServerLifecycle;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
-import org.terracotta.management.l1bridge.AbstractRemoteAgentEndpointImpl;
 import org.terracotta.management.l1bridge.RemoteCallDescriptor;
 import org.terracotta.management.l1bridge.RemoteCallException;
 import org.terracotta.management.resource.AgentEntity;
@@ -67,9 +66,9 @@ import org.terracotta.management.resource.services.Utils;
  *
  * @author brandony
  */
-public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImpl
-    implements SamplerRepositoryService, EntityResourceFactory, CacheManagerService, CacheService, AgentService,
-    DfltSamplerRepositoryServiceMBean {
+public class DfltSamplerRepositoryService
+implements ManagementServerLifecycle,
+EntityResourceFactory, CacheManagerService, CacheService, AgentService, DfltSamplerRepositoryServiceMBean {
 
   private static final Logger LOG = LoggerFactory.getLogger(DfltSamplerRepositoryService.class);
 
@@ -92,11 +91,15 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
   private volatile ObjectName objectName;
   protected final ManagementRESTServiceConfiguration configuration;
 
-  public DfltSamplerRepositoryService(String clientUUID, ManagementRESTServiceConfiguration configuration) {
+  private final RemoteAgentEndpointImpl remoteAgentEndpoint;
+
+  public DfltSamplerRepositoryService(String clientUUID, ManagementRESTServiceConfiguration configuration,
+      RemoteAgentEndpointImpl remoteAgentEndpoint) {
     this.configuration = configuration;
     if (clientUUID != null) {
       registerMBean(clientUUID);
     }
+    this.remoteAgentEndpoint = remoteAgentEndpoint;
   }
 
   private static void enableNonStopFor(SamplerRepoEntry samplerRepoEntry, boolean enable) {
@@ -150,35 +153,6 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
    * {@inheritDoc}
    */
   @Override
-  public byte[] invoke(RemoteCallDescriptor remoteCallDescriptor) throws RemoteCallException {
-    try {
-      tsaBridged.set(true);
-      return super.invoke(remoteCallDescriptor);
-    } finally {
-      tsaBridged.set(false);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getVersion() {
-    return this.getClass().getPackage().getImplementationVersion();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getAgency() {
-    return AGENCY;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void register(CacheManager cacheManager) {
     String cmName = cacheManager.getName();
     cacheManagerSamplerRepoLock.writeLock().lock();
@@ -197,6 +171,7 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
   /**
    * {@inheritDoc}
    */
+  @Override
   public void unregister(CacheManager cacheManager) {
     cacheManagerSamplerRepoLock.writeLock().lock();
 
@@ -228,7 +203,7 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
    */
   @Override
   public Collection<CacheManagerEntity> createCacheManagerEntities(Set<String> cacheManagerNames,
-                                                                   Set<String> attributes) {
+      Set<String> attributes) {
     CacheManagerEntityBuilder builder = null;
     Collection<CacheManagerEntity> entities;
     cacheManagerSamplerRepoLock.readLock().lock();
@@ -248,8 +223,11 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
           }
         }
       }
-      if (builder == null) entities = new HashSet<CacheManagerEntity>(0);
-      else entities = attributes == null ? builder.build() : builder.add(attributes).build();
+      if (builder == null) {
+        entities = new HashSet<CacheManagerEntity>(0);
+      } else {
+        entities = attributes == null ? builder.build() : builder.add(attributes).build();
+      }
     } finally {
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
@@ -280,8 +258,11 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
           }
         }
       }
-      if (builder == null) entities = new HashSet<CacheManagerConfigEntity>(0);
-      else entities = builder.build();
+      if (builder == null) {
+        entities = new HashSet<CacheManagerConfigEntity>(0);
+      } else {
+        entities = builder.build();
+      }
     } finally {
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
@@ -291,8 +272,8 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
   @Override
   public Collection<CacheEntity> createCacheEntities(Set<String> cacheManagerNames,
-                                                     Set<String> cacheNames,
-                                                     Set<String> attributes) {
+      Set<String> cacheNames,
+      Set<String> attributes) {
     CacheEntityBuilder builder = null;
     Collection<CacheEntity> entities;
 
@@ -322,8 +303,11 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
           }
         }
       }
-      if (builder == null) entities = new HashSet<CacheEntity>(0);
-      else entities = attributes == null ? builder.build() : builder.add(attributes).build();
+      if (builder == null) {
+        entities = new HashSet<CacheEntity>(0);
+      } else {
+        entities = attributes == null ? builder.build() : builder.add(attributes).build();
+      }
     } finally {
       for (SamplerRepoEntry samplerRepoEntry : disabledSamplerRepoEntries) {
         enableNonStopFor(samplerRepoEntry, true);
@@ -336,7 +320,7 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
   @Override
   public Collection<CacheConfigEntity> createCacheConfigEntities(Set<String> cacheManagerNames,
-                                                                 Set<String> cacheNames) {
+      Set<String> cacheNames) {
     CacheConfigurationEntityBuilder builder = null;
     Collection<CacheConfigEntity> entities;
 
@@ -363,8 +347,11 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
           }
         }
       }
-      if (builder == null) entities = new HashSet<CacheConfigEntity>(0);
-      else entities = builder.build();
+      if (builder == null) {
+        entities = new HashSet<CacheConfigEntity>(0);
+      } else {
+        entities = builder.build();
+      }
     } finally {
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
@@ -374,8 +361,8 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
   @Override
   public Collection<CacheStatisticSampleEntity> createCacheStatisticSampleEntity(Set<String> cacheManagerNames,
-                                                                                 Set<String> cacheNames,
-                                                                                 Set<String> sampleNames) {
+      Set<String> cacheNames,
+      Set<String> sampleNames) {
     CacheStatisticSampleEntityBuilder builder = CacheStatisticSampleEntityBuilder.createWith(sampleNames);
 
     cacheManagerSamplerRepoLock.readLock().lock();
@@ -416,14 +403,17 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
   @Override
   public void createOrUpdateCache(String cacheManagerName,
-                                  String cacheName,
-                                  CacheEntity resource) throws ServiceExecutionException {
+      String cacheName,
+      CacheEntity resource) throws ServiceExecutionException {
     cacheManagerSamplerRepoLock.readLock().lock();
 
     try {
       SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
-      if (entry != null) entry.updateCache(cacheName, resource);
-      else throw new ServiceExecutionException("CacheManager not found !");
+      if (entry != null) {
+        entry.updateCache(cacheName, resource);
+      } else {
+        throw new ServiceExecutionException("CacheManager not found !");
+      }
     } finally {
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
@@ -432,13 +422,15 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
   @Override
   public void clearCache(String cacheManagerName,
-                         String cacheName) {
+      String cacheName) {
     cacheManagerSamplerRepoLock.readLock().lock();
 
     SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
     try {
       enableNonStopFor(entry, false);
-      if (entry != null) entry.clearCache(cacheName);
+      if (entry != null) {
+        entry.clearCache(cacheName);
+      }
     } finally {
       enableNonStopFor(entry, true);
       cacheManagerSamplerRepoLock.readLock().unlock();
@@ -447,7 +439,7 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
   @Override
   public void updateCacheManager(String cacheManagerName,
-                                 CacheManagerEntity resource) throws ServiceExecutionException {
+      CacheManagerEntity resource) throws ServiceExecutionException {
     cacheManagerSamplerRepoLock.writeLock().lock();
 
     try {
@@ -457,10 +449,14 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
         checkForInvalidAttributes(cacheManagerName, resource);
 
         Object mbldsAttr = resource.getAttributes().get(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING);
-        if (mbldsAttr != null) cms.setMaxBytesLocalDiskAsString(mbldsAttr.toString());
+        if (mbldsAttr != null) {
+          cms.setMaxBytesLocalDiskAsString(mbldsAttr.toString());
+        }
 
         Object mblhsAttr = resource.getAttributes().get(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING);
-        if (mblhsAttr != null) cms.setMaxBytesLocalHeapAsString(mblhsAttr.toString());
+        if (mblhsAttr != null) {
+          cms.setMaxBytesLocalHeapAsString(mblhsAttr.toString());
+        }
       } else {
         throw new ServiceExecutionException("CacheManager not found !");
       }
@@ -468,7 +464,7 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
   }
-  
+
   @Override
   public Collection<QueryResultsEntity> executeQuery(String cacheManagerName, String queryString) throws ServiceExecutionException {
     cacheManagerSamplerRepoLock.writeLock().lock();
@@ -504,7 +500,7 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
 
     return Collections.singleton(qre);
   }
-  
+
   private void checkForInvalidAttributes(String cacheManagerName, CacheManagerEntity resource) throws ServiceExecutionException {
     boolean invalidAttributesFound =  false;
     StringBuilder errorMessage =  new StringBuilder("You are not allowed to update those attributes : ");
@@ -515,17 +511,17 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
     for(Map.Entry<String,Object> attribute : resource.getAttributes().entrySet()) {
       String key = attribute.getKey();
       if(!key.equals(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING) &&
-              !key.equals(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING) ) {
+          !key.equals(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING) ) {
         errorMessage.append(key).append(" ");
         invalidAttributesFound = true;
       }
     }
     if (invalidAttributesFound) {
       errorMessage.append(". Only ")
-                  .append(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING)
-                  .append(" and ")
-                  .append(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING)
-                  .append(" can be updated for a CacheManager.");
+      .append(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING)
+      .append(" and ")
+      .append(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING)
+      .append(" can be updated for a CacheManager.");
       throw new ServiceExecutionException(errorMessage.toString());
     }
   }
@@ -697,7 +693,9 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
     private final ReadWriteLock cacheSamplerMapLock = new ReentrantReadWriteLock();
 
     public SamplerRepoEntry(CacheManager cacheManager) {
-      if (cacheManager == null) throw new IllegalArgumentException("cacheManager == null");
+      if (cacheManager == null) {
+        throw new IllegalArgumentException("cacheManager == null");
+      }
 
       this.cacheManagerSampler = new CacheManagerSamplerImpl(cacheManager);
       this.cacheManager = cacheManager;
@@ -726,7 +724,9 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
         } else {
           for (String cName : cacheSamplerNames) {
             CacheSampler cs = cacheSamplersByName.get(cName);
-            if (cs != null) samplers.add(cs);
+            if (cs != null) {
+              samplers.add(cs);
+            }
           }
         }
       } finally {
@@ -742,14 +742,16 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
       CacheSampler cs;
       try {
         cs = cacheSamplersByName.get(cacheSamplerName);
-        if (cs != null) cs.removeAll();
+        if (cs != null) {
+          cs.removeAll();
+        }
       } finally {
         cacheSamplerMapLock.writeLock().unlock();
       }
     }
 
     public void updateCache(String cacheSamplerName,
-                            CacheEntity cacheResource) throws ServiceExecutionException {
+        CacheEntity cacheResource) throws ServiceExecutionException {
       cacheSamplerMapLock.writeLock().lock();
 
       CacheSampler cs;
@@ -762,34 +764,54 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
             checkForInvalidAttributes(cacheSamplerName, cacheResource);
 
             Boolean enabledAttr = (Boolean) cacheResource.getAttributes().get(ENABLED_ATTR);
-            if (enabledAttr != null) cs.setEnabled(enabledAttr);
+            if (enabledAttr != null) {
+              cs.setEnabled(enabledAttr);
+            }
 
             Boolean enabledBlkLoad = (Boolean) cacheResource.getAttributes().get(BULK_LOAD_ENABLED);
-            if (enabledBlkLoad != null) cs.setNodeBulkLoadEnabled(enabledBlkLoad);
+            if (enabledBlkLoad != null) {
+              cs.setNodeBulkLoadEnabled(enabledBlkLoad);
+            }
 
             Integer maxElementsOnDiskAttr = (Integer) cacheResource.getAttributes().get(MAX_ELEMENTS_ON_DISK);
-            if (maxElementsOnDiskAttr != null) cs.setMaxElementsOnDisk(maxElementsOnDiskAttr);
+            if (maxElementsOnDiskAttr != null) {
+              cs.setMaxElementsOnDisk(maxElementsOnDiskAttr);
+            }
 
             Boolean loggingEnabledAttr = (Boolean) cacheResource.getAttributes().get(LOGGING_ENABLED);
-            if (loggingEnabledAttr != null) cs.setLoggingEnabled(loggingEnabledAttr);
+            if (loggingEnabledAttr != null) {
+              cs.setLoggingEnabled(loggingEnabledAttr);
+            }
 
             Object mbldsAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_DISK_STRING);
-            if (mbldsAttr != null) cs.setMaxBytesLocalDiskAsString(mbldsAttr.toString());
+            if (mbldsAttr != null) {
+              cs.setMaxBytesLocalDiskAsString(mbldsAttr.toString());
+            }
 
             Object mblhsAttr = cacheResource.getAttributes().get(MAX_BYTES_LOCAL_HEAP_STRING);
-            if (mblhsAttr != null) cs.setMaxBytesLocalHeapAsString(mblhsAttr.toString());
+            if (mblhsAttr != null) {
+              cs.setMaxBytesLocalHeapAsString(mblhsAttr.toString());
+            }
 
             Integer melhAttr = (Integer) cacheResource.getAttributes().get(MAX_ENTRIES_LOCAL_HEAP);
-            if (melhAttr != null) cs.setMaxEntriesLocalHeap(melhAttr);
+            if (melhAttr != null) {
+              cs.setMaxEntriesLocalHeap(melhAttr);
+            }
 
             Integer meicAttr = (Integer) cacheResource.getAttributes().get(MAX_ENTRIES_IN_CACHE);
-            if (meicAttr != null) cs.setMaxEntriesInCache(meicAttr);
+            if (meicAttr != null) {
+              cs.setMaxEntriesInCache(meicAttr);
+            }
 
             Object ttiAttr = cacheResource.getAttributes().get(TIME_TO_IDLE_SEC);
-            if (ttiAttr != null) cs.setTimeToIdleSeconds(Long.parseLong(ttiAttr.toString()));
+            if (ttiAttr != null) {
+              cs.setTimeToIdleSeconds(Long.parseLong(ttiAttr.toString()));
+            }
 
             Object ttlAttr = cacheResource.getAttributes().get(TIME_TO_LIVE_SEC);
-            if (ttlAttr != null) cs.setTimeToLiveSeconds(Long.parseLong(ttlAttr.toString()));
+            if (ttlAttr != null) {
+              cs.setTimeToLiveSeconds(Long.parseLong(ttlAttr.toString()));
+            }
           } catch (RuntimeException e) {
             throw new ServiceExecutionException(e);
           }
@@ -872,4 +894,20 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
       cacheManager = null;
     }
   }
+
+  @Override
+  public byte[] invoke(RemoteCallDescriptor remoteCallDescriptor) throws RemoteCallException {
+    return remoteAgentEndpoint.invoke(remoteCallDescriptor);
+  }
+
+  @Override
+  public String getVersion() {
+    return remoteAgentEndpoint.getVersion();
+  }
+
+  @Override
+  public String getAgency() {
+    return remoteAgentEndpoint.getAgency();
+  }
+
 }

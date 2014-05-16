@@ -10,13 +10,19 @@
   </parent>  
   
   <artifactId>management-ehcache-common</artifactId>
-  <name>management-ehcache-impl-common</name>
+  <name>management-ehcache-common</name>
   <description>A common library shared between different management-ehcache implementation versions</description>
 
   <dependencies>
     <dependency>
       <groupId>org.terracotta</groupId>
       <artifactId>management-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.ehcache.internal</groupId>
+      <artifactId>ehcache-core</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 

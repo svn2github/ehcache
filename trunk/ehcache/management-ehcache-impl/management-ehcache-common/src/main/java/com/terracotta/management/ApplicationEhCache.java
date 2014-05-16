@@ -14,12 +14,12 @@ public class ApplicationEhCache extends Application {
 
   @Override
   public Set<Class<?>> getClasses() {
-    Set<Class<?>> s = new HashSet<Class<?>>();
+    Set<Class<?>> restResourcesClasses = new HashSet<Class<?>>();
     ServiceLoader<ApplicationEhCacheService> loader = ServiceLoader.load(ApplicationEhCacheService.class);
     for (ApplicationEhCacheService applicationEhCacheService : loader) {
-      s.addAll(applicationEhCacheService.getClasses());
+      restResourcesClasses.addAll(applicationEhCacheService.getRestResourceClasses());
     }
-    return s;
+    return restResourcesClasses;
   }
 
 }
