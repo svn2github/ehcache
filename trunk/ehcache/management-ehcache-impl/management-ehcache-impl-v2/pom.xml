@@ -25,6 +25,13 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>management-ehcache-common</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>net.sf.ehcache.internal</groupId>
       <artifactId>ehcache-core</artifactId>
       <version>${project.version}</version>
