@@ -69,7 +69,7 @@ import org.terracotta.management.resource.services.Utils;
  */
 public class DfltSamplerRepositoryServiceV2
 implements SamplerRepositoryServiceV2, EntityResourceFactoryV2, CacheManagerServiceV2, CacheServiceV2, AgentServiceV2,
-DfltSamplerRepositoryServiceMBean {
+  DfltSamplerRepositoryServiceV2MBean {
 
   private static final Logger LOG = LoggerFactory.getLogger(DfltSamplerRepositoryServiceV2.class);
 
