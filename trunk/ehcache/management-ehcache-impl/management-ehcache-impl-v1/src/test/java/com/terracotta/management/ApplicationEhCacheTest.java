@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * @author: Anthony Dahanne
  */
-public class ApplicationEhCacheTest extends ApplicationEhCacheTestCommon {
+public class ApplicationEhCacheTest extends JerseyApplicationTestCommon {
 
   @Test
   public void testGetClasses() throws Exception {

@@ -25,9 +25,9 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>management-ehcache-common</artifactId>
-      <version>${project.version}</version>
+      <groupId>org.terracotta</groupId>
+      <artifactId>management-core</artifactId>
+      <version>${management-core.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
