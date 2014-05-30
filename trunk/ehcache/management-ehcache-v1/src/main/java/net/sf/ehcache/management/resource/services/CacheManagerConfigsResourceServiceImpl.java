@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -67,19 +66,4 @@ public final class CacheManagerConfigsResourceServiceImpl {
     }
   }
 
-  /**
-   * Get a {@code Collection} of {@link CacheManagerConfigEntity} objects representing the cache manager configuration
-   * information provided by the associated monitorable entity's agent given the request path.
-   *
-   *
-   * @param {@link UriInfo} for this resource request
-   * @return a collection of {@link CacheManagerConfigEntity} objects
-   */
-  @Deprecated
-  @GET
-  @Consumes(MediaType.APPLICATION_XML)
-  @Produces(MediaType.APPLICATION_XML)
-  public Collection<CacheManagerConfigEntity> getXMLCacheManagerConfigs(@Context UriInfo info) {
-    return getCacheManagerConfigs(info);
-  }
 }

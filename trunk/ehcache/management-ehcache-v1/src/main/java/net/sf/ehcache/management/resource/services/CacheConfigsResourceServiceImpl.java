@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -69,23 +68,5 @@ public final class CacheConfigsResourceServiceImpl {
     } catch (ServiceExecutionException see) {
       throw new ResourceRuntimeException("Failed to get cache configs", see, Response.Status.BAD_REQUEST.getStatusCode());
     }
-  }
-
-  /**
-   * Get a {@code Collection} of {@link net.sf.ehcache.management.resource.CacheConfigEntity} objects representing the
-   * cache manager configuration information provided by the associated monitorable entity's agent given the request
-   * path.
-   *
-   *
-   * @param {@link UriInfo} for this resource request
-   * @return a collection of CacheConfigEntity objects. {@link net.sf.ehcache.management.resource.CacheConfigEntity}
-   *         objects
-   */
-  @Deprecated
-  @GET
-  @Consumes(MediaType.APPLICATION_XML)
-  @Produces(MediaType.APPLICATION_XML)
-  public Collection<CacheConfigEntity> getXMLCacheConfigs(@Context UriInfo info) {
-    return getCacheConfigs(info);
   }
 }
