@@ -358,6 +358,7 @@
               org.terracotta.toolkit.*;resolution:=optional,
               org.quartz.*;resolution:=optional,
               org.terracotta.quartz.*;resolution:=optional,
+              javax.xml.stream;resolution:=optional,
               !sun.misc,*
                 </Import-Package>
                 <Export-Package>net.sf.ehcache.*</Export-Package>
