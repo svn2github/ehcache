@@ -38,6 +38,23 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>net.sf.ehcache.internal</groupId>
+      <artifactId>ehcache-terracotta-bootstrap</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.terracotta.toolkit</groupId>
+      <artifactId>terracotta-toolkit-api</artifactId>
+      <version>2.5</version>
+      <scope>provided</scope>
+    </dependency>
+	<dependency>
+      <groupId>org.terracotta.toolkit</groupId>
+      <artifactId>terracotta-toolkit-api-internal</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
       <scope>test</scope>

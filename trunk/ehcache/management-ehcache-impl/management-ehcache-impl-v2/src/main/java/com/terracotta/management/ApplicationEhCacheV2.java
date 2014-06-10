@@ -16,6 +16,7 @@ import net.sf.ehcache.management.service.CacheServiceV2;
 import net.sf.ehcache.management.service.EntityResourceFactoryV2;
 import net.sf.ehcache.management.service.ManagementServerLifecycle;
 import net.sf.ehcache.management.service.SamplerRepositoryServiceV2;
+import net.sf.ehcache.management.service.impl.CacheManagerPushEvents;
 import net.sf.ehcache.management.service.impl.DfltSamplerRepositoryServiceV2;
 import net.sf.ehcache.management.service.impl.RemoteAgentEndpointImpl;
 
@@ -40,7 +41,8 @@ public class ApplicationEhCacheV2 extends DefaultApplicationV2 implements Applic
 
   @Override
   public Map<Class<?>, Object> getServiceClasses(String clientUUID, ManagementRESTServiceConfiguration configuration, RemoteAgentEndpointImpl agentEndpointImpl) {
-    DfltSamplerRepositoryServiceV2 samplerRepoSvc = new DfltSamplerRepositoryServiceV2(clientUUID, configuration, agentEndpointImpl);
+    DfltSamplerRepositoryServiceV2 samplerRepoSvc = new DfltSamplerRepositoryServiceV2(clientUUID, configuration,
+        agentEndpointImpl, new CacheManagerPushEvents());
     Map<Class<?>, Object> serviceClasses = new HashMap<Class<?>, Object>();
     serviceClasses.put(RequestValidator.class, new EmbeddedEhcacheRequestValidatorV2());
     serviceClasses.put(CacheManagerServiceV2.class, samplerRepoSvc);

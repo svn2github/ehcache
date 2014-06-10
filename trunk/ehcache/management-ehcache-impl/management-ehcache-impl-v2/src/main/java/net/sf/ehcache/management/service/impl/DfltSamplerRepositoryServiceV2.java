@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -30,6 +32,7 @@ import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.management.resource.CacheConfigEntityV2;
 import net.sf.ehcache.management.resource.CacheEntityV2;
 import net.sf.ehcache.management.resource.CacheManagerConfigEntityV2;
+import net.sf.ehcache.management.resource.CacheManagerEntityEventV2;
 import net.sf.ehcache.management.resource.CacheManagerEntityV2;
 import net.sf.ehcache.management.resource.CacheStatisticSampleEntityV2;
 import net.sf.ehcache.management.resource.QueryResultsEntityV2;
@@ -67,7 +70,7 @@ import org.terracotta.management.resource.services.Utils;
  *
  * @author brandony
  */
-public class DfltSamplerRepositoryServiceV2
+public class DfltSamplerRepositoryServiceV2 extends Observable
 implements SamplerRepositoryServiceV2, EntityResourceFactoryV2, CacheManagerServiceV2, CacheServiceV2, AgentServiceV2,
 DfltSamplerRepositoryServiceV2MBean {
 
@@ -76,6 +79,17 @@ DfltSamplerRepositoryServiceV2MBean {
   public static final String MBEAN_NAME_PREFIX = "net.sf.ehcache:type=" + IDENTIFIER;
   public static final String AGENCY = "Ehcache";
 
+  final Set<Observer> observers = new HashSet<Observer>();
+
+  @Override
+  public synchronized void addObserver(Observer o) {
+    observers.add(o);
+  }
+
+  @Override
+  public synchronized void deleteObserver(Observer o) {
+    observers.remove(o);
+  }
 
   /**
    * Guarded By cacheManagerSamplerRepoLock
@@ -89,12 +103,13 @@ DfltSamplerRepositoryServiceV2MBean {
   private final RemoteAgentEndpointImpl remoteAgentEndpoint;
 
   public DfltSamplerRepositoryServiceV2(String clientUUID, ManagementRESTServiceConfiguration configuration,
-      RemoteAgentEndpointImpl remoteAgentEndpoint) {
+      RemoteAgentEndpointImpl remoteAgentEndpoint, CacheManagerPushEvents cacheManagerPushEvents) {
     this.configuration = configuration;
     if (clientUUID != null) {
       registerMBean(clientUUID);
     }
     this.remoteAgentEndpoint = remoteAgentEndpoint;
+    this.addObserver(cacheManagerPushEvents);
   }
 
   private static void enableNonStopFor(SamplerRepoEntry samplerRepoEntry, boolean enable) {
@@ -150,7 +165,25 @@ DfltSamplerRepositoryServiceV2MBean {
    */
   @Override
   public void register(CacheManager cacheManager) {
-    String cmName = cacheManager.getName();
+    String name = cacheManager.getName();
+    for (Observer observer : observers) {
+
+      Collection<Map<String, Object>> cacheEntities = new ArrayList<Map<String, Object>>();
+      String[] caches = cacheManager.getCacheNames();
+      for (String string : caches) {
+        Cache cache = cacheManager.getCache(string);
+        Map<String, Object> cacheAttributes = new HashMap<String, Object>();
+        cacheAttributes.put("version", "versionNumber");
+        cacheAttributes.put("agentId", "myAgentId");
+        cacheAttributes.put("name", cache.getName());
+        cacheAttributes.put("cacheManagerName", name);
+        cacheAttributes.put("attributes", new HashMap<String, String>());
+        cacheEntities.add(cacheAttributes);
+      }
+
+      observer.update(this, new CacheManagerEntityEventV2(name, "CACHEMANAGER.ADDED", cacheEntities));
+    }
+    String cmName = name;
     cacheManagerSamplerRepoLock.writeLock().lock();
 
     try {
@@ -162,6 +195,7 @@ DfltSamplerRepositoryServiceV2MBean {
     } finally {
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
+
   }
 
   /**
@@ -170,12 +204,19 @@ DfltSamplerRepositoryServiceV2MBean {
   @Override
   public void unregister(CacheManager cacheManager) {
     cacheManagerSamplerRepoLock.writeLock().lock();
+    String name = cacheManager.getName();
 
     try {
       SamplerRepoEntry entry = cacheManagerSamplerRepo.remove(cacheManager.getName());
       entry.destroy();
     } finally {
       cacheManagerSamplerRepoLock.writeLock().unlock();
+    }
+    for (Observer observer : observers) {
+      ArrayList<Map<String, Object>> entities = new ArrayList<Map<String, Object>>();
+      entities.add(new HashMap<String, Object>());
+      observer.update(this, new CacheManagerEntityEventV2(name, "CACHEMANAGER.REMOVED",
+          entities));
     }
   }
 
