@@ -17,6 +17,7 @@ public class CacheManagerPushEvents implements Observer {
     
 //    Toolkit toolkit = TerracottaToolkitBuilder.toolkit;
     //TODO : wtf ?
+      /*
         Toolkit toolkit = null;
         try {
           toolkit = ToolkitFactory.createToolkit("toolkit:terracotta://localhost:9510");
@@ -28,6 +29,7 @@ public class CacheManagerPushEvents implements Observer {
       ManagementInternalFeature feature = toolkitInternal.getFeature(ToolkitFeatureTypeInternal.MANAGEMENT);
       feature.sendEvent((ToolkitManagementEvent) arg);
     }
+      */
   }
 
 }
