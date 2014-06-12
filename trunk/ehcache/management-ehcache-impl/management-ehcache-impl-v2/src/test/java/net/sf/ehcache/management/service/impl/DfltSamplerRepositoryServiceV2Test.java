@@ -4,29 +4,30 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.ClusteredInstanceFactoryAccessor;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
-import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
-import net.sf.ehcache.terracotta.TerracottaClient;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Collections;
-
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.ClusteredInstanceFactoryAccessor;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
+import net.sf.ehcache.terracotta.TerracottaClient;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * @author Ludovic Orban
  */
-public class DfltSamplerRepositoryServiceTest {
+public class DfltSamplerRepositoryServiceV2Test {
 
   private DfltSamplerRepositoryServiceV2 repositoryService;
   private ClusteredInstanceFactory clusteredInstanceFactory;
@@ -35,18 +36,19 @@ public class DfltSamplerRepositoryServiceTest {
   public void setUp() throws Exception {
     ManagementRESTServiceConfiguration managementRESTServiceConfiguration = new ManagementRESTServiceConfiguration();
     managementRESTServiceConfiguration.setEnabled(true);
-    repositoryService = new DfltSamplerRepositoryServiceV2("123", managementRESTServiceConfiguration, null, null);
+    CacheManagerPushEvents cacheManagerPushEvents = new CacheManagerPushEvents();
+    repositoryService = new DfltSamplerRepositoryServiceV2("123", managementRESTServiceConfiguration, null,
+        cacheManagerPushEvents);
 
-    CacheManager cacheManager = mock(CacheManager.class);
-    Ehcache ehcache = mock(Ehcache.class);
+    Configuration configuration = new Configuration();
+    configuration.setName("testCacheManager");
+    CacheConfiguration cacheConfiguration = new CacheConfiguration("testCache1", 12);
+    configuration.addCache(cacheConfiguration);
+    CacheManager cacheManager = new CacheManager(configuration);
+    // Cache ehcache = new Cache(cacheConfiguration);
     TerracottaClient terracottaClient = mock(TerracottaClient.class);
     clusteredInstanceFactory = mock(ClusteredInstanceFactory.class);
 
-    when(cacheManager.getCacheNames()).thenReturn(new String[] {"testCache1"});
-    when(cacheManager.getName()).thenReturn("testCacheManager");
-    when(cacheManager.getEhcache(anyString())).thenReturn(ehcache);
-    when(ehcache.getCacheConfiguration()).thenReturn(new CacheConfiguration());
-    when(ehcache.getName()).thenReturn("testCache1");
     ClusteredInstanceFactoryAccessor.setTerracottaClient(cacheManager, terracottaClient);
     when(terracottaClient.getClusteredInstanceFactory()).thenReturn(clusteredInstanceFactory);
 
@@ -76,6 +78,11 @@ public class DfltSamplerRepositoryServiceTest {
     repositoryService.clearCache("testCacheManager", "testCache1");
 
     verify(clusteredInstanceFactory, times(2)).enableNonStopForCurrentThread(anyBoolean());
+  }
+
+  @After
+  public void tearDown() {
+    CacheManager.getCacheManager("testCacheManager").shutdown();
   }
 
 }
