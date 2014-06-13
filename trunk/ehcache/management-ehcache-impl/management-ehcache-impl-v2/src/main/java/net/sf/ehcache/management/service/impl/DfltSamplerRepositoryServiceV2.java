@@ -176,7 +176,10 @@ DfltSamplerRepositoryServiceV2MBean {
       cacheAttributes.put("agentId", Representable.EMBEDDED_AGENT_ID);
       cacheAttributes.put("name", cache.getName());
       // cacheAttributes.put("cacheManagerName", name);
-      cacheAttributes.put("attributes", createCacheEntities(Collections.singleton(cacheManager.getName()), Collections.singleton(cache.getName()), null).iterator().next().getAttributes());
+      Collection<CacheEntityV2> createCacheEntities = createCacheEntities(Collections.singleton(cacheManager.getName()), Collections.singleton(cache.getName()), null);
+      if (createCacheEntities != null && !createCacheEntities.isEmpty()) {
+        cacheAttributes.put("attributes", createCacheEntities.iterator().next().getAttributes());
+      }
       cacheEntities.add(cacheAttributes);
     }
 
