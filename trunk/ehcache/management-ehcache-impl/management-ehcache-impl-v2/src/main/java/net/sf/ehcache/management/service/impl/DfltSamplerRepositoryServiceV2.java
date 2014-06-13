@@ -32,7 +32,6 @@ import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.management.resource.CacheConfigEntityV2;
 import net.sf.ehcache.management.resource.CacheEntityV2;
 import net.sf.ehcache.management.resource.CacheManagerConfigEntityV2;
-import net.sf.ehcache.management.resource.CacheManagerEntityEventV2;
 import net.sf.ehcache.management.resource.CacheManagerEntityV2;
 import net.sf.ehcache.management.resource.CacheStatisticSampleEntityV2;
 import net.sf.ehcache.management.resource.QueryResultsEntityV2;
@@ -55,6 +54,8 @@ import org.terracotta.management.l1bridge.RemoteCallException;
 import org.terracotta.management.resource.AgentEntityCollectionV2;
 import org.terracotta.management.resource.AgentEntityV2;
 import org.terracotta.management.resource.AgentMetadataEntityV2;
+import org.terracotta.management.resource.Representable;
+import org.terracotta.management.resource.events.EventEntityV2;
 import org.terracotta.management.resource.exceptions.ExceptionUtils;
 import org.terracotta.management.resource.services.AgentServiceV2;
 import org.terracotta.management.resource.services.LicenseService;
@@ -70,8 +71,8 @@ import org.terracotta.management.resource.services.Utils;
  *
  * @author brandony
  */
-public class DfltSamplerRepositoryServiceV2 extends Observable
-implements SamplerRepositoryServiceV2, EntityResourceFactoryV2, CacheManagerServiceV2, CacheServiceV2, AgentServiceV2,
+public class DfltSamplerRepositoryServiceV2 extends Observable implements SamplerRepositoryServiceV2,
+EntityResourceFactoryV2, CacheManagerServiceV2, CacheServiceV2, AgentServiceV2,
 DfltSamplerRepositoryServiceV2MBean {
 
   private static final Logger LOG = LoggerFactory.getLogger(DfltSamplerRepositoryServiceV2.class);
@@ -166,22 +167,27 @@ DfltSamplerRepositoryServiceV2MBean {
   @Override
   public void register(CacheManager cacheManager) {
     String name = cacheManager.getName();
+    Collection<Map<String, Object>> cacheEntities = new ArrayList<Map<String, Object>>();
+    String[] caches = cacheManager.getCacheNames();
+    for (String string : caches) {
+      Cache cache = cacheManager.getCache(string);
+      Map<String, Object> cacheAttributes = new HashMap<String, Object>();
+      cacheAttributes.put("version", this.getClass().getPackage().getImplementationVersion());
+      cacheAttributes.put("agentId", Representable.EMBEDDED_AGENT_ID);
+      cacheAttributes.put("name", cache.getName());
+      // cacheAttributes.put("cacheManagerName", name);
+      cacheAttributes.put("attributes", createCacheEntities(Collections.singleton(cacheManager.getName()), Collections.singleton(cache.getName()), null).iterator().next().getAttributes());
+      cacheEntities.add(cacheAttributes);
+    }
+
+    EventEntityV2 evenEntityV2 = new EventEntityV2();
+    evenEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
+    evenEntityV2.setType("EHCACHE.CACHEMANAGER.ADDED");
+    evenEntityV2.setSourceId(name);
+    evenEntityV2.getRootRepresentables().put("cacheManagerEvent", cacheEntities);
+    cacheManager.sendManagementEvent(evenEntityV2, evenEntityV2.getType());
     for (Observer observer : observers) {
-
-      Collection<Map<String, Object>> cacheEntities = new ArrayList<Map<String, Object>>();
-      String[] caches = cacheManager.getCacheNames();
-      for (String string : caches) {
-        Cache cache = cacheManager.getCache(string);
-        Map<String, Object> cacheAttributes = new HashMap<String, Object>();
-        cacheAttributes.put("version", "versionNumber");
-        cacheAttributes.put("agentId", "myAgentId");
-        cacheAttributes.put("name", cache.getName());
-        cacheAttributes.put("cacheManagerName", name);
-        cacheAttributes.put("attributes", new HashMap<String, String>());
-        cacheEntities.add(cacheAttributes);
-      }
-
-      observer.update(this, new CacheManagerEntityEventV2(name, "CACHEMANAGER.ADDED", cacheEntities));
+      observer.update(this, evenEntityV2);
     }
     String cmName = name;
     cacheManagerSamplerRepoLock.writeLock().lock();
@@ -212,11 +218,15 @@ DfltSamplerRepositoryServiceV2MBean {
     } finally {
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
+    ArrayList<Map<String, Object>> entities = new ArrayList<Map<String, Object>>();
+    entities.add(new HashMap<String, Object>());
+    EventEntityV2 evenEntityV2 = new EventEntityV2();
+    evenEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
+    evenEntityV2.setType("EHCACHE.CACHEMANAGER.ADDED");
+    evenEntityV2.setSourceId(name);
+    cacheManager.sendManagementEvent(evenEntityV2, evenEntityV2.getType());
     for (Observer observer : observers) {
-      ArrayList<Map<String, Object>> entities = new ArrayList<Map<String, Object>>();
-      entities.add(new HashMap<String, Object>());
-      observer.update(this, new CacheManagerEntityEventV2(name, "CACHEMANAGER.REMOVED",
-          entities));
+      observer.update(this, evenEntityV2);
     }
   }
 
@@ -531,7 +541,7 @@ DfltSamplerRepositoryServiceV2MBean {
     QueryResultsEntityV2 qre = new QueryResultsEntityV2();
 
     qre.setAgentId(AgentEntityV2.EMBEDDED_AGENT_ID);
-    // qre.setVersion(this.getClass().getPackage().getImplementationVersion());
+    qre.setVersion(this.getClass().getPackage().getImplementationVersion());
     qre.setName(cacheManagerName);
     qre.setData(data);
 

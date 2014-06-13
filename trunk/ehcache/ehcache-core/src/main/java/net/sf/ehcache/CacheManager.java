@@ -67,6 +67,7 @@ import org.terracotta.statistics.StatisticsManager;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Collections;
@@ -2087,5 +2088,14 @@ public class CacheManager {
     static CacheManager getInitializingCacheManager(String name) {
         return INITIALIZING_CACHE_MANAGERS_MAP.get(name);
     }    
+
+    /**
+     * Send a management event to the cluster
+     * @param event, the event (most probably an EventEntity)
+     * @param type, the type of the event
+     */
+    public void sendManagementEvent(Serializable event, String type) {
+      // TODO : send along the events through the toolkit, to the cluster
+    }
     
 }
