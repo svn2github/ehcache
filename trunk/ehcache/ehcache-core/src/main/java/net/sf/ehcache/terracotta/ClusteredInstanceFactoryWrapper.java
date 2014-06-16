@@ -20,6 +20,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.management.event.ManagementEventSink;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.transaction.SoftLockManager;
@@ -148,6 +149,11 @@ public class ClusteredInstanceFactoryWrapper implements ClusteredInstanceFactory
     @Override
     public void unlinkCache(String cacheName) {
         delegate.unlinkCache(cacheName);
+    }
+
+    @Override
+    public ManagementEventSink createEventSink() {
+        return delegate.createEventSink();
     }
 
     /**

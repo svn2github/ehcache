@@ -1561,4 +1561,15 @@ public class CacheManagerTest {
       }
       return threads;
    }
+
+    @Test
+    public void testSendManagementEventDoesNoopWhenUnclustered() throws Exception {
+        CacheManager manager = new CacheManager(new Configuration());
+        try {
+            manager.sendManagementEvent("event 1", "type 1");
+        } finally {
+            manager.shutdown();
+        }
+    }
+
 }

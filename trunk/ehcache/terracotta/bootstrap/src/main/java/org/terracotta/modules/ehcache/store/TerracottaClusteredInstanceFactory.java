@@ -9,6 +9,7 @@ import net.sf.ehcache.config.CacheWriterConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.management.event.ManagementEventSink;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
@@ -28,13 +29,16 @@ import org.terracotta.modules.ehcache.async.AsyncCoordinatorFactoryImpl;
 import org.terracotta.modules.ehcache.event.ClusteredEventReplicatorFactory;
 import org.terracotta.modules.ehcache.event.FireRejoinOperatorEventClusterListener;
 import org.terracotta.modules.ehcache.event.TerracottaTopologyImpl;
+import org.terracotta.modules.ehcache.management.ClusteredManagementEventSink;
 import org.terracotta.modules.ehcache.store.nonstop.NonStopStoreWrapper;
 import org.terracotta.modules.ehcache.transaction.ClusteredTransactionIDFactory;
 import org.terracotta.modules.ehcache.transaction.SoftLockManagerProvider;
 import org.terracotta.modules.ehcache.writebehind.AsyncWriteBehind;
 import org.terracotta.modules.ehcache.writebehind.WriteBehindAsyncConfig;
+import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.ToolkitFeatureTypeInternal;
 import org.terracotta.toolkit.internal.ToolkitInternal;
+import org.terracotta.toolkit.internal.feature.ManagementInternalFeature;
 import org.terracotta.toolkit.internal.feature.NonStopInternalFeature;
 
 import com.terracotta.entity.ehcache.EhcacheEntitiesNaming;
@@ -183,6 +187,14 @@ public class TerracottaClusteredInstanceFactory implements ClusteredInstanceFact
   @Override
   public void unlinkCache(String cacheName) {
     toolkitInstanceFactory.unlinkCache(cacheName);
+  }
+
+  @Override
+  public ManagementEventSink createEventSink() {
+    Toolkit toolkit = toolkitInstanceFactory.getToolkit();
+    ToolkitInternal toolkitInternal = (ToolkitInternal)toolkit;
+    ManagementInternalFeature feature = toolkitInternal.getFeature(ToolkitFeatureTypeInternal.MANAGEMENT);
+    return new ClusteredManagementEventSink(feature);
   }
 
   public static String getToolkitMapNameForCache(String cacheManagerName, String cacheName) {

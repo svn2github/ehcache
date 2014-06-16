@@ -221,11 +221,9 @@ DfltSamplerRepositoryServiceV2MBean {
     } finally {
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
-    ArrayList<Map<String, Object>> entities = new ArrayList<Map<String, Object>>();
-    entities.add(new HashMap<String, Object>());
     EventEntityV2 evenEntityV2 = new EventEntityV2();
     evenEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
-    evenEntityV2.setType("EHCACHE.CACHEMANAGER.ADDED");
+    evenEntityV2.setType("EHCACHE.CACHEMANAGER.REMOVED");
     evenEntityV2.setSourceId(name);
     cacheManager.sendManagementEvent(evenEntityV2, evenEntityV2.getType());
     for (Observer observer : observers) {

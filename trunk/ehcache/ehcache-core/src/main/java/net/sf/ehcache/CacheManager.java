@@ -34,6 +34,8 @@ import net.sf.ehcache.distribution.CacheManagerPeerProvider;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.event.CacheManagerEventListenerRegistry;
+import net.sf.ehcache.management.event.DelegatingManagementEventSink;
+import net.sf.ehcache.management.event.ManagementEventSink;
 import net.sf.ehcache.management.ManagementServerLoader;
 import net.sf.ehcache.management.provider.MBeanRegistrationProvider;
 import net.sf.ehcache.management.provider.MBeanRegistrationProviderException;
@@ -232,6 +234,8 @@ public class CacheManager {
     private volatile Configuration.RuntimeCfg runtimeCfg;
 
     private volatile DelegatingTransactionIDFactory transactionIDFactory;
+
+    private volatile ManagementEventSink managementEventSink;
 
     private String registeredMgmtSvrBind;
 
@@ -2095,7 +2099,14 @@ public class CacheManager {
      * @param type, the type of the event
      */
     public void sendManagementEvent(Serializable event, String type) {
-      // TODO : send along the events through the toolkit, to the cluster
+      getOrCreateEventSink().sendManagementEvent(event, type);
     }
-    
+
+    private ManagementEventSink getOrCreateEventSink() {
+        if (managementEventSink == null) {
+            managementEventSink = new DelegatingManagementEventSink(terracottaClient);
+        }
+        return managementEventSink;
+    }
+
 }

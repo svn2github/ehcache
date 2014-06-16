@@ -19,6 +19,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.cluster.CacheCluster;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheEventListener;
+import net.sf.ehcache.management.event.ManagementEventSink;
 import net.sf.ehcache.store.Store;
 import net.sf.ehcache.store.TerracottaStore;
 import net.sf.ehcache.transaction.SoftLockManager;
@@ -138,4 +139,11 @@ public interface ClusteredInstanceFactory {
      * @param cacheName the cache to unlink
      */
     void unlinkCache(String cacheName);
+
+    /**
+     * Create a management event sink
+     *
+     * @return a management event sink
+     */
+    ManagementEventSink createEventSink();
 }
