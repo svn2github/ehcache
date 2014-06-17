@@ -36,9 +36,7 @@ public class DfltSamplerRepositoryServiceV2Test {
   public void setUp() throws Exception {
     ManagementRESTServiceConfiguration managementRESTServiceConfiguration = new ManagementRESTServiceConfiguration();
     managementRESTServiceConfiguration.setEnabled(true);
-    CacheManagerPushEvents cacheManagerPushEvents = new CacheManagerPushEvents();
-    repositoryService = new DfltSamplerRepositoryServiceV2("123", managementRESTServiceConfiguration, null,
-        cacheManagerPushEvents);
+    repositoryService = new DfltSamplerRepositoryServiceV2("123", managementRESTServiceConfiguration, null);
 
     Configuration configuration = new Configuration();
     configuration.setName("testCacheManager");
