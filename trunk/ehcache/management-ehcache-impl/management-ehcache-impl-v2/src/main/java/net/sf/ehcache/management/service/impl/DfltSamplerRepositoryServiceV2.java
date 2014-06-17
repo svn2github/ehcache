@@ -1086,7 +1086,7 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
   }
 
   @Override
-  public void registerEventListener(EventListener listener) {
+  public void registerEventListener(EventListener listener, boolean localOnly) {
     listeners.add(listener);
   }
 
