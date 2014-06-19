@@ -875,7 +875,7 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      */
     protected boolean evict(final Element element) {
         final ReentrantReadWriteLock.WriteLock lock = map.lockFor(element.getObjectKey()).writeLock();
-        if(lock.tryLock()) {
+        if (lock.tryLock()) {
             evictionObserver.begin();
             Element remove;
             try {
