@@ -16,6 +16,10 @@
 
 package net.sf.ehcache;
 
+import net.sf.ehcache.concurrent.CacheLockProvider;
+import net.sf.ehcache.concurrent.LockType;
+import net.sf.ehcache.concurrent.Sync;
+import net.sf.ehcache.pool.impl.UnboundedPool;
 import net.sf.ehcache.pool.sizeof.JvmInformation;
 import net.sf.ehcache.store.LruMemoryStoreTest;
 import net.sf.ehcache.store.MemoryStore;
@@ -31,11 +35,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -614,6 +622,45 @@ public class MemoryStoreTester extends AbstractCacheTest {
         } finally {
           System.clearProperty(MemoryStore.class.getName() + ".presize");
           manager.shutdown();
+        }
+    }
+
+    @Test
+    public void testEvictionDoesNotBlockOnLockedEntry() throws BrokenBarrierException, InterruptedException {
+
+        final CyclicBarrier barrier = new CyclicBarrier(2);
+        final Element element = new Element("foo", "bar");
+        final Store store = MemoryStore.create(new Cache(new CacheConfiguration("foobar", 100)), new UnboundedPool());
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final Sync syncForKey = ((CacheLockProvider)store.getInternalContext()).getSyncForKey(element.getObjectKey());
+                syncForKey.lock(LockType.WRITE);
+                try {
+                    barrier.await();
+                    barrier.await(2, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    syncForKey.unlock(LockType.WRITE);
+                }
+
+            }
+        });
+        t.start();
+        barrier.await();
+        evict(store, element);
+        barrier.await();
+        t.join();
+    }
+
+    private static boolean evict(final Store store, final Element element) {
+        try {
+            final Method evict = store.getClass().getDeclaredMethod("evict", Element.class);
+            evict.setAccessible(true);
+            return (Boolean) evict.invoke(store, element);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
