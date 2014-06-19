@@ -1,6 +1,5 @@
 package net.sf.ehcache.management.resource.services;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -12,13 +11,13 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import net.sf.ehcache.management.resource.QueryResultsEntityV2;
 import net.sf.ehcache.management.service.CacheManagerServiceV2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.resource.ResponseEntityV2;
 import org.terracotta.management.resource.exceptions.ExceptionUtils;
 import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
@@ -45,7 +44,7 @@ public final class QueryResourceServiceImplV2 {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Collection<QueryResultsEntityV2> executeQuery(@Context UriInfo info) {
+  public ResponseEntityV2 executeQuery(@Context UriInfo info) {
     LOG.debug(String.format("Invoking executeQuery: %s", info.getRequestUri()));
 
     validator.validateSafe(info);

@@ -7,6 +7,7 @@ import net.sf.ehcache.management.resource.CacheManagerEntityV2;
 import net.sf.ehcache.management.resource.CacheStatisticSampleEntityV2;
 
 import org.terracotta.management.ServiceExecutionException;
+import org.terracotta.management.resource.ResponseEntityV2;
 
 import java.util.Collection;
 import java.util.Set;
@@ -25,9 +26,9 @@ public interface EntityResourceFactoryV2 {
    *                          returned resources
    * @param attributes        a {@code Set} of specific cache manager attributes to include in the returned representations;
    *                          if null, all attributes will be included
-   * @return a {@code Collection} of {@code CacheManagerEntity} objects
+   * @return a {@code ResponseEntityV2} containing {@code CacheManagerEntity} objects
    */
-  Collection<CacheManagerEntityV2> createCacheManagerEntities(Set<String> cacheManagerNames,
+  ResponseEntityV2 createCacheManagerEntities(Set<String> cacheManagerNames,
                                                             Set<String> attributes) throws ServiceExecutionException;
 
   /**
@@ -35,9 +36,9 @@ public interface EntityResourceFactoryV2 {
    *
    * @param cacheManagerNames a {@code Set} of names for the {@link CacheManager} configurations to be represented by the
    *                          returned resources
-   * @return a {@code Collection} of {@code CacheManagerConfigEntity} objects
+   * @return a {@code ResponseEntityV2} containing {@code CacheManagerConfigEntity} objects
    */
-  Collection<CacheManagerConfigEntityV2> createCacheManagerConfigEntities(Set<String> cacheManagerNames) throws ServiceExecutionException;
+  ResponseEntityV2 createCacheManagerConfigEntities(Set<String> cacheManagerNames) throws ServiceExecutionException;
 
   /**
    * A factory method for {@link CacheEntityV2} objects.
@@ -48,9 +49,9 @@ public interface EntityResourceFactoryV2 {
    *                          returned resources
    * @param attributes        a {@code Set} of specific cache manager attributes to include in the returned representations;
    *                          if null, all attributes will be included
-   * @return a {@code Collection} of {@code CacheEntity} objects
+   * @return a {@code ResponseEntityV2} containing {@code CacheEntity} objects
    */
-  Collection<CacheEntityV2> createCacheEntities(Set<String> cacheManagerNames,
+  ResponseEntityV2 createCacheEntities(Set<String> cacheManagerNames,
                                               Set<String> cacheNames,
                                               Set<String> attributes) throws ServiceExecutionException;
 
@@ -61,9 +62,9 @@ public interface EntityResourceFactoryV2 {
    *                          objects to be represented by the returned resources
    * @param cacheNames        a {@code Set} of names for the {@link Cache} objects to be represented by the
    *                          returned resources
-   * @return a {@code Collection} of {@code CacheConfigEntity} objects
+   * @return a {@code ResponseEntityV2} containing {@code CacheConfigEntity} objects
    */
-  Collection<CacheConfigEntityV2> createCacheConfigEntities(Set<String> cacheManagerNames,
+  ResponseEntityV2 createCacheConfigEntities(Set<String> cacheManagerNames,
                                                           Set<String> cacheNames) throws ServiceExecutionException;
 
   /**
@@ -74,9 +75,9 @@ public interface EntityResourceFactoryV2 {
    * @param cacheNames        a {@code Set} of names for the {@link Cache}s whose sampled statistics are to be represented
    *                          by the returned resources
    * @param statNames         a {@code Set} of names for the sampled statistics to be represented by the returned resources
-   * @return a {@code Collection} of {@code CacheStatisticSampleEntity} objects
+   * @return a {@code ResponseEntityV2} containing {@code CacheStatisticSampleEntity} objects
    */
-  Collection<CacheStatisticSampleEntityV2> createCacheStatisticSampleEntity(Set<String> cacheManagerNames,
+  ResponseEntityV2 createCacheStatisticSampleEntity(Set<String> cacheManagerNames,
                                                                           Set<String> cacheNames,
                                                                           Set<String> statNames) throws ServiceExecutionException;
 }

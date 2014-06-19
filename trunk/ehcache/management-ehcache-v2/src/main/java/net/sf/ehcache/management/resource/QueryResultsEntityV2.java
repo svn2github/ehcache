@@ -2,7 +2,7 @@
 
 package net.sf.ehcache.management.resource;
 
-import org.terracotta.management.resource.VersionedEntityV2;
+import org.terracotta.management.resource.AbstractEntityV2;
 
 /**
  * <p>
@@ -12,9 +12,8 @@ import org.terracotta.management.resource.VersionedEntityV2;
  * @author gkeim
  */
 @SuppressWarnings("serial")
-public class QueryResultsEntityV2 extends VersionedEntityV2 {
+public class QueryResultsEntityV2 extends AbstractEntityV2 {
   private String     name;
-  private String     agentId;
   private Object[][] data;
 
   /**
@@ -29,22 +28,6 @@ public class QueryResultsEntityV2 extends VersionedEntityV2 {
    */
   public void setName(String name) {
     this.name = name;
-  }
-
-  /**
-   * @return the agentId
-   */
-  @Override
-  public String getAgentId() {
-    return agentId;
-  }
-
-  /**
-   * @param agentId to set
-   */
-  @Override
-  public void setAgentId(String agentId) {
-    this.agentId = agentId;
   }
 
   /**

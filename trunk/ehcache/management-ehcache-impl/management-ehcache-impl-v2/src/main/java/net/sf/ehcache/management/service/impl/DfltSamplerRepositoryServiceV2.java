@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -39,7 +40,6 @@ import net.sf.ehcache.management.resource.CacheConfigEntityV2;
 import net.sf.ehcache.management.resource.CacheEntityV2;
 import net.sf.ehcache.management.resource.CacheManagerConfigEntityV2;
 import net.sf.ehcache.management.resource.CacheManagerEntityV2;
-import net.sf.ehcache.management.resource.CacheStatisticSampleEntityV2;
 import net.sf.ehcache.management.resource.QueryResultsEntityV2;
 import net.sf.ehcache.management.sampled.CacheManagerSampler;
 import net.sf.ehcache.management.sampled.CacheManagerSamplerImpl;
@@ -57,10 +57,11 @@ import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.l1bridge.RemoteCallDescriptor;
 import org.terracotta.management.l1bridge.RemoteCallException;
-import org.terracotta.management.resource.AgentEntityCollectionV2;
+import org.terracotta.management.resource.AbstractEntityV2;
 import org.terracotta.management.resource.AgentEntityV2;
 import org.terracotta.management.resource.AgentMetadataEntityV2;
 import org.terracotta.management.resource.Representable;
+import org.terracotta.management.resource.ResponseEntityV2;
 import org.terracotta.management.resource.events.EventEntityV2;
 import org.terracotta.management.resource.exceptions.ExceptionUtils;
 import org.terracotta.management.resource.services.AgentServiceV2;
@@ -171,9 +172,18 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
       cacheAttributes.put("version", this.getClass().getPackage().getImplementationVersion());
       cacheAttributes.put("agentId", Representable.EMBEDDED_AGENT_ID);
       cacheAttributes.put("name", cache.getName());
-      Collection<CacheEntityV2> createCacheEntities = createCacheEntities(Collections.singleton(cacheManager.getName()), Collections.singleton(cache.getName()), null);
+      Collection<AbstractEntityV2> createCacheEntities = createCacheEntities(
+          Collections.singleton(cacheManager.getName()), Collections.singleton(cache.getName()), null).getEntities();
       if (createCacheEntities != null && !createCacheEntities.isEmpty()) {
-        cacheAttributes.put("attributes", createCacheEntities.iterator().next().getAttributes());
+        CacheEntityV2 next = (CacheEntityV2) createCacheEntities.iterator().next();
+        Map<String, Object> attributes = next.getAttributes();
+        Map<String, Object> attributesFiltered = new HashMap<String, Object>();
+        for (Entry<String, Object> entry : attributes.entrySet()) {
+          if (!entry.getKey().endsWith("MostRecentSample")) {
+            attributesFiltered.put(entry.getKey(), entry.getValue());
+          }
+        }
+        cacheAttributes.put("attributes", attributesFiltered);
       }
       cacheEntities.add(cacheAttributes);
     }
@@ -244,8 +254,10 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
    * {@inheritDoc}
    */
   @Override
-  public Collection<CacheManagerEntityV2> createCacheManagerEntities(Set<String> cacheManagerNames,
+  public ResponseEntityV2 createCacheManagerEntities(Set<String> cacheManagerNames,
       Set<String> attributes) {
+    ResponseEntityV2 responseEntityV2 = new ResponseEntityV2();
+
     CacheManagerEntityBuilderV2 builder = null;
     Collection<CacheManagerEntityV2> entities;
     cacheManagerSamplerRepoLock.readLock().lock();
@@ -274,11 +286,14 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
 
-    return entities;
+    responseEntityV2.getEntities().addAll(entities);
+    return responseEntityV2;
   }
 
   @Override
-  public Collection<CacheManagerConfigEntityV2> createCacheManagerConfigEntities(Set<String> cacheManagerNames) {
+  public ResponseEntityV2 createCacheManagerConfigEntities(Set<String> cacheManagerNames) {
+    ResponseEntityV2 responseEntityV2 = new ResponseEntityV2();
+
     CacheManagerConfigurationEntityBuilderV2 builder = null;
     Collection<CacheManagerConfigEntityV2> entities;
 
@@ -309,13 +324,15 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
 
-    return entities;
+    responseEntityV2.getEntities().addAll(entities);
+    return responseEntityV2;
   }
 
   @Override
-  public Collection<CacheEntityV2> createCacheEntities(Set<String> cacheManagerNames,
+  public ResponseEntityV2 createCacheEntities(Set<String> cacheManagerNames,
       Set<String> cacheNames,
       Set<String> attributes) {
+    ResponseEntityV2 responseEntityV2 = new ResponseEntityV2();
     CacheEntityBuilderV2 builder = null;
     Collection<CacheEntityV2> entities;
 
@@ -357,14 +374,16 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
 
-    return entities;
+    responseEntityV2.getEntities().addAll(entities);
+    return responseEntityV2;
   }
 
   @Override
-  public Collection<CacheConfigEntityV2> createCacheConfigEntities(Set<String> cacheManagerNames,
+  public ResponseEntityV2 createCacheConfigEntities(Set<String> cacheManagerNames,
       Set<String> cacheNames) {
     CacheConfigurationEntityBuilderV2 builder = null;
     Collection<CacheConfigEntityV2> entities;
+    ResponseEntityV2 responseEntityV2 = new ResponseEntityV2();
 
     cacheManagerSamplerRepoLock.readLock().lock();
 
@@ -398,14 +417,16 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
 
-    return entities;
+    responseEntityV2.getEntities().addAll(entities);
+    return responseEntityV2;
   }
 
   @Override
-  public Collection<CacheStatisticSampleEntityV2> createCacheStatisticSampleEntity(Set<String> cacheManagerNames,
+  public ResponseEntityV2 createCacheStatisticSampleEntity(Set<String> cacheManagerNames,
       Set<String> cacheNames,
       Set<String> sampleNames) {
     CacheStatisticSampleEntityBuilderV2 builder = CacheStatisticSampleEntityBuilderV2.createWith(sampleNames);
+    ResponseEntityV2 responseEntityV2 = new ResponseEntityV2();
 
     cacheManagerSamplerRepoLock.readLock().lock();
 
@@ -433,7 +454,8 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
         }
       }
 
-      return builder.build();
+      responseEntityV2.getEntities().addAll(builder.build());
+      return responseEntityV2;
     } finally {
       for (SamplerRepoEntry samplerRepoEntry : disabledSamplerRepoEntries) {
         enableNonStopFor(samplerRepoEntry, true);
@@ -508,8 +530,9 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
   }
 
   @Override
-  public Collection<QueryResultsEntityV2> executeQuery(String cacheManagerName, String queryString) throws ServiceExecutionException {
+  public ResponseEntityV2 executeQuery(String cacheManagerName, String queryString) throws ServiceExecutionException {
     cacheManagerSamplerRepoLock.writeLock().lock();
+    ResponseEntityV2 responseEntityV2 = new ResponseEntityV2();
 
     try {
       SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
@@ -517,7 +540,10 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
         try {
           enableNonStopFor(entry, false);
           CacheManagerSampler cms = entry.getCacheManagerSampler();
-          return buildQueryResultsEntity(cacheManagerName, cms.executeQuery(queryString));
+
+          responseEntityV2.getEntities().addAll(
+              buildQueryResultsEntity(cacheManagerName, cms.executeQuery(queryString)));
+          return responseEntityV2;
         } catch (Exception e) {
           Throwable t = ExceptionUtils.getRootCause(e);
           throw new ServiceExecutionException(t.getMessage());
@@ -536,7 +562,6 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
     QueryResultsEntityV2 qre = new QueryResultsEntityV2();
 
     qre.setAgentId(AgentEntityV2.EMBEDDED_AGENT_ID);
-    qre.setVersion(this.getClass().getPackage().getImplementationVersion());
     qre.setName(cacheManagerName);
     qre.setData(data);
 
@@ -605,11 +630,11 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
   }
 
   @Override
-  public AgentEntityCollectionV2 getAgents(Set<String> ids) throws ServiceExecutionException {
-    AgentEntityCollectionV2 agentEntityCollectionV2 = new AgentEntityCollectionV2();
+  public ResponseEntityV2 getAgents(Set<String> ids) throws ServiceExecutionException {
+    ResponseEntityV2 agentEntityCollectionV2 = new ResponseEntityV2();
 
     if (ids.isEmpty()) {
-      agentEntityCollectionV2.getAgentEntities().add(buildAgentEntity());
+      agentEntityCollectionV2.getEntities().add(buildAgentEntity());
       return agentEntityCollectionV2;
     }
 
@@ -618,7 +643,7 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
       if (!id.equals(AgentEntityV2.EMBEDDED_AGENT_ID)) {
         throw new ServiceExecutionException("Unknown agent ID : " + id);
       }
-      agentEntityCollectionV2.getAgentEntities().add(buildAgentEntity());
+      agentEntityCollectionV2.getEntities().add(buildAgentEntity());
     }
 
     return agentEntityCollectionV2;
@@ -627,7 +652,6 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
   private AgentEntityV2 buildAgentEntity() {
     AgentEntityV2 e = new AgentEntityV2();
     e.setAgentId(AgentEntityV2.EMBEDDED_AGENT_ID);
-    e.setVersion(this.getClass().getPackage().getImplementationVersion());
     e.setAgencyOf(AGENCY);
 
     StringBuilder sb = new StringBuilder();
@@ -643,9 +667,12 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
   }
 
   @Override
-  public Collection<AgentMetadataEntityV2> getAgentsMetadata(Set<String> ids) throws ServiceExecutionException {
+  public ResponseEntityV2 getAgentsMetadata(Set<String> ids) throws ServiceExecutionException {
+    ResponseEntityV2 agentEntityCollectionV2 = new ResponseEntityV2();
+
     if (ids.isEmpty()) {
-      return Collections.singleton(buildAgentMetadata());
+      agentEntityCollectionV2.getEntities().addAll(Collections.singleton(buildAgentMetadata()));
+      return agentEntityCollectionV2;
     }
 
     Collection<AgentMetadataEntityV2> result = new ArrayList<AgentMetadataEntityV2>();
@@ -656,8 +683,8 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
       }
       result.add(buildAgentMetadata());
     }
-
-    return result;
+    agentEntityCollectionV2.getEntities().addAll(result);
+    return agentEntityCollectionV2;
   }
 
   private AgentMetadataEntityV2 buildAgentMetadata() {
@@ -665,7 +692,7 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
 
     ame.setAgentId(AgentEntityV2.EMBEDDED_AGENT_ID);
     ame.setAgencyOf(AGENCY);
-    ame.setVersion(this.getClass().getPackage().getImplementationVersion());
+    ame.setProductVersion(this.getClass().getPackage().getImplementationVersion());
     ame.setAvailable(true);
 
     if (isTsaBridged()) {
@@ -936,10 +963,18 @@ DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
         cacheAttributes.put("version", this.getClass().getPackage().getImplementationVersion());
         cacheAttributes.put("name", c.getName());
         cacheAttributes.put("cacheManagerName", cacheManager.getName());
-        Collection<CacheEntityV2> createCacheEntities = DfltSamplerRepositoryServiceV2.this.createCacheEntities(
-            Collections.singleton(cacheManagerName), Collections.singleton(c.getName()), null);
+        Collection<AbstractEntityV2> createCacheEntities = DfltSamplerRepositoryServiceV2.this.createCacheEntities(
+            Collections.singleton(cacheManagerName), Collections.singleton(c.getName()), null).getEntities();
         if (createCacheEntities != null && !createCacheEntities.isEmpty()) {
-          cacheAttributes.put("attributes", createCacheEntities.iterator().next().getAttributes());
+          CacheEntityV2 next = (CacheEntityV2) createCacheEntities.iterator().next();
+          Map<String, Object> attributes = next.getAttributes();
+          Map<String, Object> attributesFiltered = new HashMap<String, Object>();
+          for (Entry<String, Object> entry : attributes.entrySet()) {
+            if (!entry.getKey().endsWith("MostRecentSample")) {
+              attributesFiltered.put(entry.getKey(), entry.getValue());
+            }
+          }
+          cacheAttributes.put("attributes", attributesFiltered);
         }
 
         final EventEntityV2 evenEntityV2 = new EventEntityV2();

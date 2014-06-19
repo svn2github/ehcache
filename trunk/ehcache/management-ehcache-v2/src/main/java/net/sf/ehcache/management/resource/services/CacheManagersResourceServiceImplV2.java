@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.ServiceExecutionException;
+import org.terracotta.management.resource.ResponseEntityV2;
 import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
@@ -23,7 +24,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,7 +62,7 @@ public final class CacheManagersResourceServiceImplV2 {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Collection<CacheManagerEntityV2> getCacheManagers(@Context UriInfo info) {
+  public ResponseEntityV2 getCacheManagers(@Context UriInfo info) {
     LOG.debug(String.format("Invoking getCacheManagers: %s", info.getRequestUri()));
 
     validator.validateSafe(info);

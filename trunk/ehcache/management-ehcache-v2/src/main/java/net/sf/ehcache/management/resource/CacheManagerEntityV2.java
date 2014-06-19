@@ -2,7 +2,7 @@
 
 package net.sf.ehcache.management.resource;
 
-import org.terracotta.management.resource.VersionedEntityV2;
+import org.terracotta.management.resource.AbstractEntityV2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +14,8 @@ import java.util.Map;
  * 
  * @author brandony
  */
-public class CacheManagerEntityV2 extends VersionedEntityV2 {
+public class CacheManagerEntityV2 extends AbstractEntityV2 {
   private String name;
-
-  private String agentId;
 
   private final Map<String, Object> attributes = new HashMap<String, Object>();
 
@@ -33,22 +31,6 @@ public class CacheManagerEntityV2 extends VersionedEntityV2 {
    */
   public void setName(String name) {
     this.name = name;
-  }
-
-  /**
-   * @return the agentId
-   */
-  @Override
-  public String getAgentId() {
-    return agentId;
-  }
-
-  /**
-   * @param agentId to set
-   */
-  @Override
-  public void setAgentId(String agentId) {
-    this.agentId = agentId;
   }
 
   /**

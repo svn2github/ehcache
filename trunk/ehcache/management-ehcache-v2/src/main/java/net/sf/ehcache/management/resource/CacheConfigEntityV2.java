@@ -5,7 +5,7 @@ package net.sf.ehcache.management.resource;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import org.terracotta.management.resource.VersionedEntityV2;
+import org.terracotta.management.resource.AbstractEntityV2;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -30,10 +30,9 @@ import javax.xml.parsers.ParserConfigurationException;
  * 
  */
 @XmlRootElement(name = "configuration")
-public class CacheConfigEntityV2 extends VersionedEntityV2 {
+public class CacheConfigEntityV2 extends AbstractEntityV2 {
   private String cacheName;
   private String cacheManagerName;
-  private String agentId;
 
   // include this only in JSON
   @JsonProperty
@@ -73,16 +72,5 @@ public class CacheConfigEntityV2 extends VersionedEntityV2 {
 
   public void setCacheName(String cacheName) {
     this.cacheName = cacheName;
-  }
-
-  @Override
-  @XmlAttribute
-  public String getAgentId() {
-    return agentId;
-  }
-
-  @Override
-  public void setAgentId(String agentId) {
-    this.agentId =  agentId;
   }
 }

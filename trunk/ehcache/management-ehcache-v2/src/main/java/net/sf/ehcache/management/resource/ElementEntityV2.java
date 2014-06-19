@@ -5,25 +5,13 @@
 
 package net.sf.ehcache.management.resource;
 
-import org.terracotta.management.resource.VersionedEntityV2;
+import org.terracotta.management.resource.AbstractEntityV2;
 
 /**
  * @author brandony
  */
-public class ElementEntityV2 extends VersionedEntityV2 {
-  private String agentId;
-
+public class ElementEntityV2 extends AbstractEntityV2 {
   private String cacheName;
-
-  @Override
-  public String getAgentId() {
-    return agentId;
-  }
-
-  @Override
-  public void setAgentId(String agentId) {
-    this.agentId = agentId;
-  }
 
   public String getCacheName() {
     return cacheName;

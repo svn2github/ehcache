@@ -1,21 +1,19 @@
 package net.sf.ehcache.management.resource.services;
 
-import net.sf.ehcache.management.resource.CacheConfigEntityV2;
 import net.sf.ehcache.management.service.EntityResourceFactoryV2;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
+import org.terracotta.management.resource.ResponseEntityV2;
 import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.validator.RequestValidator;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -52,7 +50,7 @@ public final class CacheConfigsResourceServiceImplV2 {
    */
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public Collection<CacheConfigEntityV2> getCacheConfigs(@Context UriInfo info) {
+  public ResponseEntityV2 getCacheConfigs(@Context UriInfo info) {
     LOG.debug(String.format("Invoking CacheConfigsResourceServiceImpl.getCacheConfigs: %s", info.getRequestUri()));
 
     validator.validateSafe(info);
@@ -69,23 +67,5 @@ public final class CacheConfigsResourceServiceImplV2 {
     } catch (ServiceExecutionException see) {
       throw new ResourceRuntimeException("Failed to get cache configs", see, Response.Status.BAD_REQUEST.getStatusCode());
     }
-  }
-
-  /**
-   * Get a {@code Collection} of {@link net.sf.ehcache.management.resource.CacheConfigEntityV2} objects representing the
-   * cache manager configuration information provided by the associated monitorable entity's agent given the request
-   * path.
-   *
-   *
-   * @param {@link UriInfo} for this resource request
-   * @return a collection of CacheConfigEntity objects. {@link net.sf.ehcache.management.resource.CacheConfigEntityV2}
-   *         objects
-   */
-  @Deprecated
-  @GET
-  @Consumes(MediaType.APPLICATION_XML)
-  @Produces(MediaType.APPLICATION_XML)
-  public Collection<CacheConfigEntityV2> getXMLCacheConfigs(@Context UriInfo info) {
-    return getCacheConfigs(info);
   }
 }
