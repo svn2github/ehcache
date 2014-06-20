@@ -49,7 +49,7 @@ public final class QueryResourceServiceImplV2 {
 
     validator.validateSafe(info);
 
-    String cacheManagerName = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
+    String cacheManagerName = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
 
     MultivaluedMap<String, String> qParams = info.getQueryParameters();
     List<String> querys = qParams.get(ATTR_QUERY_KEY);

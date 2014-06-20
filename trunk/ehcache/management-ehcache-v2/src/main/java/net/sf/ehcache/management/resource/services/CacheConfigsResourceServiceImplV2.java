@@ -55,11 +55,11 @@ public final class CacheConfigsResourceServiceImplV2 {
 
     validator.validateSafe(info);
 
-    String cacheManagerNames = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
+    String cacheManagerNames = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
     Set<String> cmNames = cacheManagerNames == null ? null : new HashSet<String>(
         Arrays.asList(cacheManagerNames.split(",")));
 
-    String cacheNames = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
+    String cacheNames = info.getPathSegments().get(3).getMatrixParameters().getFirst("names");
     Set<String> cNames = cacheNames == null ? null : new HashSet<String>(Arrays.asList(cacheNames.split(",")));
 
     try {

@@ -55,7 +55,7 @@ public final class CacheManagerConfigsResourceServiceImplV2 {
 
     validator.validateSafe(info);
 
-    String names = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
+    String names = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
     Set<String> cmNames = names == null ? null : new HashSet<String>(Arrays.asList(names.split(",")));
 
     try {

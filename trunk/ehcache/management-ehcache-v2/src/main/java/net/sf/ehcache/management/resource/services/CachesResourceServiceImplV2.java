@@ -72,11 +72,11 @@ public final class CachesResourceServiceImplV2 {
 
     validator.validateSafe(info);
 
-    String cacheManagerNames = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
+    String cacheManagerNames = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
     Set<String> cmNames = cacheManagerNames == null ? null : new HashSet<String>(
         Arrays.asList(cacheManagerNames.split(",")));
 
-    String cacheNames = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
+    String cacheNames = info.getPathSegments().get(3).getMatrixParameters().getFirst("names");
     Set<String> cNames = cacheNames == null ? null : new HashSet<String>(Arrays.asList(cacheNames.split(",")));
 
     MultivaluedMap<String, String> qParams = info.getQueryParameters();
@@ -109,9 +109,9 @@ public final class CachesResourceServiceImplV2 {
 
     validator.validate(info);
 
-    String cacheManagerName = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
+    String cacheManagerName = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
 
-    String cacheName = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
+    String cacheName = info.getPathSegments().get(3).getMatrixParameters().getFirst("names");
 
     try {
       cacheSvc.createOrUpdateCache(cacheManagerName, cacheName, resource);

@@ -62,7 +62,7 @@ public abstract class AbstractEhcacheRequestValidatorV2 implements RequestValida
 
   protected void validateCacheManagerRequestSegment(List<PathSegment> pathSegments) {
     if (pathSegments.size() >= 2) {
-      String cacheManagerNames = pathSegments.get(1).getMatrixParameters().getFirst("names");
+      String cacheManagerNames = pathSegments.get(2).getMatrixParameters().getFirst("names");
       Set<String> cmNames = Utils.trimToNull(cacheManagerNames) == null ? null : new HashSet<String>(
           Arrays.asList(cacheManagerNames.split(",")));
       if (cmNames == null) {

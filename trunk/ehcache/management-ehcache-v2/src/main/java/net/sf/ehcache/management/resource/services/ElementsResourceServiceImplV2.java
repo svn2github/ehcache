@@ -49,8 +49,8 @@ public final class ElementsResourceServiceImplV2 {
     LOG.debug(String.format("Invoking ElementsResourceServiceImpl.deleteElements: %s", info.getRequestUri()));
 
     validator.validate(info);
-    String cacheManagerName = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
-    String cacheName = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
+    String cacheManagerName = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
+    String cacheName = info.getPathSegments().get(3).getMatrixParameters().getFirst("names");
 
     try {
       cacheSvc.clearCache(cacheManagerName, cacheName);

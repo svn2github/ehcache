@@ -54,14 +54,14 @@ public final class CacheStatisticSamplesResourceServiceImplV2 {
 
     validator.validateSafe(info);
 
-    String cacheManagerNames = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
+    String cacheManagerNames = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
     Set<String> cmNames = cacheManagerNames == null ? null : new HashSet<String>(
         Arrays.asList(cacheManagerNames.split(",")));
 
-    String cacheNames = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
+    String cacheNames = info.getPathSegments().get(3).getMatrixParameters().getFirst("names");
     Set<String> cNames = cacheNames == null ? null : new HashSet<String>(Arrays.asList(cacheNames.split(",")));
 
-    String sampleNames = info.getPathSegments().get(4).getMatrixParameters().getFirst("names");
+    String sampleNames = info.getPathSegments().get(5).getMatrixParameters().getFirst("names");
     Set<String> sNames = sampleNames == null ? null : new HashSet<String>(Arrays.asList(sampleNames.split(",")));
 
     try {

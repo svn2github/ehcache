@@ -67,7 +67,7 @@ public final class CacheManagersResourceServiceImplV2 {
 
     validator.validateSafe(info);
 
-    String names = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
+    String names = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
     Set<String> cmNames = names == null ? null : new HashSet<String>(Arrays.asList(names.split(",")));
 
     MultivaluedMap<String, String> qParams = info.getQueryParameters();
@@ -99,7 +99,7 @@ public final class CacheManagersResourceServiceImplV2 {
 
     validator.validate(info);
 
-    String cacheManagerName = info.getPathSegments().get(1).getMatrixParameters().getFirst("names");
+    String cacheManagerName = info.getPathSegments().get(2).getMatrixParameters().getFirst("names");
 
     try {
       cacheMgrSvc.updateCacheManager(cacheManagerName, resource);
