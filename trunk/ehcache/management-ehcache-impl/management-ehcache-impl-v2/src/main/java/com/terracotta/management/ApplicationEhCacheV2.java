@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
-import net.sf.ehcache.management.resource.services.validator.impl.EmbeddedEhcacheRequestValidatorV2;
+import net.sf.ehcache.management.resource.services.validator.impl.EmbeddedEhcacheRequestValidator;
 import net.sf.ehcache.management.service.CacheManagerServiceV2;
 import net.sf.ehcache.management.service.CacheServiceV2;
 import net.sf.ehcache.management.service.EntityResourceFactoryV2;
@@ -44,7 +44,7 @@ public class ApplicationEhCacheV2 extends DefaultApplicationV2 implements Applic
     DfltSamplerRepositoryServiceV2 samplerRepoSvc = new DfltSamplerRepositoryServiceV2(clientUUID, configuration,
         agentEndpointImpl);
     Map<Class<?>, Object> serviceClasses = new HashMap<Class<?>, Object>();
-    serviceClasses.put(RequestValidator.class, new EmbeddedEhcacheRequestValidatorV2());
+    serviceClasses.put(RequestValidator.class, new EmbeddedEhcacheRequestValidator());
     serviceClasses.put(CacheManagerServiceV2.class, samplerRepoSvc);
     serviceClasses.put(CacheServiceV2.class, samplerRepoSvc);
     serviceClasses.put(EntityResourceFactoryV2.class, samplerRepoSvc);

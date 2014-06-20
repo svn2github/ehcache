@@ -6,13 +6,15 @@
 package net.sf.ehcache.management.resource.services.validator.impl;
 
 import net.sf.ehcache.management.resource.services.validator.AbstractEhcacheRequestValidator;
-import org.terracotta.management.resource.AgentEntity;
+
+import org.terracotta.management.resource.Representable;
 import org.terracotta.management.resource.exceptions.ResourceRuntimeException;
 import org.terracotta.management.resource.services.Utils;
 
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+
 import java.util.List;
 
 /**
@@ -39,8 +41,8 @@ public final class EmbeddedEhcacheRequestValidator extends AbstractEhcacheReques
   protected void validateAgentSegment(List<PathSegment> pathSegments) {
     String ids = pathSegments.get(0).getMatrixParameters().getFirst("ids");
 
-    if (Utils.trimToNull(ids) != null && !AgentEntity.EMBEDDED_AGENT_ID.equals(ids)) {
-      throw new ResourceRuntimeException(String.format("Agent ID must be '%s'.", AgentEntity.EMBEDDED_AGENT_ID),
+    if (Utils.trimToNull(ids) != null && !Representable.EMBEDDED_AGENT_ID.equals(ids)) {
+      throw new ResourceRuntimeException(String.format("Agent ID must be '%s'.", Representable.EMBEDDED_AGENT_ID),
           Response.Status.BAD_REQUEST.getStatusCode());
     }
   }

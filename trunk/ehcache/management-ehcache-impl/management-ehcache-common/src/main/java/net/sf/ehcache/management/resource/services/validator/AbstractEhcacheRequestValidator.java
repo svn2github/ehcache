@@ -12,7 +12,6 @@ import org.terracotta.management.resource.services.validator.RequestValidator;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +24,7 @@ import java.util.Set;
  *
  * @author brandony
  */
-public abstract class AbstractEhcacheRequestValidatorV2 implements RequestValidator {
+public abstract class AbstractEhcacheRequestValidator implements RequestValidator {
 
   /**
    * {@inheritDoc}
@@ -62,7 +61,7 @@ public abstract class AbstractEhcacheRequestValidatorV2 implements RequestValida
 
   protected void validateCacheManagerRequestSegment(List<PathSegment> pathSegments) {
     if (pathSegments.size() >= 2) {
-      String cacheManagerNames = pathSegments.get(2).getMatrixParameters().getFirst("names");
+      String cacheManagerNames = getCacheManagerPathSegmentAccordingToVersion(pathSegments).getMatrixParameters().getFirst("names");
       Set<String> cmNames = Utils.trimToNull(cacheManagerNames) == null ? null : new HashSet<String>(
           Arrays.asList(cacheManagerNames.split(",")));
       if (cmNames == null) {
@@ -77,6 +76,17 @@ public abstract class AbstractEhcacheRequestValidatorV2 implements RequestValida
     }
 
     validateAgentSegment(pathSegments);
+  }
+
+  protected PathSegment getCacheManagerPathSegmentAccordingToVersion(List<PathSegment> pathSegments) {
+    PathSegment cacheManagerPathSegment = null;
+    if ("v2".equals(pathSegments.get(0).getPath())) {
+      cacheManagerPathSegment = pathSegments.get(2);
+    } else {
+      // v1
+      cacheManagerPathSegment = pathSegments.get(1);
+    }
+    return cacheManagerPathSegment;
   }
 
   protected abstract void validateAgentSegment(List<PathSegment> pathSegments);
