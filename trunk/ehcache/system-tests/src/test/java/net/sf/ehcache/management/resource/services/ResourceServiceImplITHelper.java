@@ -28,7 +28,7 @@ public abstract class ResourceServiceImplITHelper {
   private static ClusterManager clusterManager;
   private static TcConfig tcConfig;
 
-  public static int TSA_GROUP_PORT = new PortChooser().chooseRandomPort();
+  public static int MANAGEMENT_PORT = new PortChooser().chooseRandomPort();
   public static int STANDALONE_REST_AGENT_PORT = new PortChooser().chooseRandomPort();
 
   protected static final String BASEURI = "http://localhost";
@@ -37,8 +37,8 @@ public abstract class ResourceServiceImplITHelper {
   protected static CacheManager cacheManagerMaxElements;
 
   protected static final String STANDALONE_BASE_URL = BASEURI +":" + STANDALONE_REST_AGENT_PORT;
-  protected static final String CLUSTERED_BASE_URL =  BASEURI +":" + TSA_GROUP_PORT;
-  public static String CLUSTER_URL = "localhost:" + TSA_GROUP_PORT;
+  protected static final String CLUSTERED_BASE_URL =  BASEURI +":" + MANAGEMENT_PORT;
+  public static String CLUSTER_URL = "localhost:" + MANAGEMENT_PORT;
 
 
   protected static void setUpCluster(Class clazz) throws Exception {
@@ -46,7 +46,7 @@ public abstract class ResourceServiceImplITHelper {
             .mirrorGroup(
                     new TcMirrorGroup()
                             .server(
-                                    new TcServer().tsaGroupPort(TSA_GROUP_PORT)
+                                    new TcServer().managementPort(MANAGEMENT_PORT)
                             )
             );
 

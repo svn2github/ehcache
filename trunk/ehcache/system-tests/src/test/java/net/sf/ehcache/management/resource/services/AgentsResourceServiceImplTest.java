@@ -124,7 +124,7 @@ public class AgentsResourceServiceImplTest extends ResourceServiceImplITHelper {
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", Matchers.equalTo("embedded"))
             .body("get(0).agencyOf", Matchers.equalTo("TSA"))
-            .body("get(0).rootRepresentables.urls", Matchers.equalTo("http://localhost:" + TSA_GROUP_PORT))
+            .body("get(0).rootRepresentables.urls", Matchers.equalTo("http://localhost:" + MANAGEMENT_PORT))
             .body("get(1).agentId", anyOf(containsString("localhost_"), containsString("127.0.0.1_"), containsString("localhost.localdomain_"), containsString("localhost.home_")))
             .body("get(1).agencyOf", Matchers.equalTo("Ehcache"))
             .body("get(1).rootRepresentables.isEmpty()", Matchers.is(Boolean.TRUE))
