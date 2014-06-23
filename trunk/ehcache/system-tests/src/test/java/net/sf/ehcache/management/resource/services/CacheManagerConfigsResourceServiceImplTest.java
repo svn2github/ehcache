@@ -1,5 +1,6 @@
 package net.sf.ehcache.management.resource.services;
 
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.path.xml.NodeChildrenImpl;
 import com.jayway.restassured.internal.path.xml.NodeImpl;
 import com.jayway.restassured.path.xml.XmlPath;
@@ -11,9 +12,12 @@ import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
 
+import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
  * The aim of this test is to check via HTTP that the ehcache standalone agent /tc-management-api/agents/cacheManagers/config endpoint
@@ -41,133 +45,121 @@ public class CacheManagerConfigsResourceServiceImplTest extends ResourceServiceI
    * @throws Exception
    */
   public void getCacheManagersTest() throws Exception {
-    /*
-    <configurations>
-      <configuration agentId="embedded" cacheManagerName="testCacheManagerProgrammatic">
-        <ehcache maxBytesLocalDisk="10M" maxBytesLocalHeap="5M" name="testCacheManagerProgrammatic">
-          <managementRESTService bind="0.0.0.0:12121" enabled="true" securityServiceTimeout="0"/>
-          <defaultCache/>
-          <cache name="testCache2"/>
-        </ehcache>
-      </configuration>
-    </configurations>
-     */
-
     String agentsFilter = "";
     String cmsFilter = "";
-    String xml = given().header("accept", "application/xml").get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter, cmsFilter).asString();
-    XmlPath xmlPath = new XmlPath(xml).setRoot("configurations");
-    NodeImpl configuration = xmlPath.get("configuration[0]");
-    assertEquals("embedded", configuration.attributes().get("agentId"));
-    assertEquals("testCacheManagerProgrammatic", configuration.attributes().get("cacheManagerName"));
-    Node ehcacheNode = configuration.get(0);
-    assertEquals("10M", ehcacheNode.attributes().get("maxBytesLocalDisk"));
-    assertEquals("5M", ehcacheNode.attributes().get("maxBytesLocalHeap"));
-    assertEquals("testCacheManagerProgrammatic", ehcacheNode.attributes().get("name"));
-    Node managementNode = ehcacheNode.get("managementRESTService");
-    assertEquals("0.0.0.0:"+ STANDALONE_REST_AGENT_PORT, managementNode.attributes().get("bind"));
-    assertEquals("true", managementNode.attributes().get("enabled"));
-    Node cacheNode = ehcacheNode.get("cache");
-    assertEquals("testCache2", cacheNode.attributes().get("name"));
 
+    String xml = expect()
+        .contentType(ContentType.JSON)
+        .body("[0].agentId", equalTo("embedded"))
+        .body("[0].cacheManagerName", equalTo("testCacheManagerProgrammatic"))
+        .body("[1].agentId", equalTo("embedded"))
+        .body("[1].cacheManagerName", equalTo("testCacheManager"))
+        .statusCode(200)
+      .when()
+        .get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter, cmsFilter)
+        .jsonPath().get("[0].xml").toString();
 
-/*
-    configuration = xmlPath.get("configuration[1]");
-    assertEquals("embedded", configuration.attributes().get("agentId"));
-    assertEquals("testCacheManager", configuration.attributes().get("cacheManagerName"));
-    ehcacheNode = configuration.get(0);
-    assertEquals("testCacheManager", ehcacheNode.attributes().get("name"));
-    managementNode = ehcacheNode.get("managementRESTService");
-    assertEquals("0.0.0.0:12121", managementNode.attributes().get("bind"));
-    assertEquals("true", managementNode.attributes().get("enabled"));
-    assertEquals("0", managementNode.attributes().get("securityServiceTimeout"));
-    cacheNode = ehcacheNode.get("cache");
-    assertEquals("testCache", cacheNode.attributes().get("name"));
-    assertEquals("10000", cacheNode.attributes().get("maxEntriesLocalHeap"));
-*/
+    XmlPath xmlPath = new XmlPath(xml);
+    NodeImpl cacheManager = xmlPath.get("ehcache");
+    assertEquals("testCacheManagerProgrammatic", cacheManager.attributes().get("name"));
+    assertEquals("5M", cacheManager.attributes().get("maxBytesLocalHeap"));
+    assertEquals("10M", cacheManager.attributes().get("maxBytesLocalDisk"));
+    NodeImpl cache = cacheManager.get("cache");
+    assertEquals("testCache2", cache.getAttribute("name"));
+    assertNotNull(cache.get("terracotta"));
+    NodeImpl managementRESTService = cacheManager.get("managementRESTService");
+    assertEquals("true", managementRESTService.getAttribute("enabled"));
+    assertEquals("0.0.0.0:" + STANDALONE_REST_AGENT_PORT, managementRESTService.getAttribute("bind"));
+    NodeImpl terracottaConfig = cacheManager.get("terracottaConfig");
+    assertNotNull(terracottaConfig.getAttribute("url"));
 
 
     //same thing but we specify only a given cacheManager
     agentsFilter = "";
-    cmsFilter = ";names=testCacheManagerProgrammatic";
-    xml = given().header("accept", "application/xml").get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter, cmsFilter).asString();
-    xmlPath = new XmlPath(xml).setRoot("configurations");
-    configuration = xmlPath.get("configuration[0]");
-    assertEquals("embedded", configuration.attributes().get("agentId"));
-    assertEquals("testCacheManagerProgrammatic", configuration.attributes().get("cacheManagerName"));
-    ehcacheNode = configuration.get(0);
-    assertEquals("10M", ehcacheNode.attributes().get("maxBytesLocalDisk"));
-    assertEquals("5M", ehcacheNode.attributes().get("maxBytesLocalHeap"));
-    assertEquals("testCacheManagerProgrammatic", ehcacheNode.attributes().get("name"));
-    managementNode = ehcacheNode.get("managementRESTService");
-    assertEquals("0.0.0.0:"+STANDALONE_REST_AGENT_PORT, managementNode.attributes().get("bind"));
-    assertEquals("true", managementNode.attributes().get("enabled"));
-    cacheNode = ehcacheNode.get("cache");
-    assertEquals("testCache2", cacheNode.attributes().get("name"));
+    cmsFilter = ";names=testCacheManager";
 
-    NodeChildrenImpl configurationNull = xmlPath.get("configuration[1]");
-    assertTrue(configurationNull.isEmpty());
+    String filteredXml = expect()
+        .contentType(ContentType.JSON)
+        .body("[0].agentId", equalTo("embedded"))
+        .body("[0].cacheManagerName", equalTo("testCacheManager"))
+        .statusCode(200)
+      .when()
+        .get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter, cmsFilter)
+        .jsonPath().get("[0].xml").toString();
 
+    xmlPath = new XmlPath(filteredXml);
+
+    cacheManager = xmlPath.get("ehcache");
+    assertEquals("testCacheManager", cacheManager.attributes().get("name"));
+    cache = cacheManager.get("cache");
+    assertEquals("testCache", cache.getAttribute("name"));
+    assertNotNull(cache.get("terracotta"));
+    managementRESTService = cacheManager.get("managementRESTService");
+    assertEquals("true", managementRESTService.getAttribute("enabled"));
+    assertEquals("0.0.0.0:" + STANDALONE_REST_AGENT_PORT, managementRESTService.getAttribute("bind"));
+    terracottaConfig = cacheManager.get("terracottaConfig");
+    assertNotNull(terracottaConfig.getAttribute("url"));
   }
 
   @Test
   public void getCacheManagersTest__clustered() throws Exception {
     String agentId = getEhCacheAgentId();
-    final String agentsFilter = ";ids=" + agentId;
+    String agentsFilter = ";ids=" + agentId;
     String cmsFilter = "";
 
-    String xmlThroughClustered = given().header("accept", "application/xml").get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter, cmsFilter).asString();
-    XmlPath xmlPath = new XmlPath(xmlThroughClustered).setRoot("configurations");
-    NodeImpl configuration = xmlPath.get("configuration[0]");
-    assertEquals(agentId, configuration.attributes().get("agentId"));
-    assertEquals("testCacheManagerProgrammatic", configuration.attributes().get("cacheManagerName"));
-    Node ehcacheNode = configuration.get(0);
-    assertEquals("10M", ehcacheNode.attributes().get("maxBytesLocalDisk"));
-    assertEquals("5M", ehcacheNode.attributes().get("maxBytesLocalHeap"));
-    assertEquals("testCacheManagerProgrammatic", ehcacheNode.attributes().get("name"));
-    Node managementNode = ehcacheNode.get("managementRESTService");
-    assertEquals("0.0.0.0:"+STANDALONE_REST_AGENT_PORT, managementNode.attributes().get("bind"));
-    assertEquals("true", managementNode.attributes().get("enabled"));
-    Node cacheNode = ehcacheNode.get("cache");
-    assertEquals("testCache2", cacheNode.attributes().get("name"));
+
+    String xml = expect()
+        .contentType(ContentType.JSON)
+        .body("[0].agentId", equalTo(agentId))
+        .body("[0].cacheManagerName", equalTo("testCacheManagerProgrammatic"))
+        .body("[1].agentId", equalTo(agentId))
+        .body("[1].cacheManagerName", equalTo("testCacheManager"))
+        .statusCode(200)
+      .when()
+        .get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter, cmsFilter)
+        .jsonPath().get("[0].xml").toString();
 
 
-/*
-    configuration = xmlPath.get("configuration[1]");
-    assertEquals(agentId, configuration.attributes().get("agentId"));
-    assertEquals("testCacheManager", configuration.attributes().get("cacheManagerName"));
-    ehcacheNode = configuration.get(0);
-    assertEquals("testCacheManager", ehcacheNode.attributes().get("name"));
-    managementNode = ehcacheNode.get("managementRESTService");
-    assertEquals("0.0.0.0:12121", managementNode.attributes().get("bind"));
-    assertEquals("true", managementNode.attributes().get("enabled"));
-    assertEquals("0", managementNode.attributes().get("securityServiceTimeout"));
-    cacheNode = ehcacheNode.get("cache");
-    assertEquals("testCache", cacheNode.attributes().get("name"));
-    assertEquals("10000", cacheNode.attributes().get("maxEntriesLocalHeap"));
-*/
+    XmlPath xmlPath = new XmlPath(xml);
+    NodeImpl cacheManager = xmlPath.get("ehcache");
+    assertEquals("testCacheManagerProgrammatic", cacheManager.attributes().get("name"));
+    assertEquals("5M", cacheManager.attributes().get("maxBytesLocalHeap"));
+    assertEquals("10M", cacheManager.attributes().get("maxBytesLocalDisk"));
+    NodeImpl cache = cacheManager.get("cache");
+    assertEquals("testCache2", cache.getAttribute("name"));
+    assertNotNull(cache.get("terracotta"));
+    NodeImpl managementRESTService = cacheManager.get("managementRESTService");
+    assertEquals("true", managementRESTService.getAttribute("enabled"));
+    assertEquals("0.0.0.0:" + STANDALONE_REST_AGENT_PORT, managementRESTService.getAttribute("bind"));
+    NodeImpl terracottaConfig = cacheManager.get("terracottaConfig");
+    assertNotNull(terracottaConfig.getAttribute("url"));
 
 
     //same thing but we specify only a given cacheManager
-    cmsFilter = ";names=testCacheManagerProgrammatic";
-    xmlThroughClustered = given().header("accept", "application/xml").get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter, cmsFilter).asString();
-    xmlPath = new XmlPath(xmlThroughClustered).setRoot("configurations");
-    configuration = xmlPath.get("configuration[0]");
-    assertEquals(agentId, configuration.attributes().get("agentId"));
-    assertEquals("testCacheManagerProgrammatic", configuration.attributes().get("cacheManagerName"));
-    ehcacheNode = configuration.get(0);
-    assertEquals("10M", ehcacheNode.attributes().get("maxBytesLocalDisk"));
-    assertEquals("5M", ehcacheNode.attributes().get("maxBytesLocalHeap"));
-    assertEquals("testCacheManagerProgrammatic", ehcacheNode.attributes().get("name"));
-    managementNode = ehcacheNode.get("managementRESTService");
-    assertEquals("0.0.0.0:" + STANDALONE_REST_AGENT_PORT, managementNode.attributes().get("bind"));
-    assertEquals("true", managementNode.attributes().get("enabled"));
-    cacheNode = ehcacheNode.get("cache");
-    assertEquals("testCache2", cacheNode.attributes().get("name"));
+    agentsFilter = "";
+    cmsFilter = ";names=testCacheManager";
 
-    NodeChildrenImpl configurationNull = xmlPath.get("configuration[1]");
-    assertTrue(configurationNull.isEmpty());
+    String filteredXml = expect()
+        .contentType(ContentType.JSON)
+        .body("[0].agentId", equalTo(agentId))
+        .body("[0].cacheManagerName", equalTo("testCacheManager"))
+        .statusCode(200)
+        .when()
+        .get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter, cmsFilter)
+        .jsonPath().get("[0].xml").toString();
 
+    xmlPath = new XmlPath(filteredXml);
+
+    cacheManager = xmlPath.get("ehcache");
+    assertEquals("testCacheManager", cacheManager.attributes().get("name"));
+    cache = cacheManager.get("cache");
+    assertEquals("testCache", cache.getAttribute("name"));
+    assertNotNull(cache.get("terracotta"));
+    managementRESTService = cacheManager.get("managementRESTService");
+    assertEquals("true", managementRESTService.getAttribute("enabled"));
+    assertEquals("0.0.0.0:" + STANDALONE_REST_AGENT_PORT, managementRESTService.getAttribute("bind"));
+    terracottaConfig = cacheManager.get("terracottaConfig");
+    assertNotNull(terracottaConfig.getAttribute("url"));
   }
 
 
