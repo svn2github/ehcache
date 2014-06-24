@@ -161,6 +161,14 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
             Store store = new CacheStoreHelper((Cache)cache).getStore();
             if (store instanceof TerracottaStore) {
                 ((TerracottaStore)store).quickClear();
+                cache.getCacheEventNotificationService().notifyRemoveAll(false);
+                PinningConfiguration pinningConfiguration = cache.getCacheConfiguration().getPinningConfiguration();
+                if (pinningConfiguration != null && PinningConfiguration.Store.INCACHE.equals(pinningConfiguration.getStore())) {
+                    LOG.warn("Data availability impacted:\n" +
+                             "****************************************************************************************\n" +
+                             "************************** removeAll called on a pinned cache **************************\n" +
+                             "****************************************************************************************");
+                }
                 return;
             }
         }
