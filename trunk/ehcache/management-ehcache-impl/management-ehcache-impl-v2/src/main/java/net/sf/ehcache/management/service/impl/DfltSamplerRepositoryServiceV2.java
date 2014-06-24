@@ -34,6 +34,7 @@ import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.CacheConfigurationListener;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import net.sf.ehcache.constructs.nonstop.NonStopCacheException;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import net.sf.ehcache.management.resource.CacheConfigEntityV2;
@@ -782,7 +783,11 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
       for (String cName : cNames) {
         Ehcache ehcache = cacheManager.getEhcache(cName);
         cacheSamplersByName.put(cName, new CacheSamplerImpl(ehcache));
-        ehcache.getCacheEventNotificationService().registerListener(cacheEventListener);
+        try {
+          ehcache.getCacheEventNotificationService().registerListener(cacheEventListener);
+        } catch (NonStopCacheException nsce) {
+          // TABQA-7431: we can ignore the nonstop exception, the listener is in place anyway
+        }
         PropertyChangeListenerImplementation propertyChangeListener = new PropertyChangeListenerImplementation(ehcache);
         SamplerCacheConfigurationListener samplerCacheConfigurationListener = new SamplerCacheConfigurationListener(ehcache);
         propertyChangeListeners.put(cName, propertyChangeListener);
