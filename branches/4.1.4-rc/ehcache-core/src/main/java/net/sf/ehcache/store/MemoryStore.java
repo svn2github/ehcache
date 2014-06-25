@@ -874,13 +874,22 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
      * @return true if succeeded, false otherwise
      */
     protected boolean evict(final Element element) {
-        evictionObserver.begin();
-        Element remove = remove(element.getObjectKey());
-        if (remove != null) {
-            evictionObserver.end(EvictionOutcome.SUCCESS);
-            cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+        final ReentrantReadWriteLock.WriteLock lock = map.lockFor(element.getObjectKey()).writeLock();
+        if (lock.tryLock()) {
+            evictionObserver.begin();
+            Element remove;
+            try {
+                remove = remove(element.getObjectKey());
+                if (remove != null) {
+                    evictionObserver.end(EvictionOutcome.SUCCESS);
+                    cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+                }
+                return remove != null;
+            } finally {
+                lock.unlock();
+            }
         }
-        return remove != null;
+        return false;
     }
 
     /**
