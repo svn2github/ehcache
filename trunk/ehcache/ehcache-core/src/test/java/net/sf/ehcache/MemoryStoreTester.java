@@ -650,7 +650,11 @@ public class MemoryStoreTester extends AbstractCacheTest {
         t.start();
         barrier.await();
         evict(store, element);
-        barrier.await();
+        try {
+            barrier.await();
+        } catch (BrokenBarrierException e) {
+            fail("We have been blocked!");
+        }
         t.join();
     }
 
