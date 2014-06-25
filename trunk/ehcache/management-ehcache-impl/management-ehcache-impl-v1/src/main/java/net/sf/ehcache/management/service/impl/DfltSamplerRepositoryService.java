@@ -75,13 +75,6 @@ EntityResourceFactory, CacheManagerService, CacheService, AgentService, DfltSamp
   public static final String MBEAN_NAME_PREFIX = "net.sf.ehcache:type=" + IDENTIFIER;
   public static final String AGENCY = "Ehcache";
 
-  private final ThreadLocal<Boolean> tsaBridged = new ThreadLocal<Boolean>() {
-    @Override
-    protected Boolean initialValue() {
-      return false;
-    }
-  };
-
   /**
    * Guarded By cacheManagerSamplerRepoLock
    */
@@ -622,6 +615,7 @@ EntityResourceFactory, CacheManagerService, CacheService, AgentService, DfltSamp
     ame.setAgentId(AgentEntity.EMBEDDED_AGENT_ID);
     ame.setAgencyOf(AGENCY);
     ame.setVersion(this.getClass().getPackage().getImplementationVersion());
+    ame.setRestAPIVersion("v1");
     ame.setAvailable(true);
 
     if (isTsaBridged()) {
@@ -643,11 +637,11 @@ EntityResourceFactory, CacheManagerService, CacheService, AgentService, DfltSamp
   }
 
   protected boolean isTsaBridged() {
-    return tsaBridged.get();
+    return remoteAgentEndpoint.isTsaBridged();
   }
 
   protected boolean isTsaSecured() {
-    return false;
+    return remoteAgentEndpoint.isTsaSecured();
   }
 
 
