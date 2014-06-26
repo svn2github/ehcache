@@ -9,5 +9,5 @@ import org.terracotta.management.l1bridge.RemoteAgentEndpoint;
 /**
  * @author Ludovic Orban
  */
-public interface DfltSamplerRepositoryServiceMBean extends RemoteAgentEndpoint {
+public interface RemoteAgentEndpointImplMBean extends RemoteAgentEndpoint {
 }

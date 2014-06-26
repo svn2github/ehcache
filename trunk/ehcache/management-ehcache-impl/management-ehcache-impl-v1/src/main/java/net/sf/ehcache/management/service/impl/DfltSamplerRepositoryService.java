@@ -4,22 +4,6 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -42,19 +26,25 @@ import net.sf.ehcache.management.service.CacheService;
 import net.sf.ehcache.management.service.EntityResourceFactory;
 import net.sf.ehcache.management.service.ManagementServerLifecycle;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
-import org.terracotta.management.l1bridge.RemoteCallDescriptor;
-import org.terracotta.management.l1bridge.RemoteCallException;
 import org.terracotta.management.resource.AgentEntity;
 import org.terracotta.management.resource.AgentMetadataEntity;
 import org.terracotta.management.resource.exceptions.ExceptionUtils;
 import org.terracotta.management.resource.services.AgentService;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * A controller class registering new {@link CacheManager}.
@@ -66,13 +56,9 @@ import org.terracotta.management.resource.services.Utils;
  *
  * @author brandony
  */
-public class DfltSamplerRepositoryService
-implements ManagementServerLifecycle,
-EntityResourceFactory, CacheManagerService, CacheService, AgentService, DfltSamplerRepositoryServiceMBean {
+public class DfltSamplerRepositoryService implements ManagementServerLifecycle,
+    EntityResourceFactory, CacheManagerService, CacheService, AgentService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DfltSamplerRepositoryService.class);
-
-  public static final String MBEAN_NAME_PREFIX = "net.sf.ehcache:type=" + IDENTIFIER;
   public static final String AGENCY = "Ehcache";
 
   /**
@@ -81,17 +67,13 @@ EntityResourceFactory, CacheManagerService, CacheService, AgentService, DfltSamp
   private final Map<String, SamplerRepoEntry> cacheManagerSamplerRepo = new HashMap<String, SamplerRepoEntry>();
 
   private final ReadWriteLock cacheManagerSamplerRepoLock = new ReentrantReadWriteLock();
-  private volatile ObjectName objectName;
   protected final ManagementRESTServiceConfiguration configuration;
 
   private final RemoteAgentEndpointImpl remoteAgentEndpoint;
 
-  public DfltSamplerRepositoryService(String clientUUID, ManagementRESTServiceConfiguration configuration,
+  public DfltSamplerRepositoryService(ManagementRESTServiceConfiguration configuration,
       RemoteAgentEndpointImpl remoteAgentEndpoint) {
     this.configuration = configuration;
-    if (clientUUID != null) {
-      registerMBean(clientUUID);
-    }
     this.remoteAgentEndpoint = remoteAgentEndpoint;
   }
 
@@ -106,40 +88,7 @@ EntityResourceFactory, CacheManagerService, CacheService, AgentService, DfltSamp
    * {@inheritDoc}
    */
   @Override
-  public final synchronized void registerMBean(String clientUUID) {
-    if (clientUUID == null) {
-      throw new NullPointerException("clientUUID cannot be null");
-    }
-    if (objectName == null) {
-      ObjectName objectName;
-      try {
-        objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
-        MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
-        platformMBeanServer.registerMBean(this, objectName);
-      } catch (InstanceAlreadyExistsException iaee) {
-        // the MBean has already been registered -> mark its name as null so it won't be unregistered by this instance
-        objectName = null;
-      } catch (Exception e) {
-        LOG.warn("Error registering SamplerRepositoryService MBean with UUID: " + clientUUID, e);
-        objectName = null;
-      }
-      this.objectName = objectName;
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void dispose() {
-    if (objectName != null) {
-      try {
-        MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
-        platformMBeanServer.unregisterMBean(objectName);
-      } catch (Exception e) {
-        LOG.warn("Error unregistering SamplerRepositoryService MBean: " + objectName, e);
-      }
-    }
   }
 
   /**
@@ -887,21 +836,6 @@ EntityResourceFactory, CacheManagerService, CacheService, AgentService, DfltSamp
       cacheManagerSampler = null;
       cacheManager = null;
     }
-  }
-
-  @Override
-  public byte[] invoke(RemoteCallDescriptor remoteCallDescriptor) throws RemoteCallException {
-    return remoteAgentEndpoint.invoke(remoteCallDescriptor);
-  }
-
-  @Override
-  public String getVersion() {
-    return remoteAgentEndpoint.getVersion();
-  }
-
-  @Override
-  public String getAgency() {
-    return remoteAgentEndpoint.getAgency();
   }
 
 }

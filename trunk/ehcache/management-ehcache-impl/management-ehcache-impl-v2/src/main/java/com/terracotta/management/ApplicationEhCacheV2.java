@@ -40,8 +40,8 @@ public class ApplicationEhCacheV2 extends DefaultApplicationV2 implements Applic
   }
 
   @Override
-  public Map<Class<?>, Object> getServiceClasses(String clientUUID, ManagementRESTServiceConfiguration configuration, RemoteAgentEndpointImpl agentEndpointImpl) {
-    DfltSamplerRepositoryServiceV2 samplerRepoSvc = new DfltSamplerRepositoryServiceV2(clientUUID, configuration,
+  public Map<Class<?>, Object> getServiceClasses(ManagementRESTServiceConfiguration configuration, RemoteAgentEndpointImpl agentEndpointImpl) {
+    DfltSamplerRepositoryServiceV2 samplerRepoSvc = new DfltSamplerRepositoryServiceV2(configuration,
         agentEndpointImpl);
     Map<Class<?>, Object> serviceClasses = new HashMap<Class<?>, Object>();
     serviceClasses.put(RequestValidator.class, new EmbeddedEhcacheRequestValidator());

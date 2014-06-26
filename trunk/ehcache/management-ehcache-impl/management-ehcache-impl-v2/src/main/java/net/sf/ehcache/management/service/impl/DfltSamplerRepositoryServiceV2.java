@@ -4,26 +4,6 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -52,13 +32,8 @@ import net.sf.ehcache.management.service.CacheServiceV2;
 import net.sf.ehcache.management.service.EntityResourceFactoryV2;
 import net.sf.ehcache.management.service.SamplerRepositoryServiceV2;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
-import org.terracotta.management.l1bridge.RemoteCallDescriptor;
-import org.terracotta.management.l1bridge.RemoteCallException;
 import org.terracotta.management.resource.AgentEntityV2;
 import org.terracotta.management.resource.AgentMetadataEntityV2;
 import org.terracotta.management.resource.Representable;
@@ -69,6 +44,21 @@ import org.terracotta.management.resource.services.AgentServiceV2;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
 import org.terracotta.management.resource.services.events.EventServiceV2;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * A controller class registering new {@link CacheManager}.
@@ -82,11 +72,8 @@ import org.terracotta.management.resource.services.events.EventServiceV2;
  */
 public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV2,
     EntityResourceFactoryV2, CacheManagerServiceV2, CacheServiceV2, AgentServiceV2,
-    DfltSamplerRepositoryServiceV2MBean, EventServiceV2 {
+    EventServiceV2 {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DfltSamplerRepositoryServiceV2.class);
-
-  public static final String MBEAN_NAME_PREFIX = "net.sf.ehcache:type=" + IDENTIFIER;
   public static final String AGENCY = "Ehcache";
 
   final Set<EventListener> listeners = new HashSet<EventListener>();
@@ -97,17 +84,13 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
   private final Map<String, SamplerRepoEntry> cacheManagerSamplerRepo = new HashMap<String, SamplerRepoEntry>();
 
   private final ReadWriteLock cacheManagerSamplerRepoLock = new ReentrantReadWriteLock();
-  private volatile ObjectName objectName;
   protected final ManagementRESTServiceConfiguration configuration;
 
   private final RemoteAgentEndpointImpl remoteAgentEndpoint;
 
-  public DfltSamplerRepositoryServiceV2(String clientUUID, ManagementRESTServiceConfiguration configuration,
+  public DfltSamplerRepositoryServiceV2(ManagementRESTServiceConfiguration configuration,
       RemoteAgentEndpointImpl remoteAgentEndpoint) {
     this.configuration = configuration;
-    if (clientUUID != null) {
-      registerMBean(clientUUID);
-    }
     this.remoteAgentEndpoint = remoteAgentEndpoint;
   }
 
@@ -122,40 +105,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
    * {@inheritDoc}
    */
   @Override
-  public final synchronized void registerMBean(String clientUUID) {
-    if (clientUUID == null) {
-      throw new NullPointerException("clientUUID cannot be null");
-    }
-    if (objectName == null) {
-      ObjectName objectName;
-      try {
-        objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
-        MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
-        platformMBeanServer.registerMBean(this, objectName);
-      } catch (InstanceAlreadyExistsException iaee) {
-        // the MBean has already been registered -> mark its name as null so it won't be unregistered by this instance
-        objectName = null;
-      } catch (Exception e) {
-        LOG.warn("Error registering SamplerRepositoryService MBean with UUID: " + clientUUID, e);
-        objectName = null;
-      }
-      this.objectName = objectName;
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public void dispose() {
-    if (objectName != null) {
-      try {
-        MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
-        platformMBeanServer.unregisterMBean(objectName);
-      } catch (Exception e) {
-        LOG.warn("Error unregistering SamplerRepositoryService MBean: " + objectName, e);
-      }
-    }
   }
 
 
@@ -1176,21 +1126,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     for (EventListener eventListener : listeners) {
       eventListener.onEvent(evenEntityV2);
     }
-  }
-
-  @Override
-  public byte[] invoke(RemoteCallDescriptor remoteCallDescriptor) throws RemoteCallException {
-    return remoteAgentEndpoint.invoke(remoteCallDescriptor);
-  }
-
-  @Override
-  public String getVersion() {
-    return remoteAgentEndpoint.getVersion();
-  }
-
-  @Override
-  public String getAgency() {
-    return remoteAgentEndpoint.getAgency();
   }
 
   @Override

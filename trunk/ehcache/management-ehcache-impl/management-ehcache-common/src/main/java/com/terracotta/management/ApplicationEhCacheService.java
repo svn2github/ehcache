@@ -10,7 +10,7 @@ import net.sf.ehcache.management.service.impl.RemoteAgentEndpointImpl;
 public interface ApplicationEhCacheService<T> {
   public Set<Class<?>> getRestResourceClasses();
 
-  Map<Class<?>, Object> getServiceClasses(String clientUUID, ManagementRESTServiceConfiguration configuration,
+  Map<Class<?>, Object> getServiceClasses(ManagementRESTServiceConfiguration configuration,
       RemoteAgentEndpointImpl remoteAgentEndpointImpl);
 
   Class<? extends ManagementServerLifecycle> getManagementServerLifecyle();

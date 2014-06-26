@@ -4,16 +4,9 @@
  */
 package net.sf.ehcache.management;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.ServiceLoader;
-
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.management.service.ManagementServerLifecycle;
 import net.sf.ehcache.management.service.impl.RemoteAgentEndpointImpl;
-
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.embedded.FilterDetail;
 import org.terracotta.management.embedded.NoIaFilter;
@@ -23,13 +16,21 @@ import org.terracotta.management.resource.services.LicenseServiceImpl;
 
 import com.terracotta.management.ApplicationEhCacheService;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.ServiceLoader;
+
 /**
  * @author brandony
  */
 public final class ManagementServerImpl extends AbstractManagementServer {
 
+  private RemoteAgentEndpointImpl remoteAgentEndpointImpl;
+
   @Override
-  public void initialize(String clientUUID, ManagementRESTServiceConfiguration configuration) {
+  public void initialize(ManagementRESTServiceConfiguration configuration) {
 
     // Clear settings that are invalid for non-ee management servers
     configuration.setNeedClientAuth(false);
@@ -40,9 +41,9 @@ public final class ManagementServerImpl extends AbstractManagementServer {
     String host = configuration.getHost();
     int port = configuration.getPort();
 
-    loadEmbeddedAgentServiceLocator(clientUUID, configuration);
+    loadEmbeddedAgentServiceLocator(configuration);
 
-    ServiceLoader<ApplicationEhCacheService> loaders = ServiceLoader.load(ApplicationEhCacheService.class);
+    ServiceLoader<ApplicationEhCacheService> loaders = applicationEhCacheServiceLoader();
     for (ApplicationEhCacheService applicationEhCacheService : loaders) {
       Class<ManagementServerLifecycle> clazz = applicationEhCacheService.getManagementServerLifecyle();
       managementServerLifecycles.add(ServiceLocator.locate(clazz));
@@ -53,16 +54,25 @@ public final class ManagementServerImpl extends AbstractManagementServer {
         host, port, null, false);
   }
 
+  @Override
+  public void registerClusterRemoteEndpoint(String clientUUID) {
+    remoteAgentEndpointImpl.registerMBean(clientUUID);
+  }
 
-  private <T> void loadEmbeddedAgentServiceLocator(String clientUUID, ManagementRESTServiceConfiguration configuration) {
+  @Override
+  public void unregisterClusterRemoteEndpoint() {
+    remoteAgentEndpointImpl.unregisterMBean();
+  }
+
+  private <T> void loadEmbeddedAgentServiceLocator(ManagementRESTServiceConfiguration configuration) {
     // TODO : refactor loop through service loaders
-RemoteAgentEndpointImpl remoteAgentEndpointImpl =  new RemoteAgentEndpointImpl();
-    
+    remoteAgentEndpointImpl = new RemoteAgentEndpointImpl();
+
     ServiceLocator locator = new ServiceLocator();
     LicenseService licenseService = new LicenseServiceImpl(false);
-    ServiceLoader<ApplicationEhCacheService> loader = ServiceLoader.load(ApplicationEhCacheService.class);
+    ServiceLoader<ApplicationEhCacheService> loader = applicationEhCacheServiceLoader();
     for (ApplicationEhCacheService applicationEhCacheService : loader) {
-      Map<Class<T>, T> serviceClasses = applicationEhCacheService.getServiceClasses(clientUUID, configuration, remoteAgentEndpointImpl);
+      Map<Class<T>, T> serviceClasses = applicationEhCacheService.getServiceClasses(configuration, remoteAgentEndpointImpl);
       for (Entry<Class<T>, T> entry : serviceClasses.entrySet()) {
         locator.loadService(entry.getKey(), entry.getValue());
       }

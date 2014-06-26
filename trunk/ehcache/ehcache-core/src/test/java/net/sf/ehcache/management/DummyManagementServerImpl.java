@@ -15,7 +15,7 @@ public class DummyManagementServerImpl implements ManagementServer {
     STARTED, STOPPED
   }
 
-  public static Status status = Status.STOPPED;
+  public Status status = Status.STOPPED;
   public final static Map<String, CacheManager> registeredCacheManagers = new HashMap<String, CacheManager>();
 
   public DummyManagementServerImpl() {
@@ -47,6 +47,14 @@ public class DummyManagementServerImpl implements ManagementServer {
   }
 
   @Override
-  public void initialize(String clientUUID, ManagementRESTServiceConfiguration configuration) {
+  public void initialize(ManagementRESTServiceConfiguration configuration) {
+  }
+
+  @Override
+  public void registerClusterRemoteEndpoint(String clientUUID) {
+  }
+
+  @Override
+  public void unregisterClusterRemoteEndpoint() {
   }
 }

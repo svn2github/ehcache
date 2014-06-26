@@ -1,6 +1,11 @@
+/*
+ * All content copyright (c) 2003-2012 Terracotta, Inc., except as may otherwise be noted in a separate copyright
+ * notice. All rights reserved.
+ */
 package net.sf.ehcache.management;
 
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.sf.ehcache.CacheException;
@@ -9,6 +14,8 @@ import net.sf.ehcache.management.service.ManagementServerLifecycle;
 
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.embedded.StandaloneServer;
+
+import com.terracotta.management.ApplicationEhCacheService;
 
 /**
  * 
@@ -87,4 +94,14 @@ public abstract class AbstractManagementServer implements ManagementServer {
     }
     return hasRegistered;
   }
+
+  protected ServiceLoader<ApplicationEhCacheService> applicationEhCacheServiceLoader() {
+    ServiceLoader<ApplicationEhCacheService> sl = ServiceLoader.load(ApplicationEhCacheService.class,
+        getClass().getClassLoader());
+    if (!sl.iterator().hasNext()) {
+      throw new CacheException("ServiceLoader found no ApplicationEhCacheService implementation");
+    }
+    return sl;
+  }
+
 }

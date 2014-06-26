@@ -180,11 +180,16 @@ public class AbstractManagementServerTest {
     }
 
     @Override
-    public void initialize(String clientUUID, ManagementRESTServiceConfiguration configuration) {
+    public void initialize(ManagementRESTServiceConfiguration configuration) {
+    }
+
+    @Override
+    public void registerClusterRemoteEndpoint(String clientUUID) {
+    }
+
+    @Override
+    public void unregisterClusterRemoteEndpoint() {
     }
   }
-
-
-
 
 }

@@ -1,3 +1,7 @@
+/*
+ * All content copyright (c) 2003-2012 Terracotta, Inc., except as may otherwise be noted in a separate copyright
+ * notice. All rights reserved.
+ */
 package net.sf.ehcache.management.service;
 
 import net.sf.ehcache.CacheManager;
@@ -8,13 +12,6 @@ import net.sf.ehcache.CacheManager;
  * @author brandony
  */
 public interface ManagementServerLifecycle {
-
-  /**
-   * Register this service as an MBean, if not done already.
-   *
-   * @param clientUUID the UUID to identify this service
-   */
-  void registerMBean(String clientUUID);
 
   /**
    * Register a {@link CacheManager} for sampling.

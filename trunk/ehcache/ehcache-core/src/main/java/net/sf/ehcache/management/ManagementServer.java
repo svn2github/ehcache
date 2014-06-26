@@ -51,20 +51,31 @@ public interface ManagementServer {
      */
     public void unregister(CacheManager managedResource);
 
-  /**
-   * Returns true if this {@code ManagementServer} has any resources registered.
-   *
-   * @return true if actively managing resources, false if not.
-   */
-  public boolean hasRegistered();
+    /**
+     * Returns true if this {@code ManagementServer} has any resources registered.
+     *
+     * @return true if actively managing resources, false if not.
+     */
+    public boolean hasRegistered();
 
-  /**
-   * Initialize method to call just after instantiating the class
-   *
-   * @param clientUUID  the clusteredInstanceFactory UUID, or null
-   * @param configuration the configuration of the rest agent
-   *
-   */
-  public void initialize(String clientUUID, ManagementRESTServiceConfiguration configuration);
+    /**
+     * Initialize method to call just after instantiating the class
+     *
+     * @param configuration the configuration of the rest agent
+     */
+    public void initialize(ManagementRESTServiceConfiguration configuration);
+
+    /**
+     * Register the cluster endpoint of a specific client to enable
+     * clustered monitoring.
+     *
+     * @param clientUUID the client UUID
+     */
+    public void registerClusterRemoteEndpoint(String clientUUID);
+
+    /**
+     * Unregister the previously registered cluster endpoint.
+     */
+    public void unregisterClusterRemoteEndpoint();
 
 }
