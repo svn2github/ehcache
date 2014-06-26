@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * A Store implementation suitable for fast, concurrent in memory stores. The policy is determined by that
@@ -839,13 +840,22 @@ public class MemoryStore extends AbstractStore implements TierableStore, Poolabl
      * @return true if succeeded, false otherwise
      */
     protected boolean evict(final Element element) {
-        final Element remove = remove(element.getObjectKey());
-        RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
-        final FrontEndCacheTier frontEndCacheTier = cacheEventNotificationService.getFrontEndCacheTier();
-        if (remove != null && frontEndCacheTier != null && frontEndCacheTier.notifyEvictionFromCache(remove.getKey())) {
-            cacheEventNotificationService.notifyElementEvicted(remove, false);
+        final ReentrantReadWriteLock.WriteLock lock = map.lockFor(element.getObjectKey()).writeLock();
+        if (lock.tryLock()) {
+            final Element remove;
+            try {
+                remove = remove(element.getObjectKey());
+            } finally {
+                lock.unlock();
+            }
+            RegisteredEventListeners cacheEventNotificationService = cache.getCacheEventNotificationService();
+            final FrontEndCacheTier frontEndCacheTier = cacheEventNotificationService.getFrontEndCacheTier();
+            if (remove != null && frontEndCacheTier != null && frontEndCacheTier.notifyEvictionFromCache(remove.getKey())) {
+                cacheEventNotificationService.notifyElementEvicted(remove, false);
+            }
+            return remove != null;
         }
-        return remove != null;
+        return false;
     }
 
     /**
