@@ -866,14 +866,14 @@ public class MemoryStore extends AbstractStore implements CacheConfigurationList
             Element remove;
             try {
                 remove = remove(element.getObjectKey());
-                if (remove != null) {
-                    evictionObserver.end(EvictionOutcome.SUCCESS);
-                    cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
-                }
-                return remove != null;
             } finally {
                 lock.unlock();
             }
+            if (remove != null) {
+                evictionObserver.end(EvictionOutcome.SUCCESS);
+                cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
+            }
+            return remove != null;
         }
         return false;
     }
