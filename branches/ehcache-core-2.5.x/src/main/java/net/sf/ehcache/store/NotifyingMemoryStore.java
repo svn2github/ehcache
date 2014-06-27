@@ -57,11 +57,11 @@ public final class NotifyingMemoryStore extends MemoryStore {
      */
     @Override
     protected boolean evict(final Element element) {
-        Element remove = remove(element.getObjectKey());
-        if (remove != null) {
+        final boolean evicted = super.evict(element);
+        if (evicted) {
             cache.getCacheEventNotificationService().notifyElementEvicted(element, false);
         }
-        return remove != null;
+        return evicted;
     }
 
     /**
