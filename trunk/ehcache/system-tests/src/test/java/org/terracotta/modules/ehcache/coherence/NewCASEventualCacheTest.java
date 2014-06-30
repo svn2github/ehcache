@@ -23,7 +23,6 @@ public class NewCASEventualCacheTest extends AbstractCacheTestBase {
 
         public NewCASEventualCacheTestClient(String[] args) {
             super(args);
-            System.setProperty("org.terracotta.clusteredStore.eventual.cas.enabled", "true");
         }
 
         @Override
