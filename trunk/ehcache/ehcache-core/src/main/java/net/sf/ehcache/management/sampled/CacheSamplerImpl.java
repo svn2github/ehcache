@@ -43,7 +43,6 @@ import org.terracotta.statistics.archive.Timestamped;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  * An implementation of {@link CacheSampler}
@@ -1515,7 +1514,7 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
      */
     @Override
     public long getSearchesPerSecond() {
-        return 1000l/TimeUnit.MILLISECONDS.convert(getAverageSearchTimeNanos(),TimeUnit.NANOSECONDS);
+        return getCacheSearchRate();
     }
 
     /**
