@@ -26,7 +26,7 @@
     </dependency>
     <dependency>
       <groupId>org.terracotta</groupId>
-      <artifactId>management-core</artifactId>
+      <artifactId>management-core-resources</artifactId>
       <version>${management-core.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
