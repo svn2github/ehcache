@@ -107,7 +107,10 @@ public class ManagementServerLoader {
      */
     public static void register(CacheManager cacheManager, String clientUUID,
                                 ManagementRESTServiceConfiguration managementRESTServiceConfiguration) {
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
+            // because some code in Jersey is using the TCCL to resolve some classes
+            Thread.currentThread().setContextClassLoader(RESOURCE_CLASS_LOADER);
             if (!MGMT_SVR_BY_BIND.containsKey(managementRESTServiceConfiguration.getBind())) {
                 if (!MGMT_SVR_BY_BIND.isEmpty()) {
                     String alreadyBound = MGMT_SVR_BY_BIND.keySet().iterator().next();
@@ -136,6 +139,9 @@ public class ManagementServerLoader {
             } else {
                 throw new CacheException("Failed to instantiate ManagementServer.", e);
             }
+        } finally {
+            // setting back the appClassLoader as the TCCL
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
     }
 
