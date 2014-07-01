@@ -4,6 +4,24 @@
  */
 package net.sf.ehcache.management.service.impl;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import javax.ws.rs.core.UriInfo;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
@@ -32,6 +50,7 @@ import net.sf.ehcache.management.service.CacheServiceV2;
 import net.sf.ehcache.management.service.EntityResourceFactoryV2;
 import net.sf.ehcache.management.service.SamplerRepositoryServiceV2;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
+
 import org.terracotta.management.ServiceExecutionException;
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.resource.AgentEntityV2;
@@ -44,21 +63,6 @@ import org.terracotta.management.resource.services.AgentServiceV2;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
 import org.terracotta.management.resource.services.events.EventServiceV2;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * A controller class registering new {@link CacheManager}.
@@ -86,6 +90,8 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
   private final ReadWriteLock cacheManagerSamplerRepoLock = new ReentrantReadWriteLock();
   protected final ManagementRESTServiceConfiguration configuration;
 
+  private final Map<String, PropertyChangeListener> configurationChangeListenerMap = new HashMap<String, PropertyChangeListener>();
+  
   private final RemoteAgentEndpointImpl remoteAgentEndpoint;
 
   public DfltSamplerRepositoryServiceV2(ManagementRESTServiceConfiguration configuration,
@@ -108,6 +114,33 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
   public void dispose() {
   }
 
+  // TODO: do something about the attribute filtering below. Maybe annotate statistics.
+  private boolean isStatistics(String key) {
+    return key.contains("Sample")
+      || key.contains("MostRecent")
+      || key.contains("Average")
+      || key.contains("Min")
+      || key.endsWith("Rate")
+      || key.contains("PerSecond")
+      || key.contains("Count")
+      || key.endsWith("Size")
+      || key.endsWith("Nanos")
+      || key.endsWith("Ratio")
+      || key.endsWith("Length")
+      || key.endsWith("Metrics");
+  }
+
+  private Map<String, Object> removeStatistics(Map<String, Object> attrs) {
+    Iterator<Entry<String, Object>> iter = attrs.entrySet().iterator();
+
+    while (iter.hasNext()) {
+      Map.Entry<String, Object> entry = (Map.Entry<String, Object>)iter.next();
+      if (isStatistics(entry.getKey())) { 
+        iter.remove();
+      }
+    }
+    return attrs;
+  }
 
   /**
    * {@inheritDoc}
@@ -123,32 +156,14 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
       cacheAttributes.put("agentId", Representable.EMBEDDED_AGENT_ID);
       cacheAttributes.put("name", cacheName);
       Collection<CacheEntityV2> createCacheEntities = createCacheEntities(
-          Collections.singleton(cacheManager.getName()), Collections.singleton(cacheName), null).getEntities();
+          Collections.singleton(name), Collections.singleton(cacheName), null).getEntities();
       if (createCacheEntities != null && !createCacheEntities.isEmpty()) {
-        CacheEntityV2 next = createCacheEntities.iterator().next();
-        Map<String, Object> attributes = next.getAttributes();
-        Map<String, Object> attributesFiltered = new HashMap<String, Object>();
-        for (Entry<String, Object> entry : attributes.entrySet()) {
-          if (!entry.getKey().endsWith("MostRecentSample")) {
-            attributesFiltered.put(entry.getKey(), entry.getValue());
-          }
-        }
-        cacheAttributes.put("attributes", attributesFiltered);
+        cacheAttributes.put("attributes", createCacheEntities.iterator().next().getAttributes());
       }
       cacheEntities.add(cacheAttributes);
     }
 
-    EventEntityV2 evenEntityV2 = new EventEntityV2();
-    evenEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
-    evenEntityV2.setType("EHCACHE.CACHEMANAGER.ADDED");
-    evenEntityV2.getRootRepresentables().put("caches", cacheEntities);
-    evenEntityV2.getRootRepresentables().put("cacheManagerName", cacheManager.getName());
-    cacheManager.sendManagementEvent(evenEntityV2, evenEntityV2.getType());
-    for (EventListener eventListener : listeners) {
-      eventListener.onEvent(evenEntityV2);
-    }
     cacheManagerSamplerRepoLock.writeLock().lock();
-
     try {
       if (!cacheManagerSamplerRepo.containsKey(name)) {
         SamplerRepoEntry entry = new SamplerRepoEntry(cacheManager);
@@ -159,8 +174,53 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
 
+    EventEntityV2 eventEntityV2 = new EventEntityV2();
+    ResponseEntityV2<CacheManagerEntityV2> responseEntity = createCacheManagerEntities(Collections.singleton(name), null);
+    CacheManagerEntityV2 cacheManagerEntity = responseEntity.getEntities().iterator().next(); 
+    eventEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
+    eventEntityV2.setType("EHCACHE.CACHEMANAGER.ADDED");
+    eventEntityV2.getRootRepresentables().put("attributes", cacheManagerEntity.getAttributes());
+    eventEntityV2.getRootRepresentables().put("caches", cacheEntities);
+    eventEntityV2.getRootRepresentables().put("cacheManagerName", name);
+    cacheManager.sendManagementEvent(eventEntityV2, eventEntityV2.getType());
+    for (EventListener eventListener : listeners) {
+      eventListener.onEvent(eventEntityV2);
+    }
+    
+    PropertyChangeListener pcl = new ConfigurationPropertyChangeListener(cacheManager);
+    cacheManager.getConfiguration().addPropertyChangeListener(pcl);
+    configurationChangeListenerMap.put(cacheManager.getName(), pcl);
   }
 
+  class ConfigurationPropertyChangeListener implements PropertyChangeListener {
+    private CacheManager cacheManager;
+    
+    ConfigurationPropertyChangeListener(CacheManager cacheManager) {
+      this.cacheManager = cacheManager;
+      
+    }
+    @Override
+    public void propertyChange(PropertyChangeEvent pce) {
+      String propName = pce.getPropertyName().toUpperCase();
+      
+      if (propName.equals("MaxByteLocalHeap")) {
+        Map<String, Object> attrs = new HashMap<String, Object>();
+        
+        attrs.put(propName, pce.getNewValue());
+        attrs.put("MaxBytesLocalHeapAsString", cacheManager.getConfiguration().getMaxBytesLocalHeapAsString());
+
+        sendCacheManagerEvent(attrs, cacheManager);
+      } else if (propName.equals("MaxByteLocalDisk")) {
+        Map<String, Object> attrs = new HashMap<String, Object>();
+        
+        attrs.put(propName, pce.getNewValue());
+        attrs.put("MaxBytesLocalDiskAsString", cacheManager.getConfiguration().getMaxBytesLocalDiskAsString());
+
+        sendCacheManagerEvent(attrs, cacheManager);
+      }
+    }
+  }
+  
   /**
    * {@inheritDoc}
    */
@@ -182,6 +242,8 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     for (EventListener eventListener : listeners) {
       eventListener.onEvent(evenEntityV2);
     }
+    
+    configurationChangeListenerMap.remove(cacheManager.getName());
   }
 
   /**
@@ -197,7 +259,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
       cacheManagerSamplerRepoLock.readLock().unlock();
     }
   }
-
 
   /**
    * {@inheritDoc}
@@ -230,6 +291,11 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         entities = new HashSet<CacheManagerEntityV2>(0);
       } else {
         entities = attributes == null ? builder.build() : builder.add(attributes).build();
+        if (attributes == null) {
+          for (CacheManagerEntityV2 entity : entities) {
+            removeStatistics(entity.getAttributes());
+          }
+        }
       }
     } finally {
       cacheManagerSamplerRepoLock.readLock().unlock();
@@ -252,7 +318,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
       if (cacheManagerNames == null) {
         for (SamplerRepoEntry entry : cacheManagerSamplerRepo.values()) {
           builder = builder == null ? CacheManagerConfigurationEntityBuilderV2
-              .createWith(entry.getCacheManagerSampler()) : builder.add(entry.getCacheManagerSampler());
+            .createWith(entry.getCacheManagerSampler()) : builder.add(entry.getCacheManagerSampler());
         }
       } else {
         for (String cmName : cacheManagerNames) {
@@ -260,7 +326,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
 
           if (entry != null) {
             builder = builder == null ? CacheManagerConfigurationEntityBuilderV2
-                .createWith(entry.getCacheManagerSampler()) : builder.add(entry.getCacheManagerSampler());
+              .createWith(entry.getCacheManagerSampler()) : builder.add(entry.getCacheManagerSampler());
           }
         }
       }
@@ -315,6 +381,11 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         entities = new HashSet<CacheEntityV2>(0);
       } else {
         entities = attributes == null ? builder.build() : builder.add(attributes).build();
+        if (attributes == null) {
+          for (CacheEntityV2 entity : entities) {
+            removeStatistics(entity.getAttributes());
+          }
+        }
       }
     } finally {
       for (SamplerRepoEntry samplerRepoEntry : disabledSamplerRepoEntries) {
@@ -341,8 +412,8 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         for (Map.Entry<String, SamplerRepoEntry> entry : cacheManagerSamplerRepo.entrySet()) {
           for (CacheSampler sampler : entry.getValue().getComprehensiveCacheSamplers(cacheNames)) {
             builder = builder == null ? CacheConfigurationEntityBuilderV2
-                .createWith(entry.getValue().getCacheManagerSampler(), sampler.getCacheName()) : builder
-                .add(entry.getValue().getCacheManagerSampler(), sampler.getCacheName());
+              .createWith(entry.getValue().getCacheManagerSampler(), sampler.getCacheName()) : builder
+              .add(entry.getValue().getCacheManagerSampler(), sampler.getCacheName());
           }
         }
       } else {
@@ -351,8 +422,8 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
           if (entry != null) {
             for (CacheSampler sampler : entry.getComprehensiveCacheSamplers(cacheNames)) {
               builder = builder == null ? CacheConfigurationEntityBuilderV2
-                  .createWith(entry.getCacheManagerSampler(), sampler.getCacheName()) : builder
-                  .add(entry.getCacheManagerSampler(), sampler.getCacheName());
+                .createWith(entry.getCacheManagerSampler(), sampler.getCacheName()) : builder
+                .add(entry.getCacheManagerSampler(), sampler.getCacheName());
             }
           }
         }
@@ -413,11 +484,9 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     }
   }
 
-
   @Override
-  public void createOrUpdateCache(String cacheManagerName,
-      String cacheName,
-      CacheEntityV2 resource) throws ServiceExecutionException {
+  public void createOrUpdateCache(String cacheManagerName, String cacheName, CacheEntityV2 resource)
+    throws ServiceExecutionException {
     cacheManagerSamplerRepoLock.readLock().lock();
 
     try {
@@ -434,8 +503,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
   }
 
   @Override
-  public void clearCache(String cacheManagerName,
-      String cacheName) {
+  public void clearCache(String cacheManagerName, String cacheName) {
     cacheManagerSamplerRepoLock.readLock().lock();
 
     SamplerRepoEntry entry = cacheManagerSamplerRepo.get(cacheManagerName);
@@ -558,7 +626,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     validAttributes.add(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING);
     validAttributes.add(SamplerRepoEntry.MAX_ENTRIES_LOCAL_HEAP);
     validAttributes.add(SamplerRepoEntry.MAX_ENTRIES_IN_CACHE);
-    validAttributes.add(SamplerRepoEntry.TIME_TO_IDLE_SEC);
+    validAttributes.add(SamplerRepoEntry.TIME_TO_IDLE_SECONDS);
     validAttributes.add(SamplerRepoEntry.TIME_TO_LIVE_SEC);
 
     for(Map.Entry<String,Object> attribute : resource.getAttributes().entrySet()) {
@@ -586,7 +654,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
       agentEntityCollectionV2.getEntities().add(buildAgentEntity());
       return agentEntityCollectionV2;
     }
-
 
     for (String id : ids) {
       if (!id.equals(AgentEntityV2.EMBEDDED_AGENT_ID)) {
@@ -670,7 +737,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     return false;
   }
 
-
   /**
    * The repository entry class that is also a {@link CacheManagerEventListener}.
    */
@@ -691,7 +757,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
 
     private final static String LOGGING_ENABLED = "LoggingEnabled";
 
-    private final static String TIME_TO_IDLE_SEC = "TimeToIdleSeconds";
+    private final static String TIME_TO_IDLE_SECONDS = "TimeToIdleSeconds";
 
     private final static String TIME_TO_LIVE_SEC = "TimeToLiveSeconds";
 
@@ -789,8 +855,8 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
       }
     }
 
-    public void updateCache(String cacheSamplerName,
-        CacheEntityV2 cacheResource) throws ServiceExecutionException {
+    public void updateCache(String cacheSamplerName, CacheEntityV2 cacheResource)
+      throws ServiceExecutionException {
       cacheSamplerMapLock.writeLock().lock();
 
       CacheSampler cs;
@@ -799,7 +865,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
 
         if (cs != null) {
           try {
-
             checkForInvalidAttributes(cacheSamplerName, cacheResource);
 
             Boolean enabledAttr = (Boolean) cacheResource.getAttributes().get(ENABLED_ATTR);
@@ -842,7 +907,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
               cs.setMaxEntriesInCache(meicAttr);
             }
 
-            Object ttiAttr = cacheResource.getAttributes().get(TIME_TO_IDLE_SEC);
+            Object ttiAttr = cacheResource.getAttributes().get(TIME_TO_IDLE_SECONDS);
             if (ttiAttr != null) {
               cs.setTimeToIdleSeconds(Long.parseLong(ttiAttr.toString()));
             }
@@ -858,7 +923,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         } else {
           throw new ServiceExecutionException("Cache not found !");
         }
-
       } finally {
         cacheSamplerMapLock.writeLock().unlock();
       }
@@ -923,7 +987,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
           Map<String, Object> attributes = next.getAttributes();
           Map<String, Object> attributesFiltered = new HashMap<String, Object>();
           for (Entry<String, Object> entry : attributes.entrySet()) {
-            if (!entry.getKey().endsWith("MostRecentSample")) {
+            if (!isStatistics(entry.getKey())) { 
               attributesFiltered.put(entry.getKey(), entry.getValue());
             }
           }
@@ -945,7 +1009,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         samplerCacheConfigurationListeners.put(cacheName, samplerCacheConfigurationListener);
         c.addPropertyChangeListener(propertyChangeListener);
         c.getCacheConfiguration().addConfigurationListener(samplerCacheConfigurationListener);
-
       } finally {
         cacheSamplerMapLock.writeLock().unlock();
       }
@@ -964,7 +1027,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
 
         cacheSamplersByName.remove(cacheName);
 
-
         Map<String, Object> cacheAttributes = new HashMap<String, Object>();
         cacheAttributes.put("version", this.getClass().getPackage().getImplementationVersion());
         cacheAttributes.put("name", cacheName);
@@ -978,7 +1040,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         for (EventListener eventListener : listeners) {
           eventListener.onEvent(evenEntityV2);
         }
-
       } finally {
         cacheSamplerMapLock.writeLock().unlock();
       }
@@ -993,13 +1054,13 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
   class PropertyChangeListenerImplementation implements PropertyChangeListener {
     private final Ehcache cache;
 
-    public PropertyChangeListenerImplementation(Ehcache employeeCache) {
-      this.cache = employeeCache;
+    public PropertyChangeListenerImplementation(Ehcache cache) {
+      this.cache = cache;
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-      sendEvent(evt.getNewValue(), evt.getPropertyName(), cache);
+      sendCacheEvent(evt.getNewValue(), evt.getPropertyName(), cache);
     }
   }
 
@@ -1007,7 +1068,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
 
     @Override
     public void notifyRemoveAll(Ehcache cache) {
-      sendEvent(true, "Cleared", cache);
+      sendCacheEvent(true, "Cleared", cache);
     }
 
     @Override
@@ -1050,34 +1111,32 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
 
     @Override
     public void timeToIdleChanged(long oldTimeToIdle, long newTimeToIdle) {
-      String key = "timeToIdle";
-      sendEvent(newTimeToIdle, key, cache);
+      String key = "TimeToIdleSeconds";
+      sendCacheEvent(newTimeToIdle, key, cache);
     }
 
     @Override
     public void timeToLiveChanged(long oldTimeToLive, long newTimeToLive) {
-      String key = "timeToLive";
-      sendEvent(newTimeToLive, key, cache);
+      String key = "TimeToLiveSeconds";
+      sendCacheEvent(newTimeToLive, key, cache);
     }
 
     @Override
     public void diskCapacityChanged(int oldCapacity, int newCapacity) {
-      String key = "diskCapacity";
-      sendEvent(newCapacity, key, cache);
-
+      String key = "MaxEntriesLocalDisk";
+      sendCacheEvent(newCapacity, key, cache);
     }
 
     @Override
     public void memoryCapacityChanged(int oldCapacity, int newCapacity) {
-      String key = "memoryCapacity";
-      sendEvent(newCapacity, key, cache);
+      String key = "MaxEntriesLocalHeap";
+      sendCacheEvent(newCapacity, key, cache);
     }
 
     @Override
     public void loggingChanged(boolean oldValue, boolean newValue) {
-      String key = "logging";
-      sendEvent(newValue, key, cache);
-
+      String key = "LoggingEnabled";
+      sendCacheEvent(newValue, key, cache);
     }
 
     @Override
@@ -1090,37 +1149,48 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
 
     @Override
     public void maxBytesLocalHeapChanged(long oldValue, long newValue) {
-      String key = "bytesLocalHeap";
-      sendEvent(newValue, key, cache);
-
+      String key = "MaxBytesLocalHeap";
+      sendCacheEvent(newValue, key, cache);
     }
 
     @Override
     public void maxBytesLocalDiskChanged(long oldValue, long newValue) {
-      String key = "maxBytesLocalDisk";
-      sendEvent(newValue, key, cache);
-
+      String key = "MaxBytesLocalDisk";
+      sendCacheEvent(newValue, key, cache);
     }
 
     @Override
     public void maxEntriesInCacheChanged(long oldValue, long newValue) {
-      String key = "maxEntriesInCache";
-      sendEvent(newValue, key, cache);
-
+      String key = "MaxEntriesInCache";
+      sendCacheEvent(newValue, key, cache);
     }
-
   }
 
-  private void sendEvent(Object newValue, String key, Ehcache cache) {
-    HashMap<String, Object> eventMap = new HashMap<String, Object>();
-    eventMap.put(key, newValue);
+  private void sendCacheEvent(Object newValue, String key, Ehcache cache) {
+    sendCacheEvent(Collections.singletonMap(key, newValue), cache);
+  }
+
+  private void sendCacheEvent(Map<String, Object> attributes, Ehcache cache) {
     CacheManager cacheManager = cache.getCacheManager();
     EventEntityV2 evenEntityV2 = new EventEntityV2();
     evenEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
     evenEntityV2.setType("EHCACHE.CACHE.UPDATED");
-    evenEntityV2.getRootRepresentables().put("cacheEvent", eventMap);
+    evenEntityV2.getRootRepresentables().put("attributes", attributes);
     evenEntityV2.getRootRepresentables().put("cacheManagerName", cacheManager.getName());
     evenEntityV2.getRootRepresentables().put("cacheName", cache.getName());
+
+    cacheManager.sendManagementEvent(evenEntityV2, evenEntityV2.getType());
+    for (EventListener eventListener : listeners) {
+      eventListener.onEvent(evenEntityV2);
+    }
+  }
+
+  private void sendCacheManagerEvent(Map<String, Object> attributes, CacheManager cacheManager) {
+    EventEntityV2 evenEntityV2 = new EventEntityV2();
+    evenEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
+    evenEntityV2.setType("EHCACHE.CACHEMANAGER.UPDATED");
+    evenEntityV2.getRootRepresentables().put("attribute", attributes);
+    evenEntityV2.getRootRepresentables().put("cacheManagerName", cacheManager.getName());
 
     cacheManager.sendManagementEvent(evenEntityV2, evenEntityV2.getType());
     for (EventListener eventListener : listeners) {
