@@ -107,14 +107,8 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-shade-plugin</artifactId>
-            <dependencies>
-              <dependency>
-                <groupId>org.terracotta.maven.plugins</groupId>
-                <artifactId>terracotta-shader</artifactId>
-                <version>1.0</version>
-              </dependency>
-            </dependencies>
             <configuration>
+              <shaderHint>reduced-pom-only-shader</shaderHint>
               <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
               <useBaseVersion>true</useBaseVersion> 
               <createSourcesJar>true</createSourcesJar>
@@ -126,7 +120,6 @@
                   <exclude>org.slf4j:*</exclude>
                 </excludes>
               </artifactSet>
-              <shaderHint>reduced-pom-only-shader</shaderHint>
             </configuration>
             <executions>
               <execution>
@@ -153,8 +146,9 @@
         <plugins>            
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
+            <artifactId>maven-shade-plugin</artifactId>           
             <configuration>
+              <shaderHint>record-shader</shaderHint>
               <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
               <useBaseVersion>true</useBaseVersion>
               <createSourcesJar>true</createSourcesJar> 

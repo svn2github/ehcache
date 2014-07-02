@@ -228,8 +228,9 @@
           
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-shade-plugin</artifactId>
+            <artifactId>maven-shade-plugin</artifactId>            
             <configuration>
+              <shaderHint>record-shader</shaderHint>
               <useBaseVersion>true</useBaseVersion>
               <createSourcesJar>true</createSourcesJar>
               <artifactSet>
@@ -242,8 +243,9 @@
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
-                    <exclude>**/META-INF/maven/net.sf.ehcache.internal/**</exclude>
-                    <exclude>**/META-INF/maven/org.terracotta.internal/**</exclude>
+                    <exclude>META-INF/maven/com.terracotta/**</exclude>
+                    <exclude>META-INF/maven/net.sf.ehcache.internal/**</exclude>
+                    <exclude>META-INF/maven/org.terracotta.internal/**</exclude>
                     <exclude>**/license.txt</exclude>
                     <exclude>**/thirdpartylicenses.txt</exclude>
                     <exclude>META-INF/*.SF</exclude>
