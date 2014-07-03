@@ -1060,7 +1060,15 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-      sendCacheEvent(evt.getNewValue(), evt.getPropertyName(), cache);
+      String propName = evt.getPropertyName();
+      Object propVal = evt.getNewValue();
+      
+      if ("Disabled".equals(propName)) {
+        propName = "Enabled";
+        propVal = Boolean.valueOf(((Boolean) propVal) != Boolean.TRUE);
+      }
+      
+      sendCacheEvent(propVal, propName, cache);
     }
   }
 
