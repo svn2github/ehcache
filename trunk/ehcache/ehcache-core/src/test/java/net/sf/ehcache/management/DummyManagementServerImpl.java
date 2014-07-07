@@ -55,6 +55,6 @@ public class DummyManagementServerImpl implements ManagementServer {
   }
 
   @Override
-  public void unregisterClusterRemoteEndpoint(String clientUUID) {
+  public void unregisterClusterRemoteEndpoint() {
   }
 }

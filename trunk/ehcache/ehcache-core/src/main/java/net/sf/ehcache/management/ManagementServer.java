@@ -75,9 +75,7 @@ public interface ManagementServer {
 
     /**
      * Unregister the previously registered cluster endpoint.
-     *
-     * @param clientUUID the client UUID
      */
-    public void unregisterClusterRemoteEndpoint(String clientUUID);
+    public void unregisterClusterRemoteEndpoint();
 
 }

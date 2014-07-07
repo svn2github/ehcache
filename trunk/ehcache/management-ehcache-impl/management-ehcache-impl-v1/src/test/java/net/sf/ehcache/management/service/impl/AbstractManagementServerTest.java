@@ -188,7 +188,7 @@ public class AbstractManagementServerTest {
     }
 
     @Override
-    public void unregisterClusterRemoteEndpoint(String clientUUID) {
+    public void unregisterClusterRemoteEndpoint() {
     }
   }
 

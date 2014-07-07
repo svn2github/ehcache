@@ -203,6 +203,7 @@ public class ManagementServerLoader {
 
     static final class ManagementServerHolder {
         private Object managementServer;
+        private String registeredClientUUID;
         private final Map<String, String> clientUUIDs = new HashMap<String, String>();
 
         ManagementServerHolder(Object managementServer) {
@@ -225,8 +226,11 @@ public class ManagementServerLoader {
 
             if (clientUUID != null) {
                 clientUUIDs.put(cacheManager.getName(), clientUUID);
-                Method registerClusterRemoteEndpoint = MANAGEMENT_SERVER_CLASS.getMethod("registerClusterRemoteEndpoint", String.class);
-                registerClusterRemoteEndpoint.invoke(managementServer, clientUUID);
+                if (registeredClientUUID == null) {
+                    registeredClientUUID = clientUUID;
+                    Method registerClusterRemoteEndpoint = MANAGEMENT_SERVER_CLASS.getMethod("registerClusterRemoteEndpoint", String.class);
+                    registerClusterRemoteEndpoint.invoke(managementServer, clientUUID);
+                }
             }
         }
 
@@ -235,8 +239,18 @@ public class ManagementServerLoader {
             unregisterMethod.invoke(managementServer, cacheManager);
 
             String unregisteredClientUUID = clientUUIDs.remove(cacheManager.getName());
-            Method unregisterClusterRemoteEndpoint = MANAGEMENT_SERVER_CLASS.getMethod("unregisterClusterRemoteEndpoint", String.class);
-            unregisterClusterRemoteEndpoint.invoke(managementServer, unregisteredClientUUID);
+            if (registeredClientUUID != null && registeredClientUUID.equals(unregisteredClientUUID)) {
+                Method unregisterClusterRemoteEndpoint = MANAGEMENT_SERVER_CLASS.getMethod("unregisterClusterRemoteEndpoint");
+                unregisterClusterRemoteEndpoint.invoke(managementServer);
+                Iterator<String> uuidsIt = clientUUIDs.values().iterator();
+                if (uuidsIt.hasNext()) {
+                    registeredClientUUID = uuidsIt.next();
+                    Method registerClusterRemoteEndpoint = MANAGEMENT_SERVER_CLASS.getMethod("registerClusterRemoteEndpoint", String.class);
+                    registerClusterRemoteEndpoint.invoke(managementServer, registeredClientUUID);
+                } else {
+                    registeredClientUUID = null;
+                }
+            }
         }
 
         boolean hasRegistered() throws Exception {
@@ -258,7 +272,7 @@ public class ManagementServerLoader {
         }
 
         public String getRegisteredClientUUID() {
-            return null;
+            return registeredClientUUID;
         }
 
         public Map<String, String> getClientUUIDs() {

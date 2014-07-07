@@ -60,8 +60,8 @@ public final class ManagementServerImpl extends AbstractManagementServer {
   }
 
   @Override
-  public void unregisterClusterRemoteEndpoint(String clientUUID) {
-    remoteAgentEndpointImpl.unregisterMBean(clientUUID);
+  public void unregisterClusterRemoteEndpoint() {
+    remoteAgentEndpointImpl.unregisterMBean();
   }
 
   private <T> void loadEmbeddedAgentServiceLocator(ManagementRESTServiceConfiguration configuration) {

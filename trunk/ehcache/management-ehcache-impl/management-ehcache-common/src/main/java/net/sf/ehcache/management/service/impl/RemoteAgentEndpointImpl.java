@@ -4,33 +4,31 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import java.lang.management.ManagementFactory;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terracotta.management.l1bridge.AbstractRemoteAgentEndpointImpl;
 import org.terracotta.management.l1bridge.RemoteCallDescriptor;
+
+import java.lang.management.ManagementFactory;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 public class RemoteAgentEndpointImpl extends AbstractRemoteAgentEndpointImpl implements RemoteAgentEndpointImplMBean {
   private static final Logger LOG = LoggerFactory.getLogger(RemoteAgentEndpointImpl.class);
 
   public static final String AGENCY = "Ehcache";
   public static final String MBEAN_NAME_PREFIX = "net.sf.ehcache:type=" + IDENTIFIER;
-  
-  private final Map<String, ObjectName> uuidObjectNameMap = new HashMap<String, ObjectName>();
-  
+
   private final ThreadLocal<Boolean> tsaBridged = new ThreadLocal<Boolean>() {
     @Override
     protected Boolean initialValue() {
       return false;
     }
   };
+
+  private ObjectName objectName;
 
   public RemoteAgentEndpointImpl() {
   }
@@ -52,7 +50,6 @@ public class RemoteAgentEndpointImpl extends AbstractRemoteAgentEndpointImpl imp
       objectName = new ObjectName(MBEAN_NAME_PREFIX + ",node=" + clientUUID);
       MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
       platformMBeanServer.registerMBean(this, objectName);
-      uuidObjectNameMap.put(clientUUID, objectName);
     } catch (InstanceAlreadyExistsException iaee) {
       // the MBean has already been registered, ignore it
       objectName = null;
@@ -60,18 +57,20 @@ public class RemoteAgentEndpointImpl extends AbstractRemoteAgentEndpointImpl imp
       LOG.warn("Error registering RemoteAgentEndpointImpl MBean with UUID: " + clientUUID, e);
       objectName = null;
     }
+    this.objectName = objectName;
   }
 
-  public void unregisterMBean(String clientUUID) {
-    ObjectName objectName = uuidObjectNameMap.get(clientUUID);
-    
+  public void unregisterMBean() {
+    if (objectName == null) {
+      return;
+    }
     try {
       MBeanServer platformMBeanServer = ManagementFactory.getPlatformMBeanServer();
       platformMBeanServer.unregisterMBean(objectName);
-      uuidObjectNameMap.remove(clientUUID);
     } catch (Exception e) {
       LOG.warn("Error unregistering RemoteAgentEndpointImpl MBean : " + objectName, e);
     }
+
   }
 
   /**
