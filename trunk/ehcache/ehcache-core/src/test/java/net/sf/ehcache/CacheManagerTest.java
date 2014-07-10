@@ -74,9 +74,11 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.InvalidConfigurationException;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.MemoryUnit;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration.Strategy;
+import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationUtil;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.distribution.JVMUtil;
@@ -1569,6 +1571,37 @@ public class CacheManagerTest {
             manager.sendManagementEvent("event 1", "type 1");
         } finally {
             manager.shutdown();
+        }
+    }
+
+    @Test
+    public void testManagementRESTServiceConfigurationAssertions() throws Exception {
+        try {
+            ManagementRESTServiceConfiguration cfg = new ManagementRESTServiceConfiguration();
+            cfg.setEnabled(true);
+            cfg.setBind("0.0.0.0:9999");
+            cfg.setSslEnabled(false);
+
+            new CacheManager(new Configuration()
+                .terracotta(new TerracottaClientConfiguration().url("user@host")).managementRESTService(cfg));
+            fail("expected InvalidConfigurationException");
+        } catch (InvalidConfigurationException ice) {
+            // expected
+            // The REST agent cannot be bound to a port when SSL is disabled and connecting to a secure cluster.
+        }
+        try {
+            ManagementRESTServiceConfiguration cfg = new ManagementRESTServiceConfiguration();
+            cfg.setEnabled(true);
+            cfg.setBind("0.0.0.0:9999");
+            cfg.setSslEnabled(true);
+
+            Configuration configuration = new Configuration().maxBytesLocalHeap(16, MemoryUnit.MEGABYTES).managementRESTService(cfg);
+            new CacheManager(configuration);
+
+            fail("expected InvalidConfigurationException");
+        } catch (InvalidConfigurationException ice) {
+            // expected
+            // The REST agent must have a non-null Security Service Location when SSL is enabled.
         }
     }
 
