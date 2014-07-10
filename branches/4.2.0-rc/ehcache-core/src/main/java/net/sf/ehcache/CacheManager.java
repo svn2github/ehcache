@@ -25,6 +25,7 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ConfigurationFactory;
 import net.sf.ehcache.config.ConfigurationHelper;
 import net.sf.ehcache.config.DiskStoreConfiguration;
+import net.sf.ehcache.config.InvalidConfigurationException;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.config.generator.ConfigurationSource;
@@ -387,6 +388,7 @@ public class CacheManager {
             configuration = initialConfiguration;
         }
 
+        assertManagementRESTServiceConfigurationIsCorrect(configuration);
         assertNoCacheManagerExistsWithSameName(configuration);
 
         try {
@@ -566,6 +568,36 @@ public class CacheManager {
         managementRESTService.setBind(ManagementRESTServiceConfiguration.NO_BIND);
         managementRESTService.setSecurityServiceLocation(ManagementRESTServiceConfiguration.AUTO_LOCATION);
         return managementRESTService;
+    }
+
+    private void assertManagementRESTServiceConfigurationIsCorrect(Configuration configuration) {
+        ManagementRESTServiceConfiguration managementRESTService = configuration.getManagementRESTService();
+        if (managementRESTService == null || !managementRESTService.isEnabled()) {
+            return;
+        }
+
+        String url = configuration.getTerracottaConfiguration() != null ? configuration.getTerracottaConfiguration().getUrl() : null;
+        boolean connectingToSecureCluster = url != null && url.contains("@");
+
+        if (connectingToSecureCluster && !managementRESTService.isSslEnabled()) {
+            throw new InvalidConfigurationException("The REST agent cannot be bound to a port when SSL is disabled and" +
+                                                    " connecting to a secure cluster. Change your configuration to" +
+                                                    " <ManagementRESTServiceConfiguration sslEnabled=\"true\" .../>" +
+                                                    " or remove the ManagementRESTServiceConfiguration element.");
+        }
+
+        if (connectingToSecureCluster && managementRESTService.getSecurityServiceLocation() == null) {
+            managementRESTService.setSecurityServiceLocation(ManagementRESTServiceConfiguration.AUTO_LOCATION);
+            LOG.warn("The REST agent must have a non-null Security Service Location when SSL is enabled." +
+                     " Using ManagementRESTServiceConfiguration.AUTO_LOCATION as a connection to a secure cluster" +
+                     " is configured.");
+        }
+
+        if (managementRESTService.isSslEnabled() && managementRESTService.getSecurityServiceLocation() == null) {
+            throw new InvalidConfigurationException("The REST agent must have a non-null Security Service Location when" +
+                                                    " SSL is enabled. Change your configuration to" +
+                                                    " <ManagementRESTServiceConfiguration securityServiceLocation=\"...\" .../>.");
+        }
     }
 
     private void assertNoCacheManagerExistsWithSameName(Configuration configuration) {
