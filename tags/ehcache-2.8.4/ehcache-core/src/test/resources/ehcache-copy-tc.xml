@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+
+    <defaultCache
+            maxElementsInMemory="10"
+            eternal="false"
+            timeToIdleSeconds="5"
+            timeToLiveSeconds="10"
+            overflowToDisk="true"
+            />
+    
+    <cache name="copyOnReadCacheTcFalse"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="5"
+           timeToLiveSeconds="10"
+           overflowToDisk="false"
+           copyOnRead="true">
+        <terracotta copyOnRead="false"/>
+    </cache>
+
+    <cache name="nonCopyOnReadCacheTcTrue"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="5"
+           timeToLiveSeconds="10"
+           overflowToDisk="false"
+           copyOnRead="false">
+        <terracotta copyOnRead="true"/>
+    </cache>
+
+    <cache name="copyOnReadCacheTc"
+           maxElementsInMemory="10"
+           eternal="false"
+           timeToIdleSeconds="5"
+           timeToLiveSeconds="10"
+           overflowToDisk="false">
+        <terracotta copyOnRead="true"/>
+    </cache>
+
+    <terracottaConfig url="notthere:9520"/>
+
+</ehcache>
