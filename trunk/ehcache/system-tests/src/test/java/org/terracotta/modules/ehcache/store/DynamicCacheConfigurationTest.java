@@ -12,11 +12,11 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import org.junit.Assert;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 
 import com.tc.properties.TCPropertiesConsts;
 import com.tc.test.config.model.TestConfig;
-import com.tc.util.CallableWaiter;
 
 import java.util.concurrent.Callable;
 
@@ -313,15 +313,17 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
         throws Exception {
       final int min = (int) ((1 - TOLERANCE) * lowerBound);
       final int max = (int) ((1 + TOLERANCE) * upperBound);
-      CallableWaiter.waitOnCallable(new Callable<Boolean>() {
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
-          if (cache.getStatistics().getLocalHeapSize() <= max && cache.getStatistics().getLocalHeapSize() >= min) { return true; }
+          if (cache.getStatistics().getLocalHeapSize() <= max && cache.getStatistics().getLocalHeapSize() >= min) {
+            return true;
+          }
           System.out.println("Still waiting for memory store size to fall in bounds [" + lowerBound + ", " + upperBound
                              + "] current=" + cache.getStatistics().getLocalHeapSize());
           return false;
         }
-      }, 30000);
+      });
     }
 
     private void waitForCacheMemoryStoreSize(final Cache cache, final int upperBound) throws Exception {
@@ -352,14 +354,14 @@ public class DynamicCacheConfigurationTest extends AbstractCacheTestBase {
         cache.put(new Element("key" + i, new byte[0]));
       }
       System.out.println("Waiting on capacoty of " + capacity);
-      CallableWaiter.waitOnCallable(new Callable<Boolean>() {
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
         @Override
         public Boolean call() throws Exception {
           System.out.println("Current cache size " + cache.getSize());
           Assert.assertTrue(cache.getSize() > capacity * .85);
           return cache.getSize() >= capacity * 0.9 && cache.getSize() <= capacity * 1.1;
         }
-      }, 2 * 60 * 1000, 10 * 1000);
+      });
     }
 
   }
