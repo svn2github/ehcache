@@ -13,11 +13,11 @@ import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
 import org.junit.Assert;
 import org.terracotta.ehcache.tests.AbstractCacheTestBase;
 import org.terracotta.ehcache.tests.ClientBase;
+import org.terracotta.test.util.WaitUtil;
 import org.terracotta.toolkit.Toolkit;
 import org.terracotta.toolkit.concurrent.ToolkitBarrier;
 
 import com.tc.test.config.model.TestConfig;
-import com.tc.util.CallableWaiter;
 
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -83,7 +83,7 @@ public class L1BMDynamicConfigurationTest extends AbstractCacheTestBase {
       for (int i = 0; i < SIZE_TEST_ELEMENTS; i++) {
         cache.put(new Element("key" + r.nextInt(), "value" + r.nextInt()));
       }
-      CallableWaiter.waitOnCallable(new Callable<Boolean>() {
+      WaitUtil.waitUntilCallableReturnsTrue(new Callable<Boolean>() {
 
         @Override
         public Boolean call() throws Exception {
