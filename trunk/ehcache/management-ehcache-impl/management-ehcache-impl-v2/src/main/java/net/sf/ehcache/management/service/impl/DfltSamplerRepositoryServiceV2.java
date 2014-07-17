@@ -11,16 +11,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import javax.ws.rs.core.UriInfo;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
@@ -112,34 +108,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
    */
   @Override
   public void dispose() {
-  }
-
-  // TODO: do something about the attribute filtering below. Maybe annotate statistics.
-  private boolean isStatistics(String key) {
-    return key.contains("Sample")
-      || key.contains("MostRecent")
-      || key.contains("Average")
-      || key.contains("Min")
-      || key.endsWith("Rate")
-      || key.contains("PerSecond")
-      || key.contains("Count")
-      || key.endsWith("Size")
-      || key.endsWith("Nanos")
-      || key.endsWith("Ratio")
-      || key.endsWith("Length")
-      || key.endsWith("Metrics");
-  }
-
-  private Map<String, Object> removeStatistics(Map<String, Object> attrs) {
-    Iterator<Entry<String, Object>> iter = attrs.entrySet().iterator();
-
-    while (iter.hasNext()) {
-      Map.Entry<String, Object> entry = (Map.Entry<String, Object>)iter.next();
-      if (isStatistics(entry.getKey())) { 
-        iter.remove();
-      }
-    }
-    return attrs;
   }
 
   /**
@@ -234,13 +202,14 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     } finally {
       cacheManagerSamplerRepoLock.writeLock().unlock();
     }
-    EventEntityV2 evenEntityV2 = new EventEntityV2();
-    evenEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
-    evenEntityV2.getRootRepresentables().put("cacheManagerName", cacheManager.getName());
-    evenEntityV2.setType("EHCACHE.CACHEMANAGER.REMOVED");
-    cacheManager.sendManagementEvent(evenEntityV2, evenEntityV2.getType());
+    EventEntityV2 eventEntityV2 = new EventEntityV2();
+    eventEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
+    eventEntityV2.getRootRepresentables().put("cacheManagerName", cacheManager.getName());
+    eventEntityV2.getRootRepresentables().put("ClusterUUID", cacheManager.getClusterUUID());
+    eventEntityV2.setType("EHCACHE.CACHEMANAGER.REMOVED");
+    cacheManager.sendManagementEvent(eventEntityV2, eventEntityV2.getType());
     for (EventListener eventListener : listeners) {
-      eventListener.onEvent(evenEntityV2);
+      eventListener.onEvent(eventEntityV2);
     }
     
     configurationChangeListenerMap.remove(cacheManager.getName());
@@ -291,11 +260,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         entities = new HashSet<CacheManagerEntityV2>(0);
       } else {
         entities = attributes == null ? builder.build() : builder.add(attributes).build();
-        if (attributes == null) {
-          for (CacheManagerEntityV2 entity : entities) {
-            removeStatistics(entity.getAttributes());
-          }
-        }
       }
     } finally {
       cacheManagerSamplerRepoLock.readLock().unlock();
@@ -381,11 +345,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         entities = new HashSet<CacheEntityV2>(0);
       } else {
         entities = attributes == null ? builder.build() : builder.add(attributes).build();
-        if (attributes == null) {
-          for (CacheEntityV2 entity : entities) {
-            removeStatistics(entity.getAttributes());
-          }
-        }
       }
     } finally {
       for (SamplerRepoEntry samplerRepoEntry : disabledSamplerRepoEntries) {
@@ -984,14 +943,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
             Collections.singleton(cacheManagerName), Collections.singleton(c.getName()), null).getEntities();
         if (createCacheEntities != null && !createCacheEntities.isEmpty()) {
           CacheEntityV2 next = createCacheEntities.iterator().next();
-          Map<String, Object> attributes = next.getAttributes();
-          Map<String, Object> attributesFiltered = new HashMap<String, Object>();
-          for (Entry<String, Object> entry : attributes.entrySet()) {
-            if (!isStatistics(entry.getKey())) { 
-              attributesFiltered.put(entry.getKey(), entry.getValue());
-            }
-          }
-          cacheAttributes.put("attributes", attributesFiltered);
+          cacheAttributes.put("attributes", next.getAttributes());
         }
 
         final EventEntityV2 evenEntityV2 = new EventEntityV2();

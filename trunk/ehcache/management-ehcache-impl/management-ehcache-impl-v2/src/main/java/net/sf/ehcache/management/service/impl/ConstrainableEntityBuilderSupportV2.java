@@ -4,11 +4,6 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import net.sf.ehcache.management.service.AccessorPrefix;
-import net.sf.ehcache.util.counter.Counter;
-import net.sf.ehcache.util.counter.sampled.SampledCounter;
-import org.slf4j.Logger;
-
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -16,6 +11,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import net.sf.ehcache.management.service.AccessorPrefix;
+import net.sf.ehcache.util.ManagementAttribute;
+import net.sf.ehcache.util.counter.Counter;
+import net.sf.ehcache.util.counter.sampled.SampledCounter;
+
+import org.slf4j.Logger;
 
 /**
 * @author brandony
@@ -78,19 +80,22 @@ abstract class ConstrainableEntityBuilderSupportV2<SAMPLER> {
                                    Collection<String> attributes,
                                    String nameAccessor) {
     Set<String> excludedNames = getExcludedAttributeNames(sampler);
+    boolean haveAttributes = attributeMap != null && attributeMap.size() > 0;
 
     for (Method method : api.getMethods()) {
-      String name = method.getName();
-      String trimmedName = AccessorPrefix.trimPrefix(name);
-      if (!nameAccessor.equals(name) && AccessorPrefix.isAccessor(name) && (attributes == null || attributes.contains(
-          trimmedName))) {
-
-        if (excludedNames.contains(trimmedName)) {
-          attributeMap.put(trimmedName, 0);
-          continue;
+      if (!haveAttributes && method.isAnnotationPresent(ManagementAttribute.class)) {
+        String name = method.getName();
+        String trimmedName = AccessorPrefix.trimPrefix(name);
+        if (!nameAccessor.equals(name) && AccessorPrefix.isAccessor(name) && (attributes == null || attributes.contains(
+            trimmedName))) {
+  
+          if (excludedNames.contains(trimmedName)) {
+            attributeMap.put(trimmedName, 0);
+            continue;
+          }
+  
+          addAttribute(sampler, attributeMap, trimmedName, method);
         }
-
-        addAttribute(sampler, attributeMap, trimmedName, method);
       }
     }
   }
