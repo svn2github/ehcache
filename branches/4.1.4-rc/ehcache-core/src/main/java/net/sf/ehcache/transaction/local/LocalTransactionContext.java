@@ -162,7 +162,7 @@ public class LocalTransactionContext {
                 List<SoftLock> softLocks = stringListEntry.getValue();
 
                 LOG.debug("committing soft locked values of cache {}", cacheName);
-                store.commit(softLocks);
+                store.commit(softLocks, transactionId);
             }
             LOG.debug("committed transaction {}", transactionId);
         } finally {
@@ -192,7 +192,7 @@ public class LocalTransactionContext {
                 List<SoftLock> softLocks = stringListEntry.getValue();
 
                 LOG.debug("rolling back soft locked values of cache {}", cacheName);
-                store.rollback(softLocks);
+                store.rollback(softLocks, transactionId);
             }
             LOG.debug("rolled back transaction {}", transactionId);
         } finally {
@@ -253,7 +253,7 @@ public class LocalTransactionContext {
     }
 
     private void unfreezeAndUnlock() {
-        LOG.debug("unfreezing and unlocking {} soft lock(s)", softLockMap.size());
+        LOG.debug("unfreezing and unlocking soft lock(s)");
         boolean success = true;
         for (Map.Entry<String, List<SoftLock>> stringListEntry : softLockMap.entrySet()) {
             List<SoftLock> softLocks = stringListEntry.getValue();
