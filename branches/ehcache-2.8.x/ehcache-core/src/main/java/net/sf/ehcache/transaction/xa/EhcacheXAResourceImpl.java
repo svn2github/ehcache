@@ -326,7 +326,16 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     LOG.debug("soft lock ID with key '{}' is not present in underlying store, ignoring it", softLock.getKey());
                     continue;
                 }
+                if (!(e.getObjectValue() instanceof SoftLockID)) {
+                    // potential consequence of the above condition
+                    LOG.debug("soft lock ID with key '{}' replaced with value in underlying store, ignoring it", softLock.getKey());
+                    continue;
+                }
                 SoftLockID softLockId = (SoftLockID)e.getObjectValue();
+                if (!softLockId.getTransactionID().equals(xidTransactionID)) {
+                    LOG.debug("soft lock ID with key '{}' of foreign tx in underlying store, ignoring it", softLock.getKey());
+                    continue;
+                }
                 Element frozenElement = softLockId.getNewElement();
 
                 if (frozenElement != null) {
@@ -443,7 +452,16 @@ public class EhcacheXAResourceImpl implements EhcacheXAResource {
                     LOG.debug("soft lock ID with key '{}' is not present in underlying store, ignoring it", softLock.getKey());
                     continue;
                 }
+                if (!(e.getObjectValue() instanceof SoftLockID)) {
+                    // potential consequence of the above condition
+                    LOG.debug("soft lock ID with key '{}' replaced with value in underlying store, ignoring it", softLock.getKey());
+                    continue;
+                }
                 SoftLockID softLockId = (SoftLockID)e.getObjectValue();
+                if (!softLockId.getTransactionID().equals(xidTransactionID)) {
+                    LOG.debug("soft lock ID with key '{}' of foreign tx in underlying store, ignoring it", softLock.getKey());
+                    continue;
+                }
                 Element frozenElement = softLockId.getOldElement();
 
                 if (frozenElement != null) {

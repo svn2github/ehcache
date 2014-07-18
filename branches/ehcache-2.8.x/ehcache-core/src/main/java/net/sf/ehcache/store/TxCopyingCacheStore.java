@@ -116,6 +116,12 @@ public final class TxCopyingCacheStore<T extends Store> extends AbstractCopyingC
 
         @Override
         public boolean equals(Element e1, Element e2) {
+            if (e1 == null && e2 == null) {
+                return true;
+            } else if (e1 == null || e2 == null) {
+                return false;
+            }
+
             if (!(e1.getObjectValue() instanceof SoftLockID)) {
                 e1 = copyStrategyHandler.copyElementForReadIfNeeded(e1);
             }
