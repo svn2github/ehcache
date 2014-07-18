@@ -1047,16 +1047,27 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     /**
      * Commit work of the specified soft locks
      * @param softLocks the soft locks to commit
+     * @param transactionId the transaction ID to commit
      */
-    void commit(List<SoftLock> softLocks) {
+    void commit(List<SoftLock> softLocks, TransactionID transactionId) {
         LOG.debug("committing {} soft lock(s) in cache {}", softLocks.size(), cache.getName());
         for (SoftLock softLock : softLocks) {
             Element e = underlyingStore.getQuiet(softLock.getKey());
             if (e == null) {
                 // the element can be null if it was manually unpinned, see DEV-8308
+                LOG.debug("soft lock ID with key '{}' is not present in underlying store, ignoring it", softLock.getKey());
+                continue;
+            }
+            if (!(e.getObjectValue() instanceof SoftLockID)) {
+                // potential consequence of the above condition
+                LOG.debug("soft lock ID with key '{}' replaced with value in underlying store, ignoring it", softLock.getKey());
                 continue;
             }
             SoftLockID softLockId = (SoftLockID)e.getObjectValue();
+            if (!softLockId.getTransactionID().equals(transactionId)) {
+                LOG.debug("soft lock ID with key '{}' of foreign tx in underlying store, ignoring it", softLock.getKey());
+                continue;
+            }
 
             Element element = softLockId.getNewElement();
             if (element != null) {
@@ -1070,16 +1081,27 @@ public class LocalTransactionStore extends AbstractTransactionStore {
     /**
      * Rollback work of the specified soft locks
      * @param softLocks the soft locks to rollback
+     * @param transactionId the transaction ID to rollback
      */
-    void rollback(List<SoftLock> softLocks) {
+    void rollback(List<SoftLock> softLocks, TransactionID transactionId) {
         LOG.debug("rolling back {} soft lock(s) in cache {}", softLocks.size(), cache.getName());
         for (SoftLock softLock : softLocks) {
             Element e = underlyingStore.getQuiet(softLock.getKey());
             if (e == null) {
-              // the element can be null if it was manually unpinned, see DEV-8308
-              continue;
+                // the element can be null if it was manually unpinned, see DEV-8308
+                LOG.debug("soft lock ID with key '{}' is not present in underlying store, ignoring it", softLock.getKey());
+                continue;
+            }
+            if (!(e.getObjectValue() instanceof SoftLockID)) {
+                // potential consequence of the above condition
+                LOG.debug("soft lock ID with key '{}' replaced with value in underlying store, ignoring it", softLock.getKey());
+                continue;
             }
             SoftLockID softLockId = (SoftLockID)e.getObjectValue();
+            if (!softLockId.getTransactionID().equals(transactionId)) {
+                LOG.debug("soft lock ID with key '{}' of foreign tx in underlying store, ignoring it", softLock.getKey());
+                continue;
+            }
 
             Element element = softLockId.getOldElement();
             if (element != null) {

@@ -1,16 +1,22 @@
 package net.sf.ehcache.transaction.local;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.CacheStoreHelper;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.TransactionController;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.store.DefaultElementValueComparator;
 import net.sf.ehcache.store.ElementValueComparator;
+import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.compound.ReadWriteSerializationCopyStrategy;
+import net.sf.ehcache.transaction.AbstractTransactionStore;
 import net.sf.ehcache.transaction.DeadLockException;
 import net.sf.ehcache.transaction.TransactionException;
 import net.sf.ehcache.transaction.TransactionInterruptedException;
 import net.sf.ehcache.transaction.TransactionTimeoutException;
+import net.sf.ehcache.transaction.TxStoreHelper;
 
 import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;
@@ -868,6 +874,129 @@ public class LocalTransactionTest extends TestCase {
         transactionController.begin();
         assertEquals(new Element(1, "one#2"), txCacheOverflow.get(1));
         assertEquals(new Element(2, "two#2"), txCacheOverflow.get(2));
+        transactionController.commit();
+    }
+
+    public void testEvictedElementDoesNotGetCommitted() throws Exception {
+        final Cache txCache = cacheManager.getCache("txCacheMemoryOnly");
+        CacheStoreHelper cacheStoreHelper = new CacheStoreHelper(txCache);
+        net.sf.ehcache.store.Store store = cacheStoreHelper.getStore();
+        Store underlyingStore = TxStoreHelper.getUnderlyingStore((AbstractTransactionStore)store);
+
+        transactionController.begin();
+        txCache.removeAll();
+        transactionController.commit();
+
+        transactionController.begin();
+        txCache.put(new Element(1, "one"));
+        underlyingStore.remove(1); // evict element
+        transactionController.commit();
+
+        transactionController.begin();
+        assertNull(txCache.getQuiet(1));
+        transactionController.commit();
+    }
+
+    public void testEvictedAndReplacedElementDoesNotGetCommitted() throws Exception {
+        final Cache txCache = cacheManager.getCache("txCacheMemoryOnly");
+        CacheStoreHelper cacheStoreHelper = new CacheStoreHelper(txCache);
+        Store underlyingStore = TxStoreHelper.getUnderlyingStore((AbstractTransactionStore)cacheStoreHelper.getStore());
+
+        transactionController.begin();
+        txCache.removeAll();
+        transactionController.commit();
+
+        transactionController.begin();
+        txCache.put(new Element(1, "one"));
+
+        // emulate eviction and commit of another TX
+        underlyingStore.put(new ReadWriteSerializationCopyStrategy()
+            .copyForWrite(new Element(1, "one#replaced")));
+
+        transactionController.commit();
+
+        transactionController.begin();
+        assertEquals("one#replaced", txCache.getQuiet(1).getObjectValue());
+        transactionController.commit();
+    }
+
+    public void testCommitEvictedElementsDoesNotCommitForeignTransactionElement() throws Exception {
+        final Cache txCache = cacheManager.getCache("txCacheMemoryOnly");
+
+        CacheStoreHelper cacheStoreHelper = new CacheStoreHelper(txCache);
+        Store underlyingStore = TxStoreHelper.getUnderlyingStore((AbstractTransactionStore)cacheStoreHelper.getStore());
+
+
+        transactionController.begin();
+        txCache.removeAll();
+        transactionController.commit();
+
+        transactionController.begin();
+        txCache.put(new Element(1, "one#1"));
+        underlyingStore.remove(1); // evict element
+        final CyclicBarrier barrier = new CyclicBarrier(2);
+        TxThread t = new TxThread() {
+            @Override
+            public void exec() throws Exception {
+                transactionController.begin();
+                txCache.put(new Element(1, "one#2"));
+
+                barrier.await(); // unblock TX1
+                barrier.await(); // wait until TX1 unblocks us
+
+                transactionController.rollback();
+            }
+        };
+        t.start();
+        t.assertNotFailed();
+        barrier.await(); // wait until TX2 unblocks us
+        transactionController.commit();
+        barrier.await(); // unblock TX2
+        t.join();
+
+        transactionController.begin();
+        // make sure TX1 did not commit TX2 changes
+        assertNull(txCache.getQuiet(1));
+        transactionController.commit();
+    }
+
+    public void testRollbackEvictedElementsDoesNotRollbackForeignTransactionElement() throws Exception {
+        final Cache txCache = cacheManager.getCache("txCacheMemoryOnly");
+
+        CacheStoreHelper cacheStoreHelper = new CacheStoreHelper(txCache);
+        Store underlyingStore = TxStoreHelper.getUnderlyingStore((AbstractTransactionStore)cacheStoreHelper.getStore());
+
+
+        transactionController.begin();
+        txCache.removeAll();
+        transactionController.commit();
+
+        transactionController.begin();
+        txCache.put(new Element(1, "one#1"));
+        underlyingStore.remove(1); // evict element
+        final CyclicBarrier barrier = new CyclicBarrier(2);
+        TxThread t = new TxThread() {
+            @Override
+            public void exec() throws Exception {
+                transactionController.begin();
+                txCache.put(new Element(1, "one#2"));
+
+                barrier.await(); // unblock TX1
+                barrier.await(); // wait until TX1 unblocks us
+
+                transactionController.commit();
+            }
+        };
+        t.start();
+        t.assertNotFailed();
+        barrier.await(); // wait until TX2 unblocks us
+        transactionController.rollback();
+        barrier.await(); // unblock TX2
+        t.join();
+
+        transactionController.begin();
+        // make sure TX1 did not rollback TX2 changes
+        assertEquals("one#2", txCache.getQuiet(1).getObjectValue());
         transactionController.commit();
     }
 
