@@ -38,7 +38,7 @@
       <version>${terracotta.core.version}</version>
       <exclusions>
         <exclusion>
-          <groupId> gf-3122</groupId>
+          <groupId>gf-3122</groupId>
           <artifactId>gf.javax.servlet-api</artifactId>
         </exclusion>
       </exclusions>
