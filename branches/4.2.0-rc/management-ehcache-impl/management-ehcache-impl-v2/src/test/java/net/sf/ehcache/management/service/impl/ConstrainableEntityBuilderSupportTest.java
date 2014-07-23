@@ -1,9 +1,13 @@
 package net.sf.ehcache.management.service.impl;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.sf.ehcache.management.resource.CacheEntityV2;
 import net.sf.ehcache.management.sampled.CacheSampler;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.TimeStampedCounterValue;
+
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -27,8 +31,13 @@ public class ConstrainableEntityBuilderSupportTest {
     when(remoteSizeSampleCounter.getMostRecentSample()).thenReturn(new TimeStampedCounterValue(0, 1003L));
     when(sampler.getSizeSample()).thenReturn(sizeSampleCounter);
     when(sampler.getRemoteSizeSample()).thenReturn(remoteSizeSampleCounter);
-
-    CacheEntityV2 cacheEntity = CacheEntityBuilderV2.createWith(sampler, "cache").build().iterator().next();
+    
+    Set<String> constraintAttributes =  new HashSet<String>();
+    constraintAttributes.add("Size");
+    constraintAttributes.add("SizeSample");
+    constraintAttributes.add("RemoteSizeSample");
+    
+	CacheEntityV2 cacheEntity = CacheEntityBuilderV2.createWith(sampler, "cache").add(constraintAttributes).build().iterator().next();
 
     assertThat((Long)cacheEntity.getAttributes().get("Size"), is(1001L));
     assertThat((Long)cacheEntity.getAttributes().get("SizeSample"), is(1002L));
@@ -47,7 +56,12 @@ public class ConstrainableEntityBuilderSupportTest {
     when(sampler.getSizeSample()).thenReturn(sizeSampleCounter);
     when(sampler.getRemoteSizeSample()).thenReturn(remoteSizeSampleCounter);
 
-    CacheEntityV2 cacheEntity = CacheEntityBuilderV2.createWith(sampler, "cache").build().iterator().next();
+    Set<String> constraintAttributes =  new HashSet<String>();
+    constraintAttributes.add("Size");
+    constraintAttributes.add("SizeSample");
+    constraintAttributes.add("RemoteSizeSample");
+    
+	CacheEntityV2 cacheEntity = CacheEntityBuilderV2.createWith(sampler, "cache").add(constraintAttributes).build().iterator().next();
 
     assertThat((Long)cacheEntity.getAttributes().get("Size"), is(2147483648L));
     assertThat((Long)cacheEntity.getAttributes().get("SizeSample"), is(2147483649L));
