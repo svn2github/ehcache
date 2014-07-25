@@ -17,7 +17,7 @@
     <dependency>
       <groupId>org.terracotta</groupId>
       <artifactId>management-common-resources-v2</artifactId>
-      <version>1.3.0-SNAPSHOT</version>
+      <version>${management-core.version}</version>
     </dependency>
 
     <!-- Test deps -->
