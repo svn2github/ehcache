@@ -212,7 +212,7 @@ public class OsgiHibernateTest {
     s.close();
   }
 
-
+  @Test
   public void testEmptySecondLevelCacheEntry() throws Exception {
     getSessionFactory().evictEntity(Item.class.getName());
     Statistics stats = getSessionFactory().getStatistics();
