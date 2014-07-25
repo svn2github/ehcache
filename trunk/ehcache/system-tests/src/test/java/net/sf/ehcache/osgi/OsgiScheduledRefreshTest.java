@@ -4,6 +4,7 @@
 package net.sf.ehcache.osgi;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 import net.sf.ehcache.Cache;
@@ -53,6 +54,8 @@ public class OsgiScheduledRefreshTest {
   @Configuration
   public Option[] config() {
     return options(OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache-ee", "ehcache"),
+                   mavenBundle("org.slf4j", "slf4j-api").versionAsInProject(),
+                   mavenBundle("org.slf4j", "slf4j-simple").versionAsInProject().noStart(),    
                    OsgiUtil.getMavenBundle("org.quartz-scheduler", "quartz"), wrappedBundle(maven("c3p0", "c3p0")
                        .versionAsInProject()), OsgiUtil.commonOptions());
   }
