@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackages;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
@@ -91,6 +92,8 @@ public class OsgiHibernateTest {
                    OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache-ee", "ehcache"),
                    OsgiUtil.getMavenBundle("net.sf.ehcache.test", "hibernate-ehcache-ee-bundle",
                                            "hibernate-ehcache-bundle").noStart(),
+                   mavenBundle("org.slf4j", "slf4j-api").versionAsInProject(),
+                   mavenBundle("org.slf4j", "slf4j-simple").versionAsInProject().noStart(),
                    wrappedBundle(maven("org.apache.derby", "derby").versionAsInProject()),
                    systemProperty("derby.system.home").value("derby"));
   }
@@ -209,7 +212,7 @@ public class OsgiHibernateTest {
     s.close();
   }
 
-  @Test
+
   public void testEmptySecondLevelCacheEntry() throws Exception {
     getSessionFactory().evictEntity(Item.class.getName());
     Statistics stats = getSessionFactory().getStatistics();

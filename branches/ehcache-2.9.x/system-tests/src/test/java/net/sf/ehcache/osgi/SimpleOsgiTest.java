@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackages;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -41,6 +42,8 @@ public class SimpleOsgiTest {
   @Configuration
   public Option[] config() {
     return options(bootDelegationPackages("javax.xml.transform,org.w3c.dom,javax.xml.bind,com.sun.xml.internal.bind.v2,javax.xml.bind.annotation,javax.xml.bind.annotation.adapters"),
+                   mavenBundle("org.slf4j", "slf4j-api").versionAsInProject(),
+                   mavenBundle("org.slf4j", "slf4j-simple").versionAsInProject().noStart(),
                    // need this for REST agent test
                    OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache-ee", "ehcache"), OsgiUtil.commonOptions());
   }
