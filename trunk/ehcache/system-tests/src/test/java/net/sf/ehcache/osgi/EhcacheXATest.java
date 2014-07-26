@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackages;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 import net.sf.ehcache.CacheManager;
@@ -44,6 +45,8 @@ public class EhcacheXATest {
                    wrappedBundle(maven("javax.transaction", "jta").versionAsInProject())
                        .exports("javax.transaction;version=1.1"),
                    wrappedBundle(maven("org.codehaus.btm", "btm").versionAsInProject()).exports("bitronix.tm.*"),
+                   mavenBundle("org.slf4j", "slf4j-api").versionAsInProject(),
+                   mavenBundle("org.slf4j", "slf4j-simple").versionAsInProject().noStart(),                   
                    OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache-ee", "ehcache"), OsgiUtil.commonOptions());
   }
 
@@ -61,6 +64,8 @@ public class EhcacheXATest {
                        .imports("!javax.servlet.*,*").exports("*"),
                    wrappedBundle(maven("com.atomikos", "atomikos-util").versionAsInProject())
                        .imports("!javax.servlet.*,com.atomikos.icatch.standalone,*").exports("*"),
+                   mavenBundle("org.slf4j", "slf4j-api").versionAsInProject(),
+                   mavenBundle("org.slf4j", "slf4j-simple").versionAsInProject().noStart(),                        
                    OsgiUtil.getMavenBundle("net.sf.ehcache", "ehcache-ee", "ehcache"), OsgiUtil.commonOptions());
   }
 
