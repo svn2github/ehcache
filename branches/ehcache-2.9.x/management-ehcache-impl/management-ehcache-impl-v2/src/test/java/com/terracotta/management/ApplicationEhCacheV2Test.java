@@ -18,30 +18,26 @@ public class ApplicationEhCacheV2Test extends JerseyApplicationTestCommon {
   @Test
   public void testGetClasses() throws Exception {
     ApplicationEhCacheV2 applicationEhCache = new ApplicationEhCacheV2();
-    Set<Class<?>> applicationClasses = applicationEhCache.getRestResourceClasses();
+    Set<Class<?>> filteredApplicationClasses = filterClassesFromJaxRSPackages(applicationEhCache.getRestResourceClasses());
+
     Set<Class<?>> annotatedClasses = annotatedClassesFound();
     Set<Class<?>> classesToIgnoreDuringComparison = new HashSet<Class<?>>();
 
-    if (applicationClasses.size() > annotatedClasses.size()) {
-      for (Class<?> applicationClass : applicationClasses) {
+    if (filteredApplicationClasses.size() > annotatedClasses.size()) {
+      for (Class<?> applicationClass : filteredApplicationClasses) {
         if(!annotatedClasses.contains(applicationClass)) {
-          // one exception so far, because we filter jersey and jackson resources : SSeFeature
-          if (applicationClass.equals(SseFeature.class)) {
-            classesToIgnoreDuringComparison.add(applicationClass);
-            continue;
-          }
           fail("While scanning the classpath, we could not find " + applicationClass);
         }
       }
     } else {
       for (Class<?> annotatedClass : annotatedClasses) {
-        if(!applicationClasses.contains(annotatedClass)) {
-          fail("Should  " + annotatedClass + " be added to ApplicationEhCacheV2 ?");
+        if (!filteredApplicationClasses.contains(annotatedClass)) {
+          fail("Should  " + annotatedClass + " be added to DefaultApplicationCommon ?");
         }
       }
     }
-    applicationClasses.removeAll(classesToIgnoreDuringComparison);
-    Assert.assertThat(annotatedClasses, equalTo(applicationClasses));
+    filteredApplicationClasses.removeAll(classesToIgnoreDuringComparison);
+    Assert.assertThat(annotatedClasses, equalTo(filteredApplicationClasses));
   }
 }
 
