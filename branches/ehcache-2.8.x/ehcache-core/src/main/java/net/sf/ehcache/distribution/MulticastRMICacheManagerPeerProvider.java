@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A peer provider which discovers peers using Multicast.
  * <p/>
- * Hosts can be in three different levels of conformance with the Multicast specification (RFC1112), according to the requirements they meet.
+ * Hosts can be in three different levels of conformance with the Multicast standard (RFC1112), according to the requirements they meet.
  * <ol>
  * <li>Level 0 is the "no support for IP Multicasting" level. Lots of hosts and routers in the Internet are in this state,
  * as multicast support is not mandatory in IPv4 (it is, however, in IPv6).
