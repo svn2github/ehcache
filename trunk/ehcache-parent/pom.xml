@@ -223,7 +223,10 @@
               <configuration>
                 <onlyRunWhenSagDepsIsTrue>true</onlyRunWhenSagDepsIsTrue>
                 <excludeGroupIds>gf-3122,gf-40</excludeGroupIds>
-                <excludeArtifactIds>jackson-xc,validation-api,javax.servlet</excludeArtifactIds>
+                <excludeArtifacts>
+                  <excludeArtifact>org.codehaus.jackson:jackson-xc</excludeArtifact>
+                  <excludeArtifact>javax.validation:validation-api</excludeArtifact>
+                </excludeArtifacts>
               </configuration>
             </execution>
           </executions>
