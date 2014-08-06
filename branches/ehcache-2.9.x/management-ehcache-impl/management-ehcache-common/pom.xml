@@ -13,6 +13,10 @@
   <name>management-ehcache-common</name>
   <description>A common library shared between different management-ehcache implementation versions</description>
 
+  <properties>
+    <sag-deps>false</sag-deps>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.terracotta</groupId>
@@ -36,6 +40,53 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+  <profiles>
+    <profile>
+      <id>sag-deps</id>
+      <activation>
+        <property>
+          <name>sag-deps</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <dependencies>
+        <!-- Sag Deps -->
+        <dependency>
+          <groupId>gf-3122</groupId>
+          <artifactId>gf.javax.servlet-api</artifactId>
+        </dependency>
+	    <dependency>
+	      <groupId>org.eclipse.jetty</groupId>
+	      <artifactId>jetty-servlet</artifactId>
+	      <exclusions>
+	        <exclusion>
+	          <artifactId>javax.servlet</artifactId>
+	          <groupId>org.eclipse.jetty.orbit</groupId>
+	        </exclusion>
+	      </exclusions>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>community-deps</id>
+      <activation>
+        <property>
+          <name>sag-deps</name>
+          <value>false</value>
+        </property>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-servlet</artifactId>
+          <!-- it's needed across the agents and the TMC -->
+          <scope>compile</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
 
   <build>
     <plugins>
