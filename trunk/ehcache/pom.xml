@@ -5,7 +5,7 @@
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
-    <version>2.13</version>
+    <version>2.15</version>
     <relativePath/>
   </parent>
 
@@ -25,7 +25,7 @@
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <surefire.version>2.15</surefire.version>
     <terracotta-toolkit-api-internal.version>1.17</terracotta-toolkit-api-internal.version>
-    <management-core.version>2.0.4</management-core.version>
+    <management-core.version>2.0.5</management-core.version>
     <clustered-entity-management.version>0.8.0</clustered-entity-management.version>
     <statistics.version>1.0.2</statistics.version>
     <quartz.version>2.2.1</quartz.version>
@@ -70,12 +70,6 @@
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-servlet</artifactId>
         <version>${jetty.version}</version>
-       <!--  <exclusions>
-          <exclusion>
-            <artifactId>javax.servlet</artifactId>
-            <groupId>org.eclipse.jetty.orbit</groupId>
-          </exclusion>
-        </exclusions> -->
       </dependency>
 
       <dependency>
