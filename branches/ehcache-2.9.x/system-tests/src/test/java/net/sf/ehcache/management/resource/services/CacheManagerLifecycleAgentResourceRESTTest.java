@@ -55,7 +55,7 @@ public class CacheManagerLifecycleAgentResourceRESTTest {
                 .mirrorGroup(
                         new TcMirrorGroup()
                                 .server(
-                                        new TcServer().managementPort(ResourceServiceImplITHelper.MANAGEMENT_PORT)
+                                        new TcServer().managementPort(ResourceServiceImplITHelper.MANAGEMENT_PORT).tsaGroupPort(ResourceServiceImplITHelper.TSA_GROUP_PORT)
                                 )
                 );
 
