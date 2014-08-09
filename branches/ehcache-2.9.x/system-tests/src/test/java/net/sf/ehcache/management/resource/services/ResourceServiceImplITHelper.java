@@ -1,19 +1,24 @@
 package net.sf.ehcache.management.resource.services;
 
+import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.path.json.JsonPath.from;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
+import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import net.sf.ehcache.config.TerracottaClientConfiguration;
+import net.sf.ehcache.config.TerracottaConfiguration;
+
+import org.junit.AfterClass;
+import org.terracotta.test.util.TestBaseUtil;
+
 import com.jayway.restassured.RestAssured;
 import com.tc.test.config.builder.ClusterManager;
 import com.tc.test.config.builder.TcConfig;
 import com.tc.test.config.builder.TcMirrorGroup;
 import com.tc.test.config.builder.TcServer;
 import com.tc.util.PortChooser;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.*;
-import org.junit.AfterClass;
-import org.terracotta.test.util.TestBaseUtil;
-
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.path.json.JsonPath.from;
 
 /**
  * @author: Anthony Dahanne
@@ -30,6 +35,7 @@ public abstract class ResourceServiceImplITHelper {
 
   public static int MANAGEMENT_PORT = new PortChooser().chooseRandomPort();
   public static int STANDALONE_REST_AGENT_PORT = new PortChooser().chooseRandomPort();
+  public static int TSA_GROUP_PORT             = new PortChooser().chooseRandomPort();
 
   protected static final String BASEURI = "http://localhost";
   protected static final String INFO = "/info";
@@ -38,7 +44,7 @@ public abstract class ResourceServiceImplITHelper {
 
   protected static final String STANDALONE_BASE_URL = BASEURI +":" + STANDALONE_REST_AGENT_PORT;
   protected static final String CLUSTERED_BASE_URL =  BASEURI +":" + MANAGEMENT_PORT;
-  public static String CLUSTER_URL = "localhost:" + MANAGEMENT_PORT;
+  public static String          CLUSTER_URL                = "localhost:" + TSA_GROUP_PORT;
 
 
   protected static void setUpCluster(Class clazz) throws Exception {
@@ -46,7 +52,7 @@ public abstract class ResourceServiceImplITHelper {
             .mirrorGroup(
                     new TcMirrorGroup()
                             .server(
-                                    new TcServer().managementPort(MANAGEMENT_PORT)
+                                    new TcServer().managementPort(MANAGEMENT_PORT).tsaGroupPort(TSA_GROUP_PORT)
                             )
             );
 
