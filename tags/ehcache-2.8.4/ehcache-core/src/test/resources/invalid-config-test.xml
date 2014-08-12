@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<ehcache>
-	<cache name="test" maxElementsInMemory="10" eternal="false"
-		timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="false">
-		<terracotta clustered="false" coherent="someInvalidValue" />
-	</cache>
-</ehcache>
