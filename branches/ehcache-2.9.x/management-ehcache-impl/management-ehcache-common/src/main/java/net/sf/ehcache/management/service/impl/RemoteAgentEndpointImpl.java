@@ -10,6 +10,8 @@ import org.terracotta.management.l1bridge.AbstractRemoteAgentEndpointImpl;
 import org.terracotta.management.l1bridge.RemoteCallDescriptor;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -29,6 +31,7 @@ public class RemoteAgentEndpointImpl extends AbstractRemoteAgentEndpointImpl imp
   };
 
   private ObjectName objectName;
+  private final List<String> clientUUIDs =  new ArrayList<String>();
 
   public RemoteAgentEndpointImpl() {
   }
@@ -102,4 +105,16 @@ public class RemoteAgentEndpointImpl extends AbstractRemoteAgentEndpointImpl imp
     return AGENCY;
   }
 
+  public void addClientUUID(String clientUUID) {
+    clientUUIDs.add(clientUUID);
+  }
+
+  @Override
+  public String[] getClientUUIDs() {
+    return clientUUIDs.toArray(new String[0]);
+  }
+
+  public void removeClientUUID(String clientUUID) {
+    clientUUIDs.remove(clientUUID);
+  }
 }

@@ -12,6 +12,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.service.ManagementServerLifecycle;
 
+import net.sf.ehcache.management.service.impl.RemoteAgentEndpointImpl;
 import org.terracotta.management.ServiceLocator;
 import org.terracotta.management.embedded.StandaloneServer;
 
@@ -26,6 +27,8 @@ import com.terracotta.management.ApplicationEhCacheService;
  *
  */
 public abstract class AbstractManagementServer implements ManagementServer {
+
+  protected RemoteAgentEndpointImpl remoteAgentEndpointImpl;
 
   protected StandaloneServer standaloneServer;
 
@@ -102,6 +105,17 @@ public abstract class AbstractManagementServer implements ManagementServer {
       throw new CacheException("ServiceLoader found no ApplicationEhCacheService implementation");
     }
     return sl;
+  }
+
+
+  @Override
+  public void addClientUUID(String clientUUID) {
+    remoteAgentEndpointImpl.addClientUUID(clientUUID);
+  }
+
+  @Override
+  public void removeClientUUID(String clientUUID) {
+    remoteAgentEndpointImpl.removeClientUUID(clientUUID);
   }
 
 }

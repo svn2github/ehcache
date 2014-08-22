@@ -7,6 +7,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
@@ -171,7 +172,6 @@ public class AbstractManagementServerTest {
       this.managementServerLifecycles.add(repositoryService);
     }
 
-
     protected void loadEmbeddedAgentServiceLocatorWithStringClass() {
       ServiceLocator locator = new ServiceLocator();
       locator.loadService(String.class, new String());
@@ -188,8 +188,17 @@ public class AbstractManagementServerTest {
     }
 
     @Override
+    public void addClientUUID(String clientUUID) {
+    }
+
+    @Override
+    public void removeClientUUID(String clientUUID) {
+    }
+
+    @Override
     public void unregisterClusterRemoteEndpoint() {
     }
   }
+
 
 }

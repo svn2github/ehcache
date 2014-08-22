@@ -74,6 +74,22 @@ public interface ManagementServer {
     public void registerClusterRemoteEndpoint(String clientUUID);
 
     /**
+     * add a reference to the clientUUID to the EhCache Mbean
+     * That allows the TSA to keep track of all the toolkit clients
+     * available through an agent
+     *
+     * @param clientUUID the client UUID
+     */
+    void addClientUUID(String clientUUID);
+
+    /**
+     * remove the reference to the clientUUID from the EhCache Mbean
+     *
+     * @param clientUUID the client UUID
+     */
+    void removeClientUUID(String clientUUID);
+
+  /**
      * Unregister the previously registered cluster endpoint.
      */
     public void unregisterClusterRemoteEndpoint();
