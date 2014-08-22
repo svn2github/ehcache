@@ -27,8 +27,6 @@ import java.util.ServiceLoader;
  */
 public final class ManagementServerImpl extends AbstractManagementServer {
 
-  private RemoteAgentEndpointImpl remoteAgentEndpointImpl;
-
   @Override
   public void initialize(ManagementRESTServiceConfiguration configuration) {
 
