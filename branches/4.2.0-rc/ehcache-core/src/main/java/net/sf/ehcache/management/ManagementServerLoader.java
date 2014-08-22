@@ -226,6 +226,8 @@ public class ManagementServerLoader {
 
             if (clientUUID != null) {
                 clientUUIDs.put(cacheManager.getName(), clientUUID);
+                Method addClusterUUID = MANAGEMENT_SERVER_CLASS.getMethod("addClientUUID", String.class);
+                addClusterUUID.invoke(managementServer, clientUUID);
                 if (registeredClientUUID == null) {
                     registeredClientUUID = clientUUID;
                     Method registerClusterRemoteEndpoint = MANAGEMENT_SERVER_CLASS.getMethod("registerClusterRemoteEndpoint", String.class);
@@ -239,6 +241,8 @@ public class ManagementServerLoader {
             unregisterMethod.invoke(managementServer, cacheManager);
 
             String unregisteredClientUUID = clientUUIDs.remove(cacheManager.getName());
+            Method removeClusterUUID = MANAGEMENT_SERVER_CLASS.getMethod("removeClientUUID", String.class);
+            removeClusterUUID.invoke(managementServer, unregisteredClientUUID);
             if (registeredClientUUID != null && registeredClientUUID.equals(unregisteredClientUUID)) {
                 Method unregisterClusterRemoteEndpoint = MANAGEMENT_SERVER_CLASS.getMethod("unregisterClusterRemoteEndpoint");
                 unregisterClusterRemoteEndpoint.invoke(managementServer);

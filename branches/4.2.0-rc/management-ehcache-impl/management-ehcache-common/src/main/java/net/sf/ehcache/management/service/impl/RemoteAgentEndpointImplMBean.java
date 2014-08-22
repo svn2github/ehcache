@@ -10,4 +10,7 @@ import org.terracotta.management.l1bridge.RemoteAgentEndpoint;
  * @author Ludovic Orban
  */
 public interface RemoteAgentEndpointImplMBean extends RemoteAgentEndpoint {
+
+  String[] getClientUUIDs();
+
 }
