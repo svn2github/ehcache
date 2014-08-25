@@ -169,19 +169,19 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     }
     @Override
     public void propertyChange(PropertyChangeEvent pce) {
-      String propName = pce.getPropertyName().toUpperCase();
+      String propName = pce.getPropertyName();
       
-      if (propName.equals("MaxByteLocalHeap")) {
+      if (propName.equals("maxBytesLocalHeap")) {
         Map<String, Object> attrs = new HashMap<String, Object>();
         
-        attrs.put(propName, pce.getNewValue());
+        attrs.put("MaxBytesLocalHeap", pce.getNewValue());
         attrs.put("MaxBytesLocalHeapAsString", cacheManager.getConfiguration().getMaxBytesLocalHeapAsString());
 
         sendCacheManagerEvent(attrs, cacheManager);
-      } else if (propName.equals("MaxByteLocalDisk")) {
+      } else if (propName.equals("maxBytesLocalDisk")) {
         Map<String, Object> attrs = new HashMap<String, Object>();
         
-        attrs.put(propName, pce.getNewValue());
+        attrs.put("MaxBytesLocalDisk", pce.getNewValue());
         attrs.put("MaxBytesLocalDiskAsString", cacheManager.getConfiguration().getMaxBytesLocalDiskAsString());
 
         sendCacheManagerEvent(attrs, cacheManager);
@@ -1149,7 +1149,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     EventEntityV2 evenEntityV2 = new EventEntityV2();
     evenEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
     evenEntityV2.setType("EHCACHE.CACHEMANAGER.UPDATED");
-    evenEntityV2.getRootRepresentables().put("attribute", attributes);
+    evenEntityV2.getRootRepresentables().put("attributes", attributes);
     evenEntityV2.getRootRepresentables().put("cacheManagerName", cacheManager.getName());
 
     cacheManager.sendManagementEvent(evenEntityV2, evenEntityV2.getType());
