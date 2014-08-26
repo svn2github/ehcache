@@ -18,8 +18,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven-forge-plugin.version>1.2.10</maven-forge-plugin.version>
-    
+    <maven-forge-plugin.version>1.2.11</maven-forge-plugin.version>
+    <finder.version>3.0</finder.version>
     <skipDeploy>false</skipDeploy>
     <skipJavadoc>false</skipJavadoc>
 
@@ -209,28 +209,6 @@
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
-        <plugin>
-          <groupId>org.terracotta</groupId>
-          <artifactId>maven-forge-plugin</artifactId>
-          <version>${maven-forge-plugin.version}</version>
-          <executions>
-            <execution>
-              <id>run-sag-finder</id>
-              <phase>compile</phase>
-              <goals>
-                <goal>sag-finder</goal>
-              </goals>
-              <configuration>
-                <onlyRunWhenSagDepsIsTrue>true</onlyRunWhenSagDepsIsTrue>
-                <excludeGroupIds>gf-3122,gf-40</excludeGroupIds>
-                <excludeArtifacts>
-                  <excludeArtifact>org.codehaus.jackson:jackson-xc</excludeArtifact>
-                  <excludeArtifact>javax.validation:validation-api</excludeArtifact>
-                </excludeArtifacts>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -292,6 +270,51 @@
       </build>
     </profile>
     <profile>
+      <id>sag-deps</id>
+      <activation>
+        <property>
+          <name>sag-deps</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.terracotta</groupId>
+              <artifactId>maven-forge-plugin</artifactId>
+              <version>${maven-forge-plugin.version}</version>
+              <dependencies>
+                <dependency>
+                  <groupId>com.softwareag.ibit.tools.util</groupId>
+                  <artifactId>finder</artifactId>
+                  <version>${finder.version}</version>
+                </dependency>
+              </dependencies>
+              <executions>
+                <execution>
+                  <id>run-sag-finder</id>
+                  <phase>compile</phase>
+                  <goals>
+                    <goal>sag-finder</goal>
+                  </goals>
+                  <configuration>
+                    <onlyRunWhenSagDepsIsTrue>true</onlyRunWhenSagDepsIsTrue>
+                    <excludeGroupIds>gf-3122,gf-40</excludeGroupIds>
+                    <excludeArtifacts>
+                      <excludeArtifact>org.codehaus.jackson:jackson-xc</excludeArtifact>
+                      <excludeArtifact>javax.validation:validation-api</excludeArtifact>
+                    </excludeArtifacts>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+
+    <profile>
       <id>deploy-sonatype</id>
       <distributionManagement>
         <repository>
@@ -331,7 +354,7 @@
         <role>Maintainer</role>
         <role>Developer</role>
       </roles>
-      <timezone>+10</timezone>
+      <timezone>10</timezone>
       <properties>
         <skype>gregrluck</skype>
         <yahoo>gregrluck</yahoo>
@@ -352,7 +375,7 @@
       <roles>
         <role>Developer</role>
       </roles>
-      <timezone>+10</timezone>
+      <timezone>10</timezone>
     </developer>
     <developer>
       <name>Mauro Talevi</name>
@@ -377,7 +400,7 @@
       <roles>
         <role>Former Developer</role>
       </roles>
-      <timezone>+10</timezone>
+      <timezone>10</timezone>
     </contributor>
     <contributor>
       <name>Ben Houston</name>
