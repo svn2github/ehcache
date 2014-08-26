@@ -473,14 +473,21 @@ public final class Configuration {
      */
     public void setMaxBytesLocalHeap(final String maxBytesOnHeap) {
         assertArgumentNotNull("MaxBytesLocalHeap", maxBytesOnHeap);
-        if (isPercentage(maxBytesOnHeap)) {
-            long maxMemory = Runtime.getRuntime().maxMemory();
-            long mem = maxMemory / HUNDRED * parsePercentage(maxBytesOnHeap);
-            setMaxBytesLocalHeap(mem);
-        } else {
-            setMaxBytesLocalHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
+        
+        final String origInput = maxBytesLocalHeapInput;
+        try {
+            maxBytesLocalHeapInput = maxBytesOnHeap;
+            if (isPercentage(maxBytesOnHeap)) {
+                long maxMemory = Runtime.getRuntime().maxMemory();
+                long mem = maxMemory / HUNDRED * parsePercentage(maxBytesOnHeap);
+                setMaxBytesLocalHeap(mem);
+            } else {
+                setMaxBytesLocalHeap(MemoryUnit.parseSizeInBytes(maxBytesOnHeap));
+            }
+        } catch (RuntimeException rte) {
+            maxBytesLocalHeapInput = origInput;
+            throw rte;
         }
-        maxBytesLocalHeapInput = maxBytesOnHeap;
     }
 
     /**
@@ -546,14 +553,21 @@ public final class Configuration {
      */
     public void setMaxBytesLocalOffHeap(final String maxBytesOffHeap) {
         assertArgumentNotNull("MaxBytesLocalOffHeap", maxBytesOffHeap);
-        if (isPercentage(maxBytesOffHeap)) {
-            long maxMemory = getOffHeapLimit();
-            long mem = maxMemory / HUNDRED * parsePercentage(maxBytesOffHeap);
-            setMaxBytesLocalOffHeap(mem);
-        } else {
-            setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
+        
+        final String origInput = maxBytesLocalOffHeapInput;
+        try {
+            maxBytesLocalOffHeapInput = maxBytesOffHeap;
+            if (isPercentage(maxBytesOffHeap)) {
+                long maxMemory = getOffHeapLimit();
+                long mem = maxMemory / HUNDRED * parsePercentage(maxBytesOffHeap);
+                setMaxBytesLocalOffHeap(mem);
+            } else {
+                setMaxBytesLocalOffHeap(MemoryUnit.parseSizeInBytes(maxBytesOffHeap));
+            }
+        } catch (RuntimeException rte) {
+            maxBytesLocalOffHeapInput = origInput;
+            throw rte;
         }
-        maxBytesLocalOffHeapInput = maxBytesOffHeap;
     }
 
     /**
@@ -640,8 +654,15 @@ public final class Configuration {
      */
     public void setMaxBytesLocalDisk(final String maxBytesOnDisk) {
         assertArgumentNotNull("MaxBytesLocalDisk", maxBytesOnDisk);
-        setMaxBytesLocalDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
-        maxBytesLocalDiskInput = maxBytesOnDisk;
+        
+        final String origInput = maxBytesLocalDiskInput;
+        try {
+            maxBytesLocalDiskInput = maxBytesOnDisk;
+            setMaxBytesLocalDisk(MemoryUnit.parseSizeInBytes(maxBytesOnDisk));
+        } catch (RuntimeException rte) {
+            maxBytesLocalDiskInput = origInput;
+            throw rte;
+        }
     }
 
     /**
