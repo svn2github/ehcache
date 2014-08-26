@@ -33,8 +33,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * A hash table supporting full concurrency of retrievals and
- * high expected concurrency for updates. This class obeys the
- * same functional specification as {@link java.util.Hashtable}, and
+ * high expected concurrency for updates. This class is based on the 
+ * same functional standard as {@link java.util.Hashtable}, and
  * includes versions of methods corresponding to each method of
  * {@code Hashtable}. However, even though all operations are
  * thread-safe, retrieval operations do <em>not</em> entail locking,
@@ -2549,7 +2549,7 @@ public class ConcurrentHashMap<K, V>
      * Legacy method testing if some key maps into the specified value
      * in this table.  This method is identical in functionality to
      * {@link #containsValue}, and exists solely to ensure
-     * full compatibility with class {@link java.util.Hashtable},
+     * compatibility with class {@link java.util.Hashtable},
      * which supported this method prior to introduction of the
      * Java Collections framework.
      *
