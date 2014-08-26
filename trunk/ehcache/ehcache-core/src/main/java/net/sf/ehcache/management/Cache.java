@@ -27,7 +27,7 @@ import javax.management.ObjectName;
 import java.io.Serializable;
 
 /**
- * A JMX MBean implementation for Cache
+ * A Cache implementation that supports JMX MBeans
  * @author Greg Luck
  * @version $Id$
  * @since 1.3
