@@ -57,8 +57,8 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * Doing so would require the addition of <code>grant</code> statements in the <code>java.policy</code> file.
  * <p/>
- * Per the JDK documentation: "If no security manager is specified no class loading, by RMI clients or servers, is allowed,
- * aside from what can be found in the local CLASSPATH." The classpath of each instance of this class should have
+ * If no security manager is specified no class loading, by RMI clients or servers, is allowed,
+ * aside from what can be found in the local CLASSPATH. The classpath of each instance of this class should have
  * all required classes to enable distribution, so no remote classloading is required or desirable. Accordingly,
  * no security manager is set and there are no special JVM configuration requirements.
  * <p/>
