@@ -5,7 +5,7 @@
   <parent>
     <groupId>net.sf.ehcache</groupId>
     <artifactId>ehcache-parent</artifactId>
-    <version>2.15</version>
+    <version>2.16</version>
     <relativePath/>
   </parent>
 
@@ -21,7 +21,6 @@
   <properties>
     <slf4j.version>1.7.7</slf4j.version>
     <sizeof-agent.version>1.0.1</sizeof-agent.version>
-    <maven-forge-plugin.version>1.2.10</maven-forge-plugin.version>
     <gmaven-plugin.version>1.4</gmaven-plugin.version>
     <surefire.version>2.15</surefire.version>
     <terracotta-toolkit-api-internal.version>1.17</terracotta-toolkit-api-internal.version>
