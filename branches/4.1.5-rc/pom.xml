@@ -29,6 +29,7 @@
     <clustered-entity-management.version>0.8.0</clustered-entity-management.version>
     <statistics.version>1.0.1</statistics.version>
     <quartz.version>2.2.1</quartz.version>
+    <skipRemoteStaging>false</skipRemoteStaging>
   </properties>
 
   <modules>
@@ -446,6 +447,7 @@
                 <!-- The server "id" element from settings to use authentication from -->
                 <serverId>terracotta-nexus-staging</serverId>
                 <skipNexusStagingDeployMojo>${skipDeploy}</skipNexusStagingDeployMojo>
+                <skipRemoteStaging>${skipRemoteStaging}</skipRemoteStaging>
               </configuration>
             </plugin>
           </plugins>
