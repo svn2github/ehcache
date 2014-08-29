@@ -1,0 +1,14 @@
+<ehcache>
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="true"/>
+
+  <cache name="test"
+         maxElementsInMemory="1000">
+         <terracotta clustered="true" consistency="strong" concurrency="8">
+            <nonstop timeoutMillis="1"/>
+         </terracotta>
+  </cache>
+
+  <terracottaConfig url="localhost:PORT" rejoin="true"/>
+</ehcache>
