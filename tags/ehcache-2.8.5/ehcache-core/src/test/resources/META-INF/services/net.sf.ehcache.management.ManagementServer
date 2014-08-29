@@ -1,2 +1,0 @@
-#used by ManagementServerLoaderTest
-net.sf.ehcache.management.DummyManagementServerImpl
