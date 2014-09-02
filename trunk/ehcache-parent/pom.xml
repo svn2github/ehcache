@@ -119,7 +119,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -134,7 +134,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -147,7 +147,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -163,7 +163,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>                                
                 <pluginExecution>
@@ -176,7 +176,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -189,7 +189,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
                 <pluginExecution>
@@ -202,7 +202,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <ignore/>
                   </action>
                 </pluginExecution>
               </pluginExecutions>
@@ -363,7 +363,7 @@
     <developer>
       <id>ssuravarapu</id>
       <name>Surya Suravarapu</name>
-      <url />
+      <url/>
       <roles>
         <role>Developer</role>
       </roles>
@@ -379,24 +379,24 @@
     </developer>
     <developer>
       <name>Mauro Talevi</name>
-      <email />
-      <url />
-      <organization />
-      <organizationUrl />
+      <email/>
+      <url/>
+      <organization/>
+      <organizationUrl/>
       <roles>
         <role>Maven Guru</role>
       </roles>
-      <timezone />
+      <timezone/>
     </developer>
   </developers>
 
   <contributors>
     <contributor>
       <name>Adam Murdoch</name>
-      <email />
-      <url />
-      <organization />
-      <organizationUrl />
+      <email/>
+      <url/>
+      <organization/>
+      <organizationUrl/>
       <roles>
         <role>Former Developer</role>
       </roles>
@@ -404,34 +404,34 @@
     </contributor>
     <contributor>
       <name>Ben Houston</name>
-      <email />
-      <url />
-      <organization />
-      <organizationUrl />
-      <roles />
-      <timezone />
-      <properties />
+      <email/>
+      <url/>
+      <organization/>
+      <organizationUrl/>
+      <roles/>
+      <timezone/>
+      <properties/>
     </contributor>
     <contributor>
       <name>Claus Ibsen</name>
-      <email />
-      <url />
-      <organization />
-      <organizationUrl />
-      <roles />
-      <timezone />
+      <email/>
+      <url/>
+      <organization/>
+      <organizationUrl/>
+      <roles/>
+      <timezone/>
       <properties>
         <contribution>Patches</contribution>
       </properties>
     </contributor>
     <contributor>
       <name>Jody Brownell</name>
-      <email />
-      <url />
-      <organization />
-      <organizationUrl />
-      <roles />
-      <timezone />
+      <email/>
+      <url/>
+      <organization/>
+      <organizationUrl/>
+      <roles/>
+      <timezone/>
       <properties>
         <contribution>Patches</contribution>
       </properties>

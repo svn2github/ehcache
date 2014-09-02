@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+ DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+ Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+
+ The contents of this file are subject to the terms of either the GNU
+ General Public License Version 2 only ("GPL") or the Common Development
+ and Distribution License("CDDL") (collectively, the "License").  You
+ may not use this file except in compliance with the License. You can obtain
+ a copy of the License at https://glassfish.dev.java.net/public/CDDL+GPL.html
+ or glassfish/bootstrap/legal/LICENSE.txt.  See the License for the specific
+ language governing permissions and limitations under the License.
+
+ When distributing the software, include this License Header Notice in each
+ file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
+ Sun designates this particular file as subject to the "Classpath" exception
+ as provided by Sun in the GPL Version 2 section of the License file that
+ accompanied this code.  If applicable, add the following below the License
+ Header, with the fields enclosed by brackets [] replaced by your own
+ identifying information: "Portions Copyrighted [year]
+ [name of copyright owner]"
+
+ Contributor(s):
+
+ If you wish your version of this file to be governed by only the CDDL or
+ only the GPL Version 2, indicate your decision by adding "[Contributor]
+ elects to include this software in this distribution under the [CDDL or GPL
+ Version 2] license."  If you don't indicate a single choice of license, a
+ recipient has the option to distribute your version of this file under
+ either the CDDL, the GPL Version 2 or to extend the choice of license to
+ its licensees as provided above.  However, if you add GPL Version 2 code
+ and therefore, elected the GPL Version 2 license, then the option applies
+ only if the new code is made subject to such option by the copyright
+ holder.
+-->
+
+<wsdl:definitions
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:wsat="http://schemas.xmlsoap.org/ws/2004/10/wsat"
+        xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing"
+        xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy"
+        xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+        xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+        xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+        targetNamespace="http://schemas.xmlsoap.org/ws/2004/10/wsat">
+
+    <wsp:Policy wsu:Id="Addressing_policy">
+        <wsp:ExactlyOne>
+            <wsp:All>
+                <wsap:UsingAddressing/>
+            </wsp:All>
+        </wsp:ExactlyOne>
+    </wsp:Policy>
+    <wsdl:types>
+        <xs:schema>
+            <!--xs:import
+                    namespace='http://schemas.xmlsoap.org/ws/2004/08/addressing'
+                    schemaLocation='http://schemas.xmlsoap.org/ws/2004/08/addressing'/-->
+            <xs:import
+                    namespace='http://schemas.xmlsoap.org/ws/2004/08/addressing'
+                    schemaLocation='addressing.xsd'/>
+            <xs:import
+                    namespace='http://schemas.xmlsoap.org/ws/2004/10/wsat'
+                    schemaLocation='wsat.xsd'/>
+        </xs:schema>
+    </wsdl:types>
+
+    <!-- Messages -->
+    <wsdl:message name="Prepare">
+        <wsdl:part name="parameters" element="wsat:Prepare"/>
+    </wsdl:message>
+    <wsdl:message name="Prepared">
+        <wsdl:part name="parameters" element="wsat:Prepared"/>
+    </wsdl:message>
+    <wsdl:message name="Aborted">
+        <wsdl:part name="parameters" element="wsat:Aborted"/>
+    </wsdl:message>
+    <wsdl:message name="ReadOnly">
+        <wsdl:part name="parameters" element="wsat:ReadOnly"/>
+    </wsdl:message>
+    <wsdl:message name="Commit">
+        <wsdl:part name="parameters" element="wsat:Commit"/>
+    </wsdl:message>
+    <wsdl:message name="Rollback">
+        <wsdl:part name="parameters" element="wsat:Rollback"/>
+    </wsdl:message>
+    <wsdl:message name="Committed">
+        <wsdl:part name="parameters" element="wsat:Committed"/>
+    </wsdl:message>
+    <wsdl:message name="Replay">
+        <wsdl:part name="parameters" element="wsat:Replay"/>
+    </wsdl:message>
+    <wsdl:message name="PrepareResponse">
+        <wsdl:part name="parameters" element="wsat:PrepareResponse"/>
+    </wsdl:message>
+    <wsdl:message name="ReplayResponse">
+        <wsdl:part name="parameters" element="wsat:ReplayResponse"/>
+    </wsdl:message>
+    <!-- Mandatory Asynchronous Messaging PortTypes -->
+    <wsdl:portType name="CompletionCoordinatorPortType">
+        <wsdl:operation name="CommitOperation">
+            <wsdl:input message="wsat:Commit"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/completion/Commit"/>
+        </wsdl:operation>
+        <wsdl:operation name="RollbackOperation">
+            <wsdl:input message="wsat:Rollback"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/completion/Rollback"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="CompletionInitiatorPortType">
+        <wsdl:operation name="CommittedOperation">
+            <wsdl:input message="wsat:Committed"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/completion/Committed"/>
+        </wsdl:operation>
+        <wsdl:operation name="AbortedOperation">
+            <wsdl:input message="wsat:Aborted"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/completion/Aborted"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="CoordinatorPortType">
+        <wsdl:operation name="PreparedOperation">
+            <wsdl:input message="wsat:Prepared"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/Prepared"/>
+        </wsdl:operation>
+        <wsdl:operation name="AbortedOperation">
+            <wsdl:input message="wsat:Aborted"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/Aborted"/>
+        </wsdl:operation>
+        <wsdl:operation name="ReadOnlyOperation">
+            <wsdl:input message="wsat:ReadOnly"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/ReadOnly"/>
+        </wsdl:operation>
+        <wsdl:operation name="CommittedOperation">
+            <wsdl:input message="wsat:Committed"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/Committed"/>
+        </wsdl:operation>
+        <wsdl:operation name="ReplayOperation">
+            <wsdl:input message="wsat:Replay"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/Replay"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:portType name="ParticipantPortType">
+        <wsdl:operation name="PrepareOperation">
+            <wsdl:input message="wsat:Prepare"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/Prepare"/>
+        </wsdl:operation>
+        <wsdl:operation name="CommitOperation">
+            <wsdl:input message="wsat:Commit"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/Commit"/>
+        </wsdl:operation>
+        <wsdl:operation name="RollbackOperation">
+            <wsdl:input message="wsat:Rollback"
+                        wsa:Action="http://schemas.xmlsoap.org/ws/2004/10/wsat/Rollback"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+
+    <wsdl:binding name="CompletionCoordinatorBinding" type="wsat:CompletionCoordinatorPortType">
+        <wsp:PolicyReference URI="#Addressing_policy"/>
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="CommitOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/completion/Commit"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="RollbackOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/completion/Rollback"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="CompletionInitiatorBinding" type="wsat:CompletionInitiatorPortType">
+        <wsp:PolicyReference URI="#Addressing_policy"/>
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="CommittedOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/completion/Committed"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="AbortedOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/completion/Aborted"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="CoordinatorBinding" type="wsat:CoordinatorPortType">
+        <wsp:PolicyReference URI="#Addressing_policy"/>
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="PreparedOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/Prepared"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="AbortedOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/Aborted"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="ReadOnlyOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/ReadOnly"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="CommittedOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/Committed"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="ReplayOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/Replay"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="ParticipantBinding" type="wsat:ParticipantPortType">
+        <wsp:PolicyReference URI="#Addressing_policy"/>
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="PrepareOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/Prepare"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="CommitOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/Commit"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+        <wsdl:operation name="RollbackOperation">
+            <soap:operation soapAction="http://schemas.xmlsoap.org/ws/2004/10/wsat/Rollback"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+        </wsdl:operation>
+    </wsdl:binding>
+
+    <wsdl:service name="WSATCoordinator">
+        <wsdl:port binding="wsat:CompletionCoordinatorBinding" name="CompletionCoordinator">
+            <soap:address location="http://localhost:8080/wstx-services/wsat/completion/coordinator"/>
+        </wsdl:port>
+        <wsdl:port binding="wsat:CoordinatorBinding" name="Coordinator">
+            <soap:address location="http://localhost:8080/wstx-services/wsat/coordinator"/>
+        </wsdl:port>
+        <wsdl:port binding="wsat:ParticipantBinding" name="Participant">
+            <soap:address location="http://localhost:8080/wstx-services/wsat/2pc"/>
+        </wsdl:port>
+        <wsdl:port binding="wsat:CompletionInitiatorBinding" name="CompletionInitiator">
+            <soap:address location="http://localhost:8080/wstx-services/wsat/completion/initiator"/>
+        </wsdl:port>
+    </wsdl:service>
+    <!--
+        <wsdl:service name="TXInitiator">
+            <wsdl:port binding="wsat:CompletionInitiatorBinding" name="CompletionInitiator">
+                <soap:address location="http://localhost:8080/wstx-services/CompletionInitiator"/>
+            </wsdl:port>
+        </wsdl:service>
+    -->
+
+    <jaxws:bindings>
+        <jaxws:package name="com.sun.xml.ws.tx.webservice.member.at"/>
+    </jaxws:bindings>
+
+</wsdl:definitions>
