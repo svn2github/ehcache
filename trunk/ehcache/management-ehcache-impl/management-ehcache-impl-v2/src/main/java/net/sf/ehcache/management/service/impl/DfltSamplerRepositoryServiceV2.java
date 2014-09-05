@@ -927,40 +927,39 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     public void notifyCacheAdded(String cacheName) {
       cacheSamplerMapLock.writeLock().lock();
       try {
-        Cache c = cacheManager.getCache(cacheName);
+        Ehcache ehcache = cacheManager.getEhcache(cacheName);
 
-        if (c != null) {
-          cacheSamplersByName.put(cacheName, new CacheSamplerImpl(c));
+        if (ehcache != null) {
+          cacheSamplersByName.put(cacheName, new CacheSamplerImpl(ehcache));
+
+          Map<String, Object> cacheAttributes = new HashMap<String, Object>();
+          cacheAttributes.put("version", this.getClass().getPackage().getImplementationVersion());
+          cacheAttributes.put("name", ehcache.getName());
+          cacheAttributes.put("cacheManagerName", cacheManager.getName());
+          Collection<CacheEntityV2> createCacheEntities = DfltSamplerRepositoryServiceV2.this.createCacheEntities(
+              Collections.singleton(cacheManager.getName()), Collections.singleton(ehcache.getName()), null).getEntities();
+          if (createCacheEntities != null && !createCacheEntities.isEmpty()) {
+            CacheEntityV2 next = createCacheEntities.iterator().next();
+            cacheAttributes.put("attributes", next.getAttributes());
+          }
+
+          final EventEntityV2 evenEntityV2 = new EventEntityV2();
+          evenEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
+          evenEntityV2.setType("EHCACHE.CACHE.ADDED");
+          evenEntityV2.getRootRepresentables().put("cache", cacheAttributes);
+          cacheManager.sendManagementEvent(evenEntityV2, evenEntityV2.getType());
+          for (EventListener eventListener : listeners) {
+            eventListener.onEvent(evenEntityV2);
+          }
+          ehcache.getCacheEventNotificationService().registerListener(cacheEventListener);
+          PropertyChangeListenerImplementation propertyChangeListener = new PropertyChangeListenerImplementation(ehcache);
+          SamplerCacheConfigurationListener samplerCacheConfigurationListener = new SamplerCacheConfigurationListener(ehcache);
+          propertyChangeListeners.put(cacheName, propertyChangeListener);
+          samplerCacheConfigurationListeners.put(cacheName, samplerCacheConfigurationListener);
+          ehcache.addPropertyChangeListener(propertyChangeListener);
+          ehcache.getCacheConfiguration().addConfigurationListener(samplerCacheConfigurationListener);
         }
 
-        String cacheManagerName = c.getCacheManager().getName();
-
-        Map<String, Object> cacheAttributes = new HashMap<String, Object>();
-        cacheAttributes.put("version", this.getClass().getPackage().getImplementationVersion());
-        cacheAttributes.put("name", c.getName());
-        cacheAttributes.put("cacheManagerName", cacheManager.getName());
-        Collection<CacheEntityV2> createCacheEntities = DfltSamplerRepositoryServiceV2.this.createCacheEntities(
-            Collections.singleton(cacheManagerName), Collections.singleton(c.getName()), null).getEntities();
-        if (createCacheEntities != null && !createCacheEntities.isEmpty()) {
-          CacheEntityV2 next = createCacheEntities.iterator().next();
-          cacheAttributes.put("attributes", next.getAttributes());
-        }
-
-        final EventEntityV2 evenEntityV2 = new EventEntityV2();
-        evenEntityV2.setAgentId(Representable.EMBEDDED_AGENT_ID);
-        evenEntityV2.setType("EHCACHE.CACHE.ADDED");
-        evenEntityV2.getRootRepresentables().put("cache", cacheAttributes);
-        cacheManager.sendManagementEvent(evenEntityV2, evenEntityV2.getType());
-        for (EventListener eventListener : listeners) {
-          eventListener.onEvent(evenEntityV2);
-        }
-        c.getCacheEventNotificationService().registerListener(cacheEventListener);
-        PropertyChangeListenerImplementation propertyChangeListener = new PropertyChangeListenerImplementation(c);
-        SamplerCacheConfigurationListener samplerCacheConfigurationListener = new SamplerCacheConfigurationListener(c);
-        propertyChangeListeners.put(cacheName, propertyChangeListener);
-        samplerCacheConfigurationListeners.put(cacheName, samplerCacheConfigurationListener);
-        c.addPropertyChangeListener(propertyChangeListener);
-        c.getCacheConfiguration().addConfigurationListener(samplerCacheConfigurationListener);
       } finally {
         cacheSamplerMapLock.writeLock().unlock();
       }

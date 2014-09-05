@@ -4,25 +4,29 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.ClusteredInstanceFactoryAccessor;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collections;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Ludovic Orban
@@ -31,6 +35,7 @@ public class DfltSamplerRepositoryServiceV2Test {
 
   private DfltSamplerRepositoryServiceV2 repositoryService;
   private ClusteredInstanceFactory clusteredInstanceFactory;
+  private CacheManager cacheManager;
 
   @Before
   public void setUp() throws Exception {
@@ -42,7 +47,7 @@ public class DfltSamplerRepositoryServiceV2Test {
     configuration.setName("testCacheManager");
     CacheConfiguration cacheConfiguration = new CacheConfiguration("testCache1", 12);
     configuration.addCache(cacheConfiguration);
-    CacheManager cacheManager = new CacheManager(configuration);
+    cacheManager = new CacheManager(configuration);
     // Cache ehcache = new Cache(cacheConfiguration);
     TerracottaClient terracottaClient = mock(TerracottaClient.class);
     clusteredInstanceFactory = mock(ClusteredInstanceFactory.class);
@@ -76,6 +81,13 @@ public class DfltSamplerRepositoryServiceV2Test {
     repositoryService.clearCache("testCacheManager", "testCache1");
 
     verify(clusteredInstanceFactory, times(2)).enableNonStopForCurrentThread(anyBoolean());
+  }
+
+  @Test
+  public void testCanAddDecoratedCache() {
+    Cache underlyingCache = new Cache(new CacheConfiguration("decoratedTestCache", 10));
+    cacheManager.addCache(new BlockingCache(underlyingCache));
+    assertThat(underlyingCache.getCacheEventNotificationService().hasCacheEventListeners(), is(true));
   }
 
   @After
