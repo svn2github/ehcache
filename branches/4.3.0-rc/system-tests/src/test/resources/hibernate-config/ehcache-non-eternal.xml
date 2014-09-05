@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- original resource filename: ehcache-non-eternal.xml -->
+
+<ehcache name="test" updateCheck="false">
+
+  <defaultCache maxElementsInMemory="1000" eternal="false"
+    timeToIdleSeconds="10">
+
+    <terracotta clustered="true" localKeyCache="true"
+      localKeyCacheSize="1000">
+      <nonstop enabled="false" />
+    </terracotta>
+  </defaultCache>
+
+  <terracottaConfig rejoin="false" url="localhost:PORT" />
+
+</ehcache>
