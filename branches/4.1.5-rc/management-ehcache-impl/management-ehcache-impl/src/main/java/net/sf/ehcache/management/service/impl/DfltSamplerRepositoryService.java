@@ -4,26 +4,11 @@
  */
 package net.sf.ehcache.management.service.impl;
 
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.ClusteredInstanceFactoryAccessor;
+import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.event.CacheManagerEventListener;
@@ -56,6 +41,22 @@ import org.terracotta.management.resource.exceptions.ExceptionUtils;
 import org.terracotta.management.resource.services.AgentService;
 import org.terracotta.management.resource.services.LicenseService;
 import org.terracotta.management.resource.services.Utils;
+
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 
 /**
  * A controller class registering new {@link CacheManager}.
@@ -843,7 +844,7 @@ public class DfltSamplerRepositoryService extends AbstractRemoteAgentEndpointImp
     public void notifyCacheAdded(String cacheName) {
       cacheSamplerMapLock.writeLock().lock();
       try {
-        Cache c = cacheManager.getCache(cacheName);
+        Ehcache c = cacheManager.getEhcache(cacheName);
 
         if (c != null) {
           cacheSamplersByName.put(cacheName, new CacheSamplerImpl(c));

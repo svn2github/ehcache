@@ -4,20 +4,24 @@
  */
 package net.sf.ehcache.management.service.impl;
 
+import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.ClusteredInstanceFactoryAccessor;
-import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
+import net.sf.ehcache.constructs.blocking.BlockingCache;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
-
+import static java.util.Collections.singleton;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -30,6 +34,7 @@ public class DfltSamplerRepositoryServiceTest {
 
   private DfltSamplerRepositoryService repositoryService;
   private ClusteredInstanceFactory clusteredInstanceFactory;
+  private CacheManager cacheManager;
 
   @Before
   public void setUp() throws Exception {
@@ -37,16 +42,13 @@ public class DfltSamplerRepositoryServiceTest {
     managementRESTServiceConfiguration.setEnabled(true);
     repositoryService = new DfltSamplerRepositoryService("123", managementRESTServiceConfiguration);
 
-    CacheManager cacheManager = mock(CacheManager.class);
-    Ehcache ehcache = mock(Ehcache.class);
-    TerracottaClient terracottaClient = mock(TerracottaClient.class);
+    Configuration configuration = new Configuration();
+    configuration.setName("testCacheManager");
+    CacheConfiguration cacheConfiguration = new CacheConfiguration("testCache1", 12);
+    configuration.addCache(cacheConfiguration);
+    cacheManager = new CacheManager(configuration);    TerracottaClient terracottaClient = mock(TerracottaClient.class);
     clusteredInstanceFactory = mock(ClusteredInstanceFactory.class);
 
-    when(cacheManager.getCacheNames()).thenReturn(new String[] {"testCache1"});
-    when(cacheManager.getName()).thenReturn("testCacheManager");
-    when(cacheManager.getEhcache(anyString())).thenReturn(ehcache);
-    when(ehcache.getCacheConfiguration()).thenReturn(new CacheConfiguration());
-    when(ehcache.getName()).thenReturn("testCache1");
     ClusteredInstanceFactoryAccessor.setTerracottaClient(cacheManager, terracottaClient);
     when(terracottaClient.getClusteredInstanceFactory()).thenReturn(clusteredInstanceFactory);
 
@@ -55,18 +57,18 @@ public class DfltSamplerRepositoryServiceTest {
 
   @Test
   public void testCreateCacheEntitiesDisablesNonStop() throws Exception {
-    repositoryService.createCacheEntities(Collections.singleton("testCacheManager"),
-        Collections.singleton("testCache1"),
-        Collections.singleton("Size"));
+    repositoryService.createCacheEntities(singleton("testCacheManager"),
+        singleton("testCache1"),
+        singleton("Size"));
 
     verify(clusteredInstanceFactory, times(2)).enableNonStopForCurrentThread(anyBoolean());
   }
 
   @Test
   public void testCreateCacheStatisticSampleEntityDisablesNonStop() throws Exception {
-    repositoryService.createCacheStatisticSampleEntity(Collections.singleton("testCacheManager"),
-        Collections.singleton("testCache1"),
-        Collections.singleton("Size"));
+    repositoryService.createCacheStatisticSampleEntity(singleton("testCacheManager"),
+        singleton("testCache1"),
+        singleton("Size"));
 
     verify(clusteredInstanceFactory, times(2)).enableNonStopForCurrentThread(anyBoolean());
   }
@@ -78,4 +80,17 @@ public class DfltSamplerRepositoryServiceTest {
     verify(clusteredInstanceFactory, times(2)).enableNonStopForCurrentThread(anyBoolean());
   }
 
+  @Test
+  public void testCanAddDecoratedCache() {
+    String cacheName = "decoratedTestCache";
+    Cache underlyingCache = new Cache(new CacheConfiguration(cacheName, 10));
+    cacheManager.addCache(new BlockingCache(underlyingCache));
+
+    assertThat(repositoryService.createCacheEntities(null, singleton(cacheName), null).isEmpty(), is(false));
+  }
+
+  @After
+  public void tearDown() {
+    CacheManager.getCacheManager("testCacheManager").shutdown();
+  }
 }
