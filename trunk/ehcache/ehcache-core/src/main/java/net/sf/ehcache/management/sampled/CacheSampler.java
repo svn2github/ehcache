@@ -52,7 +52,6 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return true, if is cluster bulk load enabled
      */
-    @ManagementAttribute
     boolean isClusterBulkLoadEnabled();
 
     /**
