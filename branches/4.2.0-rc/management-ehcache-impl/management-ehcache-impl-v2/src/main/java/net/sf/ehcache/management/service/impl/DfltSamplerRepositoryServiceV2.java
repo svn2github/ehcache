@@ -737,8 +737,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
 
     private final ReadWriteLock cacheSamplerMapLock = new ReentrantReadWriteLock();
 
-    private final CacheEventListener cacheEventListener;
-
     private final Map<String, PropertyChangeListenerImplementation> propertyChangeListeners = new ConcurrentHashMap<String, PropertyChangeListenerImplementation>();
     private final Map<String, SamplerCacheConfigurationListener> samplerCacheConfigurationListeners = new ConcurrentHashMap<String, SamplerCacheConfigurationListener>();
 
@@ -753,16 +751,9 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
       String[] cNames = cacheManager.getCacheNames();
       this.cacheSamplersByName = new HashMap<String, CacheSampler>(cNames.length);
 
-      cacheEventListener = new CacheEventListenerImplementation();
-
       for (String cName : cNames) {
         Ehcache ehcache = cacheManager.getEhcache(cName);
         cacheSamplersByName.put(cName, new CacheSamplerImpl(ehcache));
-        try {
-          ehcache.getCacheEventNotificationService().registerListener(cacheEventListener);
-        } catch (NonStopCacheException nsce) {
-          // TABQA-7431: we can ignore the nonstop exception, the listener is in place anyway
-        }
         PropertyChangeListenerImplementation propertyChangeListener = new PropertyChangeListenerImplementation(ehcache);
         SamplerCacheConfigurationListener samplerCacheConfigurationListener = new SamplerCacheConfigurationListener(ehcache);
         propertyChangeListeners.put(cName, propertyChangeListener);
@@ -951,7 +942,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
           for (EventListener eventListener : listeners) {
             eventListener.onEvent(evenEntityV2);
           }
-          ehcache.getCacheEventNotificationService().registerListener(cacheEventListener);
           PropertyChangeListenerImplementation propertyChangeListener = new PropertyChangeListenerImplementation(ehcache);
           SamplerCacheConfigurationListener samplerCacheConfigurationListener = new SamplerCacheConfigurationListener(ehcache);
           propertyChangeListeners.put(cacheName, propertyChangeListener);
@@ -1020,43 +1010,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
       }
       
       sendCacheEvent(propVal, propName, cache);
-    }
-  }
-
-  class CacheEventListenerImplementation implements CacheEventListener {
-
-    @Override
-    public void notifyRemoveAll(Ehcache cache) {
-      sendCacheEvent(true, "Cleared", cache);
-    }
-
-    @Override
-    public void notifyElementUpdated(Ehcache cache, Element element) throws CacheException {
-    }
-
-    @Override
-    public void notifyElementRemoved(Ehcache cache, Element element) throws CacheException {
-    }
-
-    @Override
-    public void notifyElementPut(Ehcache cache, Element element) throws CacheException {
-    }
-
-    @Override
-    public void notifyElementExpired(Ehcache cache, Element element) {
-    }
-
-    @Override
-    public void notifyElementEvicted(Ehcache cache, Element element) {
-    }
-
-    @Override
-    public void dispose() {
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-      throw new CloneNotSupportedException();
     }
   }
 
