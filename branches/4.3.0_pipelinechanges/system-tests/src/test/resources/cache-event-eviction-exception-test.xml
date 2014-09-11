@@ -1,0 +1,9 @@
+<ehcache>
+	<defaultCache maxEntriesLocalHeap="100"/>
+	
+	<cache name="test" maxEntriesInCache="1000" maxEntriesLocalHeap="100">
+		<terracotta/>
+	</cache>
+	
+	<terracottaConfig url="localhost:PORT"/>
+</ehcache>
