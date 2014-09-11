@@ -497,6 +497,11 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         if (mblhsAttr != null) {
           cms.setMaxBytesLocalHeapAsString(mblhsAttr.toString());
         }
+
+        Object enabledAttr = resource.getAttributes().get(SamplerRepoEntry.ENABLED_ATTR);
+        if (enabledAttr != null) {
+          cms.setEnabled(Boolean.valueOf(enabledAttr.toString()));
+        }
       } else {
         throw new ServiceExecutionException("CacheManager not found !");
       }
@@ -554,7 +559,8 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     for(Map.Entry<String,Object> attribute : resource.getAttributes().entrySet()) {
       String key = attribute.getKey();
       if(!key.equals(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING) &&
-          !key.equals(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING) ) {
+          !key.equals(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING) &&
+          !key.equals(SamplerRepoEntry.ENABLED_ATTR)) {
         errorMessage.append(key).append(" ");
         invalidAttributesFound = true;
       }
@@ -562,8 +568,10 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     if (invalidAttributesFound) {
       errorMessage.append(". Only ")
       .append(SamplerRepoEntry.MAX_BYTES_LOCAL_DISK_STRING)
-      .append(" and ")
+      .append(", ")
       .append(SamplerRepoEntry.MAX_BYTES_LOCAL_HEAP_STRING)
+      .append(" and ")
+      .append(SamplerRepoEntry.ENABLED_ATTR)
       .append(" can be updated for a CacheManager.");
       throw new ServiceExecutionException(errorMessage.toString());
     }
