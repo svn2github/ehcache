@@ -1,0 +1,18 @@
+$Id: CHANGELOG.txt,v 1.31 2006/03/07 00:05:56 gregluck Exp $
+
+<release version="0.1" date="2010-9-17" desc="Initial release">
+
+    <!-- Features and Enhancements -->
+    <action dev="Greg Luck" type="add">
+        Add contribution by C&eacute;drik Lime with integration to GAE caching infrastructure
+    </action>
+    <action dev="Ludovic Orban" type="add">
+        Modify Ehcache core to comply with GAE JVM rules. Ehcache 2.3 now works with GAE.
+    </action>
+    <action dev="Greg Luck" type="add">
+        Add maven integration test sub module which also serves as a sample
+    </action>
+    <action dev="Ludovic Orban" type="add">
+        Cleanup and get working.
+    </action>
+</release>

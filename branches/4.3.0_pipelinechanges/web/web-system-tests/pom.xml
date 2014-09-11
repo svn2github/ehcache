@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-web-parent</artifactId>
+        <version>2.0.5-SNAPSHOT</version>
+    </parent>
+
+    <name>Ehcache Web Filters Integration Tests</name>
+    <artifactId>ehcache-web-system-tests</artifactId>
+    <packaging>war</packaging>
+
+    <description><![CDATA[Integration tests for Web caching filters.]]> </description>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ehcache-web</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>httpunit</groupId>
+            <artifactId>httpunit</artifactId>
+            <version>1.7</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>jtidy</groupId>
+                    <artifactId>jtidy</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>nekohtml</groupId>
+            <artifactId>nekohtml</artifactId>
+            <version>1.9.6.2</version>
+        </dependency>
+        <dependency>
+            <groupId>rhino</groupId>
+            <artifactId>js</artifactId>
+            <version>1.6R5</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <test.server.host>localhost</test.server.host>
+        <test.server.port>9090</test.server.port>
+    </properties>
+
+    <build>
+        <finalName>ehcache-web</finalName>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+				<version>2.10</version>
+                <configuration>
+                    <skip>true</skip>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*$*</exclude>
+                        <exclude>**/Abstract*Test.java</exclude>
+                    </excludes>
+                    <forkMode>always</forkMode>
+                    <disableXmlReport>false</disableXmlReport>
+                    <printSummary>true</printSummary>
+                    <reportFormat>plain</reportFormat>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <argLine>-Xms128m -Xmx512m</argLine>
+                    <systemProperties>
+                        <property>
+                            <name>java.awt.headless</name>
+                            <value>true</value>
+                        </property>
+                        <property>
+                            <name>test.server.host</name>
+                            <value>${test.server.host}</value>
+                        </property>
+                        <property>
+                            <name>test.server.port</name>
+                            <value>${test.server.port}</value>
+                        </property>
+                        <property>
+                            <name>
+                                net.sf.ehcache.speedAdjustmentFactor
+                            </name>
+                            <value>
+                                ${net.sf.ehcache.speedAdjustmentFactor}
+                            </value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                            <skip>false</skip>
+                            <includes>
+                                <include>**/web/**/*Test.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                            </excludes>
+                            <additionalClasspathElements>
+                                <additionalClasspathElement>target/classes</additionalClasspathElement>
+                            </additionalClasspathElements>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.0.2</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>war</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+
+        <profile>
+            <id>no-cargo</id>
+            <!-- To run the test manually without having maven to run an app server 1. Create the war, mvn clean package 2. Start
+           and deploy the war on the app server running on ${test.server.host}:${test.server.port} 3. To run the test, mvn clean integration-test
+           -Pno-cargo -->
+        </profile>
+
+        <profile>
+            <!-- To run the test with cargo, choose the app server profile 1. To run the test, mvn clean integration-test -Pcargo
+           -Pjetty5x -->
+            <id>cargo</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>maven-jetty-plugin</artifactId>
+                        <version>6.1.17</version>
+                        <configuration>
+                            <contextPath>/</contextPath>
+                            <connectors>
+                                <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+                                    <port>9090</port>
+                                    <maxIdleTime>60000</maxIdleTime>
+                                </connector>
+                            </connectors>
+                            <scanIntervalSeconds>10</scanIntervalSeconds>
+                            <stopKey>foo</stopKey>
+                            <stopPort>9999</stopPort>
+                        </configuration>
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<id>start-jetty</id>-->
+                                <!--<phase>pre-integration-test</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>run-war</goal>-->
+                                <!--</goals>-->
+                                <!--<configuration>-->
+                                    <!--<scanIntervalSeconds>0</scanIntervalSeconds>-->
+                                    <!--<daemon>true</daemon>-->
+                                <!--</configuration>-->
+                            <!--</execution>-->
+                            <!--<execution>-->
+                                <!--<id>stop-jetty</id>-->
+                                <!--<phase>post-integration-test</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>stop</goal>-->
+                                <!--</goals>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven2-plugin</artifactId>
+                        <version>1.1.2</version>
+                        <configuration>
+                            <wait>false</wait>
+                            <log>${basedir}/target/${cargo.id}/cargo.log</log>
+                            <container>
+                                <containerId>${cargo.id}</containerId>
+                                <zipUrlInstaller>
+                                    <url>${cargo.zipUrl}</url>
+                                    <extractDir>${user.home}/cargo/${cargo.id}</extractDir>
+                                </zipUrlInstaller>
+                                <timeout>300000</timeout>
+                            </container>
+                            <configuration>
+                                <type>standalone</type>
+                                <configfiles>
+                                    <configfile>
+                                        <file>${basedir}/src/test/resources/jboss-log4j.xml</file>
+                                        <tofile>conf/jboss-log4j.xml</tofile>
+                                    </configfile>
+                                </configfiles>
+                                <properties>
+                                    <cargo.servlet.port>${test.server.port}</cargo.servlet.port>
+                                    <cargo.logging>low</cargo.logging>
+                                    <cargo.jboss.configuration>default</cargo.jboss.configuration>
+                                    <cargo.rmi.port>1099</cargo.rmi.port>
+                                    <cargo.jvmargs>-Xmx512m</cargo.jvmargs>
+                                </properties>
+                            </configuration>
+                            <deployer>
+                                <deployables>
+                                    <deployable>
+                                        <properties>
+                                            <context>/ehcache-web</context>
+                                        </properties>
+                                        <pingURL>http://${test.server.host}:${test.server.port}/ehcache-web/index.html</pingURL>
+                                        <pingTimeout>120000</pingTimeout>
+                                    </deployable>
+                                </deployables>
+                            </deployer>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>start-container</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                    <goal>deployer-deploy</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-container</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>jetty6x</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <cargo.id>jetty6x</cargo.id>
+                <cargo.zipUrl>http://dist.codehaus.org/jetty/jetty-6.1.24/jetty-6.1.24.zip</cargo.zipUrl>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>tomcat50x</id>
+            <properties>
+                <cargo.id>tomcat5x</cargo.id>
+                <cargo.zipUrl>http://archive.apache.org/dist/tomcat/tomcat-5/v5.0.30/bin/jakarta-tomcat-5.0.30.zip</cargo.zipUrl>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>tomcat55x</id>
+            <properties>
+                <cargo.id>tomcat5x</cargo.id>
+                <cargo.zipUrl>http://archive.apache.org/dist/tomcat/tomcat-5/v5.5.28/bin/apache-tomcat-5.5.28.zip</cargo.zipUrl>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>tomcat6x</id>
+            <properties>
+                <cargo.id>tomcat6x</cargo.id>
+                <cargo.zipUrl>http://archive.apache.org/dist/tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29.zip</cargo.zipUrl>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>jboss42x</id>
+            <properties>
+                <cargo.id>jboss42x</cargo.id>
+                <cargo.zipUrl>http://downloads.sourceforge.net/project/jboss/JBoss/JBoss-4.2.2.GA/jboss-4.2.2.GA.zip</cargo.zipUrl>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>jboss5x</id>
+            <properties>
+                <cargo.id>jboss5x</cargo.id>
+                <cargo.zipUrl>http://downloads.sourceforge.net/project/jboss/JBoss/JBoss-5.1.0.GA/jboss-5.1.0.GA.zip</cargo.zipUrl>
+                <!-- Some problem jboss5x cargo maven, cant override the default value -->
+                <test.server.port>8080</test.server.port>
+            </properties>
+        </profile>
+
+    </profiles>
+
+    <contributors>
+        <contributor>
+            <name>Craig Andrews</name>
+            <email/>
+            <url/>
+            <organization/>
+            <organizationUrl/>
+            <roles>
+                <role>Developer</role>
+            </roles>
+            <timezone>+10</timezone>
+            <properties>
+                <contribution>Contributed to the CachingHeaders implementation.
+                </contribution>
+            </properties>
+        </contributor>
+    </contributors>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven.java.net</id>
+            <name>Java.net Maven2 Repository</name>
+            <url>http://download.java.net/maven/2</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>
