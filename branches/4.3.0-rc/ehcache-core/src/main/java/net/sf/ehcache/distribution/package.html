@@ -1,0 +1,81 @@
+<html>
+  <head>
+  </head>
+  <body>
+  This package is for cache replication.
+  <h2>Overview</h2>
+  <h3>Problems with Instance Caches in a Clustered Environment</h3>
+  Many production applications are deployed in clusters. If each application maintains its own cache, then updates
+  made to one cache will not appear in the others. A workaround for web based applications is to use sticky sessions,
+  so that a user, having established a session on one server, stays on that server for the rest of the session. A
+  workaround for transaction processing systems using Hibernate is to do a session.refresh on each persistent object
+  as part of the save. session.refresh explicitly reloads the object from the database, ignoring any cache values.
+  <p/>
+  <h3>Replicated Cache</h3>
+  Another solution is to replicate data between the caches to keep them consistent. This is sometimes called cache
+  coherency. Applicable operations include:
+  <ol>
+  <li>put</li>
+  <li>update (put which overwrites an existing entry)</li>
+  <li>remove</li>
+  </ol>
+  <h3>Replicated Cache Terms</h3>
+  Replicated Cache - a cache instance that notifies others when its contents change<br/>
+  Notification - a mechanism to replicate changes<br/>
+  Topology - a layout for how replicated caches connect with and notify each other<br/>
+
+  <h3>Notification Strategies</h3>
+  The best way of notifying of put and update depends on the nature of the cache.
+  <p/>
+  If the Element is not available
+  anywhere else then the Element itself should form the payload of the notification. An example is a cached web page.
+  This notification strategy is called copy.
+  <p/>
+  Where the cached data is available in a database, there are two choices. Copy as before, or invalidate the data. By
+  invalidating the data, the application tied to the other cache instance will be forced to refresh its cache from the
+  database, preserving cache coherency. Only the Element key needs to be passed over the network.
+  <p/>
+  ehcache supports notification through copy and invalidate, selectable per cache.
+
+  <h3>Topology Choices</h3>
+  <h4>Peer Cache Replicator</h4>
+  Each replicated cache instance notifies every other cache instance when its contents change. This requires n-1
+  notifications per change, where n is the number of cache instances in the cluster.
+  <h4>Centralised Cache Replicator</h4>
+  Each replicated cache instance notifies a master cache instance when its contents change. The master cache then
+  notifies the other instances. This requires n-1
+  notifications per change, where n is the number of cache instances in the cluster.
+  <p/>
+  ehcache uses a peer replication topology. It adds a twist with CachePeerProvider, an interface which supplies a list
+  of cache instance peers, so as to handle peers entering and leaving the cluster. Some ideas for peer provider
+  implementations are: configuration time list, multicast discovery, application specific cluster list.
+
+
+  <h3>Replication Drawbacks and Solutions in ehcache's implementation</h3>
+  Some potentially significant obstacles have to be overcome if replication is to provide a net benefit.
+  <h4>Chatty Protocol</h4>
+  n-1 notifications need to happen each time a a cache instance change occurs. A very large amount of network traffic
+  can be generated.
+  <p/>
+  ehcache will buffer changes to lower chattiness.
+
+  <h4>Redundant Notifications</h4>
+  The cache instance that initiated the change should not receive its own notifications. To do so would add additional
+  overhead. Also, notifications should not endlessly go back and forth as each cache listener gets changes caused by
+  a remote replication.
+  <p/>
+  ehcache CachePeerProvider indentifies the local cache instance and excludes it from the notification list. Each Cache
+  has a GUID. That GUID can be compared with list of cache peers and the local peer excluded.
+  <p/>
+  Infinite notifications are prevented by having each CacheReplicatorListener call putQuiet and removeQuite methods
+  on their decorated caches, so as not to nofify listeners.
+
+  <h4>Potential for Inconsisent Data</h4>
+  Timing scenarios, race conditions, delivery and reliability constraints, and concurrent updates to the same cached
+  data can cause inconsistency (and thus a lack of coherency) across the cache instancies.
+
+  <hl/>
+  Acknowledgement: Much of the material here was drawn from Data Access Patterns, by Clifton Nock. 
+
+  </body>
+</html>
