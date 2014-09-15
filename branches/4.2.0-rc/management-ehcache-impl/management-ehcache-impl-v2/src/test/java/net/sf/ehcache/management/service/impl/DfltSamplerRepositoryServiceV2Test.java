@@ -87,7 +87,8 @@ public class DfltSamplerRepositoryServiceV2Test {
   public void testCanAddDecoratedCache() {
     Cache underlyingCache = new Cache(new CacheConfiguration("decoratedTestCache", 10));
     cacheManager.addCache(new BlockingCache(underlyingCache));
-    assertThat(underlyingCache.getCacheEventNotificationService().hasCacheEventListeners(), is(true));
+    // not using cacheEventListeners for management anymore : TAB-5077
+    assertThat(underlyingCache.getCacheEventNotificationService().hasCacheEventListeners(), is(false));
   }
 
   @After
