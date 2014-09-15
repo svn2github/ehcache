@@ -127,7 +127,7 @@ public class AgentsResourceServiceImplTest extends ResourceServiceImplITHelper {
             .body("get(0).rootRepresentables.urls", Matchers.equalTo("http://localhost:" + MANAGEMENT_PORT))
             .body("get(1).agentId", anyOf(containsString("localhost_"), containsString("127.0.0.1_"), containsString("localhost.localdomain_"), containsString("localhost.home_")))
             .body("get(1).agencyOf", Matchers.equalTo("Ehcache"))
-            .body("get(1).rootRepresentables.isEmpty()", Matchers.is(Boolean.TRUE))
+            .body("get(1).rootRepresentables.ClientUUIDs", Matchers.notNullValue())
             .statusCode(200)
             .when().get(CLUSTERED_BASE_URL + EXPECTED_RESOURCE_LOCATION);
 
