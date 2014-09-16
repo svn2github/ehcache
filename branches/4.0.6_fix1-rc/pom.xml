@@ -25,6 +25,13 @@
     <terracotta-toolkit-api-internal.version>4.0.6_fix1</terracotta-toolkit-api-internal.version>
     <statistics.version>1.0.1</statistics.version>
     <quartz.version>2.2.1</quartz.version>
+    <terracotta-nexus-staging-url>http://nexus.terracotta.eur.ad.sag/service/local/staging/deploy/maven2</terracotta-nexus-staging-url>
+    <terracotta-os-snapshots-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-os-snapshots</terracotta-os-snapshots-url>
+    <terracotta-os-releases-url>http://nexus.terracotta.eur.ad.sag/content/repositories/terracotta-os-releases</terracotta-os-releases-url>
+    <skipDeploy>false</skipDeploy>
+    <stagingProfile.openSource>6b2d2a23c465b</stagingProfile.openSource>
+    <stagingProfile.public>6b2f08b6e4907</stagingProfile.public>
+    <stagingProfile.private>6b2fc8d5c18d5</stagingProfile.private>
   </properties>
 
   <modules>
@@ -236,6 +243,18 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.4.4</version>
+          <extensions>true</extensions>
+          <configuration>
+            <serverId>terracotta-staging</serverId>
+            <nexusUrl>http://nexus.terracotta.eur.ad.sag/</nexusUrl>
+            <stagingProfileId>${stagingProfile.openSource}</stagingProfileId>
+            <skipNexusStagingDeployMojo>${skipDeploy}</skipNexusStagingDeployMojo>
+          </configuration>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <version>2.3.2</version>
@@ -316,7 +335,11 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>    
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-staging-maven-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
 
@@ -339,7 +362,19 @@
       </modules>
     </profile>
   </profiles>
-
+  <distributionManagement>
+    <repository>
+      <id>terracotta-nexus-staging</id>
+      <name>Terracotta Nexus Staging Repository</name>
+      <url>${terracotta-nexus-staging-url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>terracotta-os-snapshots</id>
+      <uniqueVersion>false</uniqueVersion>
+      <name>Terracotta OS Snapshots Repository</name>
+      <url>${terracotta-os-snapshots-url}</url>
+    </snapshotRepository>
+  </distributionManagement>
   <repositories>
     <repository>
       <id>terracotta-snapshots</id>
