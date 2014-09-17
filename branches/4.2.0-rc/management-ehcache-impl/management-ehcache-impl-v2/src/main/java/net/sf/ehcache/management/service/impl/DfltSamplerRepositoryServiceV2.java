@@ -116,6 +116,18 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
   @Override
   public void register(CacheManager cacheManager) {
     String name = cacheManager.getName();
+
+    cacheManagerSamplerRepoLock.writeLock().lock();
+    try {
+      if (!cacheManagerSamplerRepo.containsKey(name)) {
+        SamplerRepoEntry entry = new SamplerRepoEntry(cacheManager);
+        cacheManager.setCacheManagerEventListener(entry);
+        cacheManagerSamplerRepo.put(name, entry);
+      }
+    } finally {
+      cacheManagerSamplerRepoLock.writeLock().unlock();
+    }
+
     Collection<Map<String, Object>> cacheEntities = new ArrayList<Map<String, Object>>();
     String[] cacheNames = cacheManager.getCacheNames();
     for (String cacheName : cacheNames) {
@@ -129,17 +141,6 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         cacheAttributes.put("attributes", createCacheEntities.iterator().next().getAttributes());
       }
       cacheEntities.add(cacheAttributes);
-    }
-
-    cacheManagerSamplerRepoLock.writeLock().lock();
-    try {
-      if (!cacheManagerSamplerRepo.containsKey(name)) {
-        SamplerRepoEntry entry = new SamplerRepoEntry(cacheManager);
-        cacheManager.setCacheManagerEventListener(entry);
-        cacheManagerSamplerRepo.put(name, entry);
-      }
-    } finally {
-      cacheManagerSamplerRepoLock.writeLock().unlock();
     }
 
     EventEntityV2 eventEntityV2 = new EventEntityV2();
