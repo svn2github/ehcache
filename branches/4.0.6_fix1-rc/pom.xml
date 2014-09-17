@@ -248,9 +248,8 @@
           <version>1.6.1</version>
           <extensions>true</extensions>
           <configuration>
-            <serverId>terracotta-staging</serverId>
+            <serverId>terracotta-nexus-staging</serverId>
             <nexusUrl>http://nexus.terracotta.eur.ad.sag/</nexusUrl>
-            <stagingProfileId>${stagingProfile.openSource}</stagingProfileId>
             <skipNexusStagingDeployMojo>${skipDeploy}</skipNexusStagingDeployMojo>
           </configuration>
         </plugin>
