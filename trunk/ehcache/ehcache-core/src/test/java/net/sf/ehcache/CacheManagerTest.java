@@ -1605,4 +1605,12 @@ public class CacheManagerTest {
         }
     }
 
+    @Test
+    public void testRuntimeConfigRemovalDuringShutdown() throws Exception {
+        Configuration configuration =  new Configuration();
+        CacheManager cacheManager = new CacheManager(configuration);
+        cacheManager.shutdown();
+        Configuration.RuntimeCfg runtimeCfg = configuration.setupFor(cacheManager, "expecting CacheManager name in RuntimeCfg to be this value");
+        assertTrue(runtimeCfg.getCacheManagerName().equals("expecting CacheManager name in RuntimeCfg to be this value"));
+    }
 }

@@ -1324,4 +1324,9 @@ public final class Configuration {
     public void setClassLoader(ClassLoader loader) {
         this.classLoader = loader;
     }
+
+    public void cleanup() {
+        propertyChangeListeners.remove(cfg);
+        cfg = null;
+    }
 }
