@@ -1119,7 +1119,7 @@ public class Cache implements InternalEhcache, StoreListener {
             /*We don't have to worry about the old value as when we are called the CacheConfiguration should
              have validated and resized the Cachemanager Pool as CacheConfiguration adds itself as first listener.
               so we just handle heap and disk pools resizing.*/
-            this.configuration.addConfigurationListener( new AbstractCacheConfigurationListener() {
+            this.configuration.addConfigurationListener(new AbstractCacheConfigurationListener() {
                 @Override
                 public void maxBytesLocalHeapChanged(long oldValue, long newValue) {
 
