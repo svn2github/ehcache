@@ -128,19 +128,11 @@ public final class Configuration {
             @Override
             void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
 
-                ArrayList<ConfigError> errors = new ArrayList<ConfigError>();
                 Long newValue = (Long)evt.getNewValue();
-                if ((Long) evt.getOldValue() > (Long) evt.getNewValue()) {
+                Long oldValue = (Long) evt.getOldValue();
+                if (oldValue > newValue) {
                     // Double check for over-allocation again
-                    for (Cache cache : getAllActiveCaches(config.cacheManager)) {
-                        CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
-                        errors.addAll(cacheConfiguration.validateCachePools(config.getConfiguration()));
-                        errors.addAll(cacheConfiguration.verifyPoolAllocationsBeforeAddingTo(config.cacheManager,
-                            newValue, config.getConfiguration().getMaxBytesLocalOffHeap(), config.getConfiguration().getMaxBytesLocalDisk(), null));
-                    }
-                }
-                if (!errors.isEmpty()) {
-                    throw new InvalidConfigurationException("Can't reduce CacheManager byte tuning by so much", errors);
+                    validateOverAllocation(config, newValue);
                 }
                 // Recalculate % based caches
                 long cacheAllocated = 0;
@@ -155,16 +147,38 @@ public final class Configuration {
         maxBytesLocalDisk {
             @Override
             void applyChange(final PropertyChangeEvent evt, final RuntimeCfg config) {
-                if ((Long)evt.getOldValue() > (Long)evt.getNewValue()) {
+                Long newValue = (Long) evt.getNewValue();
+                Long oldValue = (Long) evt.getOldValue();
+                if (oldValue > newValue) {
                     // Double check for over-allocation again
-                    for (CacheConfiguration cacheConfiguration : config.getConfiguration().getCacheConfigurations().values()) {
-                        cacheConfiguration.isMaxBytesLocalDiskPercentageSet();
-                    }
+                    validateOverAllocation(config, newValue);
                 }
-                config.cacheManager.getOnDiskPool().setMaxSize((Long) evt.getNewValue());
-                // Recalculate % based caches ?
+                long diskAllocated = 0;
+                //Recalculating final free space available at global level
+                for (Cache cache : getAllActiveCaches(config.cacheManager)) {
+                  cache.getCacheConfiguration().configCachePools(config.getConfiguration());
+                  long bytesOnDiskPool = cache.getCacheConfiguration().getMaxBytesLocalDisk();
+                  diskAllocated += bytesOnDiskPool;
+                }
+                config.cacheManager.getOnDiskPool().setMaxSize(newValue - diskAllocated);
             }
         };
+
+
+        private static void validateOverAllocation(RuntimeCfg config,  Long newValue) {
+            ArrayList<ConfigError> errors = new ArrayList<ConfigError>();
+
+            for (Cache cache : getAllActiveCaches(config.cacheManager)) {
+                CacheConfiguration cacheConfiguration = cache.getCacheConfiguration();
+                errors.addAll(cacheConfiguration.validateCachePools(config.getConfiguration()));
+                errors.addAll(cacheConfiguration.verifyPoolAllocationsBeforeAddingTo(config.cacheManager,
+                    newValue, config.getConfiguration().getMaxBytesLocalOffHeap(),
+                        config.getConfiguration().getMaxBytesLocalDisk(), null));
+            }
+            if (!errors.isEmpty()) {
+                throw new InvalidConfigurationException("Can't reduce CacheManager byte tuning by so much", errors);
+            }
+        }
 
         abstract void applyChange(PropertyChangeEvent evt, RuntimeCfg config);
     }
