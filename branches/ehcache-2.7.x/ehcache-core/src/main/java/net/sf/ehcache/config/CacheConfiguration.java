@@ -1098,7 +1098,7 @@ public class CacheConfiguration implements Cloneable {
     }
 
     private void checkIfCachePinned(long maxEntriesInCache) {
-        if (maxEntriesInCache != DEFAULT_MAX_ENTRIES_IN_CACHE && 
+        if (maxEntriesInCache != DEFAULT_MAX_ENTRIES_IN_CACHE &&
                 getPinningConfiguration() != null && Store.INCACHE.equals(getPinningConfiguration().getStore())) {
             throw new InvalidConfigurationException("Setting maxEntriesInCache on an in-cache pinned cache is not legal");
         }
@@ -1700,27 +1700,9 @@ public class CacheConfiguration implements Cloneable {
             registerCacheConfiguration(cacheManager);
         }
         if (cacheManager.getConfiguration().isMaxBytesLocalHeapSet() || cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
-            addConfigurationListener(new AbstractCacheConfigurationListener() {
-                @Override
-                public void maxBytesLocalHeapChanged(final long oldValue, final long newValue) {
-                    if (getMaxBytesLocalHeap() > 0
-                       && cacheManager.getConfiguration().getCacheConfigurations().keySet().contains(getName())
-                       && cacheManager.getConfiguration().isMaxBytesLocalHeapSet()) {
-                        long previous = cacheManager.getOnHeapPool().getMaxSize();
-                        cacheManager.getOnHeapPool().setMaxSize(previous + oldValue - newValue);
-                    }
-                }
-
-                @Override
-                public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
-                    if (getMaxBytesLocalDisk() > 0
-                       && cacheManager.getConfiguration().getCacheConfigurations().keySet().contains(getName())
-                       && cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
-                        long previous = cacheManager.getOnDiskPool().getMaxSize();
-                        cacheManager.getOnDiskPool().setMaxSize(previous + oldValue - newValue);
-                    }
-                }
-            });
+            /*Adding Ourself as the first listener the order of the listener is
+             important as DefaultCacheConfigurationListener does validation checking on pool sizes*/
+            addConfigurationListener(new DefaultCacheConfigurationListener(cacheManager));
         }
 
         consolidatePersistenceSettings(cacheManager);
@@ -3069,4 +3051,54 @@ public class CacheConfiguration implements Cloneable {
         return searchable;
     }
 
+    /**
+     * Default listener class which handles the size changes of the cache
+     */
+    private class DefaultCacheConfigurationListener extends AbstractCacheConfigurationListener {
+        private final CacheManager cacheManager;
+
+        public DefaultCacheConfigurationListener(CacheManager cacheManager) {
+            this.cacheManager = cacheManager;
+        }
+
+        @Override
+        public void maxBytesLocalHeapChanged(final long oldValue, final long newValue) {
+            if (getMaxBytesLocalHeap() > 0
+               && cacheManager.getConfiguration().getCacheConfigurations().keySet().contains(getName())
+               && cacheManager.getConfiguration().isMaxBytesLocalHeapSet()) {
+                long oldCacheManagerPoolSize = cacheManager.getOnHeapPool().getMaxSize();
+                long newPoolFreeSize = oldCacheManagerPoolSize + oldValue - newValue;
+                //handle case of overallocation of cache
+                //Only resize the cache manager pool cache pool resizing will be handled by cache
+                if (newPoolFreeSize >= 0) {
+                    cacheManager.getOnHeapPool().setMaxSize(newPoolFreeSize);
+                } else {
+                    maxBytesLocalHeap = oldValue;
+                    throw new InvalidConfigurationException("Cannot allocate heap size more " +
+                            "than the cache pool size reverting to previous size " + maxBytesLocalHeap);
+                }
+            }
+        }
+
+        @Override
+        public void maxBytesLocalDiskChanged(final long oldValue, final long newValue) {
+            if (getMaxBytesLocalDisk() > 0
+               && cacheManager.getConfiguration().getCacheConfigurations().keySet().contains(getName())
+               && cacheManager.getConfiguration().isMaxBytesLocalDiskSet()) {
+                long previous = cacheManager.getOnDiskPool().getMaxSize();
+                long newPoolFreeSize = previous + oldValue - newValue;
+                //handle case of overallocation of cache
+                //Only resize the cache manager pool cache pool resizing will be handled by cache
+                if (newPoolFreeSize >= 0) {
+                    cacheManager.getOnDiskPool().setMaxSize(newPoolFreeSize);
+                } else {
+                    LOG.warn("Cannot allocate local disk size more than cache disk size, " +
+                            "setting maxBytesLocalDisk {} to old value {}", maxBytesLocalDisk, oldValue);
+                    maxBytesLocalDisk = oldValue;
+                    throw new InvalidConfigurationException("Cannot allocate disk size more than " +
+                            "the cache pool size reverting to previous size " + maxBytesLocalHeap);
+                }
+            }
+        }
+    }
 }

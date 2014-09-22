@@ -77,6 +77,7 @@ import net.sf.ehcache.store.CacheStore;
 import net.sf.ehcache.store.MemoryStore;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import net.sf.ehcache.store.Store;
+import net.sf.ehcache.store.disk.DiskStore;
 import net.sf.ehcache.store.disk.DiskStoreHelper;
 import net.sf.ehcache.util.RetryAssert;
 import net.sf.ehcache.util.TimeUtil;
@@ -263,7 +264,7 @@ public class CacheTest extends AbstractCacheTest {
     }
 
     @Test
-    public void testAdjustsPoolSizeDynamically() throws Exception {
+    public void testAdjustsMemPoolSizeDynamically() throws Exception {
         Configuration configuration = new Configuration();
         CacheManager cacheManager = new CacheManager(configuration.maxBytesLocalHeap(10, MemoryUnit.MEGABYTES).name("new-cacheManager"));
 
@@ -302,20 +303,76 @@ public class CacheTest extends AbstractCacheTest {
         cacheManager.shutdown();
     }
 
+
+    @Test
+    public void testAdjustsMemAndDiskPoolSizeDynamically() throws Exception {
+        Configuration configuration = new Configuration()
+                .maxBytesLocalHeap(10, MemoryUnit.MEGABYTES)
+                .maxBytesLocalDisk(10, MemoryUnit.MEGABYTES)
+                .name("new-cacheManager");
+        CacheManager cacheManager = new CacheManager(configuration);
+
+        // Three and Four share the CM Pool
+        CacheConfiguration cacheConfiguration = new CacheConfiguration("three", 0);
+        cacheManager.addCache(new Cache(cacheConfiguration));
+        cacheConfiguration = new CacheConfiguration("four", 0);
+        cacheManager.addCache(new Cache(cacheConfiguration));
+
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(10), cacheManager.getCache("three"));
+        cacheManager.addCache(new Cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(2, MemoryUnit.MEGABYTES)
+                .maxBytesLocalDisk(2, MemoryUnit.MEGABYTES)));
+        Cache one = cacheManager.getCache("one");
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(2), one);
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(8), cacheManager.getCache("three"));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(8), cacheManager.getCache("four"));
+
+        one.getCacheConfiguration().maxBytesLocalHeap(5, MemoryUnit.MEGABYTES);
+        one.getCacheConfiguration().maxBytesLocalDisk(5, MemoryUnit.MEGABYTES);
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(5), one);
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(5), cacheManager.getCache("three"));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(5), cacheManager.getCache("four"));
+
+        cacheConfiguration = new CacheConfiguration("two", 0);
+        cacheConfiguration.setMaxBytesLocalHeap("20%");
+        cacheConfiguration.setMaxBytesLocalDisk("20%");
+        cacheManager.addCache(new Cache(cacheConfiguration));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(2), cacheManager.getCache("two"));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(3), cacheManager.getCache("three"));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(3), cacheManager.getCache("four"));
+
+        cacheManager.getConfiguration().maxBytesLocalHeap(20, MemoryUnit.MEGABYTES);
+        cacheManager.getConfiguration().maxBytesLocalDisk(20, MemoryUnit.MEGABYTES);
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(5), one);
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(4), cacheManager.getCache("two"));
+
+        // 20M - 5M (one) - 4M (two has 20% of the 20M), leaves 11M for cache three and four sharing the CM Pool
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(11), cacheManager.getCache("three"));
+        assertCachePoolSize(MemoryUnit.MEGABYTES.toBytes(11), cacheManager.getCache("four"));
+        cacheManager.shutdown();
+    }
+
     private static void assertCachePoolSize(final long value, final Cache one) throws Exception {
         Store store = one.getStore();
         if (store instanceof CacheStore) {
             store = getAuthority(store);
         }
         if (store instanceof MemoryStore) {
-            Field poolAccessor = MemoryStore.class.getDeclaredField("poolAccessor");
-            poolAccessor.setAccessible(true);
-            PoolAccessor accessor = (PoolAccessor)poolAccessor.get(store);
-            Field pool = AbstractPoolAccessor.class.getDeclaredField("pool");
-            pool.setAccessible(true);
-            Pool ourPool = (Pool)pool.get(accessor);
-            assertThat(ourPool.getMaxSize(), is(value));
+            assertPoolAccessors(value, store, "poolAccessor");
         }
+        if (store instanceof DiskStore) {
+            assertPoolAccessors(value, store, "onHeapPoolAccessor");
+            assertPoolAccessors(value, store, "onDiskPoolAccessor");
+        }
+    }
+
+    private static void assertPoolAccessors(long value, Store store, String fieldName) throws NoSuchFieldException, IllegalAccessException {
+        Field poolAccessor = store.getClass().getDeclaredField(fieldName);
+        poolAccessor.setAccessible(true);
+        PoolAccessor accessor = (PoolAccessor)poolAccessor.get(store);
+        Field pool = AbstractPoolAccessor.class.getDeclaredField("pool");
+        pool.setAccessible(true);
+        Pool ourPool = (Pool)pool.get(accessor);
+        assertThat(ourPool.getMaxSize(), is(value));
     }
 
     private static Store getAuthority(final Store store) throws Exception {
