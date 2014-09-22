@@ -1059,25 +1059,25 @@ public class Cache implements InternalEhcache, StoreListener {
             if (configuration.getMaxBytesLocalDisk() > 0) {
                 PoolEvictor evictor = new FromLargestCachePoolEvictor();
                 onDiskPool = new BoundedPool(configuration.getMaxBytesLocalDisk(), evictor, null);
+            } else if (getCacheManager() != null && getCacheManager().getConfiguration().isMaxBytesLocalDiskSet()) {
+                onDiskPool = getCacheManager().getOnDiskPool();
+            } else {
+                onDiskPool = new UnboundedPool();
             }
-            /*We don't have to worry about the old value as when we are called the CacheConfiguration should
+             /*We don't have to worry about the old value as when we are called the CacheConfiguration should
              have validated and resized the Cachemanager Pool as CacheConfiguration adds itself as first listener.
               so we just handle heap and disk pools resizing.*/
             this.configuration.addConfigurationListener(new AbstractCacheConfigurationListener() {
                 @Override
                 public void maxBytesLocalHeapChanged(long oldValue, long newValue) {
-
                     onHeapPool.setMaxSize(newValue);
                 }
+
                 @Override
                 public void maxBytesLocalDiskChanged(long oldValue, long newValue) {
                     onDiskPool.setMaxSize(newValue);
                 }
             });
-
-                onDiskPool = new UnboundedPool();
-            }
-
             ReadWriteCopyStrategy<Element> copyStrategy = null;
             if (configuration.getTransactionalMode().isTransactional()) {
                 configuration.getCopyStrategyConfiguration().setCopyStrategyInstance(null);
