@@ -448,6 +448,30 @@ public class CacheManagerTest {
         }
     }
 
+
+    @Test
+    public void testCacheManagerPoolResizing() {
+        Configuration configuration = new Configuration()
+                .diskStore(new DiskStoreConfiguration().path("${java.io.tmpdir}/tmp"))
+                .maxBytesLocalHeap(50, MemoryUnit.MEGABYTES)
+                .maxBytesLocalDisk(500, MemoryUnit.MEGABYTES)
+                .cache(new CacheConfiguration("one", 0).maxBytesLocalHeap(10, MemoryUnit.MEGABYTES)
+                        .maxBytesLocalDisk(100, MemoryUnit.MEGABYTES))
+                .cache(new CacheConfiguration("two", 0));
+
+        CacheManager cacheManager = new CacheManager(configuration);
+        try {
+            assertEquals(MemorySizeParser.parse("40M"), cacheManager.getOnHeapPool().getMaxSize());
+            assertEquals(MemorySizeParser.parse("400M"), cacheManager.getOnDiskPool().getMaxSize());
+            cacheManager.getConfiguration().maxBytesLocalHeap(20, MemoryUnit.MEGABYTES);
+            cacheManager.getConfiguration().maxBytesLocalDisk(200, MemoryUnit.MEGABYTES);
+            assertEquals(MemorySizeParser.parse("10M"), cacheManager.getOnHeapPool().getMaxSize());
+            assertEquals(MemorySizeParser.parse("100M"), cacheManager.getOnDiskPool().getMaxSize());
+        } finally {
+            cacheManager.shutdown();
+        }
+    }
+
     @Test
     public void testCacheReferenceLookUps() {
         CacheManager manager = new CacheManager(new Configuration());
