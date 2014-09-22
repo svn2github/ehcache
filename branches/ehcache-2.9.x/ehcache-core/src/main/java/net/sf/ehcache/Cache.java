@@ -45,6 +45,7 @@ import net.sf.ehcache.config.PinningConfiguration;
 import net.sf.ehcache.config.SearchAttribute;
 import net.sf.ehcache.config.TerracottaConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration.Consistency;
+import net.sf.ehcache.config.AbstractCacheConfigurationListener;
 import net.sf.ehcache.constructs.nonstop.concurrency.LockOperationTimedOutNonstopException;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.event.CacheEventListenerFactory;
@@ -1094,7 +1095,7 @@ public class Cache implements InternalEhcache, StoreListener {
             }
 
             // on-heap pool configuration
-            Pool onHeapPool;
+            final Pool onHeapPool;
             if (configuration.getMaxBytesLocalHeap() > 0) {
                 PoolEvictor evictor = new FromLargestCachePoolEvictor();
                 SizeOfEngine sizeOfEngine = cacheManager.createSizeOfEngine(this);
@@ -1106,7 +1107,7 @@ public class Cache implements InternalEhcache, StoreListener {
             }
 
             // on-disk pool configuration
-            Pool onDiskPool;
+            final Pool onDiskPool;
             if (configuration.getMaxBytesLocalDisk() > 0) {
                 PoolEvictor evictor = new FromLargestCachePoolEvictor();
                 onDiskPool = new BoundedPool(configuration.getMaxBytesLocalDisk(), evictor, null);
@@ -1115,7 +1116,20 @@ public class Cache implements InternalEhcache, StoreListener {
             } else {
                 onDiskPool = new UnboundedPool();
             }
+            /*We don't have to worry about the old value as when we are called the CacheConfiguration should
+             have validated and resized the Cachemanager Pool as CacheConfiguration adds itself as first listener.
+              so we just handle heap and disk pools resizing.*/
+            this.configuration.addConfigurationListener(new AbstractCacheConfigurationListener() {
+                @Override
+                public void maxBytesLocalHeapChanged(long oldValue, long newValue) {
 
+                    onHeapPool.setMaxSize(newValue);
+                }
+                @Override
+                public void maxBytesLocalDiskChanged(long oldValue, long newValue) {
+                    onDiskPool.setMaxSize(newValue);
+                }
+            });
 
             Store store;
             if (isTerracottaClustered()) {
