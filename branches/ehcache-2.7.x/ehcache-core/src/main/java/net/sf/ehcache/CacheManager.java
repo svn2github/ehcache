@@ -1591,6 +1591,8 @@ public class CacheManager {
                 LOG.warn(e.getMessage(), e);
             }
 
+            getConfiguration().cleanup();
+
             final String name = CACHE_MANAGERS_REVERSE_MAP.remove(this);
             CACHE_MANAGERS_MAP.remove(name);
         }

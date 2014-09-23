@@ -1294,4 +1294,9 @@ public final class Configuration {
             return isMaxBytesLocalOffHeapSet();
         }
     }
+
+    public void cleanup() {
+        propertyChangeListeners.remove(cfg);
+        cfg = null;
+    }
 }
