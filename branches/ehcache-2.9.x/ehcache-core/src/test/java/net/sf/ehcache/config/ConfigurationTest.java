@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -68,5 +69,15 @@ public class ConfigurationTest {
         configuration.setupFor(mock, "one");
 
         configuration.setupFor(mock(CacheManager.class), "two");
+    }
+
+    @Test
+    public void testCleanup() throws Exception {
+        Configuration configuration =  new Configuration();
+        CacheManager cacheManager = mock(CacheManager.class);
+        Configuration.RuntimeCfg runtimeCfg1 = configuration.setupFor(cacheManager, "initial CacheManager");
+        configuration.cleanup();
+        Configuration.RuntimeCfg runtimeCfg2 = configuration.setupFor(cacheManager, "expecting CacheManager name in RuntimeCfg to be this value");
+        assertTrue(runtimeCfg2.getCacheManagerName().equals("expecting CacheManager name in RuntimeCfg to be this value"));
     }
 }
