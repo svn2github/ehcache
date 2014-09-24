@@ -64,7 +64,7 @@ public class DfltSamplerRepositoryServiceV2Test {
         Collections.singleton("testCache1"),
         Collections.singleton("Size"));
 
-    verify(clusteredInstanceFactory, times(2)).enableNonStopForCurrentThread(anyBoolean());
+    verify(clusteredInstanceFactory, times(4)).enableNonStopForCurrentThread(anyBoolean());
   }
 
   @Test
@@ -73,14 +73,14 @@ public class DfltSamplerRepositoryServiceV2Test {
         Collections.singleton("testCache1"),
         Collections.singleton("Size"));
 
-    verify(clusteredInstanceFactory, times(2)).enableNonStopForCurrentThread(anyBoolean());
+    verify(clusteredInstanceFactory, times(4)).enableNonStopForCurrentThread(anyBoolean());
   }
 
   @Test
   public void testClearCacheDisablesNonStop() throws Exception {
     repositoryService.clearCache("testCacheManager", "testCache1");
 
-    verify(clusteredInstanceFactory, times(2)).enableNonStopForCurrentThread(anyBoolean());
+    verify(clusteredInstanceFactory, times(4)).enableNonStopForCurrentThread(anyBoolean());
   }
 
   @Test
