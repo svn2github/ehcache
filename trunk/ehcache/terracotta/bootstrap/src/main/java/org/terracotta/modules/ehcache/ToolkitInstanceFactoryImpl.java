@@ -607,7 +607,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
     if (logger.isInfoEnabled()) {
       try {
         logger.info("Configuration for clustered cache manager " + cacheManagerName + ":\n" +
-                    convertConfigurationToXMLString(configuration, cacheManagerName, false));
+                    convertConfigurationToXMLString(configuration, cacheManagerName, true));
       } catch (Exception e) {
         logger.warn("Exception while trying to log configuration for clustered cache manager " + cacheManagerName, e);
       }
