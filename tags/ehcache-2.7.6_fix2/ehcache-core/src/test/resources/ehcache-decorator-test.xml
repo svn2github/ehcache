@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../main/config/ehcache.xsd">
+
+	<!-- Disable for test ehcache.xml. Should go to the same place. -->
+	<diskStore path="java.io.tmpdir" />
+
+	<defaultCache maxElementsInMemory="10" eternal="false"
+		timeToIdleSeconds="5" timeToLiveSeconds="10" overflowToDisk="false" />
+
+	<cache name="noDecoratorCache" eternal="false"
+		maxElementsInMemory="1000" overflowToDisk="false" />
+
+	<cache name="oneDecoratorCache" eternal="false"
+		maxElementsInMemory="1000" overflowToDisk="false">
+		<cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=oneDecoratorFirst, someKey=oneFirst" />
+	</cache>
+
+	<cache name="twoDecoratorCache" eternal="false"
+		maxElementsInMemory="1000" overflowToDisk="false">
+		<cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=twoDecoratorFirst, someKey=twoFirst" />
+		<cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=twoDecoratorSecond, someKey=twoSecond" />
+	</cache>
+
+	<cache name="fiveDecoratorCache" eternal="false"
+		maxElementsInMemory="1000" overflowToDisk="false">
+		<cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=fiveDecoratorFirst#someKey=fiveFirst"
+			propertySeparator="#" />
+		<cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=fiveDecoratorSecond:someKey=fiveSecond"
+			propertySeparator=":" />
+		<cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=fiveDecoratorThird@someKey=fiveThird"
+			propertySeparator="@" />
+		<cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=fiveDecoratorFourth>someKey=fiveFourth"
+			propertySeparator=">" />
+		<cacheDecoratorFactory
+			class="net.sf.ehcache.constructs.MockDecoratorFactory" properties="name=fiveDecoratorFifth,someKey=fiveFifth"
+			propertySeparator="," />
+	</cache>
+
+</ehcache>
