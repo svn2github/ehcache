@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+  <cache name="test"
+         maxElementsInMemory="10000"
+         eternal="true">
+
+         <terracotta clustered="true" consistency="strong"/>
+  </cache>
+
+  <terracottaConfig url="localhost:PORT"/>
+</ehcache>
