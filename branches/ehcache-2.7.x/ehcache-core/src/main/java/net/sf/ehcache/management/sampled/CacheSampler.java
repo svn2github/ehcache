@@ -16,6 +16,7 @@
 
 package net.sf.ehcache.management.sampled;
 
+import net.sf.ehcache.util.ManagementAttribute;
 import net.sf.ehcache.util.counter.sampled.SampledCounter;
 import net.sf.ehcache.util.counter.sampled.SampledRateCounter;
 
@@ -34,6 +35,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return true, if is enabled
      */
+    @ManagementAttribute
     boolean isEnabled();
 
     /**
@@ -55,6 +57,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return true, if is node bulk load enabled
      */
+    @ManagementAttribute
     boolean isNodeBulkLoadEnabled();
 
     /**
@@ -80,6 +83,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return The status value from the Status enum class
      */
+    @ManagementAttribute
     String getStatus();
 
     /**
@@ -87,6 +91,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return true if clustered with terracotta
      */
+    @ManagementAttribute
     boolean isTerracottaClustered();
 
     /**
@@ -94,6 +99,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return "STRONG", "EVENTUAL", or "na" if the cache is not Terracotta-clustered
      */
+    @ManagementAttribute
     String getTerracottaConsistency();
 
     /**
@@ -101,6 +107,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max entries local heap config setting value
      */
+    @ManagementAttribute
     long getMaxEntriesLocalHeap();
 
     /**
@@ -115,6 +122,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max bytes local heap config setting value
      */
+    @ManagementAttribute
     long getMaxBytesLocalHeap();
 
     /**
@@ -136,6 +144,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max bytes local heap config setting value as string
      */
+    @ManagementAttribute
     String getMaxBytesLocalHeapAsString();
 
     /**
@@ -143,6 +152,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max bytes local offheap config setting value
      */
+    @ManagementAttribute
     long getMaxBytesLocalOffHeap();
 
     /**
@@ -150,6 +160,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max bytes local offheap config setting value as string
      */
+    @ManagementAttribute
     String getMaxBytesLocalOffHeapAsString();
 
     /**
@@ -157,6 +168,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max entries local disk config setting value
      */
+    @ManagementAttribute
     long getMaxEntriesLocalDisk();
 
     /**
@@ -171,6 +183,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max elements on disk config setting value
      */
+    @ManagementAttribute
     int getMaxElementsOnDisk();
 
     /**
@@ -178,6 +191,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max entries in cache config setting value
      */
+    @ManagementAttribute
     long getMaxEntriesInCache();
 
     /**
@@ -199,6 +213,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max bytes local disk config setting value
      */
+    @ManagementAttribute
     long getMaxBytesLocalDisk();
 
     /**
@@ -220,6 +235,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Max bytes local disk config setting value as string
      */
+    @ManagementAttribute
     String getMaxBytesLocalDiskAsString();
 
     /**
@@ -227,6 +243,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return a String representation of the policy
      */
+    @ManagementAttribute
     String getMemoryStoreEvictionPolicy();
 
     /**
@@ -241,6 +258,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return true if set to eternal in config
      */
+    @ManagementAttribute
     boolean isEternal();
 
     /**
@@ -255,6 +273,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return TTI in config
      */
+    @ManagementAttribute
     long getTimeToIdleSeconds();
 
     /**
@@ -269,6 +288,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return TTL in config
      */
+    @ManagementAttribute
     long getTimeToLiveSeconds();
 
     /**
@@ -283,6 +303,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return true if overflow to disk specified in config
      */
+    @ManagementAttribute
     boolean isOverflowToDisk();
 
     /**
@@ -297,6 +318,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return true if configured with disk persistence
      */
+    @ManagementAttribute
     boolean isDiskPersistent();
 
     /**
@@ -311,6 +333,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * 
      * @return true if configured for offheap
      */
+    @ManagementAttribute
     boolean isOverflowToOffHeap();
     
     /**
@@ -319,6 +342,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return the strategy name
      * @see net.sf.ehcache.config.PersistenceConfiguration
      */
+    @ManagementAttribute
     String getPersistenceStrategy();
     
     /**
@@ -326,6 +350,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return Value for disk expiry thread interval in seconds specified in config
      */
+    @ManagementAttribute
     long getDiskExpiryThreadIntervalSeconds();
 
     /**
@@ -340,6 +365,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return true if logging is enabled on the cache
      */
+    @ManagementAttribute
     boolean isLoggingEnabled();
 
     /**
@@ -355,6 +381,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return true if the cache is pinned
      * @see net.sf.ehcache.config.PinningConfiguration
      */
+    @ManagementAttribute
     boolean isPinned();
 
     /**
@@ -363,6 +390,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return the store to which this cache is pinned
      * @see net.sf.ehcache.config.PinningConfiguration
      */
+    @ManagementAttribute
     String getPinnedToStore();
 
     /**
@@ -370,6 +398,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      *
      * @return the checks for write behind writer
      */
+    @ManagementAttribute
     boolean getHasWriteBehindWriter();
 
     /**
@@ -392,6 +421,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return Maximum elements that can be queued for processing by the write-behind writer
      * @see net.sf.ehcache.config.CacheWriterConfiguration#getWriteBehindMaxQueueSize()
      */
+    @ManagementAttribute
     int getWriterMaxQueueSize();
 
     /**
@@ -400,6 +430,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return Number of configured processing queues/threads for use by the write-behind writer
      * @see net.sf.ehcache.config.CacheWriterConfiguration#getWriteBehindConcurrency()
      */
+    @ManagementAttribute
     int getWriterConcurrency();
 
     /**
@@ -408,6 +439,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return the transactional
      * @see net.sf.ehcache.config.CacheConfiguration.TransactionalMode
      */
+    @ManagementAttribute
     boolean getTransactional();
 
     /**
@@ -430,6 +462,7 @@ public interface CacheSampler extends LegacyCacheStatistics {
      * @return the searchable
      * @see net.sf.ehcache.config.Searchable
      */
+    @ManagementAttribute
     boolean getSearchable();
 
     /**
