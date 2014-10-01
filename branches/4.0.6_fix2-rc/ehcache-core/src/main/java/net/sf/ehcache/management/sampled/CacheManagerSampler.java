@@ -17,6 +17,8 @@ package net.sf.ehcache.management.sampled;
 
 import java.util.Map;
 
+import net.sf.ehcache.util.ManagementAttribute;
+
 /**
  * An abstraction for sampled cache manager usage statistics.
  *
@@ -27,6 +29,7 @@ public interface CacheManagerSampler {
     /**
      * Gets the actual name of the cache manager.
      */
+    @ManagementAttribute
     String getName();
 
     /**
@@ -34,6 +37,7 @@ public interface CacheManagerSampler {
      *
      * @return the cluster uuid
      */
+    @ManagementAttribute
     String getClusterUUID();
 
     /**
@@ -41,6 +45,7 @@ public interface CacheManagerSampler {
      *
      * @return The status value, as a String from the Status enum class
      */
+    @ManagementAttribute
     String getStatus();
 
     /**
@@ -55,6 +60,7 @@ public interface CacheManagerSampler {
      *
      * @return boolean indicating that each cache is enabled
      */
+    @ManagementAttribute
     boolean isEnabled();
 
     /**
@@ -77,6 +83,7 @@ public interface CacheManagerSampler {
     /**
      * Gets the cache names managed by the CacheManager
      */
+    @ManagementAttribute
     String[] getCacheNames() throws IllegalStateException;
 
     /**
@@ -159,6 +166,7 @@ public interface CacheManagerSampler {
     /**
      * @return if any contained caches are configured for search
      */
+    @ManagementAttribute
     boolean getSearchable();
 
     /**
@@ -191,6 +199,7 @@ public interface CacheManagerSampler {
      *
      * @see net.sf.ehcache.config.CacheConfiguration.TransactionalMode
      */
+    @ManagementAttribute
     boolean getTransactional();
 
     /**
@@ -228,6 +237,7 @@ public interface CacheManagerSampler {
     /**
      * Returns whether any caches are configured for write-behind
      */
+    @ManagementAttribute
     boolean getHasWriteBehindWriter();
 
     /**
@@ -243,6 +253,7 @@ public interface CacheManagerSampler {
      * @return aggregate of the maximum elements that can be waiting to be processed
      *         by the write-behind writer across all caches
      */
+    @ManagementAttribute
     int getWriterMaxQueueSize();
 
     /**
@@ -252,6 +263,7 @@ public interface CacheManagerSampler {
      * @return maximum number of bytes in the disk stores of all caches that
      *         did not declare their own max size.
      */
+    @ManagementAttribute
     long getMaxBytesLocalDisk();
 
     /**
@@ -267,6 +279,7 @@ public interface CacheManagerSampler {
     /**
      * @return Original input for maxBytesLocalDisk
      */
+    @ManagementAttribute
     String getMaxBytesLocalDiskAsString();
 
     /**
@@ -276,11 +289,13 @@ public interface CacheManagerSampler {
      * @return maximum number of bytes in the heap memory stores of all caches that
      *         did not declare their own max size.
      */
+    @ManagementAttribute
     long getMaxBytesLocalHeap();
 
     /**
      * @return Original input for maxBytesLocalHeap
      */
+    @ManagementAttribute
     String getMaxBytesLocalHeapAsString();
 
     /**
@@ -300,10 +315,12 @@ public interface CacheManagerSampler {
      * @return maximum number of bytes in the off-heap stores of all caches that
      *         did not declare their own max size.
      */
+    @ManagementAttribute
     long getMaxBytesLocalOffHeap();
 
     /**
      * @return Original input for maxBytesLocalOffHeap
      */
+    @ManagementAttribute
     String getMaxBytesLocalOffHeapAsString();
 }
