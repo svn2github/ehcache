@@ -51,48 +51,18 @@ public class CacheManagersResourceServiceImplTest extends ResourceServiceImplITH
           "Enabled": true,
           "HasWriteBehindWriter": false,
           "MaxBytesLocalDiskAsString": "0",
-          "CacheAverageSearchTime": 0,
-          "CacheOnDiskHitRate": 0,
-          "CachePutRate": 0,
-          "CacheMetrics": {
-            "testCache2": [
-              0,
-              0,
-              0,
-              0
-            ]
-          },
-          "CacheRemoveRate": 0,
-          "CacheOffHeapHitRate": 0,
           "Searchable": false,
-          "CacheOnDiskMissRate": 0,
           "CacheNames": [
             "testCache2"
           ],
-          "TransactionRolledBackCount": 0,
-          "CacheInMemoryHitRate": 0,
-          "WriterQueueLength": 0,
-          "CacheOffHeapMissRate": 0,
           "Transactional": false,
-          "CacheHitRate": 0,
-          "TransactionCommitRate": 0,
-          "CacheExpirationRate": 0,
-          "CacheUpdateRate": 0,
           "MaxBytesLocalHeap": 0,
-          "CacheAverageGetTime": 0,
-          "TransactionRollbackRate": 0,
-          "CacheEvictionRate": 0,
-          "CacheInMemoryMissRate": 0,
           "MaxBytesLocalDisk": 0,
           "MaxBytesLocalOffHeapAsString": "0",
-          "CacheSearchRate": 0,
-          "TransactionTimedOutCount": 0,
-          "TransactionCommittedCount": 0,
           "Status": "STATUS_ALIVE",
           "MaxBytesLocalOffHeap": 0,
           "WriterMaxQueueSize": 0,
-          "MaxBytesLocalHeapAsString": "0",
-          "CacheMissRate": 0
+          "MaxBytesLocalHeapAsString": "0"
         }
       },
       {
@@ -104,48 +74,18 @@ public class CacheManagersResourceServiceImplTest extends ResourceServiceImplITH
           "Enabled": true,
           "HasWriteBehindWriter": false,
           "MaxBytesLocalDiskAsString": "0",
-          "CacheAverageSearchTime": 0,
-          "CacheOnDiskHitRate": 0,
-          "CachePutRate": 0,
-          "CacheMetrics": {
-            "testCache": [
-              0,
-              0,
-              0,
-              0
-            ]
-          },
-          "CacheRemoveRate": 0,
-          "CacheOffHeapHitRate": 0,
           "Searchable": false,
-          "CacheOnDiskMissRate": 0,
           "CacheNames": [
             "testCache"
           ],
-          "TransactionRolledBackCount": 0,
-          "CacheInMemoryHitRate": 0,
-          "WriterQueueLength": 0,
-          "CacheOffHeapMissRate": 0,
           "Transactional": false,
-          "CacheHitRate": 0,
-          "TransactionCommitRate": 0,
-          "CacheExpirationRate": 0,
-          "CacheUpdateRate": 0,
           "MaxBytesLocalHeap": 0,
-          "CacheAverageGetTime": 0,
-          "TransactionRollbackRate": 0,
-          "CacheEvictionRate": 0,
-          "CacheInMemoryMissRate": 0,
           "MaxBytesLocalDisk": 0,
           "MaxBytesLocalOffHeapAsString": "0",
-          "CacheSearchRate": 0,
-          "TransactionTimedOutCount": 0,
-          "TransactionCommittedCount": 0,
           "Status": "STATUS_ALIVE",
           "MaxBytesLocalOffHeap": 0,
           "WriterMaxQueueSize": 0,
-          "MaxBytesLocalHeapAsString": "0",
-          "CacheMissRate": 0
+          "MaxBytesLocalHeapAsString": "0"
         }
       }
     ]
@@ -155,11 +95,9 @@ public class CacheManagersResourceServiceImplTest extends ResourceServiceImplITH
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", equalTo("embedded"))
             .body("get(0).name", equalTo("testCacheManagerProgrammatic"))
-            .body("get(0).attributes.CacheMetrics.testCache2", hasItems(0, 0, 0, 0))
             .body("get(0).attributes.CacheNames.get(0)", equalTo("testCache2"))
             .body("get(1).agentId", equalTo("embedded"))
             .body("get(1).name", equalTo("testCacheManager"))
-            .body("get(1).attributes.CacheMetrics.testCache", hasItems(0, 0, 0, 0))
             .body("get(1).attributes.CacheNames.get(0)", equalTo("testCache"))
             .body("size()", is(2))
             .statusCode(200)
@@ -221,11 +159,9 @@ public class CacheManagersResourceServiceImplTest extends ResourceServiceImplITH
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", equalTo("embedded"))
             .body("get(0).name", equalTo("testCacheManagerProgrammatic"))
-            .body("get(0).attributes.CacheMetrics.testCache2", hasItems(0,0,0,0))
             .body("get(0).attributes.CacheNames.get(0)", equalTo("testCache2"))
             .body("get(1).agentId", equalTo("embedded"))
             .body("get(1).name", equalTo("testCacheManager"))
-            .body("get(1).attributes.CacheMetrics.testCache", hasItems(0,0,0,0))
             .body("get(1).attributes.CacheNames.get(0)", equalTo("testCache"))
             .statusCode(200)
             .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter);

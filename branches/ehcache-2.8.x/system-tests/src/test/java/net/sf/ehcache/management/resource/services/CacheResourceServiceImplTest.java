@@ -52,169 +52,37 @@ public class CacheResourceServiceImplTest extends ResourceServiceImplITHelper {
         "name": "testCache2",
         "cacheManagerName": "testCacheManagerProgrammatic",
         "attributes": {
-            "OnDiskSize": 1000,
-            "CacheOnDiskHitRate": 0,
-            "MostRecentRejoinTimestampMillisSample": 0,
-            "LocalOffHeapSizeInBytesSample": 0,
-            "LocalHeapSizeInBytes": 247920,
             "Searchable": false,
-            "CacheHitMostRecentSample": 0,
-            "MostRecentRejoinTimeStampMillis": 0,
-            "CacheInMemoryHitRate": 0,
-            "NonStopFailureSample": 0,
-            "CacheHitOffHeapMostRecentSample": 0,
-            "NonstopTimeoutRatio": 0,
-            "CacheClusterOnlineSample": 0,
-            "NonStopTimeoutSample": 0,
-            "NonStopFailureRate": 0,
             "LocalHeapCountBased": false,
-            "CacheElementPutSample": 0,
             "LoggingEnabled": false,
-            "CacheHitRatioMostRecentSample": 0,
             "MaxBytesLocalHeap": 0,
-            "XaRecoveredCount": 0,
-            "NonStopSuccessRate": 0,
-            "EvictedCount": 0,
-            "MinGetTimeNanos": null,
             "NodeBulkLoadEnabled": false,
             "MaxBytesLocalOffHeapAsString": "0",
-            "CacheSearchRate": 0,
-            "CacheElementRemovedMostRecentSample": 0,
-            "InMemorySize": 1000,
             "WriterMaxQueueSize": 0,
             "TerracottaConsistency": "na",
-            "NonStopRejoinTimeoutSample": 0,
-            "CacheHitInMemoryMostRecentSample": 0,
-            "CacheElementEvictedSample": 0,
             "WriterConcurrency": 1,
-            "CacheMissInMemoryMostRecentSample": 0,
-            "CacheHitRatioSample": 0,
-            "LocalDiskSize": 1000,
             "OverflowToDisk": true,
-            "CacheMissMostRecentSample": 0,
-            "LocalOffHeapSize": 0,
-            "UpdateCount": 0,
-            "InMemoryMissCount": 0,
-            "CacheMissExpiredMostRecentSample": 0,
-            "CachePutRate": 0,
-            "OffHeapMissCount": 0,
-            "CacheHitOnDiskMostRecentSample": 0,
-            "CacheMissOffHeapMostRecentSample": 0,
-            "CacheOnDiskMissRate": 0,
             "DiskPersistent": false,
             "MemoryStoreEvictionPolicy": "LRU",
-            "LocalHeapSize": 1000,
             "TimeToIdleSeconds": 0,
-            "AverageGetTime": 0,
-            "WriterQueueLength": 0,
-            "NonStopFailureMostRecentSample": 0,
-            "CacheMissOnDiskSample": 0,
-            "TransactionCommitRate": 0,
-            "NonStopSuccessCount": 0,
-            "CacheElementExpiredSample": 0,
-            "CacheClusterOfflineMostRecentSample": 0,
-            "InMemoryHitCount": 0,
-            "XaRollbackCount": 0,
-            "SizeSample": 1000,
-            "CacheInMemoryMissRate": 0,
-            "CacheClusterRejoinMostRecentSample": 0,
             "DiskExpiryThreadIntervalSeconds": 120,
-            "NonStopFailureCount": 0,
-            "AverageSearchTimeNanos": 0,
-            "CacheMissCount": 0,
-            "CacheMissOffHeapSample": 0,
-            "NonStopRejoinTimeoutRate": 0,
             "MaxBytesLocalOffHeap": 0,
-            "CacheClusterOfflineSample": 0,
-            "CacheClusterOnlineCount": 0,
-            "CacheXaCommitsSample": 0,
             "MaxBytesLocalHeapAsString": "0",
-            "CacheClusterOnlineMostRecentSample": 0,
-            "CacheMissRate": 0,
-            "SearchesPerSecondSample": 0,
-            "CacheElementPutMostRecentSample": 0,
-            "CacheClusterOfflineCount": 0,
-            "WriterQueueLengthSample": 0,
-            "CacheElementEvictedMostRecentSample": 0,
             "HasWriteBehindWriter": false,
-            "LocalHeapSizeInBytesSample": 247920,
             "MaxBytesLocalDiskAsString": "0",
             "OverflowToOffHeap": false,
-            "CacheMissOnDiskMostRecentSample": 0,
-            "CacheElementExpiredMostRecentSample": 0,
-            "LocalDiskSizeSample": 1000,
-            "CacheRemoveRate": 0,
-            "CacheElementUpdatedMostRecentSample": 0,
-            "CacheMissNotFoundMostRecentSample": 0,
-            "LocalDiskSizeInBytes": 246780,
-            "AverageGetTimeNanosMostRecentSample": 0,
             "MaxEntriesLocalHeap": 0,
-            "CacheOffHeapMissRate": 0,
-            "RemoteSizeSample": 0,
-            "ClusterBulkLoadEnabled": null,
-            "XaCommitCount": 0,
             "Transactional": false,
-            "CacheMissCountExpired": 0,
-            "CacheUpdateRate": 0,
-            "CacheElementUpdatedSample": 0,
             "PinnedToStore": "na",
-            "Size": 1000,
             "TerracottaClustered": false,
-            "TransactionRollbackRate": 0,
-            "CacheHitInMemorySample": 0,
-            "LocalHeapSizeSample": 1000,
-            "NonStopSuccessSample": 0,
-            "CacheMissInMemorySample": 0,
-            "NonStopTimeoutRate": 0,
-            "CacheMissNotFoundSample": 0,
-            "TimeToLiveSeconds": 0,
-            "AverageGetTimeSample": 0,
-            "CacheHitCount": 0,
             "MaxBytesLocalDisk": 0,
-            "CacheHitSample": 0,
-            "ExpiredCount": 0,
-            "NonStopRejoinTimeoutCount": 0,
-            "CacheXaRollbacksSample": 0,
-            "CacheMissSample": 0,
-            "PutCount": 1000,
-            "AverageSearchTimeSample": 0,
-            "CacheClusterRejoinSample": 0,
             "Enabled": true,
-            "CacheXaCommitsMostRecentSample": 0,
-            "CacheXaRollbacksMostRecentSample": 0,
-            "CacheHitOffHeapSample": 0,
-            "CacheOffHeapHitRate": 0,
-            "RemovedCount": 0,
-            "CacheHitOnDiskSample": 0,
-            "CacheClusterRejoinCount": 0,
-            "AverageSearchTime": 0,
-            "LocalOffHeapSizeInBytes": 0,
-            "MaxEntriesLocalDisk": 0,
-            "MaxGetTimeNanos": null,
             "MaxElementsOnDisk": 0,
-            "CacheHitRate": 0,
-            "LocalOffHeapSizeSample": 0,
-            "OffHeapHitCount": 0,
-            "CacheExpirationRate": 0,
             "Pinned": false,
             "Eternal": false,
-            "NonStopTimeoutMostRecentSample": 0,
-            "CacheHitRatio": 0,
-            "OffHeapSize": 0,
-            "CacheEvictionRate": 0,
-            "NonStopTimeoutCount": 0,
-            "SearchesPerSecond": 0,
             "MaxEntriesInCache": 0,
-            "CacheMissExpiredSample": 0,
-            "LocalDiskSizeInBytesSample": 246780,
             "Status": "STATUS_ALIVE",
-            "OnDiskMissCount": 0,
-            "NonStopRejoinTimeoutMostRecentSample": 0,
-            "OnDiskHitCount": 0,
-            "NonStopSuccessMostRecentSample": 0,
-            "PersistenceStrategy": "",
-            "AverageGetTimeNanos": 0,
-            "CacheElementRemovedSample": 0
+            "PersistenceStrategy": ""
         }
     },
 ]
@@ -243,19 +111,22 @@ public class CacheResourceServiceImplTest extends ResourceServiceImplITHelper {
             .body("get(1).attributes.InMemorySize", equalTo(1000))
             .body("get(1).attributes.LocalDiskSize", greaterThan(0))
             .body("get(1).attributes.LocalHeapSize", equalTo(1000))
-            .body("get(1).attributes.SizeSample", equalTo(1000))
             .body("get(1).attributes.DiskExpiryThreadIntervalSeconds", equalTo(120))
-            .body("get(1).attributes.LocalHeapSizeInBytesSample", greaterThan(0))
-            .body("get(1).attributes.LocalDiskSizeSample", greaterThan(0))
             .body("get(1).attributes.LocalDiskSizeInBytes", greaterThan(0))
             .body("get(1).attributes.Size", equalTo(1000))
-            .body("get(1).attributes.LocalHeapSizeSample", equalTo(1000))
-            .body("get(1).attributes.PutCount", equalTo(1000))
-            .body("get(1).attributes.LocalDiskSizeInBytesSample", greaterThan(0))
             .body("get(1).attributes.Status", equalTo( "STATUS_ALIVE"))
             .body("get(0).name", equalTo("testCache"))
             .body("size()", is(2))
             .statusCode(200)
+            .given()
+              .queryParam("show", "LocalHeapSizeInBytes")
+              .queryParam("show", "InMemorySize")
+              .queryParam("show", "LocalDiskSize")
+              .queryParam("show", "LocalHeapSize")
+              .queryParam("show", "DiskExpiryThreadIntervalSeconds")
+              .queryParam("show", "LocalDiskSizeInBytes")
+              .queryParam("show", "Size")
+              .queryParam("show", "Status")
             .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter, cachesFilter);
 
 
@@ -265,9 +136,7 @@ public class CacheResourceServiceImplTest extends ResourceServiceImplITHelper {
             .body("get(0).agentId", equalTo("embedded"))
             .body("get(0).name", equalTo("testCacheStandaloneARC"))
             .body("get(0).cacheManagerName", equalTo("testCacheManagerStandaloneARC"))
-            .body("get(0).attributes.PutCount", equalTo(1000))
             .body("get(0).attributes.Size", equalTo(1000))
-            .body("get(0).attributes.LocalHeapSizeSample", nullValue())
             .body("size()",is(1))
             .statusCode(200)
             .given()
@@ -507,6 +376,15 @@ public class CacheResourceServiceImplTest extends ResourceServiceImplITHelper {
               .body("get(0).attributes.TimeToLiveSeconds", equalTo(43))
               .body("get(0).attributes.Enabled", equalTo(Boolean.FALSE))
               .statusCode(200)
+              .given()
+                .queryParam("show", "MaxEntriesInCache")
+                .queryParam("show", "MaxEntriesLocalHeap")
+                .queryParam("show", "LoggingEnabled")
+                .queryParam("show", "NodeBulkLoadEnabled")
+                .queryParam("show", "ClusterBulkLoadEnabled")
+                .queryParam("show", "TimeToIdleSeconds")
+                .queryParam("show", "TimeToLiveSeconds")
+                .queryParam("show", "Enabled")
               .when().get(EXPECTED_RESOURCE_LOCATION, CLUSTERED_BASE_URL, agentsFilter, cmsFilter, cachesFilter);
     } finally {
       clusteredCacheManager.shutdown();
@@ -553,6 +431,9 @@ public class CacheResourceServiceImplTest extends ResourceServiceImplITHelper {
             .body("get(0).attributes.Pinned", equalTo(Boolean.FALSE))
             .body("size()",is(1))
             .statusCode(200)
+            .given()
+              .queryParam("show", "LocalOffHeapSizeInBytes")
+              .queryParam("show", "Pinned")
             .when().get(EXPECTED_RESOURCE_LOCATION, STANDALONE_BASE_URL, agentsFilter,cmsFilter, cachesFilter);
   }
 
