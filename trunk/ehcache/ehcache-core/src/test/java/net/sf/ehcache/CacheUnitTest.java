@@ -3,6 +3,7 @@ package net.sf.ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.RegisteredEventListenersMockHelper;
 import net.sf.ehcache.store.Store;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -206,7 +207,7 @@ public class CacheUnitTest {
         Cache cache = new Cache(conf, store, null);
         Map<Object, Element> got = cache.getAll(keys);
         Assert.assertThat(got.size(), is(1));
-        Assert.assertThat(got, hasKey("foo"));
+        Assert.assertThat(got, hasKey((Object)"foo"));
         Assert.assertThat(got, hasValue(e1));
     }
 
