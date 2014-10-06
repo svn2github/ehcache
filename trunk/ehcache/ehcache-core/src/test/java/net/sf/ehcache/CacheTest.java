@@ -2774,6 +2774,29 @@ public class CacheTest extends AbstractCacheTest {
         }
     }
 
+
+    @Test
+    public void testListenerCleanup() throws Exception {
+        Configuration configuration = new Configuration()
+                .maxBytesLocalHeap(10, MemoryUnit.MEGABYTES)
+                .maxBytesLocalDisk(10, MemoryUnit.MEGABYTES)
+                .name("new-cacheManager");
+        CacheManager cacheManager = new CacheManager(configuration);
+        CacheConfiguration cacheConfiguration = new CacheConfiguration("one", 0).maxBytesLocalHeap(2, MemoryUnit.MEGABYTES);
+        Cache c = new Cache(cacheConfiguration);
+        cacheManager.addCache(c);
+        cacheManager.removeAllCaches();
+
+        //Now use reflection to check our configListener is set to null
+        Field configChangeListener = c.getClass().getDeclaredField("configListener");
+        configChangeListener.setAccessible(true);
+
+        assertNull("Memory Leak: Default Configuration Change listener is not null!!",configChangeListener.get(c));
+
+        cacheManager.shutdown();
+
+    }
+
     static class SlowDeserializer implements Serializable {
         private final String data;
 
