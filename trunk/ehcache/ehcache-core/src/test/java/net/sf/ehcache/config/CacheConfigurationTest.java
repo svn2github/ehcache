@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.terracotta.test.categories.CheckShorts;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
@@ -304,16 +305,16 @@ public class CacheConfigurationTest {
         CacheConfiguration otherCacheConfiguration = cacheConfiguration.clone();
 
         otherCacheConfiguration.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration());
-        assertThat(otherCacheConfiguration.getCacheEventListenerConfigurations(), not(empty()));
-        assertThat(cacheConfiguration.getCacheEventListenerConfigurations(), is(empty()));
+        assertThat((List<?>) otherCacheConfiguration.getCacheEventListenerConfigurations(), not(empty()));
+        assertThat((List<?>) cacheConfiguration.getCacheEventListenerConfigurations(), is(empty()));
 
         otherCacheConfiguration.addCacheExtensionFactory(new CacheConfiguration.CacheExtensionFactoryConfiguration());
-        assertThat(otherCacheConfiguration.getCacheExtensionConfigurations(), not(empty()));
-        assertThat(cacheConfiguration.getCacheExtensionConfigurations(), is(empty()));
+        assertThat((List<?>) otherCacheConfiguration.getCacheExtensionConfigurations(), not(empty()));
+        assertThat((List<?>) cacheConfiguration.getCacheExtensionConfigurations(), is(empty()));
 
         otherCacheConfiguration.addCacheLoaderFactory(new CacheConfiguration.CacheLoaderFactoryConfiguration());
-        assertThat(otherCacheConfiguration.getCacheLoaderConfigurations(), not(empty()));
-        assertThat(cacheConfiguration.getCacheLoaderConfigurations(), is(empty()));
+        assertThat((List<?>) otherCacheConfiguration.getCacheLoaderConfigurations(), not(empty()));
+        assertThat((List<?>) cacheConfiguration.getCacheLoaderConfigurations(), is(empty()));
 
         otherCacheConfiguration.addCacheDecoratorFactory(new CacheConfiguration.CacheDecoratorFactoryConfiguration());
         assertThat(otherCacheConfiguration.getCacheDecoratorConfigurations(), not(empty()));
