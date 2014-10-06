@@ -23,6 +23,8 @@ import java.util.logging.Logger;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -294,5 +296,27 @@ public class CacheConfigurationTest {
         cacheManager.addCache(new Cache(cacheConfiguration));
 
         assertThat(ref.get(), CoreMatchers.containsString("Configuration problem for cache HeapBiggerThanDisk:"));
+    }
+
+    @Test
+    public void testCloneCollectionsProperly() {
+        CacheConfiguration cacheConfiguration = new CacheConfiguration();
+        CacheConfiguration otherCacheConfiguration = cacheConfiguration.clone();
+
+        otherCacheConfiguration.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration());
+        assertThat(otherCacheConfiguration.getCacheEventListenerConfigurations(), not(empty()));
+        assertThat(cacheConfiguration.getCacheEventListenerConfigurations(), is(empty()));
+
+        otherCacheConfiguration.addCacheExtensionFactory(new CacheConfiguration.CacheExtensionFactoryConfiguration());
+        assertThat(otherCacheConfiguration.getCacheExtensionConfigurations(), not(empty()));
+        assertThat(cacheConfiguration.getCacheExtensionConfigurations(), is(empty()));
+
+        otherCacheConfiguration.addCacheLoaderFactory(new CacheConfiguration.CacheLoaderFactoryConfiguration());
+        assertThat(otherCacheConfiguration.getCacheLoaderConfigurations(), not(empty()));
+        assertThat(cacheConfiguration.getCacheLoaderConfigurations(), is(empty()));
+
+        otherCacheConfiguration.addCacheDecoratorFactory(new CacheConfiguration.CacheDecoratorFactoryConfiguration());
+        assertThat(otherCacheConfiguration.getCacheDecoratorConfigurations(), not(empty()));
+        assertThat(cacheConfiguration.getCacheDecoratorConfigurations(), is(empty()));
     }
 }
