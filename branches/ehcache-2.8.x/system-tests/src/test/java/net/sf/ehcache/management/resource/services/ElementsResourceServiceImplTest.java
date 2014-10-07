@@ -66,7 +66,7 @@ public class ElementsResourceServiceImplTest extends ResourceServiceImplITHelper
    */
   public void deleteElementsTest() throws Exception {
     Cache exampleCache = cacheManagerMaxBytes.getCache("testCache2");
-    for (int i=0; i<1000 ; i++) {
+    for (int i=0; i<100 ; i++) {
       exampleCache.put(new Element("key" + i, "value" + i));
     }
 
@@ -74,8 +74,10 @@ public class ElementsResourceServiceImplTest extends ResourceServiceImplITHelper
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", equalTo("embedded"))
             .body("get(0).name", equalTo("testCache2"))
-            .body("get(0).attributes.InMemorySize", equalTo(1000))
+            .body("get(0).attributes.InMemorySize", equalTo(100))
             .statusCode(200)
+            .given()
+              .queryParam("show", "InMemorySize")
             .when().get(STANDALONE_BASE_URL + "/tc-management-api/agents/cacheManagers/caches");
 
     String agentsFilter = "";
@@ -91,6 +93,8 @@ public class ElementsResourceServiceImplTest extends ResourceServiceImplITHelper
             .body("get(0).name", equalTo("testCache2"))
             .body("get(0).attributes.InMemorySize", equalTo(0))
             .statusCode(200)
+            .given()
+              .queryParam("show", "InMemorySize")
             .when().get(STANDALONE_BASE_URL + "/tc-management-api/agents/cacheManagers/caches");
 
   }
@@ -104,7 +108,7 @@ public class ElementsResourceServiceImplTest extends ResourceServiceImplITHelper
    */
   public void deleteElementsTest__clustered() throws Exception {
     Cache exampleCache = cacheManagerMaxBytes.getCache("testCache2");
-    for (int i=0; i<1000 ; i++) {
+    for (int i=0; i<100 ; i++) {
       exampleCache.put(new Element("key" + i, "value" + i));
     }
     String agentId = getEhCacheAgentId();
@@ -113,8 +117,10 @@ public class ElementsResourceServiceImplTest extends ResourceServiceImplITHelper
     expect().contentType(ContentType.JSON)
             .body("get(0).agentId", equalTo(agentId))
             .body("get(0).name", equalTo("testCache2"))
-            .body("get(0).attributes.InMemorySize", equalTo(1000))
+            .body("get(0).attributes.InMemorySize", equalTo(100))
             .statusCode(200)
+            .given()
+              .queryParam("show", "InMemorySize")
             .when().get(CLUSTERED_BASE_URL + "/tc-management-api/agents" + agentsFilter + "/cacheManagers/caches");
 
     String cachesFilter = ";names=testCache2";
@@ -129,6 +135,8 @@ public class ElementsResourceServiceImplTest extends ResourceServiceImplITHelper
             .body("get(0).name", equalTo("testCache2"))
             .body("get(0).attributes.InMemorySize", equalTo(0))
             .statusCode(200)
+            .given()
+              .queryParam("show", "InMemorySize")
             .when().get(CLUSTERED_BASE_URL + "/tc-management-api/agents" + agentsFilter + "/cacheManagers/caches");
 
   }
