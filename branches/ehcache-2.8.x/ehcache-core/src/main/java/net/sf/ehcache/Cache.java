@@ -310,6 +310,8 @@ public class Cache implements InternalEhcache, StoreListener {
 
     private CacheClusterStateStatisticsListener clusterStateListener = null;
 
+    private AbstractCacheConfigurationListener configListener;
+
     /**
      * 2.0 and higher Constructor
      * <p/>
@@ -1108,7 +1110,7 @@ public class Cache implements InternalEhcache, StoreListener {
             /*We don't have to worry about the old value as when we are called the CacheConfiguration should
              have validated and resized the Cachemanager Pool as CacheConfiguration adds itself as first listener.
               so we just handle heap and disk pools resizing.*/
-            this.configuration.addConfigurationListener(new AbstractCacheConfigurationListener() {
+            this.configListener = new AbstractCacheConfigurationListener() {
                 @Override
                 public void maxBytesLocalHeapChanged(long oldValue, long newValue) {
 
@@ -1118,7 +1120,8 @@ public class Cache implements InternalEhcache, StoreListener {
                 public void maxBytesLocalDiskChanged(long oldValue, long newValue) {
                     onDiskPool.setMaxSize(newValue);
                 }
-            });
+            };
+            this.configuration.addConfigurationListener(configListener);
 
             Store store;
             if (isTerracottaClustered()) {
@@ -2555,6 +2558,11 @@ public class Cache implements InternalEhcache, StoreListener {
 
         disposeRegisteredCacheWriter();
         registeredEventListeners.dispose();
+
+        //Explicitly remove configuration and set it to null as the listener holds reference to pools, in case of
+        // offheap use cases will be holding reference to the off heap memory pool.
+        this.configuration.removeConfigurationListener(this.configListener);
+        this.configListener = null;
 
         if (compoundStore != null) {
             compoundStore.removeStoreListener(this);
