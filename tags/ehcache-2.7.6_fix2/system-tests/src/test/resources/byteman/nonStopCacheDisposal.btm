@@ -1,0 +1,9 @@
+RULE introduce delay in ToolkitCacheImpl disposeLocally
+CLASS ToolkitCacheImpl
+METHOD disposeLocally
+AT ENTRY
+IF true
+DO traceln("======== waiting 1 second at following code location ========= ");
+java.lang.Thread.dumpStack();
+com.tc.util.concurrent.ThreadUtil.reallySleep(100);
+ENDRULE
