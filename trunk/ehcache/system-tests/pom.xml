@@ -142,7 +142,6 @@
     <dependency>
       <groupId>org.terracotta.test</groupId>
       <artifactId>container-test-framework</artifactId>
-      <version>${container-test-framework.version}</version>
     </dependency>
     <dependency>
       <groupId>org.quartz-scheduler</groupId>
