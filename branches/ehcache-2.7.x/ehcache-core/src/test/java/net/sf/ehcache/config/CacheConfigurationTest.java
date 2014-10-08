@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Handler;
 import java.util.logging.LogManager;
@@ -21,6 +22,8 @@ import java.util.logging.Logger;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -291,5 +294,27 @@ public class CacheConfigurationTest {
         cacheManager.addCache(new Cache(cacheConfiguration));
 
         assertThat(ref.get(), CoreMatchers.containsString("Configuration problem for cache HeapBiggerThanDisk:"));
+    }
+
+    @Test
+    public void testCloneCollectionsProperly() {
+        CacheConfiguration cacheConfiguration = new CacheConfiguration();
+        CacheConfiguration otherCacheConfiguration = cacheConfiguration.clone();
+
+        otherCacheConfiguration.addCacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration());
+        assertThat((List<?>) otherCacheConfiguration.getCacheEventListenerConfigurations(), not(empty()));
+        assertThat((List<?>) cacheConfiguration.getCacheEventListenerConfigurations(), is(empty()));
+
+        otherCacheConfiguration.addCacheExtensionFactory(new CacheConfiguration.CacheExtensionFactoryConfiguration());
+        assertThat((List<?>) otherCacheConfiguration.getCacheExtensionConfigurations(), not(empty()));
+        assertThat((List<?>) cacheConfiguration.getCacheExtensionConfigurations(), is(empty()));
+
+        otherCacheConfiguration.addCacheLoaderFactory(new CacheConfiguration.CacheLoaderFactoryConfiguration());
+        assertThat((List<?>) otherCacheConfiguration.getCacheLoaderConfigurations(), not(empty()));
+        assertThat((List<?>) cacheConfiguration.getCacheLoaderConfigurations(), is(empty()));
+
+        otherCacheConfiguration.addCacheDecoratorFactory(new CacheConfiguration.CacheDecoratorFactoryConfiguration());
+        assertThat(otherCacheConfiguration.getCacheDecoratorConfigurations(), not(empty()));
+        assertThat(cacheConfiguration.getCacheDecoratorConfigurations(), is(empty()));
     }
 }
