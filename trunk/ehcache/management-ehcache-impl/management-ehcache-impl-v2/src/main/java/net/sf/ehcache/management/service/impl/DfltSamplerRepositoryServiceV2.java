@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -76,7 +77,7 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
 
   public static final String AGENCY = "Ehcache";
 
-  final Set<EventListener> listeners = new HashSet<EventListener>();
+  final Set<EventListener> listeners = new CopyOnWriteArraySet<EventListener>();
 
   /**
    * Guarded By cacheManagerSamplerRepoLock
