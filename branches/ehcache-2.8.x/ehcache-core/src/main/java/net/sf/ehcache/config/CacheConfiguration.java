@@ -482,43 +482,35 @@ public class CacheConfiguration implements Cloneable {
     }
 
     private void cloneCacheEventListenerConfigurations(CacheConfiguration config) {
-        if (cacheEventListenerConfigurations.size() > 0) {
-            List<CacheEventListenerFactoryConfiguration> copy = new ArrayList<CacheEventListenerFactoryConfiguration>();
-            for (CacheEventListenerFactoryConfiguration item : cacheEventListenerConfigurations) {
-                copy.add(item.clone());
-            }
-            config.cacheEventListenerConfigurations = copy;
+        List<CacheEventListenerFactoryConfiguration> copy = new ArrayList<CacheEventListenerFactoryConfiguration>();
+        for (CacheEventListenerFactoryConfiguration item : cacheEventListenerConfigurations) {
+            copy.add(item.clone());
         }
+        config.cacheEventListenerConfigurations = copy;
     }
 
     private void cloneCacheExtensionConfigurations(CacheConfiguration config) {
-        if (cacheExtensionConfigurations.size() > 0) {
-            List<CacheExtensionFactoryConfiguration> copy = new ArrayList<CacheExtensionFactoryConfiguration>();
-            for (CacheConfiguration.CacheExtensionFactoryConfiguration item : cacheExtensionConfigurations) {
-                copy.add(item.clone());
-            }
-            config.cacheExtensionConfigurations = copy;
+        List<CacheExtensionFactoryConfiguration> copy = new ArrayList<CacheExtensionFactoryConfiguration>();
+        for (CacheConfiguration.CacheExtensionFactoryConfiguration item : cacheExtensionConfigurations) {
+            copy.add(item.clone());
         }
+        config.cacheExtensionConfigurations = copy;
     }
 
     private void cloneCacheLoaderConfigurations(CacheConfiguration config) {
-        if (cacheLoaderConfigurations.size() > 0) {
-            List<CacheLoaderFactoryConfiguration> copy = new ArrayList<CacheLoaderFactoryConfiguration>();
-            for (CacheConfiguration.CacheLoaderFactoryConfiguration item : cacheLoaderConfigurations) {
-                copy.add(item.clone());
-            }
-            config.cacheLoaderConfigurations = copy;
+        List<CacheLoaderFactoryConfiguration> copy = new ArrayList<CacheLoaderFactoryConfiguration>();
+        for (CacheConfiguration.CacheLoaderFactoryConfiguration item : cacheLoaderConfigurations) {
+            copy.add(item.clone());
         }
+        config.cacheLoaderConfigurations = copy;
     }
 
     private void cloneCacheDecoratorConfigurations(CacheConfiguration config) {
-        if (cacheDecoratorConfigurations.size() > 0) {
-            List<CacheDecoratorFactoryConfiguration> copy = new ArrayList<CacheDecoratorFactoryConfiguration>();
-            for (CacheDecoratorFactoryConfiguration item : cacheDecoratorConfigurations) {
-                copy.add(item.clone());
-            }
-            config.cacheDecoratorConfigurations = copy;
+        List<CacheDecoratorFactoryConfiguration> copy = new ArrayList<CacheDecoratorFactoryConfiguration>();
+        for (CacheDecoratorFactoryConfiguration item : cacheDecoratorConfigurations) {
+            copy.add(item.clone());
         }
+        config.cacheDecoratorConfigurations = copy;
     }
 
     private void assertArgumentNotNull(String name, Object object) {
