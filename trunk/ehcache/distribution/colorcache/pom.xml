@@ -99,7 +99,7 @@
     <dependency>
       <groupId>org.terracotta</groupId>
       <artifactId>terracotta-toolkit-runtime</artifactId>
-      <version>${toolkit-runtime.version}</version>
+      <version>${terracotta.version}</version>
     </dependency>
 
     <dependency>
