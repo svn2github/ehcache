@@ -25,8 +25,8 @@
   <description>Clustered Ehcache sample with Terracotta</description>
 
   <properties>
-    <tc-maven-plugin.version>1.13.0-SNAPSHOT</tc-maven-plugin.version>
-    <toolkit-runtime.version>4.3.0-SNAPSHOT</toolkit-runtime.version>
+    <tc-maven-plugin.version>2.0.0</tc-maven-plugin.version>
+    <terracotta.version>4.3.0-SNAPSHOT</terracotta.version>
     <skipDeploy>true</skipDeploy>
   </properties>
 
@@ -67,6 +67,24 @@
         <groupId>org.terracotta.maven.plugins</groupId>
         <artifactId>tc-maven-plugin</artifactId>
         <version>${tc-maven-plugin.version}</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.terracotta</groupId>
+            <artifactId>terracotta</artifactId>
+            <version>${terracotta.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.terracotta.qa</groupId>
+            <artifactId>license-wrapper</artifactId>
+            <version>1.0.0</version>
+          </dependency>
+          <dependency>
+            <groupId>org.terracotta</groupId>
+            <artifactId>management-tsa-war</artifactId>
+            <version>${terracotta.version}</version>
+            <type>war</type>
+          </dependency>
+        </dependencies>
       </plugin>
     </plugins>
   </build>
