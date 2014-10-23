@@ -49,6 +49,7 @@ public class ServerMapBasicCacheTest extends AbstractCacheTestBase {
 
       if (index == 0) {
         cache.put(new Element("key", "value"));
+        waitForAllCurrentTransactionsToComplete(cache);
       }
 
       this.barrier.await();
@@ -62,6 +63,7 @@ public class ServerMapBasicCacheTest extends AbstractCacheTestBase {
       if (index == 0) {
         final boolean removed = cache.remove("key");
         Assert.assertTrue(removed);
+        waitForAllCurrentTransactionsToComplete(cache);
       }
 
       this.barrier.await();
