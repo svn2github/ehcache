@@ -1,7 +1,5 @@
 package net.sf.ehcache.management.resource.services;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.path.json.JsonPath.from;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -19,6 +17,9 @@ import com.tc.test.config.builder.TcConfig;
 import com.tc.test.config.builder.TcMirrorGroup;
 import com.tc.test.config.builder.TcServer;
 import com.tc.util.PortChooser;
+
+import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.path.json.JsonPath.from;
 
 /**
  * @author: Anthony Dahanne
@@ -82,6 +83,7 @@ public abstract class ResourceServiceImplITHelper {
   protected static CacheManager getCacheManagerMaxbytes() {
     Configuration configuration = new Configuration();
     configuration.setName("testCacheManagerProgrammatic");
+    configuration.updateCheck(false);
     configuration.setMaxBytesLocalDisk("10M");
     configuration.setMaxBytesLocalHeap("5M");
     TerracottaClientConfiguration terracottaConfiguration = new TerracottaClientConfiguration().url(CLUSTER_URL);
@@ -103,6 +105,7 @@ public abstract class ResourceServiceImplITHelper {
   protected static CacheManager getCacheManagerMaxEntries() {
     Configuration configuration = new Configuration();
     configuration.setName("testCacheManager");
+    configuration.updateCheck(false);
     configuration.addTerracottaConfig(new TerracottaClientConfiguration().url(CLUSTER_URL));
     CacheConfiguration defaultCacheConfiguration = new CacheConfiguration().eternal(true).terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(10000);
     CacheConfiguration cacheConfiguration = new CacheConfiguration().name("testCache").terracotta(new TerracottaConfiguration()).maxEntriesLocalHeap(10000);

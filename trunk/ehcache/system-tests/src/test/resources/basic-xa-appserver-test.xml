@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<ehcache name="test" defaultTransactionTimeoutInSeconds="300">
+<ehcache name="test" defaultTransactionTimeoutInSeconds="300" updateCheck="false">
 
    <defaultCache
         maxElementsInMemory="10000"

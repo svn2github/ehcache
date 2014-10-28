@@ -12,6 +12,7 @@ import org.slf4j.impl.StaticLoggerBinder;
 import org.terracotta.test.util.TestBaseUtil;
 import org.terracotta.toolkit.Toolkit;
 
+import com.tc.test.server.appserver.StandardAppServerParameters;
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest;
 import com.tc.test.server.appserver.deployment.AbstractStandaloneTwoServerDeploymentTest.StandaloneTwoServerTestSetup;
 import com.tc.test.server.appserver.deployment.DeploymentBuilder;
@@ -92,5 +93,11 @@ public class ContainerTestSetup extends StandaloneTwoServerTestSetup {
       IOUtils.closeQuietly(in);
       IOUtils.closeQuietly(out);
     }
+  }
+
+  @Override
+  protected void configureServerParamers(StandardAppServerParameters params) {
+    super.configureServerParamers(params);
+    params.appendJvmArgs("-Dnet.sf.ehcache.skipUpdateCheck=true");
   }
 }
