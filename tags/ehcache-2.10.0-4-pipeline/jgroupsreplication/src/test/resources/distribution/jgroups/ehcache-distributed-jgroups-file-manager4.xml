@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+    updateCheck="false" name="manager4">
+
+     <cacheManagerPeerProviderFactory
+        class="net.sf.ehcache.distribution.jgroups.JGroupsCacheManagerPeerProviderFactory"
+        properties="channelName=EH_CACHE::file=distribution/jgroups/udp.xml"
+        propertySeparator="::" />
+
+    <!--
+
+        Cluster Bootstrapping
+        +++++++++++++++++++++
+    
+        The JGroupsBootstrapCacheLoaderFactory bootstraps caches in JGroups clusters:
+    
+       <bootstrapCacheLoaderFactory
+           class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory"
+           properties="bootstrapAsynchronously=true" />
+    
+        The JGroupsBootstrapCacheLoaderFactory recognises the following optional properties:
+    
+        * bootstrapAsynchronously=true|false - whether the bootstrap happens in the background
+          after the cache has started. If false, bootstrapping must complete before the cache is
+          made available. The default value is true.
+    
+        * maximumChunkSizeBytes=<integer> - Caches can potentially be very large, larger than the
+          memory limits of the VM. This property allows the bootstraper to fetched elements in
+          chunks. The default chunk size is 5000000 (5MB).
+    -->
+
+    <defaultCache
+        maxElementsInMemory="2000"
+        eternal="false"
+        timeToIdleSeconds="10000"
+        timeToLiveSeconds="10000"
+        overflowToDisk="false">
+        
+        <bootstrapCacheLoaderFactory
+            class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory" />
+    </defaultCache>
+
+    <cache
+        name="sampleCacheAsync"
+        maxElementsInMemory="2000"
+        eternal="false"
+        timeToIdleSeconds="10000"
+        timeToLiveSeconds="10000"
+        overflowToDisk="false">
+        
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+            properties="replicateAsynchronously=true, replicatePuts=true,
+                        replicateUpdates=true, replicateUpdatesViaCopy=false,
+                        replicateRemovals=true, asynchronousReplicationIntervalMillis=1000" />
+        
+        <bootstrapCacheLoaderFactory
+            class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory" />
+    </cache>
+
+    <cache
+        name="sampleCacheAsync2"
+        maxElementsInMemory="2000"
+        eternal="false"
+        timeToIdleSeconds="10000"
+        timeToLiveSeconds="10000"
+        overflowToDisk="false">
+        
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+            properties="replicateAsynchronously=false, replicatePuts=true,
+                        replicateUpdates=true, replicateUpdatesViaCopy=false,
+                        replicateRemovals=true" />
+        <bootstrapCacheLoaderFactory
+            class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory"
+            properties="bootstrapAsynchronously=true" />
+    </cache>
+
+    <cache
+        name="sampleCacheSyncBootstrap"
+        maxElementsInMemory="2000"
+        eternal="false"
+        timeToIdleSeconds="10000"
+        timeToLiveSeconds="10000"
+        overflowToDisk="false">
+        
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+            properties="replicateAsynchronously=false, replicatePuts=true,
+                        replicateUpdates=true, replicateUpdatesViaCopy=false,
+                        replicateRemovals=true" />
+        <bootstrapCacheLoaderFactory
+            class="net.sf.ehcache.distribution.jgroups.JGroupsBootstrapCacheLoaderFactory"
+            properties="bootstrapAsynchronously=false" />
+    </cache>
+
+    <cache
+        name="sampleCacheNorep"
+        maxElementsInMemory="2000"
+        eternal="false"
+        timeToIdleSeconds="10000"
+        timeToLiveSeconds="10000"
+        overflowToDisk="false">
+        
+        <cacheEventListenerFactory
+            class="net.sf.ehcache.distribution.jgroups.JGroupsCacheReplicatorFactory"
+            properties="replicateAsynchronously=false, replicatePuts=false,
+                        replicateUpdates=false, replicateUpdatesViaCopy=false,
+                        replicateRemovals=false" />
+    </cache>
+</ehcache>
