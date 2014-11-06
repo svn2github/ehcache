@@ -556,6 +556,16 @@ public enum JvmInformation {
         public boolean supportsReflectionSizeOf() {
             return false;
         }
+        
+        @Override
+        public int getMinimumObjectSize() {
+            return 16;
+        }
+        
+        @Override
+        public boolean supportsAgentSizeOf() {
+            return false;
+        }
 
         @Override
         public String getJvmDescription() {
