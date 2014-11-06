@@ -57,7 +57,7 @@ public class JvmInformationTest {
     @Test
     public void ibm64Bits() {
         verifyJvmInfo(JvmInformation.IBM_64_BIT, 0, 0, 8, 8, 8, 24, 8, true, false, true);
-        verifyJvmInfo(JvmInformation.IBM_64_BIT_WITH_COMPRESSED_REFS, 0, 0, 4, 8, 8, 16, 4, true, false, true);
+        verifyJvmInfo(JvmInformation.IBM_64_BIT_WITH_COMPRESSED_REFS, 0, 0, 4, 16, 8, 16, 4, false, false, true);
     }
 
     @Test

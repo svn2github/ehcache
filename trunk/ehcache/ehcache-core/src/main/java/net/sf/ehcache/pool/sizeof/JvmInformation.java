@@ -409,6 +409,16 @@ public enum JvmInformation {
     IBM_64_BIT_WITH_COMPRESSED_REFS(IBM_32_BIT) {
 
         @Override
+        public int getMinimumObjectSize() {
+            return 16;
+        }
+
+        @Override
+        public boolean supportsAgentSizeOf() {
+            return false;
+        }
+
+        @Override
         public int getObjectHeaderSize() {
             return 16;
         }
