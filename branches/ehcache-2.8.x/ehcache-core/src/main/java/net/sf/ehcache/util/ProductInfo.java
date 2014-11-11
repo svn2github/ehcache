@@ -108,22 +108,6 @@ public class ProductInfo {
 
     /**
      *
-     * @return the person who built
-     */
-    public String getBuiltBy() {
-        return props.getProperty("built-by", UNKNOWN);
-    }
-
-    /**
-     *
-     * @return the hostname
-     */
-    public String getBuildHostname() {
-        return props.getProperty("build-hostname", UNKNOWN);
-    }
-
-    /**
-     *
      * @return jdk that was used
      */
     public String getBuildJdk() {
@@ -196,8 +180,8 @@ public class ProductInfo {
      */
     @Override
     public String toString() {
-        String versionString = String.format("%s version %s was built on %s, at revision %s, with jdk %s by %s@%s", getName(),
-                getVersion(), getBuildTime(), getBuildRevision(), getBuildJdk(), getBuiltBy(), getBuildHostname());
+        String versionString = String.format("%s version %s was built on %s, at revision %s, with jdk %s", getName(),
+                getVersion(), getBuildTime(), getBuildRevision(), getBuildJdk());
         if (!UNKNOWN.equals(getPatchLevel())) {
             versionString = versionString + ". Patch level " + getPatchLevel();
         }
