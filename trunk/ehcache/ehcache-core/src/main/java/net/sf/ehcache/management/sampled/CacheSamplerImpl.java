@@ -1230,11 +1230,17 @@ public class CacheSamplerImpl implements CacheSampler, CacheConfigurationListene
         if (cache.getCacheConfiguration().isTerracottaClustered()) {
             return getRemoteSizeSample().getMostRecentSample().getCounterValue();
         }
-
+        CacheTransactionHelper.beginTransactionIfNeeded(cache);
         try {
             return cache.getStatistics().getSize();
         } catch (RuntimeException e) {
             throw Utils.newPlainException(e);
+        } finally {
+          try {
+            CacheTransactionHelper.commitTransactionIfNeeded(cache);
+          } catch (RuntimeException re) {
+            throw Utils.newPlainException(re);
+          }
         }
     }
 
