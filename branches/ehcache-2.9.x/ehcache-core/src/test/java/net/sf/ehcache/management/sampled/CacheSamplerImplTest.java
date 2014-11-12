@@ -16,6 +16,7 @@
 package net.sf.ehcache.management.sampled;
 
 import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
@@ -26,6 +27,8 @@ import org.junit.Test;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,6 +72,38 @@ public class CacheSamplerImplTest {
     CacheSamplerImpl cacheSampler = new CacheSamplerImpl(cache);
 
     assertThat(cacheSampler.getSize(), equalTo(EXACT_SIZE));
+  }
+
+  @Test
+  public void testCacheSize() {
+    CacheManager manager = new CacheManager();
+    CacheConfiguration conf = new CacheConfiguration("test", 0);
+    conf.setTransactionalMode("LOCAL");
+    testSize(conf, manager);
+    CacheConfiguration conf1 = new CacheConfiguration("test1", 0);
+    conf1.setTransactionalMode("XA");
+    testSize(conf1, manager);
+    CacheConfiguration conf2 = new CacheConfiguration("test2", 0);
+    conf2.setTransactionalMode("XA_STRICT");
+    testSize(conf2, manager);
+    CacheConfiguration conf3 = new CacheConfiguration("test3", 0);
+    testSize(conf3, manager, false);
+
+    manager.shutdown();
+
+  }
+
+  private void testSize(CacheConfiguration conf, CacheManager mgr) {
+    testSize(conf, mgr, true);
+  }
+
+  private void testSize(CacheConfiguration conf,CacheManager mgr, boolean checkTransactional) {
+    mgr.addCache(new Cache(conf));
+    CacheSamplerImpl impl = new CacheSamplerImpl(mgr.getCache(conf.getName()));
+    if(checkTransactional) {
+      assertTrue(impl.getTransactional());
+    }
+    assertEquals(impl.getSize(), 0);
   }
 
 }
