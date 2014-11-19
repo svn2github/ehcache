@@ -11,7 +11,7 @@
   <parent>
     <groupId>org.terracotta</groupId>
     <artifactId>system-tests-parent</artifactId>
-    <version>4.0.8-SNAPSHOT</version>
+    <version>4.0.7-SNAPSHOT</version>
     <relativePath/>
   </parent>
 
