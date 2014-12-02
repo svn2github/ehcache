@@ -213,8 +213,10 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
     for (EventListener eventListener : listeners) {
       eventListener.onEvent(eventEntityV2);
     }
-    
-    configurationChangeListenerMap.remove(cacheManager.getName());
+
+    String cacheManagerName = cacheManager.getName();
+    cacheManager.getConfiguration().removePropertyChangeListener(configurationChangeListenerMap.get(cacheManagerName));
+    configurationChangeListenerMap.remove(cacheManagerName);
   }
 
   /**
