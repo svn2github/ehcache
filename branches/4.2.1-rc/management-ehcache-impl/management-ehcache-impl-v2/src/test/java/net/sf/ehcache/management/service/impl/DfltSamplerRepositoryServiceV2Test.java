@@ -27,6 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
 
 /**
  * @author Ludovic Orban
@@ -89,6 +90,14 @@ public class DfltSamplerRepositoryServiceV2Test {
     cacheManager.addCache(new BlockingCache(underlyingCache));
     // not using cacheEventListeners for management anymore : TAB-5077
     assertThat(underlyingCache.getCacheEventNotificationService().hasCacheEventListeners(), is(false));
+  }
+
+  @Test
+  public void testPropertyListenerRemoval() throws Exception {
+    CacheManager cacheManagerSpy = spy(cacheManager);
+    repositoryService.unregister(cacheManagerSpy);
+    verify(cacheManagerSpy).getConfiguration();
+    repositoryService.register(cacheManager);
   }
 
   @After
