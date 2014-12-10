@@ -25,12 +25,14 @@ public class TerracottaToolkitBuilder {
   private static final String      REJOIN_KEY                     = "rejoin";
   private static final String      PRODUCT_ID_KEY                 = "productId";
   private static final String      CLASSLOADER_KEY                = "classloader";
+  private static final String      NONSTOP_INIT_ENABLED_KEY       = "toolkit.nonstop.init.enabled";
 
   private boolean                  rejoin;
   private final TCConfigTypeStatus tcConfigTypeStatus             = new TCConfigTypeStatus();
   private final Set<String>        tunnelledMBeanDomains          = Collections.synchronizedSet(new HashSet<String>());
   private String                   productId;
   private ClassLoader              classLoader;
+  private final boolean            NONSTOP_INIT_ENABLED           = Boolean.getBoolean(NONSTOP_INIT_ENABLED_KEY);
 
   public Toolkit buildToolkit() throws IllegalStateException {
     if (tcConfigTypeStatus.getState() == TCConfigTypeState.INIT) {
@@ -79,6 +81,7 @@ public class TerracottaToolkitBuilder {
     if (productId != null) {
       properties.setProperty(PRODUCT_ID_KEY, productId);
     }
+    properties.setProperty(NONSTOP_INIT_ENABLED_KEY, String.valueOf(NONSTOP_INIT_ENABLED));
     return properties;
   }
 
