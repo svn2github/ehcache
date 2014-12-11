@@ -475,7 +475,7 @@ public class ToolkitInstanceFactoryImpl implements ToolkitInstanceFactory {
 
   private ToolkitMap<String, Serializable> getOrCreateConfigMap(final String fullyQualifiedCacheName) {
     // TODO: what should be the local cache config for the map?
-    return toolkit.getMap(fullyQualifiedCacheName + DELIMITER + CLUSTERED_STORE_CONFIG_MAP, String.class, Serializable.class);
+    return toolkit.getMap(EhcacheEntitiesNaming.getToolkitCacheConfigMapName(fullyQualifiedCacheName), String.class, Serializable.class);
   }
 
   @Override
