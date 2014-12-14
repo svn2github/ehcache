@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>ehcache-googleappengine-parent</artifactId>
+        <groupId>net.sf.ehcache</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.myapp.test</groupId>
+    <artifactId>googleappengine-demo-app</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+
+    <name>googleappengine-demo-app</name>
+    <description>Test app</description>
+
+
+    <repositories>
+        <repository>
+            <id>datanucleus</id>
+            <url>http://www.datanucleus.org/downloads/maven2</url>
+        </repository>
+        <!--<repository>-->
+            <!--<id>terracotta-repository</id>-->
+            <!--<url>http://www.terracotta.org/download/reflector/maven2</url>-->
+        <!--</repository>-->
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven-gae-plugin-repo</id>
+            <name>Maven Google App Engine Repository</name>
+            <url>http://maven-gae-plugin.googlecode.com/svn/repository/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-googleappengine</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>net.kindleit</groupId>
+            <artifactId>gae-runtime</artifactId>
+            <version>1.4.3</version>
+            <type>pom</type>
+            <scope>runtime</scope>
+        </dependency>
+
+
+        <!--So javadoc does not complain-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>javax.jdo</groupId>
+            <artifactId>jdo2-api</artifactId>
+            <version>2.3-ec</version>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.29</version>
+        </dependency>
+
+        <!-- Test scope -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.7</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+              GAE libraries for local testing as described here:
+              http://code.google.com/appengine/docs/java/howto/unittesting.html
+          -->
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-labs</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-stubs</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-testing</artifactId>
+            <version>${gae.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sourceforge.htmlunit</groupId>
+	        <artifactId>htmlunit</artifactId>
+		    <version>2.9</version>
+	    </dependency>
+
+    </dependencies>
+
+    <build>
+
+
+        <plugins>
+            <!-- do not deploy this demo app to sonatype or any repo -->
+            <plugin>
+              <artifactId>maven-deploy-plugin</artifactId>
+              <version>2.5</version>
+              <configuration>
+                <skip>true</skip>
+             </configuration>
+            </plugin>
+  
+            <!--
+                   This plug-in "enhances" your domain model objects (i.e. makes them
+                   persistent for datanucleus)
+               -->
+            <plugin>
+                <groupId>org.datanucleus</groupId>
+                <artifactId>maven-datanucleus-plugin</artifactId>
+                <version>1.1.4</version>
+                <configuration>
+                    <!--
+                             Make sure this path contains your persistent classes!
+                         -->
+                    <mappingIncludes>**/model/*.class</mappingIncludes>
+                    <verbose>true</verbose>
+                    <enhancerName>ASM</enhancerName>
+                    <api>JDO</api>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>enhance</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+
+                    <dependency>
+                        <groupId>org.datanucleus</groupId>
+                        <artifactId>datanucleus-core</artifactId>
+                        <version>1.1.5</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>javax.transaction</groupId>
+                                <artifactId>transaction-api</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.datanucleus</groupId>
+                        <artifactId>datanucleus-rdbms</artifactId>
+                        <version>1.1.5</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.datanucleus</groupId>
+                        <artifactId>datanucleus-enhancer</artifactId>
+                        <version>1.1.4</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.1-beta-1</version>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/webapp</directory>
+                            <filtering>true</filtering>
+                            <includes>
+                                <include>**/appengine-web.xml</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+
+            <!--
+                   The actual maven-gae-plugin. Type "mvn gae:run" to run project, "mvn
+                   gae:deploy" to upload to GAE.
+               -->
+            <plugin>
+                <groupId>net.kindleit</groupId>
+                <artifactId>maven-gae-plugin</artifactId>
+                <version>0.8.4</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.kindleit</groupId>
+                        <artifactId>gae-runtime</artifactId>
+                        <version>${gae.version}</version>
+                        <type>pom</type>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <serverId>appengine.google.com</serverId>
+                    <sdkDir>${gae.home}</sdkDir>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>deploy-sample-app</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                   Upload application to the appspot automatically, during
+                   release:perform
+               -->
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <goals>gae:deploy</goals>
+                </configuration>
+            </plugin>
+
+            <!-- Java compiler version -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.0-beta-3</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*UnitTest.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*$*</exclude>
+                    </excludes>
+                    <enableAssertions>false</enableAssertions>
+                    <additionalClasspathElements>
+                        <additionalClasspathElement>target/classes
+                        </additionalClasspathElement>
+                    </additionalClasspathElements>
+                    <systemProperties>
+                        <property>
+                            <name>net.sf.ehcache.skipUpdateCheck</name>
+                            <value>true</value>
+                        </property>
+                        <property>
+                            <name>java.awt.headless</name>
+                            <value>true</value>
+                        </property>
+                        <!--Used in the integration test to work out what host to hit-->
+                        <property>
+                            <name>appname</name>
+                            <!--No automated way of deleting a version. GAE only allows 10. Used a fixed
+                                version until the GAE plugin supports deleting. See http://code.google.com/p/maven-gae-plugin/issues/detail?id=94-->
+                            <!--<value>${buildNumber}.latest.${gae.application.name}</value>-->
+                            <value>10000.latest.${gae.application.name}</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*Test.java</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/*$*</exclude>
+                                <exclude>**/Abstract*Test.java</exclude>
+                                <exclude>**/*UnitTest.java</exclude>
+                            </excludes>
+                            <enableAssertions>false</enableAssertions>
+                            <additionalClasspathElements>
+                                <additionalClasspathElement>target/classes
+                                </additionalClasspathElement>
+                            </additionalClasspathElements>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+
+
+        </plugins>
+    </build>
+
+    <!-- Specify hard-coded project properties here -->
+    <properties>
+        <!--
+              This is just for "eclipse:eclipse" goal to always attempt downloading
+              sources
+          -->
+        <downloadSources>true</downloadSources>
+
+        <!--
+              Specify AppEngine version for your project. It should match SDK
+              version pointed to by ${gae.home} property (Typically, one used by
+              your Eclipse plug-in)
+          -->
+        <gae.home>/Users/gluck/work/appengine-java-sdk-1.4.3</gae.home>
+
+
+        <gae.version>1.4.3</gae.version>
+
+        <!--
+              Upload to http://test.latest.<applicationName>.appspot.com by default
+          -->
+        <gae.application.name>ehcache-g-a-e-demo</gae.application.name>
+
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <net.sf.ehcache.speedAdjustmentFactor>5</net.sf.ehcache.speedAdjustmentFactor>
+        <testDir>src/test/java</testDir>
+        <testResources>src/test/resources</testResources>
+        <skipCheckstyle>false</skipCheckstyle>
+    </properties>
+
+
+    <profiles>
+        <!--
+              We can configure our integration server to activate this profile and
+              perform gae:deploy, thus uploading latest snapshot to the
+              http://1.latest.<applicationName>.appspot.com automatically
+          -->
+        <profile>
+            <id>integration-build</id>
+            <properties>
+                <gae.application.name>stage</gae.application.name>
+            </properties>
+        </profile>
+
+        <!--
+              This profile will activate automatically during release and upload
+              application to the http://2.latest.<applicationName>.appspot.com (We
+              might want to set the 2nd version as our applications Default version
+              to be accessible at http://<applicationName>.appspot.com)
+          -->
+        <profile>
+            <id>release-build</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+
+            <properties>
+                <!--
+                        During release, set application version in appengine-web.xml to 2
+                    -->
+                <gae.application.name>release</gae.application.name>
+            </properties>
+        </profile>
+		<profile>
+		  <id>monkey</id>
+		  <properties>
+		     <gae.home>/shares/monkeyshare/setup/tools/appengine-java-sdk-1.3.7</gae.home>
+			 <gae.application.name>ehcache-gae-demo</gae.application.name>
+		  </properties>
+	   </profile>
+    </profiles>
+
+</project>
