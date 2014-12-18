@@ -51,6 +51,14 @@ public class WANUtilTest {
   }
 
   @Test
+  public void testaddCurrentOrchestrator() throws Exception {
+    final String ORCHESTRATOR = "localhost:1000";
+    final String WAN_CURRENT_ORCHESTRATOR = "__WAN__CURRENT_ORCHESTRATOR";
+    wanUtil.addCurrentOrchestrator(CACHE_MANAGER_NAME, CACHE_NAME, ORCHESTRATOR);
+    Assert.assertEquals(cacheConfigMap.get(WAN_CURRENT_ORCHESTRATOR), ORCHESTRATOR);
+  }
+
+  @Test
   public void testIsWanEnabledCacheWhenCacheMarkedWanDisabled() throws Exception {
     callIsWanEnabledCache(CACHE_MANAGER_NAME, CACHE_NAME).assertResultIs(false);
   }

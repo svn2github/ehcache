@@ -21,6 +21,7 @@ public class WANUtil {
   private static final String          REPLICA_CACHE_FLAG                        = "IS_REPLICA";
   private static final String          META_DATA_AVAILABLE_FLAG                  = "WAN_META_DATA_AVAILABLE";
   private static final String          BIDIRECTIONAL_FLAG                        = "IS_BIDIRECTIONAL";
+  private static final String          WAN_CURRENT_ORCHESTRATOR                  = WAN_PREFIX + "CURRENT_ORCHESTRATOR";
 
   private final ToolkitInstanceFactory factory;
 
@@ -137,6 +138,12 @@ public class WANUtil {
     final ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
     cacheConfigMap.put(BIDIRECTIONAL_FLAG, Boolean.FALSE);
     LOGGER.info("Cache '{}' in CacheManager '{}' has been marked as UNIDIRECTIONAL", cacheName, cacheManagerName);
+  }
+
+  public void addCurrentOrchestrator(String cacheManagerName, String cacheName, String orchestrator) {
+    final ConcurrentMap<String, Serializable> cacheConfigMap = getCacheConfigMap(cacheManagerName, cacheName);
+    cacheConfigMap.put(WAN_CURRENT_ORCHESTRATOR, orchestrator);
+    LOGGER.info("Added '{}' as orchestrator for Cache '{}' in CacheManager '{}'", orchestrator, cacheName, cacheManagerName);
   }
 
   public boolean isCacheBidirectional(String cacheManagerName, String cacheName) {
