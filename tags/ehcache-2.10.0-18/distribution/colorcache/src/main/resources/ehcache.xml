@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="ColorCache">
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="false"
+      timeToIdleSeconds="120"
+      timeToLiveSeconds="120"
+      diskSpoolBufferSizeMB="30"
+      maxElementsOnDisk="10000000"
+      diskExpiryThreadIntervalSeconds="120">
+      <persistence strategy="localTempSwap"/>
+  </defaultCache>
+  <cache name="colors"
+         maxElementsInMemory="100"
+         maxElementsOnDisk="0"
+         eternal="false"
+         timeToIdleSeconds="120"
+         timeToLiveSeconds="0">
+    <terracotta/>
+  </cache>
+  <terracottaConfig url="localhost:9510"/>
+</ehcache>
