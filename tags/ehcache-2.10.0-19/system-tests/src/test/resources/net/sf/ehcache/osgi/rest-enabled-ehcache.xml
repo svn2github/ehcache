@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache name="test">
+
+  <defaultCache
+      maxElementsInMemory="10000"
+      eternal="true"/>
+      
+  <managementRESTService enabled="true"/>    
+
+  <cache name="testCache"
+         maxElementsInMemory="10000"
+         eternal="true">
+  </cache>
+
+</ehcache>
