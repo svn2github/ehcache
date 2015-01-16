@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<xplatform
+    xmlns="http://www.ehcache.org/xplatform"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.ehcache.org/xplatform ../../main/xsd/xplatform.xsd">
+
+  <bind ip="*" port="4321" type="nirvana"/>
+
+  <serializer factoryClass="net.sf.ehcache.xplatform.serializer.NoopFactory" />
+</xplatform>
