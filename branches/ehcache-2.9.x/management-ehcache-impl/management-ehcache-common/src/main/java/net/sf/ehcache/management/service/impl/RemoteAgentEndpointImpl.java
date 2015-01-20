@@ -12,6 +12,7 @@ import org.terracotta.management.l1bridge.RemoteCallDescriptor;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.MBeanServer;
@@ -29,6 +30,12 @@ public class RemoteAgentEndpointImpl extends AbstractRemoteAgentEndpointImpl imp
       return false;
     }
   };
+
+  public Set<String> getClientUUIDsListFromRemote() {
+    return clientUUIDsListFromRemote.get();
+  }
+
+  private final ThreadLocal<Set<String>> clientUUIDsListFromRemote =  new ThreadLocal<Set<String>>();
 
   private ObjectName objectName;
   private final List<String> clientUUIDs =  new ArrayList<String>();
@@ -83,9 +90,11 @@ public class RemoteAgentEndpointImpl extends AbstractRemoteAgentEndpointImpl imp
   public byte[] invoke(RemoteCallDescriptor remoteCallDescriptor) throws Exception {
     try {
       tsaBridged.set(true);
+      clientUUIDsListFromRemote.set(remoteCallDescriptor.getClientUUIDs());
       return super.invoke(remoteCallDescriptor);
     } finally {
       tsaBridged.set(false);
+      clientUUIDsListFromRemote.set(null);
     }
   }
 

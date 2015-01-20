@@ -11,17 +11,24 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.ManagementRESTServiceConfiguration;
 import net.sf.ehcache.constructs.blocking.BlockingCache;
+import net.sf.ehcache.management.resource.CacheManagerEntityV2;
 import net.sf.ehcache.terracotta.ClusteredInstanceFactory;
 import net.sf.ehcache.terracotta.TerracottaClient;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.terracotta.management.resource.ResponseEntityV2;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -37,13 +44,14 @@ public class DfltSamplerRepositoryServiceV2Test {
   private DfltSamplerRepositoryServiceV2 repositoryService;
   private ClusteredInstanceFactory clusteredInstanceFactory;
   private CacheManager cacheManager;
+  private RemoteAgentEndpointImpl remoteAgentEndpoint;
 
   @Before
   public void setUp() throws Exception {
     ManagementRESTServiceConfiguration managementRESTServiceConfiguration = new ManagementRESTServiceConfiguration();
     managementRESTServiceConfiguration.setEnabled(true);
-    repositoryService = new DfltSamplerRepositoryServiceV2(managementRESTServiceConfiguration, null);
-
+    remoteAgentEndpoint = Mockito.mock(RemoteAgentEndpointImpl.class);
+    repositoryService = new DfltSamplerRepositoryServiceV2(managementRESTServiceConfiguration, remoteAgentEndpoint);
     Configuration configuration = new Configuration();
     configuration.setName("testCacheManager");
     CacheConfiguration cacheConfiguration = new CacheConfiguration("testCache1", 12);
@@ -57,6 +65,8 @@ public class DfltSamplerRepositoryServiceV2Test {
     when(terracottaClient.getClusteredInstanceFactory()).thenReturn(clusteredInstanceFactory);
 
     repositoryService.register(cacheManager);
+
+
   }
 
   @Test
@@ -98,6 +108,54 @@ public class DfltSamplerRepositoryServiceV2Test {
     repositoryService.unregister(cacheManagerSpy);
     verify(cacheManagerSpy).getConfiguration();
     repositoryService.register(cacheManager);
+  }
+
+  @Test
+  public void testCreateCacheManagerEntitiesMatchingClientIDWithRemote() throws Exception{
+    CacheManager cacheManagerSpy = spy(cacheManager);
+    Set<String> dummyClientUUids = new HashSet<String>(1);
+    dummyClientUUids.add("dummyid");
+    when(remoteAgentEndpoint.getClientUUIDsListFromRemote()).thenReturn(dummyClientUUids);
+    when(cacheManagerSpy.getClusterUUID()).thenReturn("dummyid");
+    repositoryService.register(cacheManager);
+    Set<String> cacheManagerNames = null;
+    Set<String> attributes = new HashSet<String>();
+    attributes.add(cacheManagerSpy.getClusterUUID());
+    ResponseEntityV2<CacheManagerEntityV2> responseEntityV2 =  repositoryService.createCacheManagerEntities(cacheManagerNames, attributes);
+    verify(cacheManagerSpy,times(2)).getClusterUUID();
+    assertNotNull(responseEntityV2);
+    assertEquals(responseEntityV2.getEntities().size(),1);
+    CacheManagerEntityV2 cacheManagerEntityV2 = responseEntityV2.getEntities().iterator().next();
+    assertEquals(cacheManagerEntityV2.getName(),cacheManagerSpy.getName());
+  }
+
+
+  @Test
+  public void testCreateCacheManagerEntitiesMisMatchedClientIDWithRemote() throws Exception{
+    CacheManager cacheManagerSpy = spy(cacheManager);
+    Set<String> dummyClientUUids = new HashSet<String>(1);
+    dummyClientUUids.add("dummyid");
+    when(remoteAgentEndpoint.getClientUUIDsListFromRemote()).thenReturn(dummyClientUUids);
+    when(cacheManagerSpy.getClusterUUID()).thenReturn("dummyidanother");
+    repositoryService.register(cacheManager);
+    ResponseEntityV2<CacheManagerEntityV2> responseEntityV2 =  repositoryService.createCacheManagerEntities(null, null);
+    verify(cacheManagerSpy,times(1)).getClusterUUID();
+    assertNotNull(responseEntityV2);
+    assertEquals(responseEntityV2.getEntities().size(),0);
+  }
+
+  @Test
+  public void testCreateCacheManagerEntitiesWithRemoteNotSendingAnyClientIDs() throws Exception{
+    CacheManager cacheManagerSpy = spy(cacheManager);
+    when(remoteAgentEndpoint.getClientUUIDsListFromRemote()).thenReturn(null);
+    when(cacheManagerSpy.getClusterUUID()).thenReturn("dummyidanother");
+    repositoryService.register(cacheManager);
+    ResponseEntityV2<CacheManagerEntityV2> responseEntityV2 =  repositoryService.createCacheManagerEntities(null, null);
+    verify(cacheManagerSpy,times(1)).getClusterUUID();
+    assertNotNull(responseEntityV2);
+    assertEquals(responseEntityV2.getEntities().size(),1);
+    CacheManagerEntityV2 cacheManagerEntityV2 = responseEntityV2.getEntities().iterator().next();
+    assertEquals(cacheManagerEntityV2.getName(),cacheManagerSpy.getName());
   }
 
   @After

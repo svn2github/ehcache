@@ -240,16 +240,23 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
   public ResponseEntityV2<CacheManagerEntityV2> createCacheManagerEntities(Set<String> cacheManagerNames,
       Set<String> attributes) {
     ResponseEntityV2<CacheManagerEntityV2> responseEntityV2 = new ResponseEntityV2<CacheManagerEntityV2>();
-
     CacheManagerEntityBuilderV2 builder = null;
     Collection<CacheManagerEntityV2> entities;
     cacheManagerSamplerRepoLock.readLock().lock();
-
+    Set<String> clientUUIDsFromRemote = (remoteAgentEndpoint != null) ? remoteAgentEndpoint.getClientUUIDsListFromRemote() : null;
     try {
       if (cacheManagerNames == null) {
         for (SamplerRepoEntry entry : cacheManagerSamplerRepo.values()) {
-          builder = builder == null ? CacheManagerEntityBuilderV2.createWith(entry.getCacheManagerSampler()) : builder
-              .add(entry.getCacheManagerSampler());
+          if(entry != null){
+            boolean cacheManagerCorrespondsToReqOrigin = false;
+            if(clientUUIDsFromRemote != null && !clientUUIDsFromRemote.contains(entry.getClusterUUID())){
+              cacheManagerCorrespondsToReqOrigin = true;
+            }
+            if(!cacheManagerCorrespondsToReqOrigin) {
+              builder = builder == null ? CacheManagerEntityBuilderV2.createWith(entry.getCacheManagerSampler()) : builder
+                      .add(entry.getCacheManagerSampler());
+            }
+          }
         }
       } else {
         for (String cmName : cacheManagerNames) {
@@ -774,6 +781,10 @@ public class DfltSamplerRepositoryServiceV2 implements SamplerRepositoryServiceV
         ehcache.getCacheConfiguration().addConfigurationListener(samplerCacheConfigurationListener);
       }
     }
+
+   public String getClusterUUID(){
+     return this.cacheManager.getClusterUUID();
+   }
 
     public CacheManagerSampler getCacheManagerSampler() {
       return cacheManagerSampler;
